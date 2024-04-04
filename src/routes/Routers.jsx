@@ -49,7 +49,7 @@ function Routers() {
         {
             path: '/',
             element: <CommonLayout />,
-            children: [{ path: '/', element: <Home /> }],
+            children: [{ index: true, element: <Home /> }],
         },
     ]);
     return routing;
