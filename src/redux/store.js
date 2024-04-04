@@ -8,8 +8,17 @@ const persistConfig = {
     storage,
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
+
 export const store = configureStore({
     reducer: persistedReducer,
+    middleware: getDefaultMiddleware => 
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+        ignoredPaths: ['_persist'], // This path contains non-serializable values like functions
+      },
+    }),
 });
+
 
 export const persistor = persistStore(store);

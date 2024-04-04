@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
 import { CompanyTourRequest, Home } from '../pages';
 import { CommonLayout } from '../layouts';
-
+import ViewOptions from '../pages/ViewOptions/ViewOptions'
 import { alertFail } from '../hook/useNotification';
 
 const ProtectedRouteAuth = ({ children }) => {
@@ -50,10 +50,11 @@ function Routers() {
             path: '/',
             element: <CommonLayout />,
             children: [{ index: true, element: <Home /> },
-            { path: "tour-doan-the", element: <CompanyTourRequest/> }],
+            { path: "tour-doan-the", element: <CompanyTourRequest/> },
+            { path: '/view-options', element: <ViewOptions/> }],
         },
     ]);
     return routing;
 }
 
-export default Routers;
+export default Routers; 
