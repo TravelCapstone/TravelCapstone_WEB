@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
-import { Home } from '../pages';
+import { CompanyTourRequest, Home } from '../pages';
 import { CommonLayout } from '../layouts';
 
 import { alertFail } from '../hook/useNotification';
@@ -49,7 +49,8 @@ function Routers() {
         {
             path: '/',
             element: <CommonLayout />,
-            children: [{ index: true, element: <Home /> }],
+            children: [{ index: true, element: <Home /> },
+            { path: "tour-doan-the", element: <CompanyTourRequest/> }],
         },
     ]);
     return routing;
