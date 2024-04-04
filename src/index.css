@@ -1,13 +1,27 @@
 @import url(https://fonts.googleapis.com/css?family=Poppins:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-    background: white;    
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
-  }
+  background: white;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.menuItem {
+  @apply relative hover:text-black;
+}
+.menuItem::after {
+  @apply content-[''] bg-mainColor h-[3px] w-[0%] left-0 -bottom-[5px] rounded-xl absolute duration-300;
+}
+
+.menuItem:hover::after {
+  @apply w-[100%];
+}
+
+.activeNavbar {
+  @apply text-mainColor px-2 py-1 hover:border-none;
+}

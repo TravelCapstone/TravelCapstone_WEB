@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { FaCaretDown } from "react-icons/fa";
-//import ResponsiveMenu from "./ResponsiveMenu";
 import { HiMenuAlt3, HiMenuAlt1 } from "react-icons/hi";
-import logoalt from "../../assets/logoalt.svg";
+
+import ResponsiveMenu from "./ResponsiveMenu";
+import { MainLogo } from "../../components";
+
 const DropdownLinks = [
   {
     name: "Tour gia đình",
@@ -21,41 +23,51 @@ function Navbar() {
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
+  const location = useLocation();
   return (
     <>
       <nav className="fixed top-0 right-0 w-full z-50 bg-white backdrop-blur-sm text-black shadow-md">
         <div className="bg-gradient-to-r from-primary to-secondary text-white "></div>
         <div className="container py-3 sm:py-0">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4  font-bold text-2xl">
-              <Link to={"/"} onClick={() => window.scrollTo(0, 0)}>
-                <div className="flex items-center">
-                  <img src={logoalt} alt="" className="h-16 w-5" />
-                  <h3 className="capitalize text-xl font-bold ml-3">
-                    TripFinder.
-                  </h3>
-                </div>
-              </Link>
-              {/* <span>TCJ Tourism</span> */}
+            <div className="flex items-center gap-4 font-bold text-2xl">
+              <MainLogo />
             </div>
             <div className="hidden md:block">
               <ul className="flex items-center gap-6 ">
                 <li className="py-4">
-                  <NavLink to="/" activeClassName="active">
+                  <NavLink
+                    to="/"
+                    className={` menuItem ${
+                      location.pathname === "/" ? "activeNavbar" : ""
+                    }`}
+                  >
                     Trang chủ
                   </NavLink>
                 </li>
                 <li className="py-4">
-                  <NavLink to="/blogs" activeClassName="active">
+                  <NavLink
+                    to="/tour"
+                    className={` menuItem ${
+                      location.pathname === "/tour" ? "activeNavbar" : ""
+                    }`}
+                  >
                     Tour du lịch
                   </NavLink>
                 </li>
                 <li className="py-4">
-                  <NavLink to="/best-places" activeClassName="active">
-                   Cẩm nang du lịch
+                  <NavLink
+                    to="/cam-nang-du-lich"
+                    className={` menuItem ${
+                      location.pathname === "/cam-nang-du-lich"
+                        ? "activeNavbar"
+                        : ""
+                    }`}
+                  >
+                    Cẩm nang du lịch
                   </NavLink>
                 </li>
-               
+
                 <li className="group relative cursor-pointer">
                   <a
                     href="/#home"
@@ -82,7 +94,12 @@ function Navbar() {
                   </div>
                 </li>
                 <li className="py-4">
-                  <NavLink to="/about" activeClassName="active">
+                  <NavLink
+                    to="/gioi-thieu"
+                    className={` menuItem ${
+                      location.pathname === "/gioi-thieu" ? "activeNavbar" : ""
+                    }`}
+                  >
                     Về chúng tôi
                   </NavLink>
                 </li>
@@ -116,7 +133,7 @@ function Navbar() {
             </div>
           </div>
         </div>
-        {/* <ResponsiveMenu setShowMenu={setShowMenu} showMenu={showMenu} /> */}
+        <ResponsiveMenu setShowMenu={setShowMenu} showMenu={showMenu} />
       </nav>
     </>
   );
