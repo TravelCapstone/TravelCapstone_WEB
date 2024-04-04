@@ -4,15 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "beautiful": "lint-staged",
+    "beautiful": "prettier --single-quote --trailing-comma all --tab-width 4 --write src/**/*.{js,json,jsx}",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
-  },
-  "lint-staged": {
-    "src/**/*.{js,json,jsx}": "prettier --single-quote --trailing-comma all --tab-width 4 --write"
-  },
+  },  
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
     "@reduxjs/toolkit": "^2.0.1",
@@ -50,7 +47,6 @@
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
-    "lint-staged": "^15.2.2",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.3",

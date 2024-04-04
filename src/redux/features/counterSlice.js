@@ -1,18 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 export const counterSlice = createSlice({
-  name: 'user',
-  initialState: null,
-  reducers: {
-    // nhận vào stay hien tai va update bang payload
-    login: (state, actions) => {
-      state = actions.payload;
-      return state;
+    name: 'user',
+    initialState: null,
+    reducers: {
+        // nhận vào stay hien tai va update bang payload
+        login: (state, actions) => {
+            state = actions.payload;
+            return state;
+        },
+        logout: () => {
+            return null;
+        },
     },
-    logout: () => {
-      return null;
-    },
-  },
 });
 
 // Action creators are generated for each case reducer function

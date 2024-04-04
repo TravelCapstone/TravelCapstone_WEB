@@ -7,23 +7,23 @@ import Routers from './routes/Routers';
 
 import AOS from 'aos';
 AOS.init({
-  duration: 1000,
+    duration: 1000,
 });
 
 function App() {
-  return (
-    <>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <StateProvider>
-            <BrowserRouter>
-              <Routers />
-            </BrowserRouter>
-          </StateProvider>
-        </PersistGate>
-      </Provider>
-    </>
-  );
+    return (
+        <>
+            <Provider store={store}>
+                <PersistGate loading={null} persistor={persistor}>
+                    <StateProvider>
+                        <BrowserRouter>
+                            <Routers />
+                        </BrowserRouter>
+                    </StateProvider>
+                </PersistGate>
+            </Provider>
+        </>
+    );
 }
 
 export default App;
