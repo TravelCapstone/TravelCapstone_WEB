@@ -7,7 +7,7 @@ function CommonLayout() {
         <>
             <Navbar />
             <Outlet />
-            <Footer />
+            {/* <Footer /> */}
         </>
     );
 }

@@ -8,12 +8,12 @@ import { MainLogo } from "../../components";
 
 const DropdownLinks = [
   {
-    name: "Tour gia đình",
-    link: "/tour-gia-dinh",
+    name: "Đặt tour theo yêu cầu",
+    link: "/dat-tour-theo-yeu-cau",
   },
   {
-    name: "Tour đoàn thể",
-    link: "/tour-doan-the",
+    name: "Tham gia tour ghép",
+    link: "/danh-sach-tour-ghep",
   },
 ];
 

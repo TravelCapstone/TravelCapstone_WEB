@@ -1,9 +1,10 @@
 import React from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
-import { Home } from '../pages';
+import { TourRequestForm, Home } from '../pages';
 import { CommonLayout } from '../layouts';
 
 import { alertFail } from '../hook/useNotification';
+import CreateOptionForm from '../pages/Staff/ManagePrivateTour/TourPackage/CreatePackage/CreateOptionForm';
 
 const ProtectedRouteAuth = ({ children }) => {
     const user = useSelector(selectUser);
@@ -49,7 +50,10 @@ function Routers() {
         {
             path: '/',
             element: <CommonLayout />,
-            children: [{ index: true, element: <Home /> }],
+            children: [{ index: true, element: <Home /> },
+            { path: "dat-tour-theo-yeu-cau", element: <TourRequestForm/> },
+            
+            { path: "create", element: <CreateOptionForm/> }],
         },
     ]);
     return routing;
