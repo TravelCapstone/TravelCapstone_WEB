@@ -51,8 +51,7 @@ function Routers() {
             path: '/',
             element: <CommonLayout />,
             children: [{ index: true, element: <Home /> },
-            { path: "tour-doan-the", element: <CompanyTourRequest/> },
-            { path: '/view-options', element: <ViewOptions/> }],
+            { path: '/view-options', element: <ViewOptions/> },
             { path: "dat-tour-theo-yeu-cau", element: <TourRequestForm/> },
             
             { path: "create", element: <CreateOptionForm/> }],
