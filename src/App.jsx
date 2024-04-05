@@ -5,6 +5,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { StateProvider } from './context/StateProvider';
 import Routers from './routes/Routers';
 
+import "aos/dist/aos.css";
+
 import AOS from 'aos';
 AOS.init({
     duration: 1000,
