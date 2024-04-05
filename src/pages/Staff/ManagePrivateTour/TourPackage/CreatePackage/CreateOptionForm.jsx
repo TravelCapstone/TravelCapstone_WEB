@@ -7,22 +7,41 @@ function CreateOptionForm() {
   const [form] = Form.useForm();
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [nameService,setNameService] = useState("")
+  const [priceService,setPriceService] = useState(0)
   const [itemCount, setItemCount] = useState(1);
-
-  const handleSelectHotel = (hotel) => {
-    setSelectedHotel(hotel);
+  const [options, setOptions] = useState([{ name: "", hotel: null, restaurant: null, price: "" }]);
+  const handleSelectHotel = (hotel,index) => {
+    changeOption(index,"hotel",hotel);
   };
 
-  const handleSelectRestaurant = (record) => {
-    setSelectedRestaurant(record);
+  const changeOption =(index,property,value) => {
+    const newOptions = [...options];
+    newOptions[index][property] = value;
+    setOptions(newOptions);
+  }
+  const handleSelectPrice = (index,price) => {
+    changeOption(index,"price",price);
+  };
+
+  const handleSelectName = (index,name) => {
+    changeOption(index,"name",name);
+  };
+
+  const handleSelectRestaurant = (restaurant,index) => {
+    changeOption(index,"restaurant",restaurant);
+
   };
 
   const handleAddItem = () => {
     const currentCount = itemCount + 1;
+    setOptions([...options, { name: "", hotel: null, restaurant: null, price: "" }]);
     setItemCount(currentCount);
   };
 
-
+  // console.log(selectedHotel)
+  // console.log(selectedRestaurant)
+  console.table(options)
 
   return (
     <div className="mt-24 container">
@@ -35,18 +54,19 @@ function CreateOptionForm() {
           name="dynamic_form_complex"
           layout="vertical"
           initialValues={{
-            items: [{}],
+            items: [[
+            ]],
           }}
         >
           <Form.List name="items">
-            {(fields, { add }) => (
+            {(field, { add }) => (
               <>
                 <Row gutter={[16, 16]}>
-                  {fields.map((field, index) => (
+                  {field.map((field, index) => (
                     <Col key={field.key} xs={24} sm={12} md={8}>
                       <Card title={`Option ${index + 1}`}>
                         <Form.Item label="Tên gói" name={[field.name, "name"]}>
-                          <Input />
+                          <Input  value={options[index].name} onInput={(e) => handleSelectName(index,e.target.value)} />
                         </Form.Item>
 
                         <Form.Item label="Khách sạn">
@@ -56,33 +76,33 @@ function CreateOptionForm() {
                             }
                           />
 
-                          {selectedHotel && (
+                          {options && options[index].hotel && (
                             <>
                               <Form.Item style={{ marginBottom: 8 }}>
                                 <Input
                                   readOnly
-                                  value={selectedHotel.name}
+                                  value={options[index].hotel.name}
                                   style={{ border: "none" }}
                                 />
                               </Form.Item>
                               <Form.Item style={{ marginBottom: 8 }}>
                                 <Input
                                   readOnly
-                                  value={`Loại dịch vụ: ${selectedHotel.age}`}
+                                  value={`Loại dịch vụ: ${options[index].hotel.age}`}
                                   style={{ border: "none" }}
                                 />
                               </Form.Item>
                               <Form.Item style={{ marginBottom: 8 }}>
                                 <Input
                                   readOnly
-                                  value={`Địa chỉ: ${selectedHotel.address}`}
+                                  value={`Địa chỉ: ${options[index].hotel.address}`}
                                   style={{ border: "none" }}
                                 />
                               </Form.Item>
                               <Form.Item style={{ marginBottom: 8 }}>
                                 <Input
                                   readOnly
-                                  value={`Giá mặc định: ${selectedHotel.price}`}
+                                  value={`Giá mặc định: ${options[index].hotel.price}`}
                                   style={{ border: "none" }}
                                 />
                               </Form.Item>
@@ -95,30 +115,28 @@ function CreateOptionForm() {
                         </Form.Item>
 
                         <Form.Item label="Nhà hàng">
-                          <RestaurantList
-                            onSelectRecord={handleSelectRestaurant}
-                          />
+                        <RestaurantList onSelectRecord={(restaurant) => handleSelectRestaurant(restaurant, index)} />
 
-                          {selectedRestaurant && (
+                          {options && options[index].restaurant && (
                             <>
                               <Form.Item style={{ marginBottom: 8 }}>
                                 <Input
                                   readOnly
-                                  value={selectedRestaurant.name}
+                                  value={options[index].restaurant.name}
                                   style={{ border: "none" }}
                                 />
                               </Form.Item>
                               <Form.Item style={{ marginBottom: 8 }}>
                                 <Input
                                   readOnly
-                                  value={`Loại dịch vụ: ${selectedRestaurant.age}`}
+                                  value={`Loại dịch vụ: ${options[index].restaurant.age}`}
                                   style={{ border: "none" }}
                                 />
                               </Form.Item>
                               <Form.Item style={{ marginBottom: 8 }}>
                                 <Input
                                   readOnly
-                                  value={`Địa chỉ: ${selectedRestaurant.address}`}
+                                  value={`Địa chỉ: ${options[index].restaurant.address}`}
                                   style={{ border: "none" }}
                                 />
                               </Form.Item>
@@ -133,7 +151,7 @@ function CreateOptionForm() {
                           label="Phí tour"
                           name={[field.name, "price"]}
                         >
-                          <Input />
+                          <Input   value={options[index].price}  onInput={(e) => handleSelectPrice(index,e.target.value)} />
                         </Form.Item>
                         
             

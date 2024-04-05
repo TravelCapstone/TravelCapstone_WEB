@@ -10,6 +10,9 @@ function TableComponent({ data , onSelectRecord }) {
   const searchInput = useRef(null);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    console.log(selectedKeys)
+    console.log(confirm)
+    console.log(dataIndex)
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
@@ -21,10 +24,16 @@ function TableComponent({ data , onSelectRecord }) {
     setSearchedColumn("");
   };
 
-  const clearAll = () => {
+  const handleClearAll = (selectedKeys, confirm, dataIndex,clearFilters) => {
+    clearFilters();
     setSearchText("");
     setSearchedColumn("");
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
   };
+  
+  
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -74,6 +83,17 @@ function TableComponent({ data , onSelectRecord }) {
           >
             Làm mới
           </Button>
+            <div >
+            <Button
+            onClick={() => clearFilters && handleClearAll(selectedKeys,confirm,dataIndex,clearFilters,)}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+           Clear all
+          </Button>
+            </div>
 
           <Button
             type="link"
@@ -108,7 +128,7 @@ function TableComponent({ data , onSelectRecord }) {
             backgroundColor: "#ffc069",
             padding: 0,
           }}
-          searchWords={[searchText]}
+          searchWords={[searchText] }
           autoEscape
           textToHighlight={text ? text.toString() : ""}
         />
@@ -166,9 +186,9 @@ function TableComponent({ data , onSelectRecord }) {
 
   return (
     <>
-      <Button onClick={clearAll} className="">
+      {/* <Button  className="">
         Xoá bộ lọc
-      </Button>
+      </Button> */}
       <Table
         rowSelection={{
           type: selectionType,

@@ -46,9 +46,10 @@ function HotelList({ onSelectRecord }) {
         Chọn khách sạn
       </Button>
       <Modal
+      style={{position:"relative"}}
         title="DANH SÁCH KHÁCH SẠN"
         centered
-        visible={open}
+        open={open}
         //open={open}
         //onOk={() => setOpen(false)}
         onOk={() => {
