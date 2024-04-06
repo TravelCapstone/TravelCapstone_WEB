@@ -12,6 +12,7 @@ import ViewOptionsWrapper, {
 } from './ViewOptions.style';
 
 const ViewOptions = () => {
+  const options = viewOptionsData.result.items;
   return (
     <ViewOptionsWrapper>
       <ViewOptionHeader>
@@ -21,7 +22,7 @@ const ViewOptions = () => {
         </Description>
       </ViewOptionHeader>
       <div>
-        <ViewOptionsItems options={viewOptionsData} />
+        <ViewOptionsItems options={options} />
       </div>
     </ViewOptionsWrapper>
   );
