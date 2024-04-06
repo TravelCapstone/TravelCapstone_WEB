@@ -2,7 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Col, Row, Tabs } from 'antd';
 import ListTourPrivate from './ListTourPrivate';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
+const StyledTabs = styled(Tabs)`
+  && .ant-tabs-nav-list .ant-tabs-tab {
+    font-size: 1.25rem; /* 20px, equivalent to Tailwind's text-xl */
+  }
+`;
 
 const ListingTourRequestStaff = () => {
     const navigate = useNavigate();
@@ -127,7 +133,7 @@ const ListingTourRequestStaff = () => {
 
     
     return (
-        <div>
+        <div className='mt-36'>
             {/* <Container>
                 <Row gutter={30} id="tourOverviewSection" style={{ marginTop: 30 }}>
                     <Col span={24} className='flex'>
@@ -137,8 +143,8 @@ const ListingTourRequestStaff = () => {
                 </Row>
             </Container> */}
             <div>
-                <h2 className="text-xl font-bold text-center m-10">LỊCH SỬ TOUR YÊU CẦU CỦA TÔI</h2>
-                <Tabs defaultActiveKey="1" centered items={tabItems} />
+                <h2 className="text-2xl font-bold text-center m-10">LỊCH SỬ TOUR YÊU CẦU CỦA TÔI</h2>
+                <StyledTabs defaultActiveKey="1" centered items={tabItems}/>
             </div>
         </div>
     );

@@ -7,11 +7,12 @@ import { LogoutOutlined } from '@ant-design/icons';
 import ResponsiveMenu from "./ResponsiveMenu";
 import { MainLogo } from "../../components";
 import { useAuth } from "../../context/AuthContext";
+import { AGENT_PROFILE_PAGE, CREATE_TOUR_PRIVATE, LISTING_TOUR_REQUEST_STAFF} from "../../settings/constant";
 
 const DropdownLinks = [
   {
     name: "Đặt tour theo yêu cầu",
-    link: "/dat-tour-theo-yeu-cau",
+    link: CREATE_TOUR_PRIVATE,
   },
   {
     name: "Tham gia tour ghép",
@@ -23,11 +24,11 @@ const UserDropdownLinks = [
   // Add links that you want to appear in the user dropdown
   {
     name: 'My Profile',
-    link: '/my-profile',
+    link: AGENT_PROFILE_PAGE,
   },
   {
     name: 'My Tours',
-    link: '/my-tours',
+    link: LISTING_TOUR_REQUEST_STAFF,
   },
 ];
 
@@ -43,8 +44,8 @@ function Navbar() {
   return (
     <>
       <nav className="fixed top-0 right-0 w-full z-50 h-24 bg-white backdrop-blur-sm text-black shadow-md">
-        <div className="bg-gradient-to-r from-primary to-secondary text-white "></div>
-        <div className="container sm:py-1">
+        <div className="bg-gradient-to-r from-primary to-secondary text-white"></div>
+        <div className="container sm:py-1 min-w-[1450px]">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4 font-bold text-2xl">
               <MainLogo />

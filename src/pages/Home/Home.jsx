@@ -3,6 +3,7 @@ import React from 'react';
 import { Hero } from '../../components';
 
 import NatureVid from "../../assets/video/intro.mp4";
+import ListPage from './TopListTour/TopListTour';
 
 function Home() {
     return (
@@ -18,6 +19,7 @@ function Home() {
           </video>
           <Hero />
         </div>
+        <ListPage />
         </>
     );
 }

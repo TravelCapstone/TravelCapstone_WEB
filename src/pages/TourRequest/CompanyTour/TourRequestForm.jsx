@@ -38,7 +38,7 @@ function TourRequestForm() {
 
   const prefixSelector = <span style={{ paddingRight: 5 }}>+84</span>;
   return (
-    <div className="mt-24 container">
+    <div className="mt-32 container">
       <div className="text-2xl text-center font-semibold uppercase my-6">
         Đặt tour theo yêu cầu
       </div>
