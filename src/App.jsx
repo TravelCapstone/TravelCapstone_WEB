@@ -8,6 +8,7 @@ import Routers from './routes/Routers';
 import "aos/dist/aos.css";
 
 import AOS from 'aos';
+import { AuthProvider } from './context/AuthContext';
 AOS.init({
     duration: 1000,
 });
@@ -19,7 +20,9 @@ function App() {
                 <PersistGate loading={null} persistor={persistor}>
                     <StateProvider>
                         <BrowserRouter>
-                            <Routers />
+                            <AuthProvider>
+                                <Routers />
+                            </AuthProvider>
                         </BrowserRouter>
                     </StateProvider>
                 </PersistGate>
