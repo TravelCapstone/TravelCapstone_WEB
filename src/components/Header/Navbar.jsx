@@ -67,7 +67,6 @@ function Navbar() {
                     Cẩm nang du lịch
                   </NavLink>
                 </li>
-
                 <li className="group relative cursor-pointer">
                   <a
                     href="/#home"
@@ -104,6 +103,20 @@ function Navbar() {
                   </NavLink>
                 </li>
               </ul>
+            </div>
+            <div>
+              <div className="flex items-center gap-8 ">
+                  <button className="py-4">
+                    <NavLink to="/sign-in" activeClassName="active">
+                      Đăng Nhập
+                    </NavLink>
+                  </button>
+                  <button className="py-4 bg-pink">
+                    <NavLink to="/sign-up" activeClassName="active">
+                      Đăng Ký
+                    </NavLink>
+                  </button>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               {/* <button

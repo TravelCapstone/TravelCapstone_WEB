@@ -42,7 +42,7 @@ export const ViewOption = styled.p`
 export const ViewOptionList = styled.ul`
   margin: 0;
   padding: 29px 30px 30px;
-  margin-bottom: 130px;
+  margin-bottom: 140px;
   // background: pink;
   height: fit-content;
 
