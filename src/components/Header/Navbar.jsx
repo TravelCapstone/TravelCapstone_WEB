@@ -62,25 +62,24 @@ function Navbar() {
   console.log('isLoggedIn', isLoggedIn);
   return (
     <>
-      <nav className={`fixed top-0 right-0 w-full z-50 ${header ? 'bg-white backdrop-blur-sm text-black shadow-md' : 'bg-transparent text-white font-semibold'}`}>
-        <div className="bg-gradient-to-r from-primary to-secondary text-white"></div>
-        <div className="container py-[2px] sm:block hidden">
-          <div className="flex justify-between items-center">
+      <nav className={`fixed top-0 right-0 w-full flex justify-between items-center z-50 font-semibold ${header ? 'bg-white backdrop-blur-sm text-black shadow-md' : 'bg-transparent text-black'}`}>
+        <div className="bg-gradient-to-r from-primary to-secondary text-white font-semibold"></div>
+        <div className="container py-[2px] sm:flex hidden font-semibold">
+          <div className="flex flex-row justify-between items-center w-full font-semibold">
             <div className="flex items-center gap-4 font-bold text-2xl ">
               <MainLogo />
             </div>
-            <div className="hidden md:block mx-4">
-              <ul className="flex items-center gap-6 ">
-                <li className="py-4 text-18 m-1">
+            <div className="hidden lg:flex mx-4 ">
+              <ul className="flex items-center gap-6 font-semibold">
+                <li className="py-4  m-1">
                   <NavLink
                     to="/"
                     className={` menuItem ${location.pathname === "/" ? "activeNavbar" : ""
                       }`}
-                  >
-                    Trang chủ
+                  >Trang chủ
                   </NavLink>
                 </li>
-                <li className="py-4 text-18 m-1">
+                <li className="py-4 m-1">
                   <NavLink
                     to="/tour"
                     className={` menuItem ${location.pathname === "/tour" ? "activeNavbar" : ""
@@ -89,7 +88,7 @@ function Navbar() {
                     Tour du lịch
                   </NavLink>
                 </li>
-                <li className="py-4 text-18 m-1">
+                <li className="py-4  m-1">
                   <NavLink
                     to="/cam-nang-du-lich"
                     className={` menuItem ${location.pathname === "/cam-nang-du-lich"
@@ -100,7 +99,7 @@ function Navbar() {
                     Cẩm nang du lịch
                   </NavLink>
                 </li>
-                <li className="group relative cursor-pointer text-18 m-1">
+                <li className="group relative cursor-pointer  m-1">
                   <a
                     href="/#home"
                     className="flex h-[72px] items-center gap-[2px] "
@@ -125,7 +124,7 @@ function Navbar() {
                     </ul>
                   </div>
                 </li>
-                <li className="py-4 text-18 m-1">
+                <li className="py-4  m-1">
                   <NavLink
                     to="/gioi-thieu"
                     className={` menuItem ${location.pathname === "/gioi-thieu" ? "activeNavbar" : ""
@@ -136,7 +135,7 @@ function Navbar() {
                 </li>
               </ul>
             </div>
-            <div className="hidden md:block">
+            <div className="hidden lg:block ">
               {
                 isLoggedIn ? (
                   <div className="group relative cursor-pointer ">
@@ -169,7 +168,7 @@ function Navbar() {
                   </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 font-semibold">
+                  <div className="flex items-center justify-end gap-1 font-semibold ">
                     <NavLink to="/sign-in" className="py-2 text-18 ">
                     <span className="text-black rounded-lg py-2 px-4 hover:bg-teal-800 hover:text-white hover:border-teal-800 border-2 border-white">Đăng Nhập</span>
                     </NavLink>
@@ -179,8 +178,8 @@ function Navbar() {
                   </div>
                 )}
             </div>
-            <div className="flex items-center gap-4">
-              <div className="md:hidden block">
+            <div className="flex items-center gap-4 ">
+              <div className="lg:hidden block">
                 {showMenu ? (
                   <HiMenuAlt1
                     onClick={toggleMenu}
