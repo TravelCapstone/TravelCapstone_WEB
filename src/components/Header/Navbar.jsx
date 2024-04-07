@@ -64,12 +64,12 @@ function Navbar() {
     <>
       <nav className={`fixed top-0 right-0 w-full flex justify-between items-center z-50 font-semibold ${header ? 'bg-white backdrop-blur-sm text-black shadow-md' : 'bg-transparent text-black'}`}>
         <div className="bg-gradient-to-r from-primary to-secondary text-white font-semibold"></div>
-        <div className="container py-[2px] sm:flex hidden font-semibold">
-          <div className="flex flex-row justify-between items-center w-full font-semibold">
-            <div className="flex items-center gap-4 font-bold text-2xl ">
+        <div className="mx-auto px-4 w-full py-[2px] sm:block hidden font-semibold">
+          <div className="flex flex-row justify-between items-center w-full ">
+            <div className="flex items-center justify-center mx-6 gap-4 font-bold text-2xl basis-1/6">
               <MainLogo />
             </div>
-            <div className="hidden lg:flex mx-4 ">
+            <div className="hidden lg:flex mx-4 w-full justify-around">
               <ul className="flex items-center gap-6 font-semibold">
                 <li className="py-4  m-1">
                   <NavLink
@@ -135,7 +135,7 @@ function Navbar() {
                 </li>
               </ul>
             </div>
-            <div className="hidden lg:block ">
+            <div className="hidden lg:block w-full basis-2/6">
               {
                 isLoggedIn ? (
                   <div className="group relative cursor-pointer ">
@@ -168,7 +168,7 @@ function Navbar() {
                   </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-end gap-1 font-semibold ">
+                  <div className="flex items-center justify-center gap-1 font-semibold ">
                     <NavLink to="/sign-in" className="py-2 text-18 ">
                     <span className="text-black rounded-lg py-2 px-4 hover:bg-teal-800 hover:text-white hover:border-teal-800 border-2 border-white">Đăng Nhập</span>
                     </NavLink>
