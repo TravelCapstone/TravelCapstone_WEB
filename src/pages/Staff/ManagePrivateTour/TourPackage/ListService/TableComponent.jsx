@@ -64,9 +64,8 @@ const getListService =  async ()  =>{
   
   useEffect(() =>{
     getListService();
-
-
   },[locationID])
+  
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");

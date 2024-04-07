@@ -9,7 +9,7 @@ function Hero() {
       <div className="h-full flex justify-center items-center p-4 bg-primary/10">
         <div className="container grid grid-cols-1 gap-4">
           <div className="text-white">
-            <p data-aos="fade-up" className="font-bold text-3xl mb-2">
+            <p data-aos="fade-up" className="font-bold text-4xl mb-2">
               Bất kể bạn đi đâu, chúng tôi sẽ đưa bạn đến đó
             </p>
             <p data-aos="fade-up" data-aos-delay="300" className="text-xl mb-4">
