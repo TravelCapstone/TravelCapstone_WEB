@@ -11,11 +11,25 @@ const StyledTabs = styled(Tabs)`
 `;
 
 const ListingTourRequestStaff = () => {
+    const [listTourRequest, setListTourRequest] = useState([])
     const navigate = useNavigate();
 
     const handleBackClick = () => {
         navigate(`/`);
     };
+
+    // const getListService =  async ()  =>{
+    //     const res = await api.get(`/get-service-by-province-id/${locationID}/${type}`)
+    //     console.log(res.data.result.items)
+    //     setListService(res.data.result.items)
+    //   }
+      
+        
+    //     useEffect(() =>{
+    //       getListService();
+    //     },[locationID])
+
+    
 
     // fake data
     const mockOrders = [
@@ -143,7 +157,7 @@ const ListingTourRequestStaff = () => {
                 </Row>
             </Container> */}
             <div>
-                <h2 className="text-2xl font-bold text-center m-10">LỊCH SỬ TOUR YÊU CẦU CỦA TÔI</h2>
+                <h2 className="text-2xl font-bold text-center mx-10 my-5">LỊCH SỬ TOUR YÊU CẦU CỦA TÔI</h2>
                 <StyledTabs defaultActiveKey="1" centered items={tabItems}/>
             </div>
         </div>

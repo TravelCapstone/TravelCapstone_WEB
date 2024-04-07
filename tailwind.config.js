@@ -6,15 +6,21 @@ export default {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        poppins: ["Poppins", "sans-serif"],
-      },
+      // fontFamily: {
+      //   montserrat: ["Montserrat", "sans-serif"],
+      // },
       colors: {
         mainColor: "#008489",
         // primary: "#00c3c7",
         primary: "#0287a8",
         secondary: "#00c3c7",
         dark: "#ffcf22",
+      },
+      fontSize: {
+        14: "14px",
+        18: "18px",
+        24: "24px",
+        32: "32px",
       },
       container: {
         center: true,

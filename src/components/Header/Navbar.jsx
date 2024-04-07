@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { FaCaretDown, FaUserCircle } from "react-icons/fa";
 import { HiMenuAlt3, HiMenuAlt1 } from "react-icons/hi";
@@ -39,20 +39,39 @@ function Navbar() {
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
+
+  const [header, setHeader] = useState(false);
+
+    const scrollHeader = () => {
+        if(window.scrollY >= 50){
+            setHeader(true)
+        }else{
+            setHeader(false)
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('scroll', scrollHeader)
+
+        return () => {
+            window.removeEventListener('scroll', scrollHeader)
+        }
+    },[])
+
   const location = useLocation();
   console.log('isLoggedIn', isLoggedIn);
   return (
     <>
-      <nav className="fixed top-0 right-0 w-full z-50 h-24 bg-white backdrop-blur-sm text-black shadow-md">
+      <nav className={`fixed top-0 right-0 w-full z-50 ${header ? 'bg-white backdrop-blur-sm text-black shadow-md' : 'bg-transparent text-white font-semibold'}`}>
         <div className="bg-gradient-to-r from-primary to-secondary text-white"></div>
-        <div className="container sm:py-1 min-w-[1450px]">
+        <div className="container py-[2px] sm:block hidden">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4 font-bold text-2xl">
+            <div className="flex items-center gap-4 font-bold text-2xl ">
               <MainLogo />
             </div>
-            <div className="hidden md:block ml-4 mr-4">
+            <div className="hidden md:block mx-4">
               <ul className="flex items-center gap-6 ">
-                <li className="py-4 text-xl m-2">
+                <li className="py-4 text-18 m-1">
                   <NavLink
                     to="/"
                     className={` menuItem ${location.pathname === "/" ? "activeNavbar" : ""
@@ -61,7 +80,7 @@ function Navbar() {
                     Trang chủ
                   </NavLink>
                 </li>
-                <li className="py-4 text-xl m-2">
+                <li className="py-4 text-18 m-1">
                   <NavLink
                     to="/tour"
                     className={` menuItem ${location.pathname === "/tour" ? "activeNavbar" : ""
@@ -70,7 +89,7 @@ function Navbar() {
                     Tour du lịch
                   </NavLink>
                 </li>
-                <li className="py-4 text-xl m-2">
+                <li className="py-4 text-18 m-1">
                   <NavLink
                     to="/cam-nang-du-lich"
                     className={` menuItem ${location.pathname === "/cam-nang-du-lich"
@@ -81,17 +100,17 @@ function Navbar() {
                     Cẩm nang du lịch
                   </NavLink>
                 </li>
-                <li className="group relative cursor-pointer m-2 text-xl">
+                <li className="group relative cursor-pointer text-18 m-1">
                   <a
                     href="/#home"
                     className="flex h-[72px] items-center gap-[2px] "
                   >
                     Du lịch khách đoàn{" "}
                     <span>
-                      <FaCaretDown className="ml-2 transition-all duration-200 group-hover:rotate-180" />
+                      <FaCaretDown className=" transition-all duration-200 group-hover:rotate-180" />
                     </span>
                   </a>
-                  <div className="absolute -left-9 z-[9999] hidden rounded-md bg-white p-2 text-black group-hover:block shadow-md w-fit">
+                  <div className="absolute -left-9 z-[9999] hidden w-[250px] rounded-md bg-white p-2 text-black group-hover:block shadow-md ">
                     <ul className="space-y-3">
                       {DropdownLinks.map((data) => (
                         <li key={data.name}>
@@ -106,7 +125,7 @@ function Navbar() {
                     </ul>
                   </div>
                 </li>
-                <li className="py-4 text-xl  m-2">
+                <li className="py-4 text-18 m-1">
                   <NavLink
                     to="/gioi-thieu"
                     className={` menuItem ${location.pathname === "/gioi-thieu" ? "activeNavbar" : ""
@@ -123,7 +142,7 @@ function Navbar() {
                   <div className="group relative cursor-pointer ">
                     <a
                     href="/#home"
-                    className="flex h-[72px] items-center gap-[2px] text-xl "
+                    className="flex h-[72px] items-center gap-[2px] "
                     >
                     <FaUserCircle size={30} className="mr-3"/>
                     <span className="font-semibold">{username}{" "}</span>
@@ -136,7 +155,7 @@ function Navbar() {
                       {UserDropdownLinks.map((link) => (
                         <li key={link.name}>
                           <a
-                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20 text-center text-xl"
+                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20 text-center text-18"
                             href={link.link}
                           >
                             {link.name}
@@ -150,11 +169,11 @@ function Navbar() {
                   </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 font-semibold">
-                    <NavLink to="/sign-in" className="py-4 text-xl">
-                    <span className="text-black rounded-lg py-2 px-4 hover:bg-teal-800 hover:text-white">Đăng Nhập</span>
+                  <div className="flex items-center gap-1 font-semibold">
+                    <NavLink to="/sign-in" className="py-2 text-18 ">
+                    <span className="text-black rounded-lg py-2 px-4 hover:bg-teal-800 hover:text-white hover:border-teal-800 border-2 border-white">Đăng Nhập</span>
                     </NavLink>
-                    <NavLink to="/sign-up" className="py-4 text-xl">
+                    <NavLink to="/sign-up" className="py-4 text-18 ">
                       <span className="rounded-lg py-2 px-4 bg-[rgb(0,132,137)] text-white hover:bg-teal-800">Đăng Ký</span>
                     </NavLink>
                   </div>

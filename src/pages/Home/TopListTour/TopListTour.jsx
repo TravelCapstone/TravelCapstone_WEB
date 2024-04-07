@@ -52,7 +52,9 @@ const mockData = [
 export default function ListPage() {
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-semibold my-10">SỰ LỰA CHỌN HÀNG ĐẦU: TOP TOUR</h2>
+      <h1 className="uppercase my-8 border-l-8 border-primary/50 py-2 pl-2 text-3xl font-bold">
+            Sự lựa chọn hàng đầu
+          </h1>
       <StyledList items={mockData} />
       {/* More content here if needed */}
     </div>

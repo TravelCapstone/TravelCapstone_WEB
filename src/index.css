@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Poppins:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap'); 
 
 @tailwind base;
 @tailwind components;
@@ -9,6 +9,7 @@ body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
+  font-family: "Montserrat", sans-serif;
 }
 
 .menuItem {
@@ -25,3 +26,4 @@ body {
 .activeNavbar {
   @apply text-mainColor px-2 py-1 hover:border-none;
 }
+

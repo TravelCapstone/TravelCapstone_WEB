@@ -70,7 +70,7 @@ const ListTourPrivate = ({ orders, title }) => {
             
         },
         {
-            title: 'Status',
+            title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
             render: (status) => (
@@ -78,67 +78,67 @@ const ListTourPrivate = ({ orders, title }) => {
             ),
         },
         {
-            title: 'Date',
+            title: 'Ngày',
             dataIndex: 'dateRange',
             key: 'dateRange',
         },
         {
-            title: 'Customer',
+            title: 'Khách hàng',
             dataIndex: 'username',
             key: 'username',
         },
         {
-            title: 'Phone',
+            title: 'Số điện thoại',
             dataIndex: 'phone',
             key: 'phone',
         },
         {
-            title: 'Type',
+            title: 'Loại tour',
             dataIndex: 'type',
             key: 'type',
         },
-        {
-            title: 'Description',
-            dataIndex: 'description',
-            key: 'description',
-            // width: 250, // Adjust the width as needed
-            render: (text) => (
-                <Tooltip title={text}>
-                    <span>{truncateText(text, 10)}</span>
-                </Tooltip>
-            ),
-        },
-        {
-            title: 'Số lượng người lớn',
-            dataIndex: 'adults',
-            key: 'adults',
-        },
-        {
-            title: 'Số lượng trẻ em',
-            dataIndex: 'child',
-            key: 'child',
-        },
-        {
-            title: 'Locations',
-            dataIndex: 'locations',
-            key: 'locations',
-        },
-        {
-            title: 'Note',
-            dataIndex: 'note',
-            key: 'note',
-            // width: 250, // Adjust the width as needed
-            render: (text) => (
-                <Tooltip title={text}>
-                    <span>{truncateText(text, 5)}</span>
-                </Tooltip>
-            ),
-        },
-        {
-            title: 'Total',
-            render: () => 'Total Placeholder',
-            key: 'total',
-        },
+        // {
+        //     title: 'Description',
+        //     dataIndex: 'description',
+        //     key: 'description',
+        //     // width: 250, // Adjust the width as needed
+        //     render: (text) => (
+        //         <Tooltip title={text}>
+        //             <span>{truncateText(text, 10)}</span>
+        //         </Tooltip>
+        //     ),
+        // },
+        // {
+        //     title: 'Số lượng người lớn',
+        //     dataIndex: 'adults',
+        //     key: 'adults',
+        // },
+        // {
+        //     title: 'Số lượng trẻ em',
+        //     dataIndex: 'child',
+        //     key: 'child',
+        // },
+        // {
+        //     title: 'Locations',
+        //     dataIndex: 'locations',
+        //     key: 'locations',
+        // },
+        // {
+        //     title: 'Note',
+        //     dataIndex: 'note',
+        //     key: 'note',
+        //     // width: 250, // Adjust the width as needed
+        //     render: (text) => (
+        //         <Tooltip title={text}>
+        //             <span>{truncateText(text, 5)}</span>
+        //         </Tooltip>
+        //     ),
+        // },
+        // {
+        //     title: 'Total',
+        //     render: () => 'Total Placeholder',
+        //     key: 'total',
+        // },
         {
             title: 'Action',
             key: 'action',
@@ -172,7 +172,7 @@ const ListTourPrivate = ({ orders, title }) => {
                 columns={columns} 
                 dataSource={dataSource} 
                 pagination={paginationConfig} 
-                scroll={{ x: 1800, y: 500 }} 
+               //scroll={{ x: 1000, y: 500 }} 
             />
         </div>
     );
