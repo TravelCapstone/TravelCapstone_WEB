@@ -3,7 +3,7 @@ import api from "../config/axios";
 
 const useFetch = (url, method,requestData ) => {
     const [data, setData] = useState(null);
-   // const [isLoading, setIsLoading] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
 
     const fetchData = async () => {
@@ -36,7 +36,7 @@ const useFetch = (url, method,requestData ) => {
 
     useEffect(() => {
         fetchData();
-    }, [url, method,requestData]); // Include url and method in dependencies array to re-fetch data when url or method changes
+    }, [url, method,requestData]); 
 
     return { data,  isError };
 }

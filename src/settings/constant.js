@@ -19,6 +19,9 @@ export const AGENT_IMAGE_EDIT_PAGE = 'change-image';
 export const AGENT_PASSWORD_CHANGE_PAGE = 'change-password';
 export const AGENT_PROFILE_DELETE = '/delete';
 
+// Listing Tour
+export const LISTING_TOUR = '/view-list-tour-public';
+export const DETAIL_TOUR = '/detail-tour-public';
 
 //====================== STAFF ==============================
 // Listing Single Page Section

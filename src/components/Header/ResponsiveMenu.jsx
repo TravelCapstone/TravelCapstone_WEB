@@ -20,6 +20,14 @@ const NavbarLinks = [
       name: "Du lịch khách đoàn",
       link: "/tour-doan-the",
     },
+    {
+      name: "Đăng Nhập",
+      link: "/sign-in",
+    },
+    {
+      name: "Đăng Kí",
+      link: "/sign-up",
+    },
   ];
   
 function ResponsiveMenu({ showMenu, setShowMenu }) {

@@ -4,6 +4,7 @@
     import { MainLogo } from '../../components';
     import { Link, Navigate} from 'react-router-dom';
     import { FORGET_PASSWORD_PAGE } from '../../settings/constant';
+    import { useAuth } from '../../context/AuthContext';
 
     const SignInContainer = styled.div`
     width: 600px;
@@ -66,7 +67,7 @@
     function SignInPage() {
         const [form] = Form.useForm();
         const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
-
+        const { login } = useAuth();
 
         // Usage within the onFinish function in the Form component
         const onFinish = async (values) => {
@@ -74,6 +75,7 @@
                 const response = await mockLogin(values.username, values.password);
                 console.log(response.message);
                 setIsLoggedIn(true); // Update the login state
+                login(values.username);
             } catch (error) {
                 console.log(error.message);
                 setIsLoggedIn(false); // Update the login state
