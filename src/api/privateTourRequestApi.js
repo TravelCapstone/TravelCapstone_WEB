@@ -4,7 +4,7 @@ const getAllProvince = async (data) => {
   try {
     const response = await callApi(
       "GET",
-      $`/get-all-province-by-private-tour-request-id/${data}`
+      `/get-all-province-by-private-tour-request-id/${data}`
     );
     return response;
   } catch (error) {
