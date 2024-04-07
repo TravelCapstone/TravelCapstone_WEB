@@ -1,30 +1,79 @@
 import React, { useRef, useState, useEffect } from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Table } from "antd";
+import { Button, Input, Space, Table, Select } from "antd";
 import Highlighter from "react-highlight-words";
+import useCallApi from "../../../../../hook/useCallApi";
+import api from "../../../../../config/axios";
 
-function TableComponent({ data , onSelectRecord }) {
+const { Option } = Select;
+
+function TableComponent({ type, onSelectRecord }) {
   const [selectionType, setSelectionType] = useState("radio");
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    console.log(selectedKeys)
-    console.log(confirm)
-    console.log(dataIndex)
+    console.log(selectedKeys);
+    console.log(confirm);
+    console.log(dataIndex);
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
   };
 
+  const { loading, error, callApi, resetError } = useCallApi();
+  const [data, setData] = useState();
+  const [locationID, setLocationID] = useState();
+  const fetch = async () => {
+    const response = await api.get(
+      "/get-all-province-by-private-tour-request-id/C8DE0D2A-D6EC-468A-993F-27A6F19F009D"
+    );
+    setLocationID(response.data.result[0].id);
+    setData(response.data);
+  };
+
+  //console.log(type);
+
+  useEffect(() => {
+    fetch();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    alertFail(error);
+    resetError();
+  }
+  const handleSelectClass = (value) =>{
+    console.log(value)
+    setLocationID(value)
+  }
+  console.log(locationID)
+
+  const [listService, setListService] = useState([]);
+  
+const getListService =  async ()  =>{
+  const res = await api.get(`/get-service-by-province-id/${locationID}/${type}`)
+  console.log(res.data.result.items)
+  setListService(res.data.result.items)
+}
+
+  
+  useEffect(() =>{
+    getListService();
+
+
+  },[locationID])
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
     setSearchedColumn("");
   };
 
-  const handleClearAll = (selectedKeys, confirm, dataIndex,clearFilters) => {
+  const handleClearAll = (selectedKeys, confirm, dataIndex, clearFilters) => {
     clearFilters();
     setSearchText("");
     setSearchedColumn("");
@@ -32,8 +81,6 @@ function TableComponent({ data , onSelectRecord }) {
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
   };
-  
-  
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -83,17 +130,20 @@ function TableComponent({ data , onSelectRecord }) {
           >
             Làm mới
           </Button>
-            <div >
+          <div>
             <Button
-            onClick={() => clearFilters && handleClearAll(selectedKeys,confirm,dataIndex,clearFilters,)}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-           Clear all
-          </Button>
-            </div>
+              onClick={() =>
+                clearFilters &&
+                handleClearAll(selectedKeys, confirm, dataIndex, clearFilters)
+              }
+              size="small"
+              style={{
+                width: 90,
+              }}
+            >
+              Clear all
+            </Button>
+          </div>
 
           <Button
             type="link"
@@ -128,7 +178,7 @@ function TableComponent({ data , onSelectRecord }) {
             backgroundColor: "#ffc069",
             padding: 0,
           }}
-          searchWords={[searchText] }
+          searchWords={[searchText]}
           autoEscape
           textToHighlight={text ? text.toString() : ""}
         />
@@ -145,13 +195,7 @@ function TableComponent({ data , onSelectRecord }) {
       width: "30%",
       ...getColumnSearchProps("name"),
     },
-    {
-      title: "Loại dịch vụ",
-      dataIndex: "age",
-      key: "age",
-      width: "20%",
-      ...getColumnSearchProps("age"),
-    },
+
     {
       title: "Địa chỉ",
       dataIndex: "address",
@@ -160,13 +204,7 @@ function TableComponent({ data , onSelectRecord }) {
       sorter: (a, b) => a.address.length - b.address.length,
       sortDirections: ["descend", "ascend"],
     },
-    {
-      title: "Giá",
-      dataIndex: "price",
-      key: "price",
-      sorter: (a, b) => a.address.length - b.address.length,
-      sortDirections: ["descend", "ascend"],
-    },
+    
   ];
 
   const rowSelection = {
@@ -176,7 +214,7 @@ function TableComponent({ data , onSelectRecord }) {
         "selectedRows: ",
         selectedRows
       );
-      onSelectRecord(selectedRows[0]); 
+      onSelectRecord(selectedRows[0]);
     },
     getCheckboxProps: (record) => ({
       disabled: record.name === "Disabled User",
@@ -184,20 +222,30 @@ function TableComponent({ data , onSelectRecord }) {
     }),
   };
 
+ 
   return (
     <>
-      {/* <Button  className="">
-        Xoá bộ lọc
-      </Button> */}
+      <Select
+        value= {locationID}
+        onChange={(value) => handleSelectClass(value)}
+      >
+        {data &&
+          data.result &&
+          data.result.map((item) => (
+            <Option key={item.id} value={item.id}>
+              {item.name}
+            </Option>
+          ))}
+      </Select>
       <Table
         rowSelection={{
           type: selectionType,
           ...rowSelection,
         }}
         columns={columns}
-        dataSource={data}
+        dataSource={listService}
       />
-      ;
+      
     </>
   );
 }
