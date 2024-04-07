@@ -1,16 +1,28 @@
 import React, { useRef, useState, useEffect } from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Table, Select } from "antd";
+import { Button, Input, Space, Table, Select, Spin, Radio } from "antd";
 import Highlighter from "react-highlight-words";
-import useCallApi from "../../../../../hook/useCallApi";
-import api from "../../../../../config/axios";
-
+import { callApi } from "../../../../../hook/useCallApi";
+import { LoadingOutlined } from "@ant-design/icons";
+import { getAllProvince } from "../../../../../api/privateTourRequestApi";
 const { Option } = Select;
 
-function TableComponent({ type, onSelectRecord }) {
+function TableComponent({
+  type,
+  option,
+  addHotelToList1,
+  addRestaurentToList1,
+  addVehicleToList1,
+  addEntertainmentToList1,
+  addHotelToList2,
+  addRestaurentToList2,
+  addVehicleToList2,
+  addEntertainmentToList2,
+}) {
   const [selectionType, setSelectionType] = useState("radio");
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const [loading, setLoading] = useState(true);
   const searchInput = useRef(null);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -22,15 +34,21 @@ function TableComponent({ type, onSelectRecord }) {
     setSearchedColumn(dataIndex);
   };
 
-  const { loading, error, callApi, resetError } = useCallApi();
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   const [locationID, setLocationID] = useState();
   const fetch = async () => {
-    const response = await api.get(
-      "/get-all-province-by-private-tour-request-id/C8DE0D2A-D6EC-468A-993F-27A6F19F009D"
+    setLoading(true);
+    // const response = await callApi(
+    //   "GET",
+    //   "/get-all-province-by-private-tour-request-id/C8DE0D2A-D6EC-468A-993F-27A6F19F009D"
+    // );
+    const response = await getAllProvince(
+     "C8DE0D2A-D6EC-468A-993F-27A6F19F009D"
     );
-    setLocationID(response.data.result[0].id);
-    setData(response.data);
+    console.log(response);
+    setLocationID(response.result[0].id);
+    setData(response?.result);
+    setLoading(false);
   };
 
   //console.log(type);
@@ -39,34 +57,28 @@ function TableComponent({ type, onSelectRecord }) {
     fetch();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    alertFail(error);
-    resetError();
-  }
-  const handleSelectClass = (value) =>{
-    console.log(value)
-    setLocationID(value)
-  }
-  console.log(locationID)
+  const handleSelectClass = (value) => {
+    console.log(value);
+    setLocationID(value);
+  };
+  console.log(locationID);
 
   const [listService, setListService] = useState([]);
-  
-const getListService =  async ()  =>{
-  const res = await api.get(`/get-service-by-province-id/${locationID}/${type}`)
-  console.log(res.data.result.items)
-  setListService(res.data.result.items)
-}
 
-  
-  useEffect(() =>{
+  const getListService = async () => {
+    setLoading(true);
+    const res = await callApi(
+      "GET",
+      `/get-service-by-province-id/${locationID}/${type}`
+    );
+    console.log(res.result?.items);
+    setListService(res.result?.items);
+    setLoading(false);
+  };
+
+  useEffect(() => {
     getListService();
-
-
-  },[locationID])
+  }, [locationID]);
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
@@ -204,9 +216,13 @@ const getListService =  async ()  =>{
       sorter: (a, b) => a.address.length - b.address.length,
       sortDirections: ["descend", "ascend"],
     },
-    
   ];
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
+  const onSelectChange = (newSelectedRowKeys) => {
+    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       console.log(
@@ -214,38 +230,60 @@ const getListService =  async ()  =>{
         "selectedRows: ",
         selectedRows
       );
-      onSelectRecord(selectedRows[0]);
+      if (option == "1") {
+        if (type == "0") {
+          addHotelToList1(selectedRows);
+        } 
+         if (type == "1") {
+          addRestaurentToList1(selectedRows);
+        }
+        if (type == "2") {
+          addEntertainmentToList1(selectedRows);
+        }
+        if (type == "3") {
+          addVehicleToList1(selectedRows);
+        }
+      }else if(option== "2"){
+        if (type == "0") {
+          addHotelToList2(selectedRows);
+        } 
+         if (type == "1") {
+          addRestaurentToList2(selectedRows);
+        }
+        if (type == "2") {
+          addEntertainmentToList2(selectedRows);
+        }
+        if (type == "3") {
+          addVehicleToList2(selectedRows);
+        }
+      }
     },
-    getCheckboxProps: (record) => ({
-      disabled: record.name === "Disabled User",
-      name: record.name,
-    }),
   };
+  const hasSelected = selectedRowKeys.length > 0;
 
- 
   return (
     <>
-      <Select
-        value= {locationID}
-        onChange={(value) => handleSelectClass(value)}
-      >
+      <Spin
+        indicator={<LoadingOutlined style={{ fontSize: 44 }} spin />}
+        spinning={loading}
+        fullscreen
+      />
+      <Select value={locationID} onChange={(value) => handleSelectClass(value)}>
         {data &&
-          data.result &&
-          data.result.map((item) => (
+          data.map((item) => (
             <Option key={item.id} value={item.id}>
               {item.name}
             </Option>
           ))}
       </Select>
+
       <Table
-        rowSelection={{
-          type: selectionType,
-          ...rowSelection,
-        }}
+        rowSelection={rowSelection}
         columns={columns}
-        dataSource={listService}
+        dataSource={
+          listService && listService.map((item) => ({ ...item, key: item.id }))
+        }
       />
-      
     </>
   );
 }
