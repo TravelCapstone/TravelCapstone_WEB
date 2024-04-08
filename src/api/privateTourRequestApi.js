@@ -1,9 +1,8 @@
-import { callApi } from "../hook/useCallApi";
+import api from "../config/axios";
 
 const getAllProvince = async (data) => {
   try {
-    const response = await callApi(
-      "GET",
+    const response = await api.get(
       `/get-all-province-by-private-tour-request-id/${data}`
     );
     return response;

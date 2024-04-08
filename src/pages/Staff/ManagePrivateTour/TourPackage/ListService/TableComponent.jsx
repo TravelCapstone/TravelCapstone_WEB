@@ -62,25 +62,22 @@ function TableComponent({
 
   const [data, setData] = useState([]);
   const [locationID, setLocationID] = useState();
-  const fetch = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    // const response = await callApi(
-    //   "GET",
-    //   "/get-all-province-by-private-tour-request-id/C8DE0D2A-D6EC-468A-993F-27A6F19F009D"
-    // );
-    const response = await getAllProvince(
-      "C8DE0D2A-D6EC-468A-993F-27A6F19F009D"
-    );
-    console.log(response);
-    setLocationID(response.result[0].id);
-    setData(response?.result);
+    try {
+      const response = await getAllProvince("C8DE0D2A-D6EC-468A-993F-27A6F19F009D");
+      if (response && response.data && response.data.result && response.data.result.length > 0) {
+        setLocationID(response.data.result[0].id);
+        setData(response.data.result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
     setLoading(false);
   };
 
-  //console.log(type);
-
   useEffect(() => {
-    fetch();
+    fetchData();
   }, []);
 
   const handleSelectClass = (value) => {
