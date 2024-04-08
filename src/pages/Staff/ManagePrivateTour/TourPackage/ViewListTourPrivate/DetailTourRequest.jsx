@@ -23,7 +23,7 @@ function TourRequestPage() {
   console.log('order', data);
 
   const handleCreateTourOption = () => {
-    navigate(CREATE_OPTIONS_TOUR_PRIVATE  , { state: { order } });
+    navigate(`/${CREATE_OPTIONS_TOUR_PRIVATE}` , { state: { order } });
   };
 
   return (
