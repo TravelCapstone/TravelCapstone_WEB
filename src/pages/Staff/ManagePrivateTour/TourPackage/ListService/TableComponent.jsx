@@ -66,7 +66,7 @@ function TableComponent({
     setLoading(true);
     try {
       const response = await getAllProvince("C8DE0D2A-D6EC-468A-993F-27A6F19F009D");
-      if (response && response.data && response.data.result && response.data.result.length > 0) {
+      if (response?.data?.result?.length >0) {
         setLocationID(response.data.result[0].id);
         setData(response.data.result);
       }
