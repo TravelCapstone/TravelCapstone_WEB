@@ -4,7 +4,11 @@ import useFetch from "../../../../../hook/useFetch";
 import { alertFail } from "../../../../../hook/useNotification";
 import { callApi } from "../../../../../hook/useCallApi";
 import api from "../../../../../config/axios";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  MinusCircleOutlined,
+  PlusOutlined,
+  WarningFilled,
+} from "@ant-design/icons";
 import TableComponent from "../ListService/TableComponent";
 
 const { TextArea } = Input;
@@ -39,6 +43,12 @@ function CreateOptionForm() {
   const [open9, setOpen9] = useState(false);
   const [open10, setOpen10] = useState(false);
 
+  const [open11, setOpen11] = useState(false);
+  const [open12, setOpen12] = useState(false);
+  const [open13, setOpen13] = useState(false);
+  const [open14, setOpen14] = useState(false);
+  const [open15, setOpen15] = useState(false);
+
   const [form] = Form.useForm();
 
   const addHotelToList1 = (hotelsToAdd) => {
@@ -48,6 +58,11 @@ function CreateOptionForm() {
   const addHotelToList2 = (hotelsToAdd) => {
     setHotellist2(hotelsToAdd);
   };
+
+  const addHotelToList3 = (hotelsToAdd) => {
+    setHotellist2(hotelsToAdd);
+  };
+
   const addRestaurentToList1 = (restaurentToAdd) => {
     setRestaurent1(restaurentToAdd);
   };
@@ -55,37 +70,77 @@ function CreateOptionForm() {
     setRestaurent2(restaurentToAdd);
   };
 
+  const addRestaurentToList3 = (restaurentToAdd) => {
+    setRestaurent3(restaurentToAdd);
+  };
+
   const addEntertainmentToList1 = (entertainmentToAdd) => {
-   
     setEntertaiment1(entertainmentToAdd);
   };
+
   const addEntertainmentToList2 = (entertainmentToAdd) => {
-   
     setEntertaiment2(entertainmentToAdd);
   };
-  
+
+  const addEntertainmentToList3 = (entertainmentToAdd) => {
+    setEntertaiment3(entertainmentToAdd);
+  };
+
   const addVehicleToList1 = (vehiclesToAdd) => {
     setVehicle1(vehiclesToAdd);
   };
+
   const addVehicleToList2 = (vehiclesToAdd) => {
     setVehicle2(vehiclesToAdd);
   };
+
+  const addVehicleToList3 = (vehiclesToAdd) => {
+    setVehicle3(vehiclesToAdd);
+  };
+
+  const onFinish = (e) => {
+    setFormData(e);
+  };
+
+
   return (
-    <div className="mt-24 container">
-      <div className="text-2xl text-center font-semibold uppercase mt-6 mb-12">
+    <div className="mt-12 container">
+      <div className="text-2xl text-center font-semibold uppercase my-6">
         TẠO OPTION TOUR
       </div>
       <div className="w-full mx-auto">
-        <Form size="large">
+        <Form size="large" onFinish={onFinish}>
           <>
             <Row>
               <Col span={8} className="p-3">
                 <Card className="flex-1">
-                  <Form.Item label="Tên gói">
+                  <Form.Item
+                    name="name1"
+                    label="Tên gói"
+                    rules={[
+                      {
+                        required: true,
+                        message: (
+                          <div>
+                            <WarningFilled /> Vui lòng nhập tên gói!
+                          </div>
+                        ),
+                      },
+                    ]}
+                  >
                     <Input />
                   </Form.Item>
 
-                  <Form.Item className="mt-5" label="Phân loại gói">
+                  <Form.Item name="optionClass1" className="mt-5" label="Phân loại gói" rules={[
+                    {
+                      required: true,
+                      message: (
+                        <span>
+                          <WarningFilled /> Vui lòng chọn phân loại gói!
+                        </span>
+                      ),
+                    },
+                  ]}>
                     <Select placeholder="Chọn gói">
                       <Option value={0}>Tiết kiệm</Option>
                       <Option value={1}>Cơ bản</Option>
@@ -94,7 +149,11 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Khách sạn">
-                    <Button type="primary" onClick={() => setOpen1(true)}>
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black "
+                      onClick={() => setOpen1(true)}
+                    >
                       Chọn khách sạn
                     </Button>
                     <Modal
@@ -143,7 +202,11 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Nhà hàng">
-                    <Button type="primary" onClick={() => setOpen2(true)}>
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen2(true)}
+                    >
                       Chọn nhà hàng
                     </Button>
                     <Modal
@@ -162,13 +225,11 @@ function CreateOptionForm() {
                         type="1"
                       />
                     </Modal>
-
-                   
                   </Form.Item>
                   <Form.Item>
-                      {restaurant1.length > 0 &&
-                        restaurant1.map((item, index) => (
-                          <div className="border-b-2 my-2 p-1">
+                    {restaurant1.length > 0 &&
+                      restaurant1.map((item, index) => (
+                        <div className="border-b-2 my-2 p-1">
                           <p key={index}>
                             {" "}
                             {item?.name}
@@ -190,10 +251,14 @@ function CreateOptionForm() {
                             Tổng lời:500.000đ
                           </p>
                         </div>
-                        ))}
-                    </Form.Item>
+                      ))}
+                  </Form.Item>
                   <Form.Item label="Phương tiện chính">
-                    <Button type="primary" onClick={() => setOpen3(true)}>
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen3(true)}
+                    >
                       Chọn phương tiện
                     </Button>
 
@@ -218,31 +283,35 @@ function CreateOptionForm() {
                     {vehicle1.length > 0 &&
                       vehicle1.map((item, index) => (
                         <div className="border-b-2 my-2 p-1">
-                        <p key={index}>
-                          {" "}
-                          {item?.name}
-                          <br></br> Địa chỉ: {item.address}
-                        </p>
-                        <p> Giá gốc: 1.000.000đ</p>
-                        <p className="text-red-500 font-semibold		">
-                          Giá bán ra: 1.500.000đ
-                        </p>
+                          <p key={index}>
+                            {" "}
+                            {item?.name}
+                            <br></br> Địa chỉ: {item.address}
+                          </p>
+                          <p> Giá gốc: 1.000.000đ</p>
+                          <p className="text-red-500 font-semibold		">
+                            Giá bán ra: 1.500.000đ
+                          </p>
 
-                        <Input
-                          label="Số lượng"
-                          className="w-32 "
-                          type="number"
-                          placeholder="Số lượng"
-                          min={0}
-                        />
-                        <p className="text-red-500 font-semibold		">
-                          Tổng lời:500.000đ
-                        </p>
-                      </div>
+                          <Input
+                            label="Số lượng"
+                            className="w-32 "
+                            type="number"
+                            placeholder="Số lượng"
+                            min={0}
+                          />
+                          <p className="text-red-500 font-semibold		">
+                            Tổng lời:500.000đ
+                          </p>
+                        </div>
                       ))}
                   </Form.Item>
                   <Form.Item label="Giải trí">
-                    <Button type="primary" onClick={() => setOpen4(true)}>
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen4(true)}
+                    >
                       Chọn
                     </Button>
 
@@ -266,30 +335,34 @@ function CreateOptionForm() {
                   {entertaiment1.length > 0 &&
                     entertaiment1.map((item, index) => (
                       <div className="border-b-2 my-2 p-1">
-                      <p key={index}>
-                        {" "}
-                        {item?.name}
-                        <br></br> Địa chỉ: {item.address}
-                      </p>
-                      <p> Giá gốc: 1.000.000đ</p>
-                      <p className="text-red-500 font-semibold		">
-                        Giá bán ra: 1.500.000đ
-                      </p>
+                        <p key={index}>
+                          {" "}
+                          {item?.name}
+                          <br></br> Địa chỉ: {item.address}
+                        </p>
+                        <p> Giá gốc: 1.000.000đ</p>
+                        <p className="text-red-500 font-semibold		">
+                          Giá bán ra: 1.500.000đ
+                        </p>
 
-                      <Input
-                        label="Số lượng"
-                        className="w-32 "
-                        type="number"
-                        placeholder="Số lượng"
-                        min={0}
-                      />
-                      <p className="text-red-500 font-semibold		">
-                        Tổng lời:500.000đ
-                      </p>
-                    </div>
+                        <Input
+                          label="Số lượng"
+                          className="w-32 "
+                          type="number"
+                          placeholder="Số lượng"
+                          min={0}
+                        />
+                        <p className="text-red-500 font-semibold		">
+                          Tổng lời:500.000đ
+                        </p>
+                      </div>
                     ))}
                   <Form.Item label="Vé máy bay (nếu có)">
-                    <Button type="primary" onClick={() => setOpen5(true)}>
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen5(true)}
+                    >
                       Chọn
                     </Button>
 
@@ -303,9 +376,7 @@ function CreateOptionForm() {
                       onCancel={() => setOpen5(false)}
                       width={1000}
                     >
-                      <TableComponent
-                        type="4"
-                      />
+                      <TableComponent type="4" />
                     </Modal>
                   </Form.Item>
                 </Card>
@@ -313,11 +384,33 @@ function CreateOptionForm() {
 
               <Col span={8} className="p-3">
                 <Card className="flex-1">
-                  <Form.Item label="Tên gói">
+                <Form.Item
+                    name="name2"
+                    label="Tên gói"
+                    rules={[
+                      {
+                        required: true,
+                        message: (
+                          <div>
+                            <WarningFilled /> Vui lòng nhập tên gói!
+                          </div>
+                        ),
+                      },
+                    ]}
+                  >
                     <Input />
                   </Form.Item>
 
-                  <Form.Item className="mt-5" label="Phân loại gói">
+                  <Form.Item name="optionClass2" className="mt-5" label="Phân loại gói" rules={[
+                    {
+                      required: true,
+                      message: (
+                        <span>
+                          <WarningFilled /> Vui lòng chọn phân loại gói!
+                        </span>
+                      ),
+                    },
+                  ]}>
                     <Select placeholder="Chọn gói">
                       <Option value={0}>Tiết kiệm</Option>
                       <Option value={1}>Cơ bản</Option>
@@ -326,7 +419,11 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Khách sạn">
-                    <Button type="primary" onClick={() => setOpen6(true)}>
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen6(true)}
+                    >
                       Chọn khách sạn
                     </Button>
                     <Modal
@@ -375,7 +472,11 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Nhà hàng">
-                    <Button type="primary" onClick={() => setOpen7(true)}>
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen7(true)}
+                    >
                       Chọn nhà hàng
                     </Button>
                     <Modal
@@ -394,13 +495,11 @@ function CreateOptionForm() {
                         type="1"
                       />
                     </Modal>
-
-                   
                   </Form.Item>
                   <Form.Item>
-                      {restaurant2.length > 0 &&
-                        restaurant2.map((item, index) => (
-                          <div className="border-b-2 my-2 p-1">
+                    {restaurant2.length > 0 &&
+                      restaurant2.map((item, index) => (
+                        <div className="border-b-2 my-2 p-1">
                           <p key={index}>
                             {" "}
                             {item?.name}
@@ -422,10 +521,14 @@ function CreateOptionForm() {
                             Tổng lời:500.000đ
                           </p>
                         </div>
-                        ))}
-                    </Form.Item>
+                      ))}
+                  </Form.Item>
                   <Form.Item label="Phương tiện chính">
-                    <Button type="primary" onClick={() => setOpen8(true)}>
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen8(true)}
+                    >
                       Chọn phương tiện
                     </Button>
 
@@ -450,6 +553,58 @@ function CreateOptionForm() {
                     {vehicle2.length > 0 &&
                       vehicle2.map((item, index) => (
                         <div className="border-b-2 my-2 p-1">
+                          <p key={index}>
+                            {" "}
+                            {item?.name}
+                            <br></br> Địa chỉ: {item.address}
+                          </p>
+                          <p> Giá gốc: 1.000.000đ</p>
+                          <p className="text-red-500 font-semibold		">
+                            Giá bán ra: 1.500.000đ
+                          </p>
+
+                          <Input
+                            label="Số lượng"
+                            className="w-32 "
+                            type="number"
+                            placeholder="Số lượng"
+                            min={0}
+                          />
+                          <p className="text-red-500 font-semibold		">
+                            Tổng lời:500.000đ
+                          </p>
+                        </div>
+                      ))}
+                  </Form.Item>
+                  <Form.Item label="Giải trí">
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen9(true)}
+                    >
+                      Chọn
+                    </Button>
+
+                    <Modal
+                      title="DANH SÁCH "
+                      centered
+                      open={open9}
+                      onOk={() => {
+                        setOpen9(false);
+                      }}
+                      onCancel={() => setOpen9(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="2"
+                        addEntertainmentToList2={addEntertainmentToList2}
+                        option={"2"}
+                      />
+                    </Modal>
+                  </Form.Item>
+                  {entertaiment2.length > 0 &&
+                    entertaiment2.map((item, index) => (
+                      <div className="border-b-2 my-2 p-1">
                         <p key={index}>
                           {" "}
                           {item?.name}
@@ -471,57 +626,13 @@ function CreateOptionForm() {
                           Tổng lời:500.000đ
                         </p>
                       </div>
-                      ))}
-                  </Form.Item>
-                  <Form.Item label="Giải trí">
-                    <Button type="primary" onClick={() => setOpen9(true)}>
-                      Chọn
-                    </Button>
-
-                    <Modal
-                      title="DANH SÁCH "
-                      centered
-                      open={open9}
-                      onOk={() => {
-                        setOpen9(false);
-                      }}
-                      onCancel={() => setOpen9(false)}
-                      width={1000}
-                    >
-                      <TableComponent
-                        type="2"
-                        addEntertainmentToList2={addEntertainmentToList2}
-                        option={"2"}
-                      />
-                    </Modal>
-                  </Form.Item>
-                  {entertaiment1.length > 0 &&
-                    entertaiment1.map((item, index) => (
-                      <div className="border-b-2 my-2 p-1">
-                      <p key={index}>
-                        {" "}
-                        {item?.name}
-                        <br></br> Địa chỉ: {item.address}
-                      </p>
-                      <p> Giá gốc: 1.000.000đ</p>
-                      <p className="text-red-500 font-semibold		">
-                        Giá bán ra: 1.500.000đ
-                      </p>
-
-                      <Input
-                        label="Số lượng"
-                        className="w-32 "
-                        type="number"
-                        placeholder="Số lượng"
-                        min={0}
-                      />
-                      <p className="text-red-500 font-semibold		">
-                        Tổng lời:500.000đ
-                      </p>
-                    </div>
                     ))}
                   <Form.Item label="Vé máy bay (nếu có)">
-                    <Button type="primary" onClick={() => setOpen10(true)}>
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen10(true)}
+                    >
                       Chọn
                     </Button>
 
@@ -535,9 +646,277 @@ function CreateOptionForm() {
                       onCancel={() => setOpen10(false)}
                       width={1000}
                     >
+                      <TableComponent type="4" />
+                    </Modal>
+                  </Form.Item>
+                </Card>
+              </Col>
+
+              <Col span={8} className="p-3">
+                <Card className="flex-1">
+                <Form.Item
+                    name="name3"
+                    label="Tên gói"
+                    rules={[
+                      {
+                        required: true,
+                        message: (
+                          <div>
+                            <WarningFilled /> Vui lòng nhập tên gói!
+                          </div>
+                        ),
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+
+                  <Form.Item name="optionClass3" className="mt-5" label="Phân loại gói" rules={[
+                    {
+                      required: true,
+                      message: (
+                        <span>
+                          <WarningFilled /> Vui lòng chọn phân loại gói!
+                        </span>
+                      ),
+                    },
+                  ]}>
+                    <Select placeholder="Chọn gói">
+                      <Option value={0}>Tiết kiệm</Option>
+                      <Option value={1}>Cơ bản</Option>
+                      <Option value={2}>Nâng cao</Option>
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item label="Khách sạn">
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen11(true)}
+                    >
+                      Chọn khách sạn
+                    </Button>
+                    <Modal
+                      title="DANH SÁCH KHÁCH SẠN"
+                      centered
+                      open={open11}
+                      onOk={() => {
+                        setOpen11(!open11);
+                      }}
+                      onCancel={() => setOpen11(false)}
+                      width={1000}
+                    >
                       <TableComponent
-                        type="4"
+                        type="0"
+                        addHotelToList3={addHotelToList3}
+                        option={"3"}
                       />
+                    </Modal>
+                  </Form.Item>
+                  <Form.Item>
+                    {hotellist3.length > 0 &&
+                      hotellist3.map((item, index) => (
+                        <div className="border-b-2 my-2 p-1">
+                          <p key={index}>
+                            {" "}
+                            {item?.name}
+                            <br></br> Địa chỉ: {item.address}
+                          </p>
+                          <p> Giá gốc: 1.000.000đ</p>
+                          <p className="text-red-500 font-semibold		">
+                            Giá bán ra: 1.500.000đ
+                          </p>
+
+                          <Input
+                            label="Số lượng"
+                            className="w-32 "
+                            type="number"
+                            placeholder="Số lượng"
+                            min={0}
+                          />
+                          <p className="text-red-500 font-semibold		">
+                            Tổng lời:500.000đ
+                          </p>
+                        </div>
+                      ))}
+                  </Form.Item>
+
+                  <Form.Item label="Nhà hàng">
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen12(true)}
+                    >
+                      Chọn nhà hàng
+                    </Button>
+                    <Modal
+                      title="DANH SÁCH NHÀ HÀNG"
+                      centered
+                      open={open12}
+                      onOk={() => {
+                        setOpen12(!open12);
+                      }}
+                      onCancel={() => setOpen12(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        addRestaurentToList3={addRestaurentToList3}
+                        option="3"
+                        type="1"
+                      />
+                    </Modal>
+                  </Form.Item>
+                  <Form.Item>
+                    {restaurant3.length > 0 &&
+                      restaurant3.map((item, index) => (
+                        <div className="border-b-2 my-2 p-1">
+                          <p key={index}>
+                            {" "}
+                            {item?.name}
+                            <br></br> Địa chỉ: {item.address}
+                          </p>
+                          <p> Giá gốc: 1.000.000đ</p>
+                          <p className="text-red-500 font-semibold		">
+                            Giá bán ra: 1.500.000đ
+                          </p>
+
+                          <Input
+                            label="Số lượng"
+                            className="w-32 "
+                            type="number"
+                            placeholder="Số lượng"
+                            min={0}
+                          />
+                          <p className="text-red-500 font-semibold		">
+                            Tổng lời:500.000đ
+                          </p>
+                        </div>
+                      ))}
+                  </Form.Item>
+                  <Form.Item label="Phương tiện chính">
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen13(true)}
+                    >
+                      Chọn phương tiện
+                    </Button>
+
+                    <Modal
+                      title="DANH SÁCH PHƯƠNG TIỆN"
+                      centered
+                      open={open13}
+                      onOk={() => {
+                        setOpen13(false);
+                      }}
+                      onCancel={() => setOpen13(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="3"
+                        addVehicleToList3={addVehicleToList3}
+                        option={"3"}
+                      />
+                    </Modal>
+                  </Form.Item>
+                  <Form.Item>
+                    {vehicle3.length > 0 &&
+                      vehicle3.map((item, index) => (
+                        <div className="border-b-2 my-2 p-1">
+                          <p key={index}>
+                            {" "}
+                            {item?.name}
+                            <br></br> Địa chỉ: {item.address}
+                          </p>
+                          <p> Giá gốc: 1.000.000đ</p>
+                          <p className="text-red-500 font-semibold		">
+                            Giá bán ra: 1.500.000đ
+                          </p>
+
+                          <Input
+                            label="Số lượng"
+                            className="w-32 "
+                            type="number"
+                            placeholder="Số lượng"
+                            min={0}
+                          />
+                          <p className="text-red-500 font-semibold		">
+                            Tổng lời:500.000đ
+                          </p>
+                        </div>
+                      ))}
+                  </Form.Item>
+                  <Form.Item label="Giải trí">
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen14(true)}
+                    >
+                      Chọn
+                    </Button>
+
+                    <Modal
+                      title="DANH SÁCH "
+                      centered
+                      open={open14}
+                      onOk={() => {
+                        setOpen14(false);
+                      }}
+                      onCancel={() => setOpen14(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="2"
+                        addEntertainmentToList3={addEntertainmentToList3}
+                        option={"3"}
+                      />
+                    </Modal>
+                  </Form.Item>
+                  {entertaiment3.length > 0 &&
+                    entertaiment3.map((item, index) => (
+                      <div className="border-b-2 my-2 p-1">
+                        <p key={index}>
+                          {" "}
+                          {item?.name}
+                          <br></br> Địa chỉ: {item.address}
+                        </p>
+                        <p> Giá gốc: 1.000.000đ</p>
+                        <p className="text-red-500 font-semibold		">
+                          Giá bán ra: 1.500.000đ
+                        </p>
+
+                        <Input
+                          label="Số lượng"
+                          className="w-32 "
+                          type="number"
+                          placeholder="Số lượng"
+                          min={0}
+                        />
+                        <p className="text-red-500 font-semibold		">
+                          Tổng lời:500.000đ
+                        </p>
+                      </div>
+                    ))}
+                  <Form.Item label="Vé máy bay (nếu có)">
+                    <Button
+                      type="mainColor"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      onClick={() => setOpen15(true)}
+                    >
+                      Chọn
+                    </Button>
+
+                    <Modal
+                      title="DANH SÁCH VÉ MÁY BAY"
+                      centered
+                      open={open15}
+                      onOk={() => {
+                        setOpen15(false);
+                      }}
+                      onCancel={() => setOpen15(false)}
+                      width={1000}
+                    >
+                      <TableComponent type="4" />
                     </Modal>
                   </Form.Item>
                 </Card>
@@ -547,7 +926,11 @@ function CreateOptionForm() {
         </Form>
 
         <Row justify="center" style={{ marginTop: "16px" }}>
-          <Button className="" type="primary" htmlType="submit">
+          <Button
+            type="primary"
+            className=" uppercase"
+            htmlType="submit"
+          >
             Tạo option tour
           </Button>
         </Row>

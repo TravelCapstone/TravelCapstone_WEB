@@ -18,6 +18,10 @@ function TableComponent({
   addRestaurentToList2,
   addVehicleToList2,
   addEntertainmentToList2,
+  addHotelToList3,
+  addRestaurentToList3,
+  addVehicleToList3,
+  addEntertainmentToList3,
 }) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
@@ -336,6 +340,62 @@ function TableComponent({
           );
         }
       }
+    }else if (option === "3") {
+      if (type === "0") {
+        const index = checkedListHotelOption3.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListHotelOption3([...checkedListHotelOption3, record]);
+        } else {
+          setCheckedListHotelOption3(
+            checkedListHotelOption3.filter((item) => item.key !== record.key)
+          );
+        }
+      } else if (type === "1") {
+        const index = checkedListRestaurentOption3.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListRestaurentOption3([
+            ...checkedListRestaurentOption3,
+            record,
+          ]);
+        } else {
+          setCheckedListRestaurentOption3(
+            checkedListRestaurentOption3.filter(
+              (item) => item.key !== record.key
+            )
+          );
+        }
+      } else if (type === "3") {
+        const index = checkedListEntertaimentOption3.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListEntertaimentOption3([
+            ...checkedListEntertaimentOption3,
+            record,
+          ]);
+        } else {
+          setCheckedListEntertaimentOption3(
+            checkedListEntertaimentOption3.filter(
+              (item) => item.key !== record.key
+            )
+          );
+        }
+      } else if (type === "3") {
+        const index = checkedListVehicleOption3.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListVehicleOption3([...checkedListVehicleOption3, record]);
+        } else {
+          setCheckedListVehicleOption3(
+            checkedListVehicleOption3.filter((item) => item.key !== record.key)
+          );
+        }
+      }
     }
   };
   useEffect(() => {
@@ -385,6 +445,31 @@ function TableComponent({
       addEntertainmentToList2(checkedListEntertaimentOption2);
     }
   }, [checkedListEntertaimentOption2]);
+
+
+
+  useEffect(() => {
+    if (type === "0" && option === "2") {
+      addHotelToList3(checkedListHotelOption3);
+    }
+  }, [checkedListHotelOption3]);
+  useEffect(() => {
+    if (type === "1"&& option === "2") {
+      addRestaurentToList3(checkedListRestaurentOption3);
+    }
+  }, [checkedListRestaurentOption3]);
+
+  useEffect(() => {
+    if (type === "3"&& option === "2") {
+      addVehicleToList3(checkedListVehicleOption3);
+    }
+  }, [checkedListVehicleOption3]);
+
+  useEffect(() => {
+    if (type === "2" &&  option === "2") {
+      addEntertainmentToList3(checkedListEntertaimentOption3);
+    }
+  }, [checkedListEntertaimentOption3]);
   const columns = [
     {
       title: "",
@@ -410,6 +495,16 @@ function TableComponent({
             ) ||
             checkedListVehicleOption2.some((item) => item.key === record.key) ||
             checkedListEntertaimentOption2.some(
+              (item) => item.key === record.key
+            )||
+            
+
+            checkedListHotelOption3.some((item) => item.key === record.key) ||
+            checkedListRestaurentOption3.some(
+              (item) => item.key === record.key
+            ) ||
+            checkedListVehicleOption3.some((item) => item.key === record.key) ||
+            checkedListEntertaimentOption3.some(
               (item) => item.key === record.key
             )
           }
