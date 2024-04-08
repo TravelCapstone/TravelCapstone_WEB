@@ -40,293 +40,35 @@ function CreateOptionForm() {
   const [open10, setOpen10] = useState(false);
 
   const [form] = Form.useForm();
-  const [selectedHotel, setSelectedHotel] = useState(null);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
-  const [selectedEntertaiment, setSelectedEntertaiment] = useState(null);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [priceService, setPriceService] = useState(0);
-  const [itemCount, setItemCount] = useState(1);
-  const [type, setType] = useState("");
-  const [options, setOptions] = useState([
-    {
-      name: "",
-      optionClass: "",
-      hotel: null,
-      restaurant: null,
-      vehicle: null,
-      entertainment: null,
-      airticket: null,
-    },
-  ]);
-
-  const handleSelectHotel1 = (hotel) => {
-    setSelectedHotel(hotel);
-  };
-  const handleSelectEntertainment1 = (entertainment) => {
-    setSelectedEntertaiment(entertainment);
-  };
-
-  const handleSelectHotel = (selectedHotel, index) => {
-    changeOption(index, "hotel", selectedHotel);
-  };
-
-  const handleSelectRestaurant = (restaurant, index) => {
-    changeOption(index, "restaurant", restaurant);
-  };
-
-  const handleSelectVehicle = (index, vehicle) => {
-    changeOption(index, "vehicle", vehicle);
-  };
-
-  const handleSelectEntertainment = (entertainment, index) => {
-    changeOption(index, "entertainment", entertainment);
-  };
-
-  const changeOption = (index, property, value) => {
-    const newOptions = [...options];
-    newOptions[index][property] = value;
-    setOptions(newOptions);
-  };
-
-  const handleSelectName = (index, name) => {
-    changeOption(index, "name", name);
-  };
-
-  const handleSelectClass = (index, optionClass) => {
-    changeOption(index, "optionClass", optionClass);
-    console.log(optionClass);
-    setType(optionClass);
-  };
-
-  const handleAddItem = () => {
-    const currentCount = itemCount + 1;
-    setOptions([
-      ...options,
-      { name: "", hotel: null, restaurant: null, price: "" },
-    ]);
-    setItemCount(currentCount);
-  };
-
-  // console.log(selectedHotel)
-  // console.log(selectedRestaurant)
-  console.log(options);
-  const [data, setData] = useState();
-  const fetch = async () => {
-    const response = await callApi(
-      "GET",
-      "/get-all-province-by-private-tour-request-id/C8DE0D2A-D6EC-468A-993F-27A6F19F009D"
-    );
-    console.log(response.data.result[0].id);
-    setData(response.data);
-  };
-
-  console.log(type);
-
-  useEffect(() => {
-    fetch();
-  }, []);
 
   const addHotelToList1 = (hotelsToAdd) => {
-    // Tạo một bản sao của danh sách khách sạn hiện tại
-    const currentHotels = [...hotellist1];
-
-    // Lặp qua từng khách sạn cần thêm vào danh sách
-    hotelsToAdd.forEach((newHotel) => {
-      // Kiểm tra xem khách sạn đã tồn tại trong danh sách hay chưa
-      const isExisting = currentHotels.some(
-        (existingHotel) => existingHotel.id === newHotel.id
-      );
-
-      // Nếu khách sạn chưa tồn tại, thêm vào danh sách
-      if (!isExisting) {
-        currentHotels.push(newHotel);
-        console.log(`Khách sạn ${newHotel.id} đã được thêm vào danh sách.`);
-      } else {
-        console.log(`Khách sạn ${newHotel.id} đã tồn tại trong danh sách.`);
-      }
-    });
-
-    // Cập nhật lại danh sách khách sạn sau khi đã thêm vào
-    setHotellist1(currentHotels);
+    setHotellist1(hotelsToAdd);
   };
+
   const addHotelToList2 = (hotelsToAdd) => {
-    // Tạo một bản sao của danh sách khách sạn hiện tại
-    const currentHotels = [...hotellist2];
-
-    // Lặp qua từng khách sạn cần thêm vào danh sách
-    hotelsToAdd.forEach((newHotel) => {
-      // Kiểm tra xem khách sạn đã tồn tại trong danh sách hay chưa
-      const isExisting = currentHotels.some(
-        (existingHotel) => existingHotel.id === newHotel.id
-      );
-
-      // Nếu khách sạn chưa tồn tại, thêm vào danh sách
-      if (!isExisting) {
-        currentHotels.push(newHotel);
-        console.log(`Khách sạn ${newHotel.id} đã được thêm vào danh sách.`);
-      } else {
-        console.log(`Khách sạn ${newHotel.id} đã tồn tại trong danh sách.`);
-      }
-    });
-
-    // Cập nhật lại danh sách khách sạn sau khi đã thêm vào
-    setHotellist2(currentHotels);
+    setHotellist2(hotelsToAdd);
   };
   const addRestaurentToList1 = (restaurentToAdd) => {
-    // Tạo một bản sao của danh sách khách sạn hiện tại
-    const currentRestaurents = [...restaurant1];
-
-    // Lặp qua từng khách sạn cần thêm vào danh sách
-    restaurentToAdd.forEach((newRestaurent) => {
-      // Kiểm tra xem khách sạn đã tồn tại trong danh sách hay chưa
-      const isExisting = currentRestaurents.some(
-        (existingHotel) => existingHotel.id === newRestaurent.id
-      );
-
-      // Nếu khách sạn chưa tồn tại, thêm vào danh sách
-      if (!isExisting) {
-        currentRestaurents.push(newRestaurent);
-        console.log(
-          `Khách sạn ${newRestaurent.id} đã được thêm vào danh sách.`
-        );
-      } else {
-        console.log(
-          `Khách sạn ${newRestaurent.id} đã tồn tại trong danh sách.`
-        );
-      }
-    });
-
-    // Cập nhật lại danh sách khách sạn sau khi đã thêm vào
-    setRestaurent1(currentRestaurents);
+    setRestaurent1(restaurentToAdd);
   };
   const addRestaurentToList2 = (restaurentToAdd) => {
-    // Tạo một bản sao của danh sách khách sạn hiện tại
-    const currentRestaurents = [...restaurant2];
-
-    // Lặp qua từng khách sạn cần thêm vào danh sách
-    restaurentToAdd.forEach((newRestaurent) => {
-      // Kiểm tra xem khách sạn đã tồn tại trong danh sách hay chưa
-      const isExisting = currentRestaurents.some(
-        (existingHotel) => existingHotel.id === newRestaurent.id
-      );
-
-      // Nếu khách sạn chưa tồn tại, thêm vào danh sách
-      if (!isExisting) {
-        currentRestaurents.push(newRestaurent);
-        console.log(
-          `Khách sạn ${newRestaurent.id} đã được thêm vào danh sách.`
-        );
-      } else {
-        console.log(
-          `Khách sạn ${newRestaurent.id} đã tồn tại trong danh sách.`
-        );
-      }
-    });
-
-    // Cập nhật lại danh sách khách sạn sau khi đã thêm vào
-    setRestaurent2(currentRestaurents);
+    setRestaurent2(restaurentToAdd);
   };
 
   const addEntertainmentToList1 = (entertainmentToAdd) => {
-    // Tạo một bản sao của danh sách khách sạn hiện tại
-    const currentEntertainments = [...entertaiment1];
-
-    // Lặp qua từng khách sạn cần thêm vào danh sách
-    entertainmentToAdd.forEach((newRestaurent) => {
-      // Kiểm tra xem khách sạn đã tồn tại trong danh sách hay chưa
-      const isExisting = currentEntertainments.some(
-        (existingHotel) => existingHotel.id === newRestaurent.id
-      );
-
-      // Nếu khách sạn chưa tồn tại, thêm vào danh sách
-      if (!isExisting) {
-        currentEntertainments.push(newRestaurent);
-        console.log(
-          `Khách sạn ${newRestaurent.id} đã được thêm vào danh sách.`
-        );
-      } else {
-        console.log(
-          `Khách sạn ${newRestaurent.id} đã tồn tại trong danh sách.`
-        );
-      }
-    });
-
-    // Cập nhật lại danh sách khách sạn sau khi đã thêm vào
-    setEntertaiment1(currentEntertainments);
+   
+    setEntertaiment1(entertainmentToAdd);
   };
   const addEntertainmentToList2 = (entertainmentToAdd) => {
-    // Tạo một bản sao của danh sách khách sạn hiện tại
-    const currentEntertainments = [...entertaiment2];
-
-    // Lặp qua từng khách sạn cần thêm vào danh sách
-    entertainmentToAdd.forEach((newRestaurent) => {
-      // Kiểm tra xem khách sạn đã tồn tại trong danh sách hay chưa
-      const isExisting = currentEntertainments.some(
-        (existingHotel) => existingHotel.id === newRestaurent.id
-      );
-
-      // Nếu khách sạn chưa tồn tại, thêm vào danh sách
-      if (!isExisting) {
-        currentEntertainments.push(newRestaurent);
-        console.log(
-          `Khách sạn ${newRestaurent.id} đã được thêm vào danh sách.`
-        );
-      } else {
-        console.log(
-          `Khách sạn ${newRestaurent.id} đã tồn tại trong danh sách.`
-        );
-      }
-    });
-
-    // Cập nhật lại danh sách khách sạn sau khi đã thêm vào
-    setEntertaiment2(currentEntertainments);
+   
+    setEntertaiment2(entertainmentToAdd);
   };
-
+  
   const addVehicleToList1 = (vehiclesToAdd) => {
-    // Tạo một bản sao của danh sách khách sạn hiện tại
-    const currenVehicles = [...vehicle1];
-
-    // Lặp qua từng khách sạn cần thêm vào danh sách
-    vehiclesToAdd.forEach((newVehicle) => {
-      // Kiểm tra xem khách sạn đã tồn tại trong danh sách hay chưa
-      const isExisting = currenVehicles.some(
-        (existingHotel) => existingHotel.id === newVehicle.id
-      );
-
-      // Nếu khách sạn chưa tồn tại, thêm vào danh sách
-      if (!isExisting) {
-        currenVehicles.push(newVehicle);
-        console.log(`Khách sạn ${newVehicle.id} đã được thêm vào danh sách.`);
-      } else {
-        console.log(`Khách sạn ${newVehicle.id} đã tồn tại trong danh sách.`);
-      }
-    });
-
-    // Cập nhật lại danh sách khách sạn sau khi đã thêm vào
-    setVehicle1(currenVehicles);
+    setVehicle1(vehiclesToAdd);
   };
   const addVehicleToList2 = (vehiclesToAdd) => {
-    // Tạo một bản sao của danh sách khách sạn hiện tại
-    const currenVehicles = [...vehicle2];
-
-    // Lặp qua từng khách sạn cần thêm vào danh sách
-    vehiclesToAdd.forEach((newVehicle) => {
-      // Kiểm tra xem khách sạn đã tồn tại trong danh sách hay chưa
-      const isExisting = currenVehicles.some(
-        (existingHotel) => existingHotel.id === newVehicle.id
-      );
-
-      // Nếu khách sạn chưa tồn tại, thêm vào danh sách
-      if (!isExisting) {
-        currenVehicles.push(newVehicle);
-        console.log(`Khách sạn ${newVehicle.id} đã được thêm vào danh sách.`);
-      } else {
-        console.log(`Khách sạn ${newVehicle.id} đã tồn tại trong danh sách.`);
-      }
-    });
-
-    // Cập nhật lại danh sách khách sạn sau khi đã thêm vào
-    setVehicle2(currenVehicles);
+    setVehicle2(vehiclesToAdd);
   };
   return (
     <div className="mt-24 container">
@@ -337,353 +79,469 @@ function CreateOptionForm() {
         <Form size="large">
           <>
             <Row>
-              <Card className="flex-1">
-                <Form.Item label="Tên gói">
-                  <Input />
-                </Form.Item>
+              <Col span={8} className="p-3">
+                <Card className="flex-1">
+                  <Form.Item label="Tên gói">
+                    <Input />
+                  </Form.Item>
 
-                <Form.Item className="mt-5" label="Phân loại gói">
-                  <Select placeholder="Chọn gói">
-                    <Option value={0}>Tiết kiệm</Option>
-                    <Option value={1}>Cơ bản</Option>
-                    <Option value={2}>Nâng cao</Option>
-                  </Select>
-                </Form.Item>
+                  <Form.Item className="mt-5" label="Phân loại gói">
+                    <Select placeholder="Chọn gói">
+                      <Option value={0}>Tiết kiệm</Option>
+                      <Option value={1}>Cơ bản</Option>
+                      <Option value={2}>Nâng cao</Option>
+                    </Select>
+                  </Form.Item>
 
-                <Form.Item label="Khách sạn">
-                  <Button type="primary" onClick={() => setOpen1(true)}>
-                    Chọn khách sạn
-                  </Button>
-                  <Modal
-                    title="DANH SÁCH KHÁCH SẠN"
-                    centered
-                    open={open1}
-                    onOk={() => {
-                      setOpen1(!open1);
-                    }}
-                    onCancel={() => setOpen1(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="0"
-                      addHotelToList1={addHotelToList1}
-                      option={"1"}
-                    />
-                  </Modal>
-                </Form.Item>
-                <Form.Item className="m-10">
-                  {hotellist1.length > 0 &&
-                    hotellist1.map((item, index) => (
-                      <>
-                        <p key={index}> {item?.name}</p>
-
-                        <Form.Item label="Số lượng" className="flex">
-                          <Input className="w-24" />
-                        </Form.Item>
-                      </>
-                    ))}
-                </Form.Item>
-
-                <Form.Item label="Nhà hàng">
-                  <Button type="primary" onClick={() => setOpen2(true)}>
-                    Chọn nhà hàng
-                  </Button>
-                  <Modal
-                    title="DANH SÁCH NHÀ HÀNG"
-                    centered
-                    open={open2}
-                    onOk={() => {
-                      setOpen2(!open2);
-                    }}
-                    onCancel={() => setOpen2(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="1"
-                      addRestaurentToList1={addRestaurentToList1}
-                      option={"1"}
-                    />
-                  </Modal>
-
+                  <Form.Item label="Khách sạn">
+                    <Button type="primary" onClick={() => setOpen1(true)}>
+                      Chọn khách sạn
+                    </Button>
+                    <Modal
+                      title="DANH SÁCH KHÁCH SẠN"
+                      centered
+                      open={open1}
+                      onOk={() => {
+                        setOpen1(!open1);
+                      }}
+                      onCancel={() => setOpen1(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="0"
+                        addHotelToList1={addHotelToList1}
+                        option={"1"}
+                      />
+                    </Modal>
+                  </Form.Item>
                   <Form.Item>
-                    {console.log("aaaaaa", restaurant1)}
-                    {restaurant1.length > 0 &&
-                      restaurant1.map((item, index) => (
-                        <>
-                          <p key={index}> {item?.name}</p>
-                          <Form.Item label="Số lượng" className="flex">
-                            <Input className="w-24" />
-                          </Form.Item>
-                        </>
+                    {hotellist1.length > 0 &&
+                      hotellist1.map((item, index) => (
+                        <div className="border-b-2 my-2 p-1">
+                          <p key={index}>
+                            {" "}
+                            {item?.name}
+                            <br></br> Địa chỉ: {item.address}
+                          </p>
+                          <p> Giá gốc: 1.000.000đ</p>
+                          <p className="text-red-500 font-semibold		">
+                            Giá bán ra: 1.500.000đ
+                          </p>
+
+                          <Input
+                            label="Số lượng"
+                            className="w-32 "
+                            type="number"
+                            placeholder="Số lượng"
+                            min={0}
+                          />
+                          <p className="text-red-500 font-semibold		">
+                            Tổng lời:500.000đ
+                          </p>
+                        </div>
                       ))}
                   </Form.Item>
-                </Form.Item>
 
-                <Form.Item label="Phương tiện chính">
-                  <Button type="primary" onClick={() => setOpen3(true)}>
-                    Chọn phương tiện
-                  </Button>
+                  <Form.Item label="Nhà hàng">
+                    <Button type="primary" onClick={() => setOpen2(true)}>
+                      Chọn nhà hàng
+                    </Button>
+                    <Modal
+                      title="DANH SÁCH NHÀ HÀNG"
+                      centered
+                      open={open2}
+                      onOk={() => {
+                        setOpen2(!open2);
+                      }}
+                      onCancel={() => setOpen2(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        addRestaurentToList1={addRestaurentToList1}
+                        option="1"
+                        type="1"
+                      />
+                    </Modal>
 
-                  <Modal
-                    title="DANH SÁCH PHƯƠNG TIỆN"
-                    centered
-                    open={open3}
-                    onOk={() => {
-                      setOpen3(false);
-                    }}
-                    onCancel={() => setOpen3(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="3"
-                      addVehicleToList1={addVehicleToList1}
-                      option={"1"}
-                    />
-                  </Modal>
-                </Form.Item>
-                <Form.Item>
-                  {console.log("aaaaaa", restaurant1)}
-                  {vehicle1.length > 0 &&
-                    vehicle1.map((item, index) => (
-                      <>
-                        <p key={index}> {item?.name}</p>
-                        <Form.Item label="Số lượng" className="flex">
-                          <Input className="w-24" />
-                        </Form.Item>
-                      </>
-                    ))}
-                </Form.Item>
-                <Form.Item label="Giải trí">
-                  <Button type="primary" onClick={() => setOpen4(true)}>
-                    Chọn
-                  </Button>
-
-                  <Modal
-                    title="DANH SÁCH "
-                    centered
-                    open={open4}
-                    onOk={() => {
-                      setOpen4(false);
-                    }}
-                    onCancel={() => setOpen4(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="2"
-                      addEntertainmentToList1={addEntertainmentToList1}
-                      option={"1"}
-                    />
-                  </Modal>
-                </Form.Item>
-                {entertaiment1.length > 0 &&
-                  entertaiment1.map((item, index) => (
-                    <>
-                      <p key={index}> {item?.name}</p>
-                      <Form.Item label="Số lượng" className="flex">
-                        <Input className="w-24" />
-                      </Form.Item>
-                    </>
-                  ))}
-                <Form.Item label="Vé máy bay (nếu có)">
-                  <Button type="primary" onClick={() => setOpen5(true)}>
-                    Chọn
-                  </Button>
-
-                  <Modal
-                    title="DANH SÁCH VÉ MÁY BAY"
-                    centered
-                    open={open5}
-                    onOk={() => {
-                      onSelectRecord(selectedVehicle);
-                      setOpen5(false);
-                    }}
-                    onCancel={() => setOpen5(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="4"
-                      onSelectRecord={handleSelectVehicle}
-                    />
-                  </Modal>
-                </Form.Item>
-              </Card>
-
-              {/* ))} */}
-            </Row>
-
-            <Row>
-              <Card className="flex-1">
-                <Form.Item label="Tên gói">
-                  <Input />
-                </Form.Item>
-
-                <Form.Item className="mt-5" label="Phân loại gói">
-                  <Select placeholder="Chọn gói">
-                    <Option value={0}>Tiết kiệm</Option>
-                    <Option value={1}>Cơ bản</Option>
-                    <Option value={2}>Nâng cao</Option>
-                  </Select>
-                </Form.Item>
-
-                <Form.Item label="Khách sạn">
-                  <Button type="primary" onClick={() => setOpen6(true)}>
-                    Chọn khách sạn
-                  </Button>
-                  <Modal
-                    title="DANH SÁCH KHÁCH SẠN"
-                    centered
-                    open={open6}
-                    onOk={() => {
-                      setOpen6(!open6);
-                    }}
-                    onCancel={() => setOpen6(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="0"
-                      addHotelToList2={addHotelToList2}
-                      option={"2"}
-                    />
-                  </Modal>
-                </Form.Item>
-                <Form.Item className="m-10">
-                  {hotellist2.length > 0 &&
-                    hotellist2.map((item, index) => (
-                      <>
-                        <p key={index}> {item?.name}</p>
-
-                        <Form.Item label="Số lượng" className="flex">
-                          <Input className="w-24" />
-                        </Form.Item>
-                      </>
-                    ))}
-                </Form.Item>
-
-                <Form.Item label="Nhà hàng">
-                  <Button type="primary" onClick={() => setOpen7(true)}>
-                    Chọn nhà hàng
-                  </Button>
-                  <Modal
-                    title="DANH SÁCH NHÀ HÀNG"
-                    centered
-                    open={open7}
-                    onOk={() => {
-                      setOpen2(!open7);
-                    }}
-                    onCancel={() => setOpen7(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="1"
-                      addRestaurentToList1={addRestaurentToList1}
-                      option={"1"}
-                    />
-                  </Modal>
-
+                   
+                  </Form.Item>
                   <Form.Item>
-                    {console.log("aaaaaa", restaurant1)}
-                    {restaurant1.length > 0 &&
-                      restaurant1.map((item, index) => (
-                        <>
-                          <p key={index}> {item?.name}</p>
-                          <Form.Item label="Số lượng" className="flex">
-                            <Input className="w-24" />
-                          </Form.Item>
-                        </>
+                      {restaurant1.length > 0 &&
+                        restaurant1.map((item, index) => (
+                          <div className="border-b-2 my-2 p-1">
+                          <p key={index}>
+                            {" "}
+                            {item?.name}
+                            <br></br> Địa chỉ: {item.address}
+                          </p>
+                          <p> Giá gốc: 1.000.000đ</p>
+                          <p className="text-red-500 font-semibold		">
+                            Giá bán ra: 1.500.000đ
+                          </p>
+
+                          <Input
+                            label="Số lượng"
+                            className="w-32 "
+                            type="number"
+                            placeholder="Số lượng"
+                            min={0}
+                          />
+                          <p className="text-red-500 font-semibold		">
+                            Tổng lời:500.000đ
+                          </p>
+                        </div>
+                        ))}
+                    </Form.Item>
+                  <Form.Item label="Phương tiện chính">
+                    <Button type="primary" onClick={() => setOpen3(true)}>
+                      Chọn phương tiện
+                    </Button>
+
+                    <Modal
+                      title="DANH SÁCH PHƯƠNG TIỆN"
+                      centered
+                      open={open3}
+                      onOk={() => {
+                        setOpen3(false);
+                      }}
+                      onCancel={() => setOpen3(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="3"
+                        addVehicleToList1={addVehicleToList1}
+                        option={"1"}
+                      />
+                    </Modal>
+                  </Form.Item>
+                  <Form.Item>
+                    {vehicle1.length > 0 &&
+                      vehicle1.map((item, index) => (
+                        <div className="border-b-2 my-2 p-1">
+                        <p key={index}>
+                          {" "}
+                          {item?.name}
+                          <br></br> Địa chỉ: {item.address}
+                        </p>
+                        <p> Giá gốc: 1.000.000đ</p>
+                        <p className="text-red-500 font-semibold		">
+                          Giá bán ra: 1.500.000đ
+                        </p>
+
+                        <Input
+                          label="Số lượng"
+                          className="w-32 "
+                          type="number"
+                          placeholder="Số lượng"
+                          min={0}
+                        />
+                        <p className="text-red-500 font-semibold		">
+                          Tổng lời:500.000đ
+                        </p>
+                      </div>
                       ))}
                   </Form.Item>
-                </Form.Item>
+                  <Form.Item label="Giải trí">
+                    <Button type="primary" onClick={() => setOpen4(true)}>
+                      Chọn
+                    </Button>
 
-                <Form.Item label="Phương tiện chính">
-                  <Button type="primary" onClick={() => setOpen3(true)}>
-                    Chọn phương tiện
-                  </Button>
+                    <Modal
+                      title="DANH SÁCH "
+                      centered
+                      open={open4}
+                      onOk={() => {
+                        setOpen4(false);
+                      }}
+                      onCancel={() => setOpen4(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="2"
+                        addEntertainmentToList1={addEntertainmentToList1}
+                        option={"1"}
+                      />
+                    </Modal>
+                  </Form.Item>
+                  {entertaiment1.length > 0 &&
+                    entertaiment1.map((item, index) => (
+                      <div className="border-b-2 my-2 p-1">
+                      <p key={index}>
+                        {" "}
+                        {item?.name}
+                        <br></br> Địa chỉ: {item.address}
+                      </p>
+                      <p> Giá gốc: 1.000.000đ</p>
+                      <p className="text-red-500 font-semibold		">
+                        Giá bán ra: 1.500.000đ
+                      </p>
 
-                  <Modal
-                    title="DANH SÁCH PHƯƠNG TIỆN"
-                    centered
-                    open={open3}
-                    onOk={() => {
-                      setOpen3(false);
-                    }}
-                    onCancel={() => setOpen3(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="3"
-                      addVehicleToList1={addVehicleToList1}
-                      option={"1"}
-                    />
-                  </Modal>
-                </Form.Item>
-                <Form.Item>
-                  {console.log("aaaaaa", restaurant1)}
-                  {vehicle1.length > 0 &&
-                    vehicle1.map((item, index) => (
-                      <>
-                        <p key={index}> {item?.name}</p>
-                        <Form.Item label="Số lượng" className="flex">
-                          <Input className="w-24" />
-                        </Form.Item>
-                      </>
+                      <Input
+                        label="Số lượng"
+                        className="w-32 "
+                        type="number"
+                        placeholder="Số lượng"
+                        min={0}
+                      />
+                      <p className="text-red-500 font-semibold		">
+                        Tổng lời:500.000đ
+                      </p>
+                    </div>
                     ))}
-                </Form.Item>
-                <Form.Item label="Giải trí">
-                  <Button type="primary" onClick={() => setOpen4(true)}>
-                    Chọn
-                  </Button>
+                  <Form.Item label="Vé máy bay (nếu có)">
+                    <Button type="primary" onClick={() => setOpen5(true)}>
+                      Chọn
+                    </Button>
 
-                  <Modal
-                    title="DANH SÁCH "
-                    centered
-                    open={open4}
-                    onOk={() => {
-                      setOpen4(false);
-                    }}
-                    onCancel={() => setOpen4(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="2"
-                      addEntertainmentToList1={addEntertainmentToList1}
-                      option={"1"}
-                    />
-                  </Modal>
-                </Form.Item>
-                {entertaiment1.length > 0 &&
-                  entertaiment1.map((item, index) => (
-                    <>
-                      <p key={index}> {item?.name}</p>
-                      <Form.Item label="Số lượng" className="flex">
-                        <Input className="w-24" />
-                      </Form.Item>
-                    </>
-                  ))}
-                <Form.Item label="Vé máy bay (nếu có)">
-                  <Button type="primary" onClick={() => setOpen5(true)}>
-                    Chọn
-                  </Button>
+                    <Modal
+                      title="DANH SÁCH VÉ MÁY BAY"
+                      centered
+                      open={open5}
+                      onOk={() => {
+                        setOpen5(false);
+                      }}
+                      onCancel={() => setOpen5(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="4"
+                      />
+                    </Modal>
+                  </Form.Item>
+                </Card>
+              </Col>
 
-                  <Modal
-                    title="DANH SÁCH VÉ MÁY BAY"
-                    centered
-                    open={open5}
-                    onOk={() => {
-                      onSelectRecord(selectedVehicle);
-                      setOpen5(false);
-                    }}
-                    onCancel={() => setOpen5(false)}
-                    width={1000}
-                  >
-                    <TableComponent
-                      type="4"
-                      onSelectRecord={handleSelectVehicle}
-                    />
-                  </Modal>
-                </Form.Item>
-              </Card>
+              <Col span={8} className="p-3">
+                <Card className="flex-1">
+                  <Form.Item label="Tên gói">
+                    <Input />
+                  </Form.Item>
 
-              {/* ))} */}
+                  <Form.Item className="mt-5" label="Phân loại gói">
+                    <Select placeholder="Chọn gói">
+                      <Option value={0}>Tiết kiệm</Option>
+                      <Option value={1}>Cơ bản</Option>
+                      <Option value={2}>Nâng cao</Option>
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item label="Khách sạn">
+                    <Button type="primary" onClick={() => setOpen6(true)}>
+                      Chọn khách sạn
+                    </Button>
+                    <Modal
+                      title="DANH SÁCH KHÁCH SẠN"
+                      centered
+                      open={open6}
+                      onOk={() => {
+                        setOpen6(!open6);
+                      }}
+                      onCancel={() => setOpen6(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="0"
+                        addHotelToList2={addHotelToList2}
+                        option={"2"}
+                      />
+                    </Modal>
+                  </Form.Item>
+                  <Form.Item>
+                    {hotellist2.length > 0 &&
+                      hotellist2.map((item, index) => (
+                        <div className="border-b-2 my-2 p-1">
+                          <p key={index}>
+                            {" "}
+                            {item?.name}
+                            <br></br> Địa chỉ: {item.address}
+                          </p>
+                          <p> Giá gốc: 1.000.000đ</p>
+                          <p className="text-red-500 font-semibold		">
+                            Giá bán ra: 1.500.000đ
+                          </p>
+
+                          <Input
+                            label="Số lượng"
+                            className="w-32 "
+                            type="number"
+                            placeholder="Số lượng"
+                            min={0}
+                          />
+                          <p className="text-red-500 font-semibold		">
+                            Tổng lời:500.000đ
+                          </p>
+                        </div>
+                      ))}
+                  </Form.Item>
+
+                  <Form.Item label="Nhà hàng">
+                    <Button type="primary" onClick={() => setOpen7(true)}>
+                      Chọn nhà hàng
+                    </Button>
+                    <Modal
+                      title="DANH SÁCH NHÀ HÀNG"
+                      centered
+                      open={open7}
+                      onOk={() => {
+                        setOpen7(!open7);
+                      }}
+                      onCancel={() => setOpen7(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        addRestaurentToList2={addRestaurentToList2}
+                        option="2"
+                        type="1"
+                      />
+                    </Modal>
+
+                   
+                  </Form.Item>
+                  <Form.Item>
+                      {restaurant2.length > 0 &&
+                        restaurant2.map((item, index) => (
+                          <div className="border-b-2 my-2 p-1">
+                          <p key={index}>
+                            {" "}
+                            {item?.name}
+                            <br></br> Địa chỉ: {item.address}
+                          </p>
+                          <p> Giá gốc: 1.000.000đ</p>
+                          <p className="text-red-500 font-semibold		">
+                            Giá bán ra: 1.500.000đ
+                          </p>
+
+                          <Input
+                            label="Số lượng"
+                            className="w-32 "
+                            type="number"
+                            placeholder="Số lượng"
+                            min={0}
+                          />
+                          <p className="text-red-500 font-semibold		">
+                            Tổng lời:500.000đ
+                          </p>
+                        </div>
+                        ))}
+                    </Form.Item>
+                  <Form.Item label="Phương tiện chính">
+                    <Button type="primary" onClick={() => setOpen8(true)}>
+                      Chọn phương tiện
+                    </Button>
+
+                    <Modal
+                      title="DANH SÁCH PHƯƠNG TIỆN"
+                      centered
+                      open={open8}
+                      onOk={() => {
+                        setOpen8(false);
+                      }}
+                      onCancel={() => setOpen8(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="3"
+                        addVehicleToList2={addVehicleToList2}
+                        option={"2"}
+                      />
+                    </Modal>
+                  </Form.Item>
+                  <Form.Item>
+                    {vehicle2.length > 0 &&
+                      vehicle2.map((item, index) => (
+                        <div className="border-b-2 my-2 p-1">
+                        <p key={index}>
+                          {" "}
+                          {item?.name}
+                          <br></br> Địa chỉ: {item.address}
+                        </p>
+                        <p> Giá gốc: 1.000.000đ</p>
+                        <p className="text-red-500 font-semibold		">
+                          Giá bán ra: 1.500.000đ
+                        </p>
+
+                        <Input
+                          label="Số lượng"
+                          className="w-32 "
+                          type="number"
+                          placeholder="Số lượng"
+                          min={0}
+                        />
+                        <p className="text-red-500 font-semibold		">
+                          Tổng lời:500.000đ
+                        </p>
+                      </div>
+                      ))}
+                  </Form.Item>
+                  <Form.Item label="Giải trí">
+                    <Button type="primary" onClick={() => setOpen9(true)}>
+                      Chọn
+                    </Button>
+
+                    <Modal
+                      title="DANH SÁCH "
+                      centered
+                      open={open9}
+                      onOk={() => {
+                        setOpen9(false);
+                      }}
+                      onCancel={() => setOpen9(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="2"
+                        addEntertainmentToList2={addEntertainmentToList2}
+                        option={"2"}
+                      />
+                    </Modal>
+                  </Form.Item>
+                  {entertaiment1.length > 0 &&
+                    entertaiment1.map((item, index) => (
+                      <div className="border-b-2 my-2 p-1">
+                      <p key={index}>
+                        {" "}
+                        {item?.name}
+                        <br></br> Địa chỉ: {item.address}
+                      </p>
+                      <p> Giá gốc: 1.000.000đ</p>
+                      <p className="text-red-500 font-semibold		">
+                        Giá bán ra: 1.500.000đ
+                      </p>
+
+                      <Input
+                        label="Số lượng"
+                        className="w-32 "
+                        type="number"
+                        placeholder="Số lượng"
+                        min={0}
+                      />
+                      <p className="text-red-500 font-semibold		">
+                        Tổng lời:500.000đ
+                      </p>
+                    </div>
+                    ))}
+                  <Form.Item label="Vé máy bay (nếu có)">
+                    <Button type="primary" onClick={() => setOpen10(true)}>
+                      Chọn
+                    </Button>
+
+                    <Modal
+                      title="DANH SÁCH VÉ MÁY BAY"
+                      centered
+                      open={open10}
+                      onOk={() => {
+                        setOpen10(false);
+                      }}
+                      onCancel={() => setOpen10(false)}
+                      width={1000}
+                    >
+                      <TableComponent
+                        type="4"
+                      />
+                    </Modal>
+                  </Form.Item>
+                </Card>
+              </Col>
             </Row>
           </>
         </Form>
