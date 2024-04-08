@@ -24,12 +24,13 @@ export const LISTING_TOUR = '/view-list-tour-public';
 export const DETAIL_TOUR = '/detail-tour-public';
 
 //====================== STAFF ==============================
+export const STAFF_PAGE= '/staff';
 // Listing Single Page Section
-export const LISTING_TOUR_REQUEST_STAFF = '/view-list-tour-private';
-export const DETAIL_TOUR_REQUEST_STAFF = '/view-list-tour-private/:id';
+export const LISTING_TOUR_REQUEST_STAFF = 'view-list-tour-private';
+export const DETAIL_TOUR_REQUEST_STAFF = 'view-list-tour-private/:id';
 
 // Form Request
-export const CREATE_OPTIONS_TOUR_PRIVATE = '/create';
+export const CREATE_OPTIONS_TOUR_PRIVATE = 'create';
 
 // Other Pages
 
