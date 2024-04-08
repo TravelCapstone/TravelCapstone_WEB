@@ -34,3 +34,8 @@ body {
   right: 0;
 }
 
+:where(.css-dev-only-do-not-override-11xg00t).ant-modal .ant-modal-content {
+  padding: 36px 41px !important;
+  top: 200px;
+}
+

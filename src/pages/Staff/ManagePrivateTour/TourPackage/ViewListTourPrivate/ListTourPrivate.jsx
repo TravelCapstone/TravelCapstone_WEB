@@ -21,7 +21,7 @@ const ListTourPrivate = ({ orders, title }) => {
 
     const showTourDetails = (order) => {
         // Assuming order.id is numeric.
-        navigate(DETAIL_TOUR_REQUEST_STAFF.replace(':id', order.id.toString()), { state: { order } });
+        navigate(`/${DETAIL_TOUR_REQUEST_STAFF.replace(':id', order.id.toString())}`, { state: { order } });
     };
 
     if (!Array.isArray(orders) || orders.length === 0) { 
