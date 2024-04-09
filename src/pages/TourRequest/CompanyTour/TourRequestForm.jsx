@@ -57,6 +57,14 @@ function TourRequestForm() {
                   </div>
                 ),
               },
+              {
+                max: 50,
+                message: (
+                  <div>
+                    <WarningFilled /> Độ dài vượt quá 50 kí tự!
+                  </div>
+                ),
+              },
             ]}
           >
             <Input className="h-10" />
@@ -147,9 +155,16 @@ function TourRequestForm() {
               ]}
             >
               <TextArea
-                rows={6}
+              rows={6}
+              showCount
+              maxLength={450}
+                
                 className="h-10"
                 placeholder="Nhập thông tin mô tả yêu cầu về chuyến đi..."
+                style={{
+                  height: 120,
+               //   resize: 'none',
+                }}
               />
             </Form.Item>
           </Flex>
@@ -220,19 +235,7 @@ function TourRequestForm() {
             )}
           </Form.List>
 
-          <Form.Item label="Ghi chú (nếu có)" name="note" className="">
-            <TextArea
-              showCount
-              maxLength={100}
-              rows={6}
-              className="h-10"
-              placeholder="Nội dung cần lưu ý cho chuyến đi..."
-              style={{
-                height: 120,
-                resize: "none",
-              }}
-            />
-          </Form.Item>
+        
           <Button className="w-full mt-2" htmlType="submit">
             Gửi yêu cầu
           </Button>

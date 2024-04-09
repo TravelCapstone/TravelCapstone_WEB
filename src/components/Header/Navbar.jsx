@@ -64,7 +64,7 @@ function Navbar() {
     <>
       <nav className={`fixed top-0 right-0 w-full flex justify-between items-center z-50 font-semibold ${header ? 'bg-white backdrop-blur-sm text-black shadow-md' : 'bg-transparent text-black'}`}>
         <div className="bg-gradient-to-r from-primary to-secondary text-white font-semibold"></div>
-        <div className="mx-auto px-4 w-full py-[2px] sm:block hidden font-semibold">
+        <div className="container py-[2px] sm:block hidden font-semibold">
           <div className="flex flex-row justify-between items-center w-full ">
             <div className="flex items-center justify-center mx-6 gap-4 font-bold text-2xl basis-1/6">
               <MainLogo />
