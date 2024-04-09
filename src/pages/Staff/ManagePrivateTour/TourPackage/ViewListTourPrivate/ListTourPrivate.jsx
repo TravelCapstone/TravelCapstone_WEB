@@ -1,6 +1,6 @@
 import React from 'react';
 // import { Card, List } from 'antd';
-import { Table, Button, Tag, Tooltip  } from 'antd';
+import { Table, Button, Tag, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { DETAIL_TOUR_REQUEST_STAFF } from '../../../../../settings/constant';
 
@@ -18,13 +18,16 @@ const getStatusColor = (status) => {
 
 const ListTourPrivate = ({ orders, title }) => {
     const navigate = useNavigate(); // Sử dụng hook useNavigate
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [pageSize, setPageSize] = React.useState(10); // Ban đầu đặt pageSize là 10
+
 
     const showTourDetails = (order) => {
         // Assuming order.id is numeric.
-        navigate(DETAIL_TOUR_REQUEST_STAFF.replace(':id', order.id.toString()), { state: { order } });
+        navigate(`/${DETAIL_TOUR_REQUEST_STAFF.replace(':id', order.id.toString())}`, { state: { order } });
     };
 
-    if (!Array.isArray(orders) || orders.length === 0) { 
+    if (!Array.isArray(orders) || orders.length === 0) {
         return (
             <div className="text-center">
                 <p className="text-lg font-semibold">Không có đơn hàng nào đang chờ xử lý.</p>
@@ -32,10 +35,16 @@ const ListTourPrivate = ({ orders, title }) => {
         );
     }
 
+    const handleTableChange = (pagination) => {
+        setCurrentPage(pagination.current);
+        setPageSize(pagination.pageSize); // Cập nhật pageSize dựa vào lựa chọn của người dùng
+    };
+
+
     // Convert orders to a format compatible with the Ant Design Table
-    const dataSource =  orders.map((order) => ({
+    const dataSource = orders.map((order) => ({
         key: order.id,
-        id: order.id, 
+        id: order.id,
         status: order.status,
         dateRange: order.dateRange,
         username: order.username,
@@ -52,12 +61,17 @@ const ListTourPrivate = ({ orders, title }) => {
         // total: order.total
     }));
 
-    
 
 
-    
+
+
 
     const columns = [
+        {
+            title: 'STT',
+            key: 'index',
+            render: (_, __, index) => ((currentPage - 1) * pageSize) + index + 1,
+        },
         {
             title: 'ID',
             dataIndex: 'id',
@@ -67,7 +81,7 @@ const ListTourPrivate = ({ orders, title }) => {
             title: 'Tên Tour',
             dataIndex: 'tourName',
             key: 'tourName',
-            
+
         },
         {
             title: 'Trạng thái',
@@ -108,37 +122,6 @@ const ListTourPrivate = ({ orders, title }) => {
         //         </Tooltip>
         //     ),
         // },
-        // {
-        //     title: 'Số lượng người lớn',
-        //     dataIndex: 'adults',
-        //     key: 'adults',
-        // },
-        // {
-        //     title: 'Số lượng trẻ em',
-        //     dataIndex: 'child',
-        //     key: 'child',
-        // },
-        // {
-        //     title: 'Locations',
-        //     dataIndex: 'locations',
-        //     key: 'locations',
-        // },
-        // {
-        //     title: 'Note',
-        //     dataIndex: 'note',
-        //     key: 'note',
-        //     // width: 250, // Adjust the width as needed
-        //     render: (text) => (
-        //         <Tooltip title={text}>
-        //             <span>{truncateText(text, 5)}</span>
-        //         </Tooltip>
-        //     ),
-        // },
-        // {
-        //     title: 'Total',
-        //     render: () => 'Total Placeholder',
-        //     key: 'total',
-        // },
         {
             title: 'Action',
             key: 'action',
@@ -168,11 +151,18 @@ const ListTourPrivate = ({ orders, title }) => {
     return (
         <div className="container mx-auto mt-4">
             <h2 className="text-xl font-bold text-center mb-5">{title}</h2>
-            <Table 
-                columns={columns} 
-                dataSource={dataSource} 
-                pagination={paginationConfig} 
-               //scroll={{ x: 1000, y: 500 }} 
+            <Table
+                columns={columns}
+                dataSource={dataSource}
+                onChange={handleTableChange}
+                pagination={{
+                    current: currentPage,
+                    pageSize: pageSize,
+                    showSizeChanger: true,
+                    pageSizeOptions: ['10', '20', '30'],
+                    showQuickJumper: true,
+                    showTotal: (total, range) => `Tổng Tour: ${total}`,
+                }}
             />
         </div>
     );

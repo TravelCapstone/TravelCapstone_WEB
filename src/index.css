@@ -27,3 +27,16 @@ body {
   @apply text-mainColor px-2 py-1 hover:border-none;
 }
 
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+:where(.css-dev-only-do-not-override-11xg00t).ant-modal .ant-modal-content {
+  padding: 36px 41px !important;
+  margin-bottom: 100px;
+  top: 20px;
+}
+

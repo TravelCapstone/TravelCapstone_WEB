@@ -1,124 +1,121 @@
-// import React from 'react';
-// import ViewOptionCardWrapper, {
-//   ViewOptionHeader,
-//   Title,
-//   ViewOptionList,
-//   ViewOptionAction,
-//   SelectButton,
-// } from './ViewOptionCard.style'; 
-
-// const ViewOptionCard = ({ option }) => {
-//   const { services = [] } = option;
-//   return (
-//     <ViewOptionCardWrapper>
-//       <ViewOptionHeader>
-//         <Title>{option.packageName}</Title>
-//       </ViewOptionHeader>
-//       <ViewOptionList>
-//         {services.map(service =>  (
-//           <li key={service.name}>
-//             {/* Assuming you want to use icons, you need to import and use them here */}
-//             <h3>{service.name}</h3>
-//             <p>Địa điểm: {service.location}</p>
-//             <p>Loại dịch vụ: {service.serviceType}</p>
-//           </li>
-//         ))}
-//         <ViewOptionAction>
-//         <div>
-//           <Title>TOTAL PRICE</Title>
-//           <p>{option.price}</p>
-//         </div>
-//         <SelectButton>Chọn option này</SelectButton>
-//       </ViewOptionAction>
-//       </ViewOptionList>
-      
-//     </ViewOptionCardWrapper>
-//   );
-// };
-
-// export default ViewOptionCard;
-
-import React from 'react';
+import React, { useState } from 'react';
 import ViewOptionCardWrapper, {
   ViewOptionHeader,
   Title,
   ViewOptionList,
   ViewOptionAction,
   SelectButton,
-} from './ViewOptionCard.style'; 
+  Title2,
+} from './ViewOptionCard.style';
+import { Divider, Modal } from 'antd';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+
 
 const ViewOptionCard = ({ option }) => {
-  const { 
-    quantity, 
-    sellPriceHistory: { 
-      pricePerAdult, 
-      pricePerChild, 
-      date, 
-      service: { 
-        id, 
-        name, 
-        description, 
-        type, 
-        isActive, 
-        address, 
-        communceId, 
-        serviceProviderId 
-      } 
-    },
-    optionQuotation: {
-      name: quotationName,
-      description: quotationDescription,
-      optionClass,
-      total,
-      status,
-      privateTourRequest: {
-        startDate,
-        endDate,
-        numOfAdult,
-        numOfChildren,
-        tourId,
-        isEnterprise,
-        accountId,
-      }
-    }
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const navigate = useNavigate();
+  const {
+    optionQuotation,
+    quotationDetails
   } = option;
 
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+    navigate("/#")
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+
+  const getPackageName = (optionClass) => {
+    switch (optionClass) {
+      case 0:
+        return 'Gói Tiết Kiệm';
+      case 1:
+        return 'Gói Cơ Bản';
+      case 2:
+        return 'Gói Nâng Cao';
+      default:
+        return 'Gói Nâng Cao';
+    }
+  };
+
+  console.log('option ViewOptionCard', option);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  };
   return (
     <ViewOptionCardWrapper>
       <ViewOptionHeader>
-        <Title>{name}</Title> {/* Name of the service */}
+        <Title2>{getPackageName(optionQuotation.optionClass)}</Title2> {/* Name of the service */}
       </ViewOptionHeader>
-      <ViewOptionList>
-        <li>ID dịch vụ: {id}</li>
-        <li>Mô tả dịch vụ: {description}</li>
-        <li>Loại dịch vụ: {type}</li>
-        <li>Trạng thái: {isActive ? 'Hoạt động' : 'Không hoạt động'}</li>
-        <li>Địa điểm: {address}</li>
-        <li>ID cộng đồng: {communceId}</li>
-        <li>ID nhà cung cấp dịch vụ: {serviceProviderId}</li>
-        <li>Giá cho người lớn: {pricePerAdult.toLocaleString()} VND</li>
-        <li>Giá cho trẻ em: {pricePerChild.toLocaleString()} VND</li>
-        <li>Tổng Số Lượng: {quantity}</li>
-        <li>Ngày: {date}</li>
-        <li>Tên báo giá: {quotationName}</li>
-        <li>Mô tả báo giá: {quotationDescription}</li>
-        <li>Lớp tùy chọn: {optionClass}</li>
-        <li>Tổng: {total}</li>
-        <li>Trạng thái: {status}</li>
-        <li>Ngày bắt đầu: {startDate}</li>
-        <li>Ngày kết thúc: {endDate}</li>
-        <li>Số người lớn: {numOfAdult}</li>
-        <li>Số trẻ em: {numOfChildren}</li>
-        <li>ID tour: {tourId}</li>
-        <li>Doanh nghiệp: {isEnterprise ? 'Có' : 'Không'}</li>
-        <li>ID tài khoản: {accountId}</li>
-      </ViewOptionList>
+
+      <div className="p-4 mx-auto bg-white rounded-lg w-full ">
+        <div className="mb-4">
+          <h3 className="text-base font-bold text-gray-800 mb-4">Thông tin Tour</h3>
+          <div className="flex text-sm">
+            <p className="text-gray-500 flex-1 py-2 font-semibold">Tên Tour</p>
+            <p className="text-gray-500 flex-1 py-2 "><strong>{optionQuotation.name}</strong></p>
+          </div>
+        </div>
+        <hr className='my-6' />
+        <div className="my-4">
+          <h3 className="text-base font-bold text-gray-800 mb-4">Thông tin dịch vụ và báo giá chi tiết</h3>
+          {quotationDetails.map((detail) => (
+            <ul key={detail.id}>
+               <li className="flex text-sm">
+                <p className="text-gray-500 flex-1 py-2 font-semibold">Tên Khách Sạn: </p>
+                <p className="text-gray-500 flex-1 py-2 "><strong>Khách Sạn Trùng Dương - TP. Đà Nẵng</strong></p>
+              </li>
+              <li className="flex text-sm">
+                <p className="text-gray-500 flex-1 py-2 font-semibold">Số lượng người: </p>
+                <p className="text-gray-500 flex-1 py-2 "><strong>{detail.quantity} Người</strong></p>
+              </li>
+              <li className="flex text-sm">
+                <p className="text-gray-500 flex-1 py-2 font-semibold">Giá cho người lớn: </p>
+                <p className="text-gray-500 flex-1 py-2 "><strong>{detail.sellPriceHistory.pricePerAdult.toLocaleString()} VND</strong></p>
+              </li>
+              <li className="flex text-sm">
+                <p className="text-gray-500 flex-1 py-2 font-semibold">Giá cho trẻ em: </p>
+                <p className="text-gray-500 flex-1 py-2 "><strong>{detail.sellPriceHistory.pricePerChild.toLocaleString()} VND</strong></p>
+              </li>
+              <li className="flex text-sm">
+                <p className="text-gray-500 flex-1 py-2 font-semibold">Ngày: </p>
+                <p className="text-gray-500 flex-1 py-2 "><strong>{formatDate(detail.sellPriceHistory.date)}</strong></p>
+              </li>
+              <Divider />
+            </ul>
+          ))}
+        </div>
+      </div>
       <ViewOptionAction>
         <div>
-          {/* <Title>`Tổng Tiền: {totalPrice}`</Title> */}
+          <Title>
+            <p>Tổng Tiền:</p>
+            <p>{optionQuotation.total.toLocaleString()} VND</p>
+          </Title>
         </div>
-        <SelectButton>Chọn option này</SelectButton>
+        <SelectButton onClick={showModal}>Chọn option này</SelectButton>
       </ViewOptionAction>
+
+      {/* Modal xác nhận */}
+      <Modal
+        title="Xác nhận chọn gói"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <p>Bạn có chắc chắn chọn gói này không?</p>
+      </Modal>
     </ViewOptionCardWrapper>
   );
 };

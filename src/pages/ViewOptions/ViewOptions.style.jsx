@@ -5,7 +5,7 @@ const ViewOptionsWrapper = styled.div`
   max-width: 1140px;
   margin: 0 auto;
   padding-bottom: 30px;
-  padding-top:30px;
+  padding-top: 100px;
 
   @media (max-width: 1200px) {
     padding-left: 30px;
@@ -18,7 +18,7 @@ const ViewOptionsWrapper = styled.div`
 
 export const ViewOptionHeader = styled.div`
   text-align: center;
-  padding: 60px 0;
+  padding: 30px 0;
   @media (max-width: 480px) {
     padding: 40px 0;
   }
@@ -28,7 +28,7 @@ export const Title = styled.h2`
   color: ${themeGet('text.0', '#2C2C2C')};
   font-size: 21px;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 `;
 
 export const Description = styled.p`

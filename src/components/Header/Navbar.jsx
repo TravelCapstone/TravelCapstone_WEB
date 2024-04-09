@@ -149,7 +149,7 @@ function Navbar() {
                       <FaCaretDown className="ml-2 transition-all duration-200 group-hover:rotate-180" />
                     </span>
                   </a>
-                  <div className="absolute -right-0 z-[9999] hidden rounded-md bg-white p-2 text-black group-hover:block shadow-md w-48 cursor-pointer">
+                  <div className="absolute -left-9 z-[9999] hidden rounded-md bg-white p-2 text-black group-hover:block shadow-md w-48 cursor-pointer">
                     <ul className="space-y-3">
                       {UserDropdownLinks.map((link) => (
                         <li key={link.name}>

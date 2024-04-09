@@ -1,11 +1,11 @@
 import React from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
-import { TourRequestForm, Home } from '../pages';
-import { CommonLayout } from '../layouts';
+import { TourRequestForm, Home, CreatePackageTour } from '../pages';
+import { CommonLayout, StaffLayout } from '../layouts';
 import ViewOptions from '../pages/ViewOptions/ViewOptions'
 import { alertFail } from '../hook/useNotification';
 import CreateOptionForm from '../pages/Staff/ManagePrivateTour/TourPackage/CreatePackage/CreateOptionForm';
-import { CREATE_OPTIONS_TOUR_PRIVATE, CREATE_TOUR_PRIVATE, DETAIL_TOUR_REQUEST_STAFF, HOME_PAGE, LISTING_TOUR_REQUEST_STAFF, LOGIN_PAGE, VIEW_OPTIONS_TOUR_PRIVATE } from '../settings/constant';
+import { CREATE_OPTIONS_TOUR_PRIVATE, CREATE_TOUR_PRIVATE, DETAIL_TOUR_REQUEST_STAFF, HOME_PAGE, LISTING_TOUR_REQUEST_STAFF, LOGIN_PAGE, STAFF_PAGE, VIEW_OPTIONS_TOUR_PRIVATE } from '../settings/constant';
 import ListingTourRequestStaff from '../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/TabTours';
 import TourRequestPage from '../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/DetailTourRequest';
 import SignInPage from '../pages/SignIn_Register/SignIn';
@@ -62,11 +62,24 @@ function Routers() {
                 { path: CREATE_TOUR_PRIVATE, element: <TourRequestForm/> },
 
                 // Staff
-                { path: CREATE_OPTIONS_TOUR_PRIVATE, element: <CreateOptionForm/> },
+                { path: CREATE_OPTIONS_TOUR_PRIVATE, element: <CreatePackageTour/> },
                 { path: LISTING_TOUR_REQUEST_STAFF, element: <ListingTourRequestStaff /> },
                 { path: DETAIL_TOUR_REQUEST_STAFF, element: <TourRequestPage /> },
             ],
         },
+        // {
+        //     path: STAFF_PAGE,
+        //     element: <StaffLayout/>,
+        //     children: 
+        //     [
+        //         { index: true, element: <Home /> },
+
+        //         // Staff
+        //         { path: CREATE_OPTIONS_TOUR_PRIVATE, element: <CreateOptionForm/> },
+        //         { path: LISTING_TOUR_REQUEST_STAFF, element: <ListingTourRequestStaff /> },
+        //         { path: DETAIL_TOUR_REQUEST_STAFF, element: <TourRequestPage /> },
+        //     ],
+        // },
         { path: LOGIN_PAGE, element: <SignInPage /> },
     ]);
     return routing;

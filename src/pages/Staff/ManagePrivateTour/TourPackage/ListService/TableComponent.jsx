@@ -1,17 +1,59 @@
 import React, { useRef, useState, useEffect } from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Table, Select } from "antd";
+import { Button, Input, Space, Table, Select, Spin, Checkbox } from "antd";
 import Highlighter from "react-highlight-words";
-import useCallApi from "../../../../../hook/useCallApi";
-import api from "../../../../../config/axios";
-
+import { callApi } from "../../../../../hook/useCallApi";
+import { LoadingOutlined } from "@ant-design/icons";
+import { getAllProvince } from "../../../../../api/privateTourRequestApi";
 const { Option } = Select;
 
-function TableComponent({ type, onSelectRecord }) {
-  const [selectionType, setSelectionType] = useState("radio");
+function TableComponent({
+  type,
+  option,
+  addHotelToList1,
+  addRestaurentToList1,
+  addVehicleToList1,
+  addEntertainmentToList1,
+  addHotelToList2,
+  addRestaurentToList2,
+  addVehicleToList2,
+  addEntertainmentToList2,
+  addHotelToList3,
+  addRestaurentToList3,
+  addVehicleToList3,
+  addEntertainmentToList3,
+}) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const [loading, setLoading] = useState(true);
   const searchInput = useRef(null);
+  const [checkedListHotelOption1, setCheckedListHotelOption1] = useState([]);
+  const [checkedListHotelOption2, setCheckedListHotelOption2] = useState([]);
+  const [checkedListHotelOption3, setCheckedListHotelOption3] = useState([]);
+
+  const [checkedListRestaurentOption1, setCheckedListRestaurentOption1] =
+    useState([]);
+  const [checkedListRestaurentOption2, setCheckedListRestaurentOption2] =
+    useState([]);
+  const [checkedListRestaurentOption3, setCheckedListRestaurentOption3] =
+    useState([]);
+
+  const [checkedListVehicleOption1, setCheckedListVehicleOption1] = useState(
+    []
+  );
+  const [checkedListVehicleOption2, setCheckedListVehicleOption2] = useState(
+    []
+  );
+  const [checkedListVehicleOption3, setCheckedListVehicleOption3] = useState(
+    []
+  );
+
+  const [checkedListEntertaimentOption1, setCheckedListEntertaimentOption1] =
+    useState([]);
+  const [checkedListEntertaimentOption2, setCheckedListEntertaimentOption2] =
+    useState([]);
+  const [checkedListEntertaimentOption3, setCheckedListEntertaimentOption3] =
+    useState([]);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     console.log(selectedKeys);
@@ -22,50 +64,50 @@ function TableComponent({ type, onSelectRecord }) {
     setSearchedColumn(dataIndex);
   };
 
-  const { loading, error, callApi, resetError } = useCallApi();
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   const [locationID, setLocationID] = useState();
-  const fetch = async () => {
-    const response = await api.get(
-      "/get-all-province-by-private-tour-request-id/C8DE0D2A-D6EC-468A-993F-27A6F19F009D"
-    );
-    setLocationID(response.data.result[0].id);
-    setData(response.data);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllProvince("C8DE0D2A-D6EC-468A-993F-27A6F19F009D");
+      if (response?.data?.result?.length >0) {
+        setLocationID(response.data.result[0].id);
+        setData(response.data.result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false);
   };
 
-  //console.log(type);
-
   useEffect(() => {
-    fetch();
+    fetchData();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    alertFail(error);
-    resetError();
-  }
-  const handleSelectClass = (value) =>{
-    console.log(value)
-    setLocationID(value)
-  }
-  console.log(locationID)
+  const handleSelectClass = (value) => {
+    console.log(value);
+    setLocationID(value);
+  };
+  console.log(locationID);
 
   const [listService, setListService] = useState([]);
-  
-const getListService =  async ()  =>{
-  const res = await api.get(`/get-service-by-province-id/${locationID}/${type}`)
-  console.log(res.data.result.items)
-  setListService(res.data.result.items)
-}
 
-  
-  useEffect(() =>{
+  const getListService = async () => {
+    setLoading(true);
+    const res = await callApi(
+      "GET",
+      `/get-service-by-province-id/${locationID}/${type}`
+    );
+    console.log(res.result?.items);
+    setListService(res.result?.items);
+    setLoading(false);
+  };
+
+  useEffect(() => {
     getListService();
+
+
   },[locationID])
-  
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
@@ -185,8 +227,291 @@ const getListService =  async ()  =>{
         text
       ),
   });
+  const handleCheckboxChange = (record) => {
+    if (option === "1") {
+      if (type === "0") {
+        const index = checkedListHotelOption1.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListHotelOption1([...checkedListHotelOption1, record]);
+        } else {
+          setCheckedListHotelOption1(
+            checkedListHotelOption1.filter((item) => item.key !== record.key)
+          );
+        }
+      } else if (type === "1") {
+        const index = checkedListRestaurentOption1.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListRestaurentOption1([
+            ...checkedListRestaurentOption1,
+            record,
+          ]);
+        } else {
+          setCheckedListRestaurentOption1(
+            checkedListRestaurentOption1.filter(
+              (item) => item.key !== record.key
+            )
+          );
+        }
+      } else if (type === "2") {
+        const index = checkedListEntertaimentOption1.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListEntertaimentOption1([
+            ...checkedListEntertaimentOption1,
+            record,
+          ]);
+        } else {
+          setCheckedListEntertaimentOption1(
+            checkedListEntertaimentOption1.filter(
+              (item) => item.key !== record.key
+            )
+          );
+        }
+      } else if (type === "3") {
+        const index = checkedListVehicleOption1.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListVehicleOption1([...checkedListVehicleOption1, record]);
+        } else {
+          setCheckedListVehicleOption1(
+            checkedListVehicleOption1.filter((item) => item.key !== record.key)
+          );
+        }
+      }
+    }else if (option === "2") {
+      if (type === "0") {
+        const index = checkedListHotelOption2.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListHotelOption2([...checkedListHotelOption2, record]);
+        } else {
+          setCheckedListHotelOption2(
+            checkedListHotelOption2.filter((item) => item.key !== record.key)
+          );
+        }
+      } else if (type === "1") {
+        const index = checkedListRestaurentOption2.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListRestaurentOption2([
+            ...checkedListRestaurentOption2,
+            record,
+          ]);
+        } else {
+          setCheckedListRestaurentOption2(
+            checkedListRestaurentOption2.filter(
+              (item) => item.key !== record.key
+            )
+          );
+        }
+      } else if (type === "2") {
+        const index = checkedListEntertaimentOption2.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListEntertaimentOption2([
+            ...checkedListEntertaimentOption2,
+            record,
+          ]);
+        } else {
+          setCheckedListEntertaimentOption2(
+            checkedListEntertaimentOption2.filter(
+              (item) => item.key !== record.key
+            )
+          );
+        }
+      } else if (type === "3") {
+        const index = checkedListVehicleOption2.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListVehicleOption2([...checkedListVehicleOption2, record]);
+        } else {
+          setCheckedListVehicleOption2(
+            checkedListVehicleOption2.filter((item) => item.key !== record.key)
+          );
+        }
+      }
+    }else if (option === "3") {
+      if (type === "0") {
+        const index = checkedListHotelOption3.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListHotelOption3([...checkedListHotelOption3, record]);
+        } else {
+          setCheckedListHotelOption3(
+            checkedListHotelOption3.filter((item) => item.key !== record.key)
+          );
+        }
+      } else if (type === "1") {
+        const index = checkedListRestaurentOption3.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListRestaurentOption3([
+            ...checkedListRestaurentOption3,
+            record,
+          ]);
+        } else {
+          setCheckedListRestaurentOption3(
+            checkedListRestaurentOption3.filter(
+              (item) => item.key !== record.key
+            )
+          );
+        }
+      } else if (type === "2") {
+        const index = checkedListEntertaimentOption3.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListEntertaimentOption3([
+            ...checkedListEntertaimentOption3,
+            record,
+          ]);
+        } else {
+          setCheckedListEntertaimentOption3(
+            checkedListEntertaimentOption3.filter(
+              (item) => item.key !== record.key
+            )
+          );
+        }
+      } else if (type === "3") {
+        const index = checkedListVehicleOption3.findIndex(
+          (item) => item.key === record.key
+        );
+        if (index === -1) {
+          setCheckedListVehicleOption3([...checkedListVehicleOption3, record]);
+        } else {
+          setCheckedListVehicleOption3(
+            checkedListVehicleOption3.filter((item) => item.key !== record.key)
+          );
+        }
+      }
+    }
+  };
+  useEffect(() => {
+    if (type === "0" && option === "1") {
+      addHotelToList1(checkedListHotelOption1);
+    }
+  }, [checkedListHotelOption1]);
+  useEffect(() => {
+    if (type === "1"&& option === "1") {
+      addRestaurentToList1(checkedListRestaurentOption1);
+    }
+  }, [checkedListRestaurentOption1]);
 
+  useEffect(() => {
+    if (type === "3"&& option === "1") {
+      addVehicleToList1(checkedListVehicleOption1);
+    }
+  }, [checkedListVehicleOption1]);
+
+  useEffect(() => {
+    if (type === "2" &&  option === "1") {
+      addEntertainmentToList1(checkedListEntertaimentOption1);
+    }
+  }, [checkedListEntertaimentOption1]);
+
+
+
+  useEffect(() => {
+    if (type === "0" && option === "2") {
+      addHotelToList2(checkedListHotelOption2);
+    }
+  }, [checkedListHotelOption2]);
+  useEffect(() => {
+    if (type === "1"&& option === "2") {
+      addRestaurentToList2(checkedListRestaurentOption2);
+    }
+  }, [checkedListRestaurentOption2]);
+
+  useEffect(() => {
+    if (type === "3"&& option === "2") {
+      addVehicleToList2(checkedListVehicleOption2);
+    }
+  }, [checkedListVehicleOption2]);
+
+  useEffect(() => {
+    if (type === "2" &&  option === "2") {
+      addEntertainmentToList2(checkedListEntertaimentOption2);
+    }
+  }, [checkedListEntertaimentOption2]);
+
+
+
+  useEffect(() => {
+    if (type === "0" && option === "3") {
+      addHotelToList3(checkedListHotelOption3);
+    }
+  }, [checkedListHotelOption3]);
+  useEffect(() => {
+    if (type === "1"&& option === "3") {
+      addRestaurentToList3(checkedListRestaurentOption3);
+    }
+  }, [checkedListRestaurentOption3]);
+
+  useEffect(() => {
+    if (type === "3"&& option === "3") {
+      addVehicleToList3(checkedListVehicleOption3);
+    }
+  }, [checkedListVehicleOption3]);
+
+  useEffect(() => {
+    if (type === "2" &&  option === "3") {
+      addEntertainmentToList3(checkedListEntertaimentOption3);
+    }
+  }, [checkedListEntertaimentOption3]);
   const columns = [
+    {
+      title: "",
+      dataIndex: "checkbox",
+      key: "checkbox",
+      width: "5%",
+      render: (_, record) => (
+        <Checkbox
+          checked={
+            checkedListHotelOption1.some((item) => item.key === record.key) ||
+            checkedListRestaurentOption1.some(
+              (item) => item.key === record.key
+            ) ||
+            checkedListVehicleOption1.some((item) => item.key === record.key) ||
+            checkedListEntertaimentOption1.some(
+              (item) => item.key === record.key
+            )||
+
+
+            checkedListHotelOption2.some((item) => item.key === record.key) ||
+            checkedListRestaurentOption2.some(
+              (item) => item.key === record.key
+            ) ||
+            checkedListVehicleOption2.some((item) => item.key === record.key) ||
+            checkedListEntertaimentOption2.some(
+              (item) => item.key === record.key
+            )||
+            
+
+            checkedListHotelOption3.some((item) => item.key === record.key) ||
+            checkedListRestaurentOption3.some(
+              (item) => item.key === record.key
+            ) ||
+            checkedListVehicleOption3.some((item) => item.key === record.key) ||
+            checkedListEntertaimentOption3.some(
+              (item) => item.key === record.key
+            )
+          }
+          onChange={() => handleCheckboxChange(record)}
+        />
+      ),
+    },
     {
       title: "Tên",
       dataIndex: "name",
@@ -203,48 +528,31 @@ const getListService =  async ()  =>{
       sorter: (a, b) => a.address.length - b.address.length,
       sortDirections: ["descend", "ascend"],
     },
-    
   ];
 
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        "selectedRows: ",
-        selectedRows
-      );
-      onSelectRecord(selectedRows[0]);
-    },
-    getCheckboxProps: (record) => ({
-      disabled: record.name === "Disabled User",
-      name: record.name,
-    }),
-  };
 
- 
   return (
     <>
-      <Select
-        value= {locationID}
-        onChange={(value) => handleSelectClass(value)}
-      >
+      <Spin
+        indicator={<LoadingOutlined style={{ fontSize: 44 }} spin />}
+        spinning={loading}
+        fullscreen
+      />
+      <Select value={locationID} onChange={(value) => handleSelectClass(value)}>
         {data &&
-          data.result &&
-          data.result.map((item) => (
+          data.map((item) => (
             <Option key={item.id} value={item.id}>
               {item.name}
             </Option>
           ))}
       </Select>
+
       <Table
-        rowSelection={{
-          type: selectionType,
-          ...rowSelection,
-        }}
         columns={columns}
-        dataSource={listService}
+        dataSource={
+          listService && listService.map((item) => ({ ...item, key: item.id }))
+        }
       />
-      
     </>
   );
 }
