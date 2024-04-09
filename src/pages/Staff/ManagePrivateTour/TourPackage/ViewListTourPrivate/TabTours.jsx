@@ -110,12 +110,12 @@ const ListingTourRequestStaff = () => {
         {
             label: "Tất cả",
             key: "1",
-            children: <ListTourPrivate orders={mockOrders} title="Tất cả đơn hàng" />,
+            children: <ListTourPrivate orders={mockOrders} title="Tất cả yêu cầu" />,
         },
         {
             label: "Chờ Xử Lý",
             key: "2",
-            children: <ListTourPrivate orders={mockOrders.filter(order => order.status === 'PROCESSING')} title="Đơn hàng chờ xử lý" />,
+            children: <ListTourPrivate orders={mockOrders.filter(order => order.status === 'PROCESSING')} title="Yêu cầu đang chờ xử lý" />,
         },
         {
             label: "Chờ Phản Hồi",
@@ -125,7 +125,7 @@ const ListingTourRequestStaff = () => {
         {
             label: "Đã Chọn Tour",
             key: "4",
-            children: <ListTourPrivate orders={mockOrders.filter(order => order.status === 'SELECTED_TOUR')} title=" Tour đã chọn tour"  />,
+            children: <ListTourPrivate orders={mockOrders.filter(order => order.status === 'SELECTED_TOUR')} title=" Tour đã chọn"  />,
         },
         {
             label: "Tour Hoàn Thành",
@@ -157,7 +157,7 @@ const ListingTourRequestStaff = () => {
                 </Row>
             </Container> */}
             <div>
-                <h2 className="text-2xl font-bold text-center mx-10 my-5">LỊCH SỬ TOUR YÊU CẦU CỦA TÔI</h2>
+                <h2 className="text-2xl font-bold text-center mx-10 my-5">LỊCH SỬ TOUR YÊU CẦU</h2>
                 <StyledTabs defaultActiveKey="1" centered items={tabItems}/>
             </div>
         </div>

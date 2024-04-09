@@ -44,7 +44,7 @@ function TourRequestPage() {
         />
       </Card>
       <Button className='mt-4' type="primary" onClick={handleCreateTourOption}>
-        Tạo Lựa Chọn Tour
+        Tạo Các Gói Tour
       </Button>
     </div>
   );

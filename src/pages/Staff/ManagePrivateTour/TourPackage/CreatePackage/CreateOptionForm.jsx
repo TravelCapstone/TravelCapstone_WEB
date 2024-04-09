@@ -106,7 +106,7 @@ function CreateOptionForm() {
   return (
     <div className="mt-12 container">
       <div className="text-2xl text-center font-semibold uppercase my-6">
-        TẠO OPTION TOUR
+        TẠO GÓI TOUR
       </div>
       <div className="w-full mx-auto">
         <Form size="large" onFinish={onFinish}>
@@ -149,13 +149,13 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Khách sạn">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black "
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black "
                       onClick={() => setOpen1(true)}
                     >
                       Chọn khách sạn
-                    </Button>
+                    </button>
                     <Modal
                       title="DANH SÁCH KHÁCH SẠN"
                       centered
@@ -202,13 +202,13 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Nhà hàng">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen2(true)}
                     >
                       Chọn nhà hàng
-                    </Button>
+                    </button>
                     <Modal
                       title="DANH SÁCH NHÀ HÀNG"
                       centered
@@ -254,13 +254,13 @@ function CreateOptionForm() {
                       ))}
                   </Form.Item>
                   <Form.Item label="Phương tiện chính">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen3(true)}
                     >
                       Chọn phương tiện
-                    </Button>
+                    </button>
 
                     <Modal
                       title="DANH SÁCH PHƯƠNG TIỆN"
@@ -307,13 +307,13 @@ function CreateOptionForm() {
                       ))}
                   </Form.Item>
                   <Form.Item label="Giải trí">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen4(true)}
                     >
                       Chọn
-                    </Button>
+                    </button>
 
                     <Modal
                       title="DANH SÁCH "
@@ -358,13 +358,13 @@ function CreateOptionForm() {
                       </div>
                     ))}
                   <Form.Item label="Vé máy bay (nếu có)">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen5(true)}
                     >
                       Chọn
-                    </Button>
+                    </button>
 
                     <Modal
                       title="DANH SÁCH VÉ MÁY BAY"
@@ -419,13 +419,13 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Khách sạn">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen6(true)}
                     >
                       Chọn khách sạn
-                    </Button>
+                    </button>
                     <Modal
                       title="DANH SÁCH KHÁCH SẠN"
                       centered
@@ -472,13 +472,13 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Nhà hàng">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen7(true)}
                     >
                       Chọn nhà hàng
-                    </Button>
+                    </button>
                     <Modal
                       title="DANH SÁCH NHÀ HÀNG"
                       centered
@@ -524,13 +524,13 @@ function CreateOptionForm() {
                       ))}
                   </Form.Item>
                   <Form.Item label="Phương tiện chính">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen8(true)}
                     >
                       Chọn phương tiện
-                    </Button>
+                    </button>
 
                     <Modal
                       title="DANH SÁCH PHƯƠNG TIỆN"
@@ -577,13 +577,13 @@ function CreateOptionForm() {
                       ))}
                   </Form.Item>
                   <Form.Item label="Giải trí">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen9(true)}
                     >
                       Chọn
-                    </Button>
+                    </button>
 
                     <Modal
                       title="DANH SÁCH "
@@ -628,13 +628,13 @@ function CreateOptionForm() {
                       </div>
                     ))}
                   <Form.Item label="Vé máy bay (nếu có)">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen10(true)}
                     >
                       Chọn
-                    </Button>
+                    </button>
 
                     <Modal
                       title="DANH SÁCH VÉ MÁY BAY"
@@ -689,13 +689,13 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Khách sạn">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen11(true)}
                     >
                       Chọn khách sạn
-                    </Button>
+                    </button>
                     <Modal
                       title="DANH SÁCH KHÁCH SẠN"
                       centered
@@ -742,13 +742,13 @@ function CreateOptionForm() {
                   </Form.Item>
 
                   <Form.Item label="Nhà hàng">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen12(true)}
                     >
                       Chọn nhà hàng
-                    </Button>
+                    </button>
                     <Modal
                       title="DANH SÁCH NHÀ HÀNG"
                       centered
@@ -794,13 +794,13 @@ function CreateOptionForm() {
                       ))}
                   </Form.Item>
                   <Form.Item label="Phương tiện chính">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen13(true)}
                     >
                       Chọn phương tiện
-                    </Button>
+                    </button>
 
                     <Modal
                       title="DANH SÁCH PHƯƠNG TIỆN"
@@ -848,13 +848,13 @@ function CreateOptionForm() {
                       ))}
                   </Form.Item>
                   <Form.Item label="Giải trí">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen14(true)}
                     >
                       Chọn
-                    </Button>
+                    </button>
 
                     <Modal
                       title="DANH SÁCH "
@@ -899,13 +899,13 @@ function CreateOptionForm() {
                       </div>
                     ))}
                   <Form.Item label="Vé máy bay (nếu có)">
-                    <Button
+                    <button
                       type="mainColor"
-                      className="bg-mainColor text-white text-sm mx-auto px-2 py-0 hover:text-black"
+                      className="bg-mainColor text-white text-sm mx-auto px-2 py-1 rounded-lg hover:text-black"
                       onClick={() => setOpen15(true)}
                     >
                       Chọn
-                    </Button>
+                    </button>
 
                     <Modal
                       title="DANH SÁCH VÉ MÁY BAY"
@@ -932,7 +932,7 @@ function CreateOptionForm() {
             className=" uppercase"
             htmlType="submit"
           >
-            Tạo option tour
+            Tạo gói tour
           </Button>
         </Row>
       </div>

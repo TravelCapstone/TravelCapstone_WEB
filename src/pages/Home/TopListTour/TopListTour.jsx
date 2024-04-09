@@ -51,7 +51,7 @@ const mockData = [
 
 export default function ListPage() {
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-8">
       <h1 className="uppercase my-8 border-l-8 border-primary/50 py-2 pl-2 text-3xl font-bold">
             Sự lựa chọn hàng đầu
           </h1>
