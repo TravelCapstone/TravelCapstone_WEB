@@ -368,7 +368,7 @@ function TableComponent({
             )
           );
         }
-      } else if (type === "3") {
+      } else if (type === "2") {
         const index = checkedListEntertaimentOption3.findIndex(
           (item) => item.key === record.key
         );
@@ -449,24 +449,24 @@ function TableComponent({
 
 
   useEffect(() => {
-    if (type === "0" && option === "2") {
+    if (type === "0" && option === "3") {
       addHotelToList3(checkedListHotelOption3);
     }
   }, [checkedListHotelOption3]);
   useEffect(() => {
-    if (type === "1"&& option === "2") {
+    if (type === "1"&& option === "3") {
       addRestaurentToList3(checkedListRestaurentOption3);
     }
   }, [checkedListRestaurentOption3]);
 
   useEffect(() => {
-    if (type === "3"&& option === "2") {
+    if (type === "3"&& option === "3") {
       addVehicleToList3(checkedListVehicleOption3);
     }
   }, [checkedListVehicleOption3]);
 
   useEffect(() => {
-    if (type === "2" &&  option === "2") {
+    if (type === "2" &&  option === "3") {
       addEntertainmentToList3(checkedListEntertaimentOption3);
     }
   }, [checkedListEntertaimentOption3]);

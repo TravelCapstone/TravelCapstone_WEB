@@ -60,7 +60,7 @@ function CreateOptionForm() {
   };
 
   const addHotelToList3 = (hotelsToAdd) => {
-    setHotellist2(hotelsToAdd);
+    setHotellist3(hotelsToAdd);
   };
 
   const addRestaurentToList1 = (restaurentToAdd) => {
@@ -820,6 +820,7 @@ function CreateOptionForm() {
                     </Modal>
                   </Form.Item>
                   <Form.Item>
+                    {console.log("veha",vehicle3)}
                     {vehicle3.length > 0 &&
                       vehicle3.map((item, index) => (
                         <div className="border-b-2 my-2 p-1">
