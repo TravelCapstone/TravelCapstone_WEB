@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Flex,
   Button,
@@ -8,46 +8,73 @@ import {
   DatePicker,
   Space,
   Select,
-  Radio,Modal
+  Radio,
+  Modal,
+  Tooltip,
+  Checkbox,
 } from "antd";
 import {
   WarningFilled,
   MinusCircleOutlined,
   PlusOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 
 import { alertFail, alertSuccess } from "../../../hook/useNotification";
+import AddressSearch from "../../../api/SearchAddress/SearchAddress";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 const { Option } = Select;
 
 function TourRequestForm() {
-  const [check, setCheck] = useState(false);
   const [value, setValue] = useState(1);
+  const [selectedLocations, setSelectedLocations] = useState([]);
+  const [days, setDays] = useState(1);
+  const [nights, setNights] = useState(0);
+  const [form] = Form.useForm();
+  const [isChecked, setIsChecked] = useState(false);
+
+  const onCheckboxChange = (e) => {
+    setIsChecked(e.target.checked);
+  };
+
+  const onFinish = (values) => {
+    // handle form submission
+    console.log("Received values of form:", values);
+  };
+
+  useEffect(() => {
+    if (days) {
+      setNights(days - 1);
+    }
+  }, [days]);
+
+  const handleDaysChange = (value) => {
+    setDays(value);
+  };
+
+  // Hàm cập nhật state khi có sự thay đổi trong Select
+  const handleLocationsChange = (value) => {
+    setSelectedLocations(value);
+  };
 
   const onChange = (e) => {
     setValue(e.target.value);
   };
-  const onFinish = (e) => {
-    setFormData(e);
-    setCheck(true);
-  };
-
- 
 
   const prefixSelector = <span style={{ paddingRight: 5 }}>+84</span>;
   return (
     <div className="mt-32 container">
-      <div className="text-2xl text-center font-semibold uppercase my-6">
+      <div className="text-3xl text-center font-bold uppercase my-6">
         Đặt tour theo yêu cầu
       </div>
-      <div className="w-[500px] mx-auto mb-12">
-        <Form onFinish={onFinish} className="" layout="vertical">
+      <div className="max-w-[800px] mx-auto mb-12">
+        <Form form={form} onFinish={onFinish} className="" layout="vertical">
           <Form.Item
-            label="Họ tên người đại diện"
+            label="Họ tên người đại diện:"
             name="username"
-            className=""
+            className="font-semibold"
             rules={[
               {
                 required: true,
@@ -69,11 +96,10 @@ function TourRequestForm() {
           >
             <Input className="h-10" />
           </Form.Item>
-
           <Form.Item
-            label="Số điện thoại liên hệ"
+            label="Số điện thoại liên hệ:"
             name="phone"
-            className=""
+            className="font-semibold"
             rules={[
               {
                 required: true,
@@ -103,27 +129,140 @@ function TourRequestForm() {
           >
             <Input addonBefore={prefixSelector} style={{ width: "100%" }} />
           </Form.Item>
-
-          
-
-          <div className="font-semibold border-b-2 mt-8 mb-4 ">
+          <div className="font-semibold border-b-2 mt-8 mb-4 text-xl">
             <h4 className="pb-2 uppercase">Thông tin tour yêu cầu</h4>
           </div>
-
-          <Form.Item label="Phân loại tour:" name="type" className="">
+          <Form.Item
+            label="Phân loại tour:"
+            name="type"
+            className="font-semibold"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
             <Radio.Group onChange={onChange} defaultValue={value}>
-              <Radio value={1}>Tour gia đình</Radio>
-              <Radio value={2}>Tour đoàn thể (doanh nghiệp)</Radio>
+              <Radio className="font-normal" value={1}>
+                Tour gia đình
+              </Radio>
+              <Radio className="font-normal" value={2}>
+                Tour đoàn thể (doanh nghiệp)
+              </Radio>
             </Radio.Group>
           </Form.Item>
-
-          <Form.Item label="Tên tour" name="tourname" className="">
-            <Input className="h-10" readOnly />
+          <Flex vertical gap={32}>
+            <Form.Item
+              label="Mô tả yêu cầu:"
+              className="font-semibold"
+              name="description"
+            >
+              <TextArea
+                rows={6}
+                showCount
+                maxLength={225}
+                className="h-10"
+                placeholder="Nhập mô tả yêu cầu (VD: 10 người ăn chay, dị ứng món gì, .... )"
+                style={{
+                  height: 120,
+                  //   resize: 'none',
+                }}
+              />
+            </Form.Item>
+          </Flex>
+          <Form.Item
+            name="locations"
+            label="Địa điểm mong muốn:"
+            className="font-semibold"
+            rules={[
+              {
+                required: true,
+                message: "Chọn ít nhất 1 địa điểm mà bạn muốn thăm",
+              },
+            ]}
+          >
+            <Select
+              mode="multiple"
+              placeholder="Chọn địa điểm"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+              onChange={handleLocationsChange} // Cập nhật state khi địa điểm thay đổi
+            >
+              <Option value="Hà Nội">Hà Nội</Option>
+              <Option value="Thành phố Hồ Chí Minh">
+                Thành phố Hồ Chí Minh
+              </Option>
+              <Option value="Đà Nẵng">Đà Nẵng</Option>
+            </Select>
           </Form.Item>
-
+          {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
+          {selectedLocations.length > 1 && (
+            <Form.Item
+              name="mainLocation"
+              label="Địa điểm mong muốn chính (địa điểm quan trọng nhất):"
+              className="font-semibold"
+              rules={[
+                { required: true, message: "Chọn một địa điểm quan trọng" },
+              ]}
+            >
+              <Select
+                placeholder="Chọn địa điểm chính"
+                showSearch
+                style={{ width: "40%  " }}
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                {selectedLocations.map((location) => (
+                  <Option key={location} value={location}>
+                    {location}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
+          <Form.Item
+            name="address"
+            label={
+              <span>
+                Địa chỉ xuất phát hoặc tập trung: &nbsp;
+                <Tooltip
+                  title="Nếu điền địa chỉ xuất phát hoặc tập trung thì chúng tôi sẽ chuẩn bị cho bạn phương tiện đưa đón phù hợp 
+tới điểm bắt đầu chuyến tour!"
+                >
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+            className="font-semibold"
+            rules={[
+              {
+                type: "array",
+                required: true,
+                message: (
+                  <div>
+                    <WarningFilled /> Vui lòng chọn địa chỉ xuất phát hoặc tập
+                    trung!
+                  </div>
+                ),
+              },
+            ]}
+          >
+            <AddressSearch />
+          </Form.Item>
           <Form.Item
             name="range-picker"
-            label="Thời gian"
+            label={
+              <span>
+                Khoảng thời gian rảnh để diễn ra tour: &nbsp;
+                <Tooltip title="Nên cho chúng tôi khoảng thời gian rảnh của bạn để diễn ra tour để chúng tôi sắp xếp tour tốt nhất cho bạn.">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+            className="font-semibold"
             rules={[
               {
                 type: "array",
@@ -136,44 +275,80 @@ function TourRequestForm() {
               },
             ]}
           >
-            <RangePicker />
-          </Form.Item>
-          <Flex vertical gap={32}>
-            <Form.Item
-              label="Mô tả yêu cầu"
-              name="description"
-              className=""
-              rules={[
-                {
-                  required: true,
-                  message: (
-                    <div>
-                      <WarningFilled /> Vui lòng nhập mô tả!
-                    </div>
-                  ),
-                },
-              ]}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+              className="ml-3"
             >
-              <TextArea
-              rows={6}
-              showCount
-              maxLength={450}
-                
-                className="h-10"
-                placeholder="Nhập thông tin mô tả yêu cầu về chuyến đi..."
-                style={{
-                  height: 120,
-               //   resize: 'none',
-                }}
-              />
-            </Form.Item>
-          </Flex>
+              <Form.Item
+                name="startDate"
+                label="Từ ngày:"
+                className="font-normal"
+                style={{ flex: "1" }} // Adjust the margin as needed
+              >
+                <DatePicker />
+              </Form.Item>
+
+              <Form.Item
+                name="endtDate"
+                label="Đến ngày:"
+                className="font-normal"
+                style={{ flex: "2", marginRight: "50px" }} // Adjust the margin as needed
+              >
+                <DatePicker />
+              </Form.Item>
+            </div>
+          </Form.Item>
+
+          <Form.Item
+            name="daysTour"
+            label="Số ngày diễn ra tour:"
+            className="flex font-semibold"
+            rules={[{ required: true, message: "Vui lòng nhập số ngày!" }]}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+              className="ml-3"
+            >
+              <Form.Item
+                name="days"
+                label="Số ngày:"
+                className="font-normal"
+                style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
+              >
+                <InputNumber min={1} value={days} onChange={handleDaysChange} />
+              </Form.Item>
+
+              <Form.Item
+                name="nights"
+                label="Số đêm:"
+                className="font-normal"
+                style={{ flex: "1", marginLeft: "8px" }} // Adjust the margin as needed
+              >
+                {nights}
+              </Form.Item>
+            </div>
+          </Form.Item>
 
           <div className="flex justify-around">
             <Form.Item
-              label="Số người lớn"
+              label={
+                <span>
+                  Số người lớn: &nbsp;
+                  <Tooltip title="Người lớn tính từ 1m4 trở lên và 16 tuổi trở lên">
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
               name="adult"
-              className="w-1/2"
+              className="w-1/2 font-semibold"
               rules={[
                 {
                   required: true,
@@ -189,59 +364,86 @@ function TourRequestForm() {
             </Form.Item>
 
             <Form.Item
-              label="Số trẻ em"
+              label={
+                <span>
+                  Số trẻ em: &nbsp;
+                  <Tooltip title="Trẻ em tính từ 1m4 trở xuống và 16 tuổi trở xuống">
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
               name="children"
-              className="w-1/2"              
+              className="font-semibold w-1/2"
             >
               <InputNumber min={0} defaultValue={0} />
             </Form.Item>
           </div>
 
-          <Form.List name="location">
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(({ key, name, ...restField }) => (
-                  <Space
-                    key={key}
-                    style={{
-                      display: "flex",
-                      marginBottom: 8,
-                    }}
-                    align="baseline"
-                  >
-                    <Form.Item {...restField} name={[name, "địa điểm"]}>
-                      <Select placeholder="Chọn địa điểm mong muốn">
-                        {" "}
-                        <Option value="location1">Location 1</Option>
-                        <Option value="location2">Location 2</Option>
-                        <Option value="location3">Location 3</Option>
-                      </Select>
-                    </Form.Item>
+          <Form.Item
+            label={
+              <span>
+                URL tour đề xuất (nếu có): &nbsp;
+                <Tooltip title="URL tour đề xuất bởi Cóc Travel hoặc nguồn khác">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+            name="URLTourOther"
+            className="font-semibold "
+          >
+            <Input />
+          </Form.Item>
 
-                    <MinusCircleOutlined onClick={() => remove(name)} />
-                  </Space>
-                ))}
-                <Form.Item>
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    block
-                    icon={<PlusOutlined />}
-                  >
-                    Thêm địa điểm mong muốn
-                  </Button>
-                </Form.Item>
-              </>
-            )}
-          </Form.List>
+          <Flex vertical gap={32}>
+            <Form.Item
+              label="Yêu cầu khác:"
+              className="font-semibold"
+              name="descriptionOther"
+            >
+              <TextArea
+                rows={6}
+                showCount
+                maxLength={225}
+                className="h-10"
+                placeholder="Nhập yêu cầu khác (VD: Vé máy bay di chuyển khứ hồi, Phương tiện di chuyển trong tour, phòng mấy người, loại phòng lưu trú, ...)"
+                style={{
+                  height: 120,
+                  //   resize: 'none',
+                }}
+              />
+            </Form.Item>
+          </Flex>
+          <Form.Item
+            name="agreement"
+            valuePropName="checked"
+            rules={[
+              {
+                validator: (_, value) =>
+                  value
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error("You must agree to the terms and conditions")
+                      ),
+              },
+            ]}
+          >
+            <Checkbox onChange={onCheckboxChange}>
+              Tôi đã đọc và đồng ý với các điều khoản, chính sách liên quan tới
+              Tour riêng tư.
+            </Checkbox>
+          </Form.Item>
 
-        
-          <Button className="w-full mt-2" htmlType="submit">
-            Gửi yêu cầu
-          </Button>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full mt-2"
+              disabled={!isChecked}
+            >
+              Gửi yêu cầu
+            </Button>
+          </Form.Item>
         </Form>
-
-      
       </div>
     </div>
   );
