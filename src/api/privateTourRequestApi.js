@@ -33,4 +33,15 @@ const getPrivateTourById = async(id) =>{
   }
 }
 
-export { getAllProvince,getAllPrivateTour,getPrivateTourById };
+const createPrivateTour = async (tourData) => {
+  try {
+    const response = await api.post('/create-private-tour-request', tourData);
+    return response;
+  } catch (error) {
+    console.error('Error creating private tour:', error);
+    throw error; 
+  }
+};
+
+export { getAllProvince, getAllPrivateTour, getPrivateTourById, createPrivateTour };
+

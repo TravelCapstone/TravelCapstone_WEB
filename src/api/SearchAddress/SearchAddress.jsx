@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { AutoComplete } from "antd";
 
-function AddressSearch() {
+const AddressSearch = ({ value, onChange }) => {
   const [options, setOptions] = useState([]);
 
-  const searchAddress = async (value) => {
+  const searchAddress = async (searchText) => {
     const fakeData = [
       { value: "1 Lê Duẩn, Quận 1, Hồ Chí Minh" },
       { value: "5 Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội" },
@@ -13,34 +13,33 @@ function AddressSearch() {
       { value: "360 Kim Mã, Ba Đình, Hà Nội" },
     ];
 
-    const filteredData = value
+    const filteredData = searchText
       ? fakeData.filter((option) =>
-          option.value.toLowerCase().includes(value.toLowerCase())
+          option.value.toLowerCase().includes(searchText.toLowerCase())
         )
       : [];
 
     setOptions(filteredData);
   };
 
-  const onSelect = (value) => {
-    console.log("onSelect", value);
+  const handleSelect = (selectedValue) => {
+    onChange(selectedValue);
   };
 
-  const onChange = (data) => {
-    searchAddress(data);
+  const handleSearch = (searchText) => {
+    searchAddress(searchText);
   };
 
   return (
-    <>
-      <AutoComplete
-        options={options}
-        onSelect={onSelect}
-        onSearch={onChange}
-        placeholder="Tìm địa chỉ ..."
-        style={{ width: "100%" }}
-      />
-    </>
+    <AutoComplete
+      options={options}
+      onSelect={handleSelect}
+      onSearch={handleSearch}
+      placeholder="Tìm địa chỉ ..."
+      style={{ width: "100%" }}
+      value={value}
+    />
   );
-}
+};
 
 export default AddressSearch;

@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 
 import { alertFail, alertSuccess } from "../../../hook/useNotification";
+import { createPrivateTour } from "../../../api/privateTourRequestApi";
 import AddressSearch from "../../../api/SearchAddress/SearchAddress";
 
 const { RangePicker } = DatePicker;
@@ -39,9 +40,59 @@ function TourRequestForm() {
     setIsChecked(e.target.checked);
   };
 
-  const onFinish = (values) => {
-    // handle form submission
-    console.log("Received values of form:", values);
+  const onFinish = async (formValues) => {
+    if (!isChecked) {
+      alertFail("Please agree to the terms and conditions before submitting.");
+      return;
+    }
+
+    // Ensuring the date values exist and are correctly formatted
+    const startDate = formValues.startDate
+      ? formValues.startDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+      : null;
+    const endDate = formValues.endDate
+      ? formValues.endDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+      : null;
+
+    if (!startDate || !endDate) {
+      alertFail("Start date and end date must be provided.");
+      return;
+    }
+    const tourData = {
+      startDate,
+      endDate,
+      description: formValues["description"],
+      numOfAdult: formValues["adult"],
+      numOfChildren: formValues["children"],
+      numOfDay: days,
+      numOfNight: nights,
+      startLocation: formValues["startLocation"],
+      communeId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      tourId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      recommnendedTourUrl: formValues["recommnendedTourUrl"],
+      note: formValues["note"],
+      isEnterprise: formValues["isEnterprise"],
+      mainDestinationId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // Id địa điểm chính
+      otherLocationIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"], // các Id địa điểm muốn đi
+      accountId: formValues["accountId"], // accoundId
+      // mainDestinationName: formValues["mainLocation"], // Id địa điểm chính
+      // otherLocationNames: formValues["locations"],
+    };
+    console.log("tourData", tourData);
+    try {
+      const response = await createPrivateTour(tourData);
+
+      if (response?.data?.isSuccess) {
+        alertSuccess("Tour created successfully!");
+      } else {
+        alertFail("Failed to create tour. Please try again later.");
+      }
+    } catch (error) {
+      console.error("Error creating tour:", error);
+      alertFail(
+        "An error occurred while creating the tour. Please try again later."
+      );
+    }
   };
 
   useEffect(() => {
@@ -134,7 +185,7 @@ function TourRequestForm() {
           </div>
           <Form.Item
             label="Phân loại tour:"
-            name="type"
+            name="isEnterprise"
             className="font-semibold"
             rules={[
               {
@@ -143,10 +194,10 @@ function TourRequestForm() {
             ]}
           >
             <Radio.Group onChange={onChange} defaultValue={value}>
-              <Radio className="font-normal" value={1}>
+              <Radio className="font-normal" value={true}>
                 Tour gia đình
               </Radio>
-              <Radio className="font-normal" value={2}>
+              <Radio className="font-normal" value={false}>
                 Tour đoàn thể (doanh nghiệp)
               </Radio>
             </Radio.Group>
@@ -224,13 +275,13 @@ function TourRequestForm() {
             </Form.Item>
           )}
           <Form.Item
-            name="address"
+            name="startLocation"
             label={
               <span>
                 Địa chỉ xuất phát hoặc tập trung: &nbsp;
                 <Tooltip
                   title="Nếu điền địa chỉ xuất phát hoặc tập trung thì chúng tôi sẽ chuẩn bị cho bạn phương tiện đưa đón phù hợp 
-tới điểm bắt đầu chuyến tour!"
+                  tới điểm bắt đầu chuyến tour!"
                 >
                   <QuestionCircleOutlined />
                 </Tooltip>
@@ -239,7 +290,6 @@ tới điểm bắt đầu chuyến tour!"
             className="font-semibold"
             rules={[
               {
-                type: "array",
                 required: true,
                 message: (
                   <div>
@@ -252,6 +302,7 @@ tới điểm bắt đầu chuyến tour!"
           >
             <AddressSearch />
           </Form.Item>
+
           <Form.Item
             name="range-picker"
             label={
@@ -263,17 +314,6 @@ tới điểm bắt đầu chuyến tour!"
               </span>
             }
             className="font-semibold"
-            rules={[
-              {
-                type: "array",
-                required: true,
-                message: (
-                  <div>
-                    <WarningFilled /> Vui lòng chọn thời gian!
-                  </div>
-                ),
-              },
-            ]}
           >
             <div
               style={{
@@ -286,19 +326,21 @@ tới điểm bắt đầu chuyến tour!"
               <Form.Item
                 name="startDate"
                 label="Từ ngày:"
-                className="font-normal"
-                style={{ flex: "1" }} // Adjust the margin as needed
+                rules={[
+                  { required: true, message: " Vui lòng chọn thời gian!" },
+                ]}
               >
-                <DatePicker />
+                <DatePicker showTime />
               </Form.Item>
 
               <Form.Item
-                name="endtDate"
+                name="endDate"
                 label="Đến ngày:"
-                className="font-normal"
-                style={{ flex: "2", marginRight: "50px" }} // Adjust the margin as needed
+                rules={[
+                  { required: true, message: " Vui lòng chọn thời gian!" },
+                ]}
               >
-                <DatePicker />
+                <DatePicker showTime />
               </Form.Item>
             </div>
           </Form.Item>
@@ -330,15 +372,16 @@ tới điểm bắt đầu chuyến tour!"
                 name="nights"
                 label="Số đêm:"
                 className="font-normal"
-                style={{ flex: "1", marginLeft: "8px" }} // Adjust the margin as needed
+                style={{ flex: "1", marginLeft: "8px" }}
               >
-                {nights}
+                <Input readOnly placeholder={nights} value={nights} />
               </Form.Item>
             </div>
           </Form.Item>
 
           <div className="flex justify-around">
             <Form.Item
+              name="adult"
               label={
                 <span>
                   Số người lớn: &nbsp;
@@ -347,7 +390,6 @@ tới điểm bắt đầu chuyến tour!"
                   </Tooltip>
                 </span>
               }
-              name="adult"
               className="w-1/2 font-semibold"
               rules={[
                 {
@@ -360,10 +402,11 @@ tới điểm bắt đầu chuyến tour!"
                 },
               ]}
             >
-              <InputNumber min={5} defaultValue={5} />
+              <InputNumber min={1} />
             </Form.Item>
 
             <Form.Item
+              name="children"
               label={
                 <span>
                   Số trẻ em: &nbsp;
@@ -372,10 +415,19 @@ tới điểm bắt đầu chuyến tour!"
                   </Tooltip>
                 </span>
               }
-              name="children"
               className="font-semibold w-1/2"
+              rules={[
+                {
+                  required: true,
+                  message: (
+                    <div>
+                      <WarningFilled /> Vui lòng nhập số lượng!
+                    </div>
+                  ),
+                },
+              ]}
             >
-              <InputNumber min={0} defaultValue={0} />
+              <InputNumber min={0} />
             </Form.Item>
           </div>
 
@@ -388,7 +440,7 @@ tới điểm bắt đầu chuyến tour!"
                 </Tooltip>
               </span>
             }
-            name="URLTourOther"
+            name="recommnendedTourUrl"
             className="font-semibold "
           >
             <Input />
@@ -398,7 +450,7 @@ tới điểm bắt đầu chuyến tour!"
             <Form.Item
               label="Yêu cầu khác:"
               className="font-semibold"
-              name="descriptionOther"
+              name="note"
             >
               <TextArea
                 rows={6}
