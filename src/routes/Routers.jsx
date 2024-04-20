@@ -5,10 +5,10 @@ import { CommonLayout, StaffLayout } from '../layouts';
 import ViewOptions from '../pages/ViewOptions/ViewOptions'
 import { alertFail } from '../hook/useNotification';
 import CreateOptionForm from '../pages/Staff/ManagePrivateTour/TourPackage/CreatePackage/CreateOptionForm';
-import { CREATE_OPTIONS_TOUR_PRIVATE, CREATE_TOUR_PRIVATE, DETAIL_TOUR_REQUEST_STAFF, HOME_PAGE, LISTING_TOUR_REQUEST_STAFF, LOGIN_PAGE, STAFF_PAGE, VIEW_OPTIONS_TOUR_PRIVATE } from '../settings/constant';
-import ListingTourRequestStaff from '../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/TabTours';
+import { CREATE_OPTIONS_TOUR_PRIVATE, CREATE_TOUR_PRIVATE, DETAIL_TOUR_REQUEST_STAFF, HOME_PAGE, LISTING_TOUR_REQUEST_STAFF, LOGIN_PAGE, STAFF_PAGE, TEST_LAYOUT, VIEW_OPTIONS_TOUR_PRIVATE } from '../settings/constant';
 import TourRequestPage from '../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/DetailTourRequest';
 import SignInPage from '../pages/SignIn_Register/SignIn';
+import ListingTourRequestStaff from '../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/ListingTourRequestStaff';
 
 const ProtectedRouteAuth = ({ children }) => {
     const user = useSelector(selectUser);
@@ -65,6 +65,7 @@ function Routers() {
                 { path: CREATE_OPTIONS_TOUR_PRIVATE, element: <CreatePackageTour/> },
                 { path: LISTING_TOUR_REQUEST_STAFF, element: <ListingTourRequestStaff /> },
                 { path: DETAIL_TOUR_REQUEST_STAFF, element: <TourRequestPage /> },
+                {path: TEST_LAYOUT, element: <StaffLayout/>}
             ],
         },
         // {

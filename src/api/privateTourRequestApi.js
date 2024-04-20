@@ -11,4 +11,15 @@ const getAllProvince = async (data) => {
   }
 };
 
-export { getAllProvince };
+const getAllPrivateTour = async(pageNumber,pageSize) =>{
+  try {
+    const response = await api.get(
+      `get-all-private-tour-request/${pageNumber}/${pageSize}`
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export { getAllProvince,getAllPrivateTour };
