@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Hero } from '../../components';
+import { Hero, Navbar } from '../../components';
 
 import NatureVid from "../../assets/video/intro.mp4";
 import ListPage from './TopListTour/TopListTour';
@@ -8,6 +8,7 @@ import ListPage from './TopListTour/TopListTour';
 function Home() {
     return (
         <>
+        <Navbar/>
         <div className="h-[700px] relative">
           <video
             autoPlay

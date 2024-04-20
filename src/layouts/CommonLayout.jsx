@@ -5,7 +5,7 @@ import { Footer, Navbar } from '../components';
 function CommonLayout() {
     return (
         <>
-            <Navbar />
+            {/* <Navbar /> */}
             <Outlet />
             {/* <Footer /> */}
         </>
