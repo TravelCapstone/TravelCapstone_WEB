@@ -64,7 +64,7 @@ function Routers() {
                 // Staff
                 { path: CREATE_OPTIONS_TOUR_PRIVATE, element: <CreatePackageTour/> },
                 { path: LISTING_TOUR_REQUEST_STAFF, element: <ListingTourRequestStaff /> },
-                { path: DETAIL_TOUR_REQUEST_STAFF, element: <TourRequestPage /> },
+                { path: `${DETAIL_TOUR_REQUEST_STAFF}/:id`, element: <TourRequestPage /> },
                 {path: TEST_LAYOUT, element: <StaffLayout/>}
             ],
         },

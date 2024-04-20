@@ -1,21 +1,18 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { StaffLayout } from "../../../../../layouts";
 import HeaderManagement from "../../../../../components/Header/HeaderManagement";
 import { getAllPrivateTour } from "../../../../../api/privateTourRequestApi";
 import Loading from "../../../../../components/Loading/Loading";
+import { DETAIL_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
+import { statusLabels } from "../../../../../settings/globalStatus";
 
 const ListingTourRequestStaff = () => {
   const [listTourRequest, setListTourRequest] = useState([]);
   const [activeTab, setActiveTab] = useState("all");
   const [filteredData, setFilteredData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const statusLabels = {
-    0: "Chờ xử lí",
-    1: "Đợi khách hàng phản hồi",
-    2: "Chấp nhận",
-    3: "Từ chối",
-  };
+
   const fetchData = async () => {
     const data = await getAllPrivateTour(1, 10);
     if (data?.data?.isSuccess) {
@@ -94,39 +91,44 @@ const ListingTourRequestStaff = () => {
               </a>
             </div>
             <div className="overflow-x-auto">
-            <table className="table w-full ">
-              <thead>
-                <tr>
-                  <th>Tên khách hàng</th>
-                  <th>Số điện thoại</th>
-                  <th>Địa điểm muốn thêm</th>
-                  <th>Địa điểm chính</th>
-                  <th>Ngày khởi hành - kết thúc</th>
-                  <th>Địa điểm bắt đầu</th>
-                  <th>Loại tour</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.account.phoneNumber}</td>
-                    <td>{renderOtherLocations(item.otherLocation)}</td>
-                    <td>{item.mainDestination.name}</td>
-                    <td>
-                      {new Date(item.startDate).toLocaleDateString()} -{" "}
-                      {new Date(item.endDate).toLocaleDateString()}
-                    </td>
-                    <td>{item.startLocation}</td>
-                    <td>{item.isEnterprise ? "Doanh nghiệp" : "Gia đình"}</td>
-                    <td>Xem thêm</td>
+              <table className="table w-full ">
+                <thead>
+                  <tr>
+                    <th>Tên khách hàng</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa điểm muốn thêm</th>
+                    <th>Địa điểm chính</th>
+                    <th>Ngày khởi hành - kết thúc</th>
+                    <th>Địa điểm bắt đầu</th>
+                    <th>Loại tour</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredData.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.name}</td>
+                      <td>{item.account.phoneNumber}</td>
+                      <td>{renderOtherLocations(item.otherLocation)}</td>
+                      <td>{item.mainDestination.name}</td>
+                      <td>
+                        {new Date(item.startDate).toLocaleDateString()} -{" "}
+                        {new Date(item.endDate).toLocaleDateString()}
+                      </td>
+                      <td>{item.startLocation}</td>
+                      <td>{item.isEnterprise ? "Doanh nghiệp" : "Gia đình"}</td>
+                      <td>
+                        <NavLink
+                          to={`/${DETAIL_TOUR_REQUEST_STAFF}/${item.id}`}
+                        >
+                          Xem thêm
+                        </NavLink>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-        
           </div>
         </div>
       </div>

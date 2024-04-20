@@ -22,4 +22,15 @@ const getAllPrivateTour = async(pageNumber,pageSize) =>{
   }
 }
 
-export { getAllProvince,getAllPrivateTour };
+const getPrivateTourById = async(id) =>{
+  try {
+    const response = await api.get(
+      `get-private-tour-request-by-id//${id}`
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export { getAllProvince,getAllPrivateTour,getPrivateTourById };

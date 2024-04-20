@@ -27,7 +27,7 @@ export const DETAIL_TOUR = '/detail-tour-public';
 export const STAFF_PAGE= '/staff';
 // Listing Single Page Section
 export const LISTING_TOUR_REQUEST_STAFF = 'view-list-tour-private';
-export const DETAIL_TOUR_REQUEST_STAFF = 'view-list-tour-private/:id';
+export const DETAIL_TOUR_REQUEST_STAFF = 'view-list-tour-private';
 export const TEST_LAYOUT='test';
 // Form Request
 export const CREATE_OPTIONS_TOUR_PRIVATE = 'create';
