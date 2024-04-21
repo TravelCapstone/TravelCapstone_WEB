@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
-import { TourRequestForm, Home, CreatePackageTour } from "../pages";
+import { TourRequestForm, Home } from "../pages";
 import { CommonLayout, StaffLayout } from "../layouts";
 import ViewOptions from "../pages/ViewOptions/ViewOptions";
 import { alertFail } from "../hook/useNotification";
@@ -70,13 +70,12 @@ function Routers() {
         { path: VIEW_OPTIONS_TOUR_PRIVATE, element: <ViewOptions /> },
         { path: CREATE_TOUR_PRIVATE, element: <TourRequestForm /> },
       ],
-     
-    },{
+    },
+    {
       path: STAFF_PAGE,
       element: <StaffLayout />,
       children: [
         // Staff
-        { path: CREATE_OPTIONS_TOUR_PRIVATE, element: <CreatePackageTour /> },
         {
           path: LISTING_TOUR_REQUEST_STAFF,
           element: <ListingTourRequestStaff />,
@@ -85,7 +84,7 @@ function Routers() {
           path: `${DETAIL_TOUR_REQUEST_STAFF}/:id`,
           element: <TourRequestPage />,
         },
-      ]
+      ],
     },
 
     { path: LOGIN_PAGE, element: <SignInPage /> },
