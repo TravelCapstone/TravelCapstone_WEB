@@ -7,7 +7,7 @@ import { StaffLayout } from "../../../../../layouts";
 import HeaderManagement from "../../../../../components/Header/HeaderManagement";
 import { getPrivateTourById } from "../../../../../api/privateTourRequestApi";
 import Loading from "../../../../../components/Loading/Loading";
-import { statusLabels } from "../../../../../settings/globalStatus";
+import { statusPrivateTourLabels } from "../../../../../settings/globalStatus";
 function TourRequestPage() {
   const { id } = useParams();
   const [request, setRequest] = useState({});
@@ -33,11 +33,7 @@ function TourRequestPage() {
   return (
     <>
       <Loading isLoading={isLoading} />
-      <div className="flex">
-        <StaffLayout />
-        <div className="flex-1">
-          <HeaderManagement />
-          <div role="tablist" className="tabs tabs-bordered">
+      <div role="tablist" className="tabs tabs-bordered">
             <input
               type="radio"
               name="my_tabs_1"
@@ -79,12 +75,12 @@ function TourRequestPage() {
                     <span class="font-bold text-sm">Trạng thái</span>
                     <span class="font-light text-sm ml-3">
                       {request?.privateTourRespone?.status === 0
-                        ? statusLabels[0]
+                        ? statusPrivateTourLabels[0]
                         : request?.privateTourRespone?.status === 1
-                          ? statusLabels[1]
+                          ? statusPrivateTourLabels[1]
                           : request?.privateTourRespone?.status === 2
-                            ? statusLabels[2]
-                            : statusLabels[3]}
+                            ? statusPrivateTourLabels[2]
+                            : statusPrivateTourLabels[3]}
                     </span>
                   </div>
                 </div>
@@ -184,8 +180,6 @@ function TourRequestPage() {
               Tab content 2
             </div>
           </div>
-        </div>
-      </div>
     </>
   );
 }
