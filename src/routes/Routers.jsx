@@ -70,6 +70,8 @@ function Routers() {
         { path: VIEW_OPTIONS_TOUR_PRIVATE, element: <ViewOptions /> },
         { path: CREATE_TOUR_PRIVATE, element: <TourRequestForm /> },
       ],
+     
+    },{
       path: STAFF_PAGE,
       element: <StaffLayout />,
       children: [
