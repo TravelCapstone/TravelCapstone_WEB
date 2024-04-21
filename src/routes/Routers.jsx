@@ -69,7 +69,10 @@ function Routers() {
         // Custormer
         { path: VIEW_OPTIONS_TOUR_PRIVATE, element: <ViewOptions /> },
         { path: CREATE_TOUR_PRIVATE, element: <TourRequestForm /> },
-
+      ],
+      path: STAFF_PAGE,
+      element: <StaffLayout />,
+      children: [
         // Staff
         { path: CREATE_OPTIONS_TOUR_PRIVATE, element: <CreatePackageTour /> },
         {
@@ -80,8 +83,7 @@ function Routers() {
           path: `${DETAIL_TOUR_REQUEST_STAFF}/:id`,
           element: <TourRequestPage />,
         },
-        { path: TEST_LAYOUT, element: <StaffLayout /> },
-      ],
+      ]
     },
 
     { path: LOGIN_PAGE, element: <SignInPage /> },
