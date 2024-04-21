@@ -4,7 +4,6 @@ import { TourRequestForm, Home } from "../pages";
 import { CommonLayout, StaffLayout } from "../layouts";
 import ViewOptions from "../pages/ViewOptions/ViewOptions";
 import { alertFail } from "../hook/useNotification";
-import CreateOptionForm from "../pages/Staff/ManagePrivateTour/TourPackage/CreatePackage/CreateOptionForm";
 import {
   CREATE_OPTIONS_TOUR_PRIVATE,
   CREATE_TOUR_PRIVATE,
