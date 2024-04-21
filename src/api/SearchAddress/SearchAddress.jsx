@@ -1,33 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AutoComplete } from "antd";
+import {
+  getAutoCompleteSuggestions,
+  getLocationAllProvince,
+} from "../LocationApi";
 
 const AddressSearch = ({ value, onChange }) => {
   const [options, setOptions] = useState([]);
+  console.log("options", options);
 
-  const searchAddress = async (searchText) => {
-    const fakeData = [
-      { value: "1 Lê Duẩn, Quận 1, Hồ Chí Minh" },
-      { value: "5 Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội" },
-      { value: "72 Lê Thánh Tôn, Quận 1, Hồ Chí Minh" },
-      { value: "128 Trần Quang Khải, Quận 1, Hồ Chí Minh" },
-      { value: "360 Kim Mã, Ba Đình, Hà Nội" },
-    ];
-
-    const filteredData = searchText
-      ? fakeData.filter((option) =>
-          option.value.toLowerCase().includes(searchText.toLowerCase())
-        )
-      : [];
-
-    setOptions(filteredData);
+  const handleSearch = async (searchText) => {
+    if (!searchText.trim()) {
+      setOptions([]);
+      return;
+    }
+    try {
+      const suggestions = await getAutoCompleteSuggestions(searchText);
+      const formattedSuggestions = suggestions.map((suggestion) => ({
+        value: suggestion.description, // Assuming 'description' is the string to be displayed
+        label: (
+          <div>
+            <strong>{suggestion.compound.province}</strong> -{" "}
+            {suggestion.compound.district}, {suggestion.compound.commune}
+          </div>
+        ),
+        data: {
+          districtName: suggestion.compound.district,
+          communeName: suggestion.compound.commune,
+        },
+      }));
+      setOptions(formattedSuggestions);
+    } catch (error) {
+      console.error("Failed to fetch suggestions:", error);
+      setOptions([]);
+    }
   };
 
-  const handleSelect = (selectedValue) => {
-    onChange(selectedValue);
+  const handleSelect = (selectedValue, option) => {
+    console.log("Selected option:", option); // Check what's actually in the option
+    if (option && option.data) {
+      onChange(selectedValue, option.data);
+    } else {
+      onChange(selectedValue, null); // Ensure calling component knows that there's no details
+      console.log("No details available for selected option");
+    }
   };
 
-  const handleSearch = (searchText) => {
-    searchAddress(searchText);
+  const handleChange = (data) => {
+    onChange(data); // Cho phép người dùng sửa đổi input sau khi chọn một gợi ý
   };
 
   return (
@@ -35,7 +55,8 @@ const AddressSearch = ({ value, onChange }) => {
       options={options}
       onSelect={handleSelect}
       onSearch={handleSearch}
-      placeholder="Tìm địa chỉ ..."
+      onChange={handleChange}
+      placeholder="Enter an address..."
       style={{ width: "100%" }}
       value={value}
     />
