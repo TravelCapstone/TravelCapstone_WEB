@@ -13,13 +13,11 @@ import {
   LISTING_TOUR_REQUEST_STAFF,
   LOGIN_PAGE,
   STAFF_PAGE,
-  TEST_LAYOUT,
   VIEW_OPTIONS_TOUR_PRIVATE,
 } from "../settings/constant";
 import TourRequestPage from "../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/DetailTourRequest";
 import SignInPage from "../pages/SignIn_Register/SignIn";
 import ListingTourRequestStaff from "../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/ListingTourRequestStaff";
-
 const ProtectedRouteAuth = ({ children }) => {
   const user = useSelector(selectUser);
   if (!user) {
@@ -28,7 +26,6 @@ const ProtectedRouteAuth = ({ children }) => {
   }
   return children;
 };
-
 const ProtectedRouteCustomer = ({ children }) => {
   const user = useSelector(selectUser);
   console.log(user);
@@ -38,7 +35,6 @@ const ProtectedRouteCustomer = ({ children }) => {
   }
   return children;
 };
-
 const ProtectedRouteStaff = ({ children }) => {
   const user = useSelector(selectUser);
   console.log(user);
@@ -48,7 +44,6 @@ const ProtectedRouteStaff = ({ children }) => {
   }
   return children;
 };
-
 const ProtectedRouteAdmin = ({ children }) => {
   const user = useSelector(selectUser);
   console.log(user);
@@ -58,7 +53,6 @@ const ProtectedRouteAdmin = ({ children }) => {
   }
   return children;
 };
-
 function Routers() {
   const routing = useRoutes([
     {
@@ -66,14 +60,14 @@ function Routers() {
       element: <CommonLayout />,
       children: [
         { index: true, element: <Home /> },
-        // Custormer
         { path: VIEW_OPTIONS_TOUR_PRIVATE, element: <ViewOptions /> },
         { path: CREATE_TOUR_PRIVATE, element: <TourRequestForm /> },
       ],
+    },
+    {
       path: STAFF_PAGE,
       element: <StaffLayout />,
       children: [
-        // Staff
         { path: CREATE_OPTIONS_TOUR_PRIVATE, element: <CreatePackageTour /> },
         {
           path: LISTING_TOUR_REQUEST_STAFF,
@@ -83,12 +77,13 @@ function Routers() {
           path: `${DETAIL_TOUR_REQUEST_STAFF}/:id`,
           element: <TourRequestPage />,
         },
-      ]
+      ],
     },
-
-    { path: LOGIN_PAGE, element: <SignInPage /> },
+    {
+      path: LOGIN_PAGE,
+      element: <SignInPage />,
+    },
   ]);
   return routing;
 }
-
 export default Routers;
