@@ -29,7 +29,7 @@ export const STAFF_PAGE= '/staff';
 export const LISTING_TOUR_REQUEST_STAFF = '/staff/view-list-tour-private';
 export const DETAIL_TOUR_REQUEST_STAFF = 'view-list-tour-private';
 // Form Request
-export const CREATE_OPTIONS_TOUR_PRIVATE = '/staff/create';
+export const CREATE_OPTIONS_TOUR_PRIVATE = 'create-options';
 
 // Other Pages
 

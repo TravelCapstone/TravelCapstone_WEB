@@ -1,10 +1,9 @@
 import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
-import { TourRequestForm, Home, CreatePackageTour } from "../pages";
+import { TourRequestForm, Home } from "../pages";
 import { CommonLayout, StaffLayout } from "../layouts";
 import ViewOptions from "../pages/ViewOptions/ViewOptions";
 import { alertFail } from "../hook/useNotification";
-import CreateOptionForm from "../pages/Staff/ManagePrivateTour/TourPackage/CreatePackage/CreateOptionForm";
 import {
   CREATE_OPTIONS_TOUR_PRIVATE,
   CREATE_TOUR_PRIVATE,
@@ -68,7 +67,7 @@ function Routers() {
       path: STAFF_PAGE,
       element: <StaffLayout />,
       children: [
-        { path: CREATE_OPTIONS_TOUR_PRIVATE, element: <CreatePackageTour /> },
+        // Staff
         {
           path: LISTING_TOUR_REQUEST_STAFF,
           element: <ListingTourRequestStaff />,
