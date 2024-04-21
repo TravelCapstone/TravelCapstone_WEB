@@ -23,6 +23,7 @@ import {
 import { alertFail, alertSuccess } from "../../../hook/useNotification";
 import { createPrivateTour } from "../../../api/privateTourRequestApi";
 import AddressSearch from "../../../api/SearchAddress/SearchAddress";
+import { getCommuneByDistrictAndCommuneName } from "../../../api/LocationApi";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -35,12 +36,38 @@ function TourRequestForm() {
   const [nights, setNights] = useState(0);
   const [form] = Form.useForm();
   const [isChecked, setIsChecked] = useState(false);
+  const [startCommuneId, setStartCommuneId] = useState("");
+
+  const handleAddressSelect = async (value, details) => {
+    form.setFieldsValue({ startLocation: value });
+    if (details) {
+      const { districtName, communeName } = details;
+      try {
+        const communeData = await getCommuneByDistrictAndCommuneName(
+          districtName,
+          communeName
+        );
+        if (communeData && communeData.length > 0) {
+          setStartCommuneId(communeData[0].id);
+        } else {
+          console.log("No communes found with the provided names");
+        }
+      } catch (error) {
+        console.error(
+          "Error fetching commune ID:",
+          error.message,
+          error.response
+        );
+      }
+    }
+  };
 
   const onCheckboxChange = (e) => {
     setIsChecked(e.target.checked);
   };
 
   const onFinish = async (formValues) => {
+    console.log("startLocation", formValues["startLocation"]);
     if (!isChecked) {
       alertFail("Please agree to the terms and conditions before submitting.");
       return;
@@ -67,14 +94,23 @@ function TourRequestForm() {
       numOfDay: days,
       numOfNight: nights,
       startLocation: formValues["startLocation"],
-      communeId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      tourId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      startCommuneId: startCommuneId,
+      tourId: "591b4a71-d561-46a5-8057-84fe72ce1185",
       recommnendedTourUrl: formValues["recommnendedTourUrl"],
       note: formValues["note"],
       isEnterprise: formValues["isEnterprise"],
-      mainDestinationId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // Id địa điểm chính
-      otherLocationIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"], // các Id địa điểm muốn đi
-      accountId: formValues["accountId"], // accoundId
+      mainDestinationId: "1c5d0447-52fc-4881-9d0a-0477136623bd", // Id địa điểm chính
+      otherLocationIds: [
+        {
+          address: "Phú Thọ",
+          provinceId: "c686939b-480a-4ca9-a9d3-00f5bb53fb15",
+        },
+        {
+          address: "Nghệ An",
+          provinceId: "1c5d0447-52fc-4881-9d0a-0477136623bd",
+        },
+      ], // các Id địa điểm muốn đi
+      accountId: "0d7e46a6-fa95-4a9f-b26a-aa0e7ad5d7f8", // accoundId
       // mainDestinationName: formValues["mainLocation"], // Id địa điểm chính
       // otherLocationNames: formValues["locations"],
     };
@@ -300,7 +336,7 @@ function TourRequestForm() {
               },
             ]}
           >
-            <AddressSearch />
+            <AddressSearch onChange={handleAddressSelect} />
           </Form.Item>
 
           <Form.Item
