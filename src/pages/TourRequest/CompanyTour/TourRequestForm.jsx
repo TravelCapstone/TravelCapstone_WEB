@@ -23,7 +23,11 @@ import {
 import { alertFail, alertSuccess } from "../../../hook/useNotification";
 import { createPrivateTour } from "../../../api/privateTourRequestApi";
 import AddressSearch from "../../../api/SearchAddress/SearchAddress";
-import { getCommuneByDistrictAndCommuneName } from "../../../api/LocationApi";
+import {
+  getCommuneByDistrictAndCommuneName,
+  getProvinceByName,
+} from "../../../api/LocationApi";
+import AddressSearchMultiple from "../../../api/SearchAddress/SearchAddressMulti";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -37,6 +41,28 @@ function TourRequestForm() {
   const [form] = Form.useForm();
   const [isChecked, setIsChecked] = useState(false);
   const [startCommuneId, setStartCommuneId] = useState("");
+  const [mainLocation, setMainLocation] = useState("");
+  const [mainDestinationId, setMainDestinationId] = useState("");
+
+  useEffect(() => {
+    if (selectedLocations.length === 1) {
+      setMainLocation(selectedLocations[0]);
+    } else {
+      setMainLocation(null);
+    }
+  }, [selectedLocations]);
+
+  const handleMainLocationSelect = async (location) => {
+    try {
+      const provinceData = await getProvinceByName(location);
+      setMainLocation(location);
+      setMainDestinationId(provinceData.id);
+    } catch (error) {
+      alertFail(
+        "Failed to fetch province ID. Please check the location and try again."
+      );
+    }
+  };
 
   const handleAddressSelect = async (value, details) => {
     form.setFieldsValue({ startLocation: value });
@@ -67,7 +93,6 @@ function TourRequestForm() {
   };
 
   const onFinish = async (formValues) => {
-    console.log("startLocation", formValues["startLocation"]);
     if (!isChecked) {
       alertFail("Please agree to the terms and conditions before submitting.");
       return;
@@ -95,24 +120,16 @@ function TourRequestForm() {
       numOfNight: nights,
       startLocation: formValues["startLocation"],
       startCommuneId: startCommuneId,
-      tourId: "591b4a71-d561-46a5-8057-84fe72ce1185",
+      tourId: "591b4a71-d561-46a5-8057-84fe72ce1185", // Tour ID Gốc
       recommnendedTourUrl: formValues["recommnendedTourUrl"],
       note: formValues["note"],
       isEnterprise: formValues["isEnterprise"],
-      mainDestinationId: "1c5d0447-52fc-4881-9d0a-0477136623bd", // Id địa điểm chính
-      otherLocationIds: [
-        {
-          address: "Phú Thọ",
-          provinceId: "c686939b-480a-4ca9-a9d3-00f5bb53fb15",
-        },
-        {
-          address: "Nghệ An",
-          provinceId: "1c5d0447-52fc-4881-9d0a-0477136623bd",
-        },
-      ], // các Id địa điểm muốn đi
-      accountId: "0d7e46a6-fa95-4a9f-b26a-aa0e7ad5d7f8", // accoundId
-      // mainDestinationName: formValues["mainLocation"], // Id địa điểm chính
-      // otherLocationNames: formValues["locations"],
+      otherLocationIds: selectedLocations.map((loc) => ({
+        address: loc.provinceName,
+        provinceId: loc.provinceId,
+      })),
+      mainDestinationId: mainDestinationId,
+      accountId: "208be820-3a09-4a8c-af3f-d86cb0f5ccee", // accoundId
     };
     console.log("tourData", tourData);
     try {
@@ -141,9 +158,26 @@ function TourRequestForm() {
     setDays(value);
   };
 
-  // Hàm cập nhật state khi có sự thay đổi trong Select
-  const handleLocationsChange = (value) => {
-    setSelectedLocations(value);
+  const handleLocationsChange = async (selectedItems) => {
+    try {
+      const detailedItemsWithIds = await Promise.all(
+        selectedItems.map(async (item) => {
+          const provinceData = await getProvinceByName(item.provinceName);
+          return { ...item, provinceId: provinceData.id };
+        })
+      );
+
+      setSelectedLocations(detailedItemsWithIds); // This includes province IDs now
+    } catch (error) {
+      console.error("Error fetching province IDs:", error);
+      alertFail("Failed to fetch province IDs. Please try again.");
+    }
+  };
+
+  const handleMainLocationChange = (location) => {
+    if (location) {
+      handleMainLocationSelect(location);
+    }
   };
 
   const onChange = (e) => {
@@ -257,6 +291,7 @@ function TourRequestForm() {
               />
             </Form.Item>
           </Flex>
+
           <Form.Item
             name="locations"
             label="Địa điểm mong muốn:"
@@ -268,21 +303,7 @@ function TourRequestForm() {
               },
             ]}
           >
-            <Select
-              mode="multiple"
-              placeholder="Chọn địa điểm"
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-              onChange={handleLocationsChange} // Cập nhật state khi địa điểm thay đổi
-            >
-              <Option value="Hà Nội">Hà Nội</Option>
-              <Option value="Thành phố Hồ Chí Minh">
-                Thành phố Hồ Chí Minh
-              </Option>
-              <Option value="Đà Nẵng">Đà Nẵng</Option>
-            </Select>
+            <AddressSearchMultiple onChange={handleLocationsChange} />
           </Form.Item>
           {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
           {selectedLocations.length > 1 && (
@@ -297,14 +318,16 @@ function TourRequestForm() {
               <Select
                 placeholder="Chọn địa điểm chính"
                 showSearch
-                style={{ width: "40%  " }}
+                style={{ width: "100%" }}
+                value={mainLocation}
+                onChange={handleMainLocationChange}
                 filterOption={(input, option) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
                 }
               >
                 {selectedLocations.map((location) => (
-                  <Option key={location} value={location}>
-                    {location}
+                  <Option key={location.location} value={location.provinceName}>
+                    {location.description}
                   </Option>
                 ))}
               </Select>

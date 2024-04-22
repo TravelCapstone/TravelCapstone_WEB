@@ -20,11 +20,12 @@ const AddressSearch = ({ value, onChange }) => {
         value: suggestion.description, // Assuming 'description' is the string to be displayed
         label: (
           <div>
-            <strong>{suggestion.compound.province}</strong> -{" "}
-            {suggestion.compound.district}, {suggestion.compound.commune}
+            {suggestion.compound.commune}, {suggestion.compound.district},{" "}
+            <strong>{suggestion.compound.province}</strong>
           </div>
         ),
         data: {
+          provinceName: suggestion.compound.province,
           districtName: suggestion.compound.district,
           communeName: suggestion.compound.commune,
         },

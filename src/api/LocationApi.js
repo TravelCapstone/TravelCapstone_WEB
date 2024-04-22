@@ -12,11 +12,15 @@ const getLocationAllProvince = async () => {
 
 const getProvinceByName = async (provinceName) => {
   try {
-    const response = await api.get(`/location/get-province-by-name/${encodeURIComponent(provinceName)}`);
-    return response.data.result;  
+      const response = await api.get(`/location/get-province-by-name/${encodeURIComponent(provinceName)}`);
+      if (response.data.isSuccess) {
+          return response.data.result; 
+      } else {
+          throw new Error(response.data.messages.join(", ") || "Unknown error");
+      }
   } catch (error) {
-    console.error('Error fetching province by name:', error);
-    throw error;
+      console.error('Error fetching province by name:', error);
+      throw error;
   }
 };
 
