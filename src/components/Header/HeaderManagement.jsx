@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const HeaderManagement = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -45,7 +45,7 @@ const HeaderManagement = () => {
           <div
             tabIndex={0}
             className={`mt-3 card card-compact dropdown-content w-52 bg-base-100 shadow ${
-              showNotifications ? 'visible' : 'invisible'
+              showNotifications ? "visible" : "invisible"
             }`}
           >
             <div className="card-body">
@@ -63,7 +63,7 @@ const HeaderManagement = () => {
           <ul
             tabIndex={0}
             className={`menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52 ${
-              showProfile ? 'visible' : 'invisible'
+              showProfile ? "visible" : "invisible"
             }`}
           >
             <li>
