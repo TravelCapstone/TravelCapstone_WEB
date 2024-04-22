@@ -18,8 +18,8 @@ const ListReferenceTransportPrice = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [province1, setProvince1] = useState("");
-  const [province2, setProvince2] = useState("");
+  const [province1, setProvince1] = useState("0");
+  const [province2, setProvince2] = useState("0");
   const handlePageClick = (page) => {
     setCurrentPage(page);
   };

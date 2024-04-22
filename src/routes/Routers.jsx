@@ -15,12 +15,14 @@ import {
   STAFF_PAGE,
   VIEW_OPTIONS_TOUR_PRIVATE,
   VIEW_REFERENCE_TRANSPORT_PRICE,
+  VIEW_USER,
 } from "../settings/constant";
 import TourRequestPage from "../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/DetailTourRequest";
 import SignInPage from "../pages/SignIn_Register/SignIn";
 import ListingTourRequestStaff from "../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/ListingTourRequestStaff";
 import AdminLayout from "../layouts/AdminLayout";
 import ListReferenceTransportPrice from "../pages/Admin/ReferenceTransportPrice/ListReferenceTransportPrice";
+import ListAccount from "../pages/Admin/Account/ListAccount";
 const ProtectedRouteAuth = ({ children }) => {
   const user = useSelector(selectUser);
   if (!user) {
@@ -89,6 +91,10 @@ function Routers() {
         {
           path: VIEW_REFERENCE_TRANSPORT_PRICE,
           element: <ListReferenceTransportPrice />,
+        },
+        {
+          path: VIEW_USER,
+          element: <ListAccount />,
         },
       ],
     },
