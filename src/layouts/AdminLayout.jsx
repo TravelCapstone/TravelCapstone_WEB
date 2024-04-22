@@ -2,11 +2,11 @@ import { Outlet } from "react-router-dom";
 import MenuManagement from "../components/Menu/MenuManagement";
 import HeaderManagement from "../components/Header/HeaderManagement";
 
-function StaffLayout() {
+function AdminLayout() {
   return (
     <>
       <div className="flex">
-        <MenuManagement isAdmin={false} />
+        <MenuManagement isAdmin={true} />
         <div className="flex-1">
           <HeaderManagement />
           <Outlet />
@@ -16,4 +16,4 @@ function StaffLayout() {
   );
 }
 
-export default StaffLayout;
+export default AdminLayout;

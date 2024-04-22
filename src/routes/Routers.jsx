@@ -5,6 +5,7 @@ import { CommonLayout, StaffLayout } from "../layouts";
 import ViewOptions from "../pages/ViewOptions/ViewOptions";
 import { alertFail } from "../hook/useNotification";
 import {
+  ADMIN_PAGE,
   CREATE_OPTIONS_TOUR_PRIVATE,
   CREATE_TOUR_PRIVATE,
   DETAIL_TOUR_REQUEST_STAFF,
@@ -13,10 +14,13 @@ import {
   LOGIN_PAGE,
   STAFF_PAGE,
   VIEW_OPTIONS_TOUR_PRIVATE,
+  VIEW_REFERENCE_TRANSPORT_PRICE,
 } from "../settings/constant";
 import TourRequestPage from "../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/DetailTourRequest";
 import SignInPage from "../pages/SignIn_Register/SignIn";
 import ListingTourRequestStaff from "../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/ListingTourRequestStaff";
+import AdminLayout from "../layouts/AdminLayout";
+import ListReferenceTransportPrice from "../pages/Admin/ReferenceTransportPrice/ListReferenceTransportPrice";
 const ProtectedRouteAuth = ({ children }) => {
   const user = useSelector(selectUser);
   if (!user) {
@@ -78,6 +82,17 @@ function Routers() {
         },
       ],
     },
+    {
+      path: ADMIN_PAGE,
+      element: <AdminLayout />,
+      children: [
+        {
+          path: VIEW_REFERENCE_TRANSPORT_PRICE,
+          element: <ListReferenceTransportPrice />,
+        },
+      ],
+    },
+
     {
       path: LOGIN_PAGE,
       element: <SignInPage />,

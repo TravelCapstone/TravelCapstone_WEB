@@ -46,3 +46,6 @@ export const CREATE_TOUR_PRIVATE = '/dat-tour-theo-yeu-cau';
 
 
 
+//====================ADMIN============================---------
+export const ADMIN_PAGE ="admin";
+export const VIEW_REFERENCE_TRANSPORT_PRICE ="view-reference-transport-price";
