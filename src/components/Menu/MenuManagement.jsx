@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   LISTING_TOUR_REQUEST_STAFF,
   VIEW_REFERENCE_TRANSPORT_PRICE,
+  VIEW_USER,
 } from "../../settings/constant";
 import { NavLink } from "react-router-dom";
 const MenuManagement = ({ isAdmin }) => {
@@ -22,8 +23,17 @@ const MenuManagement = ({ isAdmin }) => {
       icon: <i class="fa-solid fa-chart-column"></i>,
     },
     {
-      title: "Doanh thu",
-      path: "/revenue",
+      title: "Người dùng",
+      icon: <i class="fa-solid fa-users"></i>,
+      submenu: [
+        {
+          title: "Quản lí người dùng",
+          path: VIEW_USER,
+        },
+      ],
+    },
+    {
+      title: "Các loại chi phí",
       icon: <i class="fa-solid fa-money-bill"></i>,
       submenu: [
         {

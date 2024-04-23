@@ -12,22 +12,25 @@ const AddressSearchMultiple = ({ onChange }) => {
       return;
     }
     // Assume getAutoCompleteSuggestions is already defined
-    const suggestions = await getAutoCompleteSuggestions(searchText);
-    const formattedSuggestions = suggestions.map((suggestion) => ({
-      value: suggestion.description,
-      label: (
-        <div>
-          {suggestion.compound.commune}, {suggestion.compound.district},{" "}
-          <strong>{suggestion.compound.province}</strong>
-        </div>
-      ),
-      data: {
-        provinceName: suggestion.compound.province,
-        location: suggestion.description,
-        districtName: suggestion.compound.district,
-        communeName: suggestion.compound.commune,
-      },
-    }));
+    setTimeout(async () => {
+      const suggestions = await getAutoCompleteSuggestions(searchText);
+      const formattedSuggestions = suggestions.map((suggestion) => ({
+        value: suggestion.description,
+        label: (
+          <div>
+            {suggestion.compound.commune}, {suggestion.compound.district},{" "}
+            <strong>{suggestion.compound.province}</strong>
+          </div>
+        ),
+        data: {
+          provinceName: suggestion.compound.province,
+          location: suggestion.description,
+          districtName: suggestion.compound.district,
+          communeName: suggestion.compound.commune,
+        },
+      }));
+    }, 2000);
+
     setOptions(formattedSuggestions);
   };
 
