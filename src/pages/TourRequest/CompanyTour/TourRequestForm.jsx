@@ -124,8 +124,8 @@ function TourRequestForm() {
       recommnendedTourUrl: formValues["recommnendedTourUrl"],
       note: formValues["note"],
       isEnterprise: formValues["isEnterprise"],
-      otherLocationIds: selectedLocations.map((loc) => ({
-        address: loc.provinceName,
+      otherLocation: selectedLocations.map((loc) => ({
+        address: loc.location,
         provinceId: loc.provinceId,
       })),
       mainDestinationId: mainDestinationId,

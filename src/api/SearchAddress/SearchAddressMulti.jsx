@@ -1,34 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AutoComplete, Tag } from "antd";
 import { getAutoCompleteSuggestions } from "../LocationApi";
 
 const AddressSearchMultiple = ({ onChange }) => {
   const [options, setOptions] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(debounceTimeout); // Xóa timeout khi component bị unmount
+    };
+  }, [debounceTimeout]);
 
   const handleSearch = async (searchText) => {
+    clearTimeout(debounceTimeout); // Xóa timeout hiện tại
+
+    // Nếu không có văn bản tìm kiếm, đặt options về mảng rỗng và trả về
     if (!searchText.trim()) {
       setOptions([]);
       return;
     }
-    // Assume getAutoCompleteSuggestions is already defined
-    const suggestions = await getAutoCompleteSuggestions(searchText);
-    const formattedSuggestions = suggestions.map((suggestion) => ({
-      value: suggestion.description,
-      label: (
-        <div>
-          {suggestion.compound.commune}, {suggestion.compound.district},{" "}
-          <strong>{suggestion.compound.province}</strong>
-        </div>
-      ),
-      data: {
-        provinceName: suggestion.compound.province,
-        location: suggestion.description,
-        districtName: suggestion.compound.district,
-        communeName: suggestion.compound.commune,
-      },
-    }));
-    setOptions(formattedSuggestions);
+
+    // Thiết lập một timeout mới để gọi API sau một khoảng thời gian nhất định (ví dụ: 300ms)
+    const newDebounceTimeout = setTimeout(async () => {
+      const suggestions = await getAutoCompleteSuggestions(searchText);
+      const formattedSuggestions = suggestions?.map((suggestion) => ({
+        value: suggestion.description,
+        label: (
+          <div>
+            {suggestion.description} {suggestion.compound.commune},{" "}
+            {suggestion.compound.district},{" "}
+            <strong>{suggestion.compound.province}</strong>
+          </div>
+        ),
+        data: {
+          provinceName: suggestion.compound.province,
+          location: suggestion.description,
+          districtName: suggestion.compound.district,
+          communeName: suggestion.compound.commune,
+        },
+      }));
+      setOptions(formattedSuggestions);
+    }, 300);
+
+    setDebounceTimeout(newDebounceTimeout);
   };
 
   const handleSelect = (value, option) => {
@@ -36,7 +52,6 @@ const AddressSearchMultiple = ({ onChange }) => {
       description: value,
       ...option.data,
     };
-
     if (
       !selectedItems.find(
         (item) => item.description === detailedItem.description

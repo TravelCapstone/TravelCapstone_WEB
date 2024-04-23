@@ -85,6 +85,7 @@ const ListingTourRequestStaff = () => {
                   <th>Ngày khởi hành - kết thúc</th>
                   <th>Địa điểm bắt đầu</th>
                   <th>Loại tour</th>
+                  <th>Ngày tạo yêu cầu</th>
                   <th></th>
                 </tr>
               </thead>
@@ -102,6 +103,7 @@ const ListingTourRequestStaff = () => {
                     </td>
                     <td>{item.startLocation}</td>
                     <td>{item.isEnterprise ? "Doanh nghiệp" : "Gia đình"}</td>
+                    <td>{new Date(item.createDate).toLocaleDateString()}</td>
                     <td>
                       <NavLink
                         to={`/staff/${DETAIL_TOUR_REQUEST_STAFF}/${item.id}`}
