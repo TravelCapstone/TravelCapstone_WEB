@@ -50,7 +50,7 @@ const ListingTourRequestStaff = () => {
   };
 
   const renderOtherLocations = (locations) => {
-    return locations.map((location) => location.name).join(", ");
+    return locations.map((location) => location.province?.name).join(", ");
   };
 
   return (
