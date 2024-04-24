@@ -10,6 +10,7 @@ import {
   CREATE_TOUR_PRIVATE,
   DETAIL_TOUR_REQUEST_STAFF,
   HOME_PAGE,
+  IMPORT_DATA,
   LISTING_TOUR_REQUEST_STAFF,
   LOGIN_PAGE,
   STAFF_PAGE,
@@ -23,6 +24,7 @@ import ListingTourRequestStaff from "../pages/Staff/ManagePrivateTour/TourPackag
 import AdminLayout from "../layouts/AdminLayout";
 import ListReferenceTransportPrice from "../pages/Admin/ReferenceTransportPrice/ListReferenceTransportPrice";
 import ListAccount from "../pages/Admin/Account/ListAccount";
+import ImportData from "../pages/Admin/ImportData/ImportData";
 const ProtectedRouteAuth = ({ children }) => {
   const user = useSelector(selectUser);
   if (!user) {
@@ -95,6 +97,10 @@ function Routers() {
         {
           path: VIEW_USER,
           element: <ListAccount />,
+        },
+        {
+          path: IMPORT_DATA,
+          element: <ImportData />,
         },
       ],
     },

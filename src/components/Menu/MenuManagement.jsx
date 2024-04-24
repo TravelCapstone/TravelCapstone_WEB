@@ -107,7 +107,7 @@ const MenuManagement = ({ isAdmin }) => {
                         {menu.submenu.map((submenu, subindex) => (
                           <li
                             key={subindex}
-                            className="hover:bg-black hover:text-white hover:cursor-pointer my-2 rounded-md"
+                            className="hover:bg-mainColor hover:text-white hover:cursor-pointer my-2 rounded-md"
                           >
                             <NavLink
                               className="p-2 block text-black font-medium hover:text-white"
@@ -144,7 +144,7 @@ const MenuManagement = ({ isAdmin }) => {
                         {menu.submenu.map((submenu, subindex) => (
                           <li
                             key={subindex}
-                            className="hover:bg-black hover:text-white hover:cursor-pointer my-2 rounded-md"
+                            className="hover:bg-mainColor hover:text-white hover:cursor-pointer my-2 rounded-md"
                           >
                             <NavLink
                               className="p-2 block text-black font-medium hover:text-white"

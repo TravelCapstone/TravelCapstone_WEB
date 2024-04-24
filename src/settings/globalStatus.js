@@ -12,4 +12,14 @@ const typePortLabels= {
   4: "Bến xe buýt"
 
 }
-  export { statusPrivateTourLabels, typePortLabels}
+const dietaryPreferenceLabels= {
+  0:  "Ăn được hết",
+  1:  "Thuần chay",
+  2:"Chay trường"  ,
+  3:"Không chứa protein từ gạo và ngũ cốc",
+  4: "Đạo Hồi",
+  5:"Đạo Do Thái",
+  6:"Chay nhưng ăn cá"
+
+}
+  export { statusPrivateTourLabels, typePortLabels,dietaryPreferenceLabels}

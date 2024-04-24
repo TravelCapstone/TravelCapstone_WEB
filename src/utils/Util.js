@@ -5,8 +5,13 @@ function formatPrice(gia) {
      * @param {number} gia - Giá tiền cần định dạng.
      * @returns {string} - Chuỗi đã định dạng giá tiền.
      */
-    return gia.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    if (gia !== null && gia !== undefined) {
+        return gia.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    } else {
+        return '0';
+    }
 }
+
 
 function formatDateTime(ngayGio) {
     /**

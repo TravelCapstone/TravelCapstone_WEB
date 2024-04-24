@@ -10,6 +10,7 @@ import Loading from "../../../../../components/Loading/Loading";
 import { statusPrivateTourLabels } from "../../../../../settings/globalStatus";
 import TourRequestSection from "../CreatePackage/TourRequestSection";
 import CreateOptionForm from "../CreatePackage/CreateOptionForm";
+import CreatePlanForm from "../../CreatePlan/CreatePlanForm";
 function TourRequestPage() {
   const { id } = useParams();
   const [request, setRequest] = useState({});
@@ -28,33 +29,41 @@ function TourRequestPage() {
     fetchData();
   }, [id]);
 
-  
   return (
     <>
       <Loading isLoading={isLoading} />
       <div role="tablist" className="tabs tabs-bordered">
-            <input
-              type="radio"
-              name="my_tabs_1"
-              role="tab"
-              className="tab"
-              aria-label="Thông tin yêu cầu"
-              checked
-            />
-            <TourRequestSection request={request}/>
-          
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab font-medium"
+          aria-label="Thông tin yêu cầu"
+          checked
+        />
+        <TourRequestSection request={request} />
 
-            <input
-              type="radio"
-              name="my_tabs_1"
-              role="tab"
-              className="tab"
-              aria-label="Tạo gói tour"
-            />
-            <div role="tabpanel" className="tab-content p-10">
-            <CreateOptionForm/>
-            </div>
-          </div>
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab font-medium"
+          aria-label="Tạo gói tour"
+        />
+        <div role="tabpanel" className="tab-content p-10">
+          <CreateOptionForm />
+        </div>
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab font-medium"
+          aria-label="Tạo kế hoạch chi tiêt"
+        />
+        <div role="tabpanel" className="tab-content p-10">
+          <CreatePlanForm />
+        </div>
+      </div>
     </>
   );
 }

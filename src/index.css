@@ -39,4 +39,7 @@ body {
   margin-bottom: 100px;
   top: 20px;
 }
-
+.menu li > *:not(ul, .menu-title, details, .btn):active, .menu li > *:not(ul, .menu-title, details, .btn).active, .menu li > details > summary:active{
+  background-color: rgb(0 132 137 / var(--tw-bg-opacity));
+  color: white;
+}
