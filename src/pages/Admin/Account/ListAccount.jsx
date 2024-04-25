@@ -58,9 +58,9 @@ const ListAccount = () => {
           Quản lí người dùng
         </h2>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl">
           <table className="table w-full ">
-            <thead>
+            <thead className="bg-mainColor text-white h-14">
               <tr>
                 <th>STT</th>
                 <th>Họ tên</th>

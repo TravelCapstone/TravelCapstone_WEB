@@ -60,9 +60,9 @@ const ListReferenceTransportPrice = () => {
   return (
     <>
       <Loading isLoading={isLoading} />
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-center text-pretty">
-          Chi phí phương tiện di chuyển
+      <div className=" bg-white shadow-md rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-primary mb-4 text-center text-pretty">
+          CHI PHÍ PHƯƠNG TIỆN DI CHUYỂN
         </h2>
         <div class="flex items-end justify-between my-10">
           <div className="flex items-end">
@@ -122,9 +122,9 @@ const ListReferenceTransportPrice = () => {
             <button class="btn  m-0">Import excel</button>
           </div>
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl">
           <table className="table w-full ">
-            <thead>
+            <thead className="bg-mainColor text-white h-14">
               <tr>
                 <th>STT</th>
                 <th>Loại cảng</th>

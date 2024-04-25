@@ -1,12 +1,9 @@
 import React from "react";
 import {
-  AiOutlineUser,
-  AiOutlineEye,
-  AiOutlinePhone,
-  AiOutlineMail,
-  AiOutlineCarryOut,
-} from "react-icons/ai";
-import { statusPrivateTourLabels } from "../../../../../settings/globalStatus";
+  dietaryPreferenceLabels,
+  statusPrivateTourLabels,
+} from "../../../../../settings/globalStatus";
+import { formatPrice } from "../../../../../utils/Util";
 
 function TourRequestSection({ request }) {
   const renderOtherLocations = (locations) => {
@@ -20,14 +17,24 @@ function TourRequestSection({ request }) {
     ));
   };
 
+  const renderFoodRequest = (food) => {
+    if (food === 0) return dietaryPreferenceLabels[0];
+    else if (food === 1) return dietaryPreferenceLabels[1];
+    else if (food === 2) return dietaryPreferenceLabels[2];
+    else if (food === 3) return dietaryPreferenceLabels[3];
+    else if (food === 4) return dietaryPreferenceLabels[4];
+    else if (food === 5) return dietaryPreferenceLabels[5];
+    else if (food === 6) return dietaryPreferenceLabels[6];
+  };
+
   return (
-    <div role="tabpanel" class="tab-content p-10">
-      <h1 class="text-center font-semibold text-xl mb-5">
+    <>
+      <h1 class="text-center font-semibold text-xl mb-5 text-mainColor">
         Thông tin yêu cầu tour
       </h1>
-      <div class="flex flex-row mt-10 shadow-2xl p-5 rounded-md">
+      <div class="flex flex-row mt-10 shadow-xl p-5 rounded-4xl">
         <div class="w-4/12 border-r border-solid border-gray-300">
-          <h2 class="text-start font-semibold text-lg mb-5">
+          <h2 class="text-start font-semibold text-mainColor text-lg mb-5">
             Thông tin khách hàng
           </h2>
           <div class="mb-3">
@@ -64,7 +71,7 @@ function TourRequestSection({ request }) {
           </div>
         </div>
         <div class="w-8/12 px-2">
-          <h2 class="text-start font-semibold text-lg mb-5">
+          <h2 class="text-start font-semibold text-mainColor text-lg mb-5">
             Chi tiết yêu cầu
           </h2>
           <div class="mb-3">
@@ -79,6 +86,22 @@ function TourRequestSection({ request }) {
             <span class="font-bold text-sm">Mô tả yêu cầu:</span>
             <span class="font-normal text-sm ml-3">
               {request?.privateTourResponse?.description}
+            </span>
+          </div>
+          <div class="mb-3">
+            <span class="font-bold text-sm">Yêu cầu về đồ ăn:</span>
+            <span class="font-normal text-sm ml-3">
+              {renderFoodRequest(
+                request?.privateTourResponse?.dietaryPreference
+              )}
+            </span>
+          </div>
+          <div class="mb-3">
+            <span class="font-bold text-sm">
+              Ngân sách dự tính trên đầu người:
+            </span>
+            <span class="font-normal text-sm ml-3">
+              {formatPrice(request?.privateTourResponse?.wishPrice)}
             </span>
           </div>
           <div class="mb-3">
@@ -144,7 +167,7 @@ function TourRequestSection({ request }) {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

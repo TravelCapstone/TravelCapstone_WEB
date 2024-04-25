@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import { TourRequestForm, Home } from "../pages";
-import { CommonLayout, StaffLayout } from "../layouts";
+import { CommonLayout, ManagementLayout } from "../layouts";
 import ViewOptions from "../pages/ViewOptions/ViewOptions";
 import { alertFail } from "../hook/useNotification";
 import {
@@ -10,6 +10,7 @@ import {
   CREATE_TOUR_PRIVATE,
   DETAIL_TOUR_REQUEST_STAFF,
   HOME_PAGE,
+  IMPORT_DATA,
   LISTING_TOUR_REQUEST_STAFF,
   LOGIN_PAGE,
   STAFF_PAGE,
@@ -20,9 +21,9 @@ import {
 import TourRequestPage from "../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/DetailTourRequest";
 import SignInPage from "../pages/SignIn_Register/SignIn";
 import ListingTourRequestStaff from "../pages/Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/ListingTourRequestStaff";
-import AdminLayout from "../layouts/AdminLayout";
 import ListReferenceTransportPrice from "../pages/Admin/ReferenceTransportPrice/ListReferenceTransportPrice";
 import ListAccount from "../pages/Admin/Account/ListAccount";
+import ImportData from "../pages/Admin/ImportData/ImportData";
 const ProtectedRouteAuth = ({ children }) => {
   const user = useSelector(selectUser);
   if (!user) {
@@ -71,7 +72,7 @@ function Routers() {
     },
     {
       path: STAFF_PAGE,
-      element: <StaffLayout />,
+      element: <ManagementLayout isAdmin={false} />,
       children: [
         // Staff
         {
@@ -86,7 +87,7 @@ function Routers() {
     },
     {
       path: ADMIN_PAGE,
-      element: <AdminLayout />,
+      element: <ManagementLayout isAdmin={true} />,
       children: [
         {
           path: VIEW_REFERENCE_TRANSPORT_PRICE,
@@ -95,6 +96,10 @@ function Routers() {
         {
           path: VIEW_USER,
           element: <ListAccount />,
+        },
+        {
+          path: IMPORT_DATA,
+          element: <ImportData />,
         },
       ],
     },

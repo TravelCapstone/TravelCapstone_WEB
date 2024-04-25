@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Card, List, Button } from "antd";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { CREATE_OPTIONS_TOUR_PRIVATE } from "../../../../../settings/constant";
-import { NavLink } from "react-router-dom";
-import { StaffLayout } from "../../../../../layouts";
-import HeaderManagement from "../../../../../components/Header/HeaderManagement";
+import { useParams } from "react-router-dom";
 import { getPrivateTourById } from "../../../../../api/privateTourRequestApi";
 import Loading from "../../../../../components/Loading/Loading";
-import { statusPrivateTourLabels } from "../../../../../settings/globalStatus";
 import TourRequestSection from "../CreatePackage/TourRequestSection";
 import CreateOptionForm from "../CreatePackage/CreateOptionForm";
+import CreatePlanForm from "../../CreatePlan/CreatePlanForm";
 function TourRequestPage() {
   const { id } = useParams();
   const [request, setRequest] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-  console.log(id);
+  const [activeTab, setActiveTab] = useState(0);
 
   const fetchData = async () => {
     const data = await getPrivateTourById(id);
@@ -28,33 +23,41 @@ function TourRequestPage() {
     fetchData();
   }, [id]);
 
-  
+  const handleTabChange = (index) => {
+    console.log(index);
+    setActiveTab(index);
+  };
+  const tabs = [
+    {
+      label: "Thông tin yêu cầu",
+      content: <TourRequestSection request={request} />,
+    },
+    {
+      label: "Tạo gói tour",
+      content: <CreateOptionForm />,
+    },
+    {
+      label: "Tạo kế hoạch chi tiết",
+      content: <CreatePlanForm />,
+    },
+  ];
   return (
     <>
       <Loading isLoading={isLoading} />
-      <div role="tablist" className="tabs tabs-bordered">
-            <input
-              type="radio"
-              name="my_tabs_1"
-              role="tab"
-              className="tab"
-              aria-label="Thông tin yêu cầu"
-              checked
-            />
-            <TourRequestSection request={request}/>
-          
-
-            <input
-              type="radio"
-              name="my_tabs_1"
-              role="tab"
-              className="tab"
-              aria-label="Tạo gói tour"
-            />
-            <div role="tabpanel" className="tab-content p-10">
-            <CreateOptionForm/>
-            </div>
-          </div>
+      <div className="tabs">
+        <div className="tab-headers my-10">
+          {tabs.map((tab, index) => (
+            <button
+              key={index}
+              className={`mx-2 tab-header ${activeTab === index ? "font-bold border-b-2" : ""}`}
+              onClick={() => handleTabChange(index)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {tabs[activeTab].content}
+      </div>
     </>
   );
 }

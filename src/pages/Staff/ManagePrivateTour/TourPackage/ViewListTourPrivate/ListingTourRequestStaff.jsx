@@ -1,7 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { StaffLayout } from "../../../../../layouts";
-import HeaderManagement from "../../../../../components/Header/HeaderManagement";
+import React, { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { getAllPrivateTour } from "../../../../../api/privateTourRequestApi";
 import Loading from "../../../../../components/Loading/Loading";
 import { DETAIL_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
@@ -57,8 +55,8 @@ const ListingTourRequestStaff = () => {
     <>
       <Loading isLoading={isLoading} />
       <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-center text-pretty">
-          Lịch Sử Tour Yêu Cầu
+        <h2 className="text-xl text-primary font-semibold mb-4 text-center text-pretty">
+          LỊCH SỬ TOUR YÊU CẦU
         </h2>
 
         <div className="">
@@ -73,9 +71,9 @@ const ListingTourRequestStaff = () => {
               </a>
             ))}
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-xl shadow-xl">
             <table className="table w-full ">
-              <thead>
+              <thead className="bg-mainColor text-white h-14">
                 <tr>
                   <th>STT</th>
                   <th>Tên khách hàng</th>

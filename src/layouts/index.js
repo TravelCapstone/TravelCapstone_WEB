@@ -1,2 +1,2 @@
 export { default as CommonLayout } from './CommonLayout';
-export { default as StaffLayout } from './StaffLayout';
+export { default as ManagementLayout } from './ManagementLayout';
