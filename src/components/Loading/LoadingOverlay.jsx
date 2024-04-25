@@ -1,6 +1,6 @@
 import React from "react";
 
-const Loading = ({ isLoading }) => {
+const LoadingOverlay = ({ isLoading }) => {
   return (
     <>
       {isLoading && (
@@ -13,4 +13,4 @@ const Loading = ({ isLoading }) => {
   );
 };
 
-export default Loading;
+export default LoadingOverlay;

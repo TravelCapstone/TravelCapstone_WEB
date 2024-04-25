@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PaginationManagement from "../../../components/UI/Pagination/PaginationManagement";
-import Loading from "../../../components/Loading/Loading";
 import { getAllAccount } from "../../../api/AccountApi";
+import LoadingComponent from "../../../components/Loading/LoadingComponent";
 
 const ListAccount = () => {
   const itemsPerPage = 10;
@@ -52,7 +52,6 @@ const ListAccount = () => {
 
   return (
     <>
-      <Loading isLoading={isLoading} />
       <div className="bg-white shadow-md rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4 text-center text-pretty">
           Quản lí người dùng
@@ -71,6 +70,8 @@ const ListAccount = () => {
               </tr>
             </thead>
             <tbody>
+              <LoadingComponent isLoading={isLoading} />
+
               {listData &&
                 listData.map((item, index) => (
                   <tr key={item.id}>

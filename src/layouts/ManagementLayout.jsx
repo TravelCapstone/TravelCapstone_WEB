@@ -75,6 +75,28 @@ const ManagementLayout = ({ isAdmin }) => {
         { title: "Tour yêu cầu", path: LISTING_TOUR_REQUEST_STAFF },
       ],
     },
+    {
+      title: "Các loại chi phí",
+      icon: <i class="fa-solid fa-money-bill"></i>,
+      submenu: [
+        {
+          title: "Chi phí phương tiện di chuyển",
+          path: VIEW_REFERENCE_TRANSPORT_PRICE,
+        },
+        {
+          title: "Nơi lưu trú",
+          path: VIEW_REFERENCE_TRANSPORT_PRICE,
+        },
+        {
+          title: "Dịch vụ ăn uống",
+          path: VIEW_REFERENCE_TRANSPORT_PRICE,
+        },
+        {
+          title: "Dịch vụ vui chơi giải trí",
+          path: VIEW_REFERENCE_TRANSPORT_PRICE,
+        },
+      ],
+    },
   ];
 
   return (

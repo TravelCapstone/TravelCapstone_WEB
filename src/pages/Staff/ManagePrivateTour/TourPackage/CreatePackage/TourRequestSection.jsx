@@ -30,7 +30,7 @@ function TourRequestSection({ request }) {
   return (
     <>
       <h1 class="text-center font-semibold text-xl mb-5 text-mainColor">
-        Thông tin yêu cầu tour
+        THÔNG TIN YÊU CẦU TOUR
       </h1>
       <div class="flex flex-row mt-10 shadow-xl p-5 rounded-4xl">
         <div class="w-4/12 border-r border-solid border-gray-300">
