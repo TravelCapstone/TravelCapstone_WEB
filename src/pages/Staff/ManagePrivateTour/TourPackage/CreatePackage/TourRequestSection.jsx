@@ -1,12 +1,5 @@
 import React from "react";
 import {
-  AiOutlineUser,
-  AiOutlineEye,
-  AiOutlinePhone,
-  AiOutlineMail,
-  AiOutlineCarryOut,
-} from "react-icons/ai";
-import {
   dietaryPreferenceLabels,
   statusPrivateTourLabels,
 } from "../../../../../settings/globalStatus";
@@ -35,7 +28,7 @@ function TourRequestSection({ request }) {
   };
 
   return (
-    <div role="tabpanel" class="tab-content p-10">
+    <>
       <h1 class="text-center font-semibold text-xl mb-5 text-mainColor">
         Thông tin yêu cầu tour
       </h1>
@@ -174,7 +167,7 @@ function TourRequestSection({ request }) {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

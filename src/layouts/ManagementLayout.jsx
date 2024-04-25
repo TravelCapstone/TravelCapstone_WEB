@@ -3,9 +3,11 @@ import {
   LISTING_TOUR_REQUEST_STAFF,
   VIEW_REFERENCE_TRANSPORT_PRICE,
   VIEW_USER,
-} from "../../settings/constant";
-import { NavLink } from "react-router-dom";
-const MenuManagement = ({ isAdmin }) => {
+} from "../settings/constant";
+import { NavLink, Outlet } from "react-router-dom";
+import HeaderManagement from "../components/Header/HeaderManagement";
+
+const ManagementLayout = ({ isAdmin }) => {
   const [openMenus, setOpenMenus] = useState([]);
 
   const handleMenuToggle = (index) => {
@@ -74,43 +76,71 @@ const MenuManagement = ({ isAdmin }) => {
       ],
     },
   ];
+
   return (
     <>
-      <div className="flex h-screen">
-        <div className="bg-white shadow-md rounded-r-lg text-black">
-          <NavLink className="block m-8 text-lg font-semibold	italic" to={`/`}>
-            Cóc Travel
-          </NavLink>
+      <div className="drawer lg:drawer-open">
+        <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
+        <div className="drawer-content flex flex-col">
+          <HeaderManagement />
+          <Outlet />
+          <label
+            htmlFor="my-drawer-2"
+            className="btn bg-mainColor text-white hover:bg-secondary drawer-button fixed top-2 left-2 lg:hidden z-50"
+          >
+            <i className="fa-solid fa-bars"></i>
+          </label>
+        </div>
 
-          <ul className="menu  h-full font-medium text-black bg-white">
+        <div className="drawer-side">
+          <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
+          <ul className=" h-full menu p-4 w-60 max-w-xs bg-base-100 text-base-content">
+            <NavLink
+              className="mt-4 block mb-4 text-xl font-semibold text-primary italic"
+              to={`/`}
+            >
+              Cóc Travel
+            </NavLink>
             {isAdmin
               ? menuAdmin.map((menu, index) => (
-                  <li
-                    key={index}
-                    className="block menu-title hover:cursor-pointer bg-white"
-                  >
+                  <li className="mt-2" key={index}>
                     <span
-                      className={` hover:cursor-pointer px-2 text-black rounded-md menu-dropdown-toggle flex items-center ${
-                        openMenus.includes(index) ? "menu-dropdown-show" : ""
+                      className={`flex items-center cursor-pointer p-2 rounded-md hover:bg-mainColor hover:text-white rounded-lg ${
+                        openMenus.includes(index)
+                          ? "bg-mainColor text-white"
+                          : ""
                       }`}
                       onClick={() => handleMenuToggle(index)}
                     >
                       {menu.icon}
-                      <span className="m-3 font-medium">{menu.title}</span>
+                      <span className="ml-2 flex-1">{menu.title}</span>
+                      {menu.submenu && (
+                        <svg
+                          className={`fill-current transition-transform ${
+                            openMenus.includes(index) ? "rotate-180" : ""
+                          }`}
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+                        </svg>
+                      )}
                     </span>
                     {menu.submenu && (
                       <ul
-                        className={`menu-dropdown ${
-                          openMenus.includes(index) ? "menu-dropdown-show" : ""
+                        className={`p-2  rounded-md ${
+                          openMenus.includes(index) ? "block" : "hidden"
                         }`}
                       >
                         {menu.submenu.map((submenu, subindex) => (
                           <li
                             key={subindex}
-                            className="hover:bg-mainColor hover:text-white hover:cursor-pointer my-2 rounded-md"
+                            className="hover:bg-mainColor hover:text-white rounded-md"
                           >
                             <NavLink
-                              className="p-2 block text-black font-medium hover:text-white"
+                              className="block p-2 text-sm font-medium"
                               to={submenu.path}
                             >
                               {submenu.title}
@@ -122,32 +152,44 @@ const MenuManagement = ({ isAdmin }) => {
                   </li>
                 ))
               : menuStaff.map((menu, index) => (
-                  <li
-                    key={index}
-                    className="block menu-title hover:cursor-pointer bg-white"
-                  >
+                  <li className="mt-2" key={index}>
                     <span
-                      className={` hover:cursor-pointer px-2 text-black rounded-md menu-dropdown-toggle flex items-center ${
-                        openMenus.includes(index) ? "menu-dropdown-show" : ""
+                      className={`flex items-center cursor-pointer p-2 rounded-md hover:bg-mainColor hover:text-white rounded-lg ${
+                        openMenus.includes(index)
+                          ? "bg-mainColor text-white"
+                          : ""
                       }`}
                       onClick={() => handleMenuToggle(index)}
                     >
                       {menu.icon}
-                      <span className="m-3 font-medium">{menu.title}</span>
+                      <span className="ml-2 flex-1">{menu.title}</span>
+                      {menu.submenu && (
+                        <svg
+                          className={`fill-current transition-transform ${
+                            openMenus.includes(index) ? "rotate-180" : ""
+                          }`}
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+                        </svg>
+                      )}
                     </span>
                     {menu.submenu && (
                       <ul
-                        className={`menu-dropdown ${
-                          openMenus.includes(index) ? "menu-dropdown-show" : ""
+                        className={`p-2  rounded-md ${
+                          openMenus.includes(index) ? "block" : "hidden"
                         }`}
                       >
                         {menu.submenu.map((submenu, subindex) => (
                           <li
                             key={subindex}
-                            className="hover:bg-mainColor hover:text-white hover:cursor-pointer my-2 rounded-md"
+                            className="hover:bg-mainColor hover:text-white rounded-md"
                           >
                             <NavLink
-                              className="p-2 block text-black font-medium hover:text-white"
+                              className="block p-2 text-sm font-medium"
                               to={submenu.path}
                             >
                               {submenu.title}
@@ -165,4 +207,4 @@ const MenuManagement = ({ isAdmin }) => {
   );
 };
 
-export default MenuManagement;
+export default ManagementLayout;
