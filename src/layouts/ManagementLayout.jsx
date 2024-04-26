@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  FACILITY,
   LISTING_TOUR_REQUEST_STAFF,
   VIEW_REFERENCE_TRANSPORT_PRICE,
   VIEW_USER,
@@ -31,6 +32,16 @@ const ManagementLayout = ({ isAdmin }) => {
         {
           title: "Quản lí người dùng",
           path: VIEW_USER,
+        },
+      ],
+    },
+    {
+      title: "Đối tác",
+      icon: <i class="fa-solid fa-handshake"></i>,
+      submenu: [
+        {
+          title: "Quản lí đối tác",
+          path: FACILITY,
         },
       ],
     },
@@ -114,7 +125,7 @@ const ManagementLayout = ({ isAdmin }) => {
           </label>
         </div>
 
-        <div className="drawer-side">
+        <div className="drawer-side shadow-lg h-full">
           <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
           <ul className=" h-full menu p-4 w-60 max-w-xs bg-base-100 text-base-content">
             <NavLink
