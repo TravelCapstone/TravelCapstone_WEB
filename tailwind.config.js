@@ -15,6 +15,12 @@ export default {
         primary: "#0287a8",
         secondary: "#00c3c7",
         dark: "#ffcf22",
+        'badge-resting':'#CDAA6B',
+        'badge-entertaiment':'#C9DABC',
+        'badge-fb':'#AFE0EA',
+        'badge-vehicle':'#6A6854',
+        'badge-air':'#6A6854',
+
       },
       fontSize: {
         14: "14px",

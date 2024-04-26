@@ -20,12 +20,13 @@ function formatDateTime(ngayGio) {
      * @param {Date} ngayGio - Thời gian cần định dạng.
      * @returns {string} - Chuỗi đã định dạng thời gian.
      */
-    var ngay = ngayGio.getDate();
-    var thang = ngayGio.getMonth() + 1; // Tháng trong JavaScript bắt đầu từ 0
-    var nam = ngayGio.getFullYear();
-    var gio = ngayGio.getHours();
-    var phut = ngayGio.getMinutes();
-    var giay = ngayGio.getSeconds();
+    var date= new Date(ngayGio);
+    var ngay = date.getDate();
+    var thang = date.getMonth() + 1; // Tháng trong JavaScript bắt đầu từ 0
+    var nam = date.getFullYear();
+    var gio = date.getHours();
+    var phut = date.getMinutes();
+    var giay = date.getSeconds();
 
     // Thêm số 0 vào trước nếu số chỉ có 1 chữ số
     if (ngay < 10) ngay = '0' + ngay;

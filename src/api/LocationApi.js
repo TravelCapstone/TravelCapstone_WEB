@@ -9,6 +9,15 @@ const getLocationAllProvince = async () => {
     return []; 
   }
 };
+const getAllProvince = async () => {
+  try {
+    const response = await api.get('/location/get-all-province');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching provinces:', error);
+    return []; 
+  }
+};
 
 const getProvinceByName = async (provinceName) => {
   try {
@@ -68,6 +77,7 @@ const getAutoCompleteSuggestions = async (address) => {
 };
 
 export { 
+  getAllProvince,
   getLocationAllProvince, 
   getProvinceByName,
   getAllDistrictsByProvinceId,

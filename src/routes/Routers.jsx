@@ -6,13 +6,15 @@ import ViewOptions from "../pages/ViewOptions/ViewOptions";
 import { alertFail } from "../hook/useNotification";
 import {
   ADMIN_PAGE,
-  CREATE_OPTIONS_TOUR_PRIVATE,
   CREATE_TOUR_PRIVATE,
+  DETAIL_FACILITY,
   DETAIL_TOUR_REQUEST_STAFF,
+  FACILITY,
   HOME_PAGE,
   IMPORT_DATA,
   LISTING_TOUR_REQUEST_STAFF,
   LOGIN_PAGE,
+  MENU,
   STAFF_PAGE,
   VIEW_OPTIONS_TOUR_PRIVATE,
   VIEW_REFERENCE_TRANSPORT_PRICE,
@@ -24,6 +26,9 @@ import ListingTourRequestStaff from "../pages/Staff/ManagePrivateTour/TourPackag
 import ListReferenceTransportPrice from "../pages/Admin/ReferenceTransportPrice/ListReferenceTransportPrice";
 import ListAccount from "../pages/Admin/Account/ListAccount";
 import ImportData from "../pages/Admin/ImportData/ImportData";
+import FacilityManagement from "../pages/Admin/Facility/FacilityManagement";
+import DetailFacility from "../pages/Admin/Facility/Price/DetailFacility";
+import MenuManagement from "../pages/Admin/Facility/MenuManagement";
 const ProtectedRouteAuth = ({ children }) => {
   const user = useSelector(selectUser);
   if (!user) {
@@ -100,6 +105,18 @@ function Routers() {
         {
           path: IMPORT_DATA,
           element: <ImportData />,
+        },
+        {
+          path: FACILITY,
+          element: <FacilityManagement />,
+        },
+        {
+          path: `${DETAIL_FACILITY}/:id`,
+          element: <DetailFacility />,
+        },
+        {
+          path: `${MENU}/:id`,
+          element: <MenuManagement />,
         },
       ],
     },

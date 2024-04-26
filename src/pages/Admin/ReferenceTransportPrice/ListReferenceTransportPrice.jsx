@@ -4,11 +4,10 @@ import {
   getAllReferenceTransportPriceByProvince,
 } from "../../../api/ReferencePriceTransportApi";
 import PaginationManagement from "../../../components/UI/Pagination/PaginationManagement";
-import Loading from "../../../components/Loading/Loading";
 import { typePortLabels } from "../../../settings/globalStatus";
 import { formatPrice } from "../../../utils/Util";
-import { getAllProvince } from "../../../api/privateTourRequestApi";
 import { getLocationAllProvince } from "../../../api/LocationApi";
+import LoadingComponent from "../../../components/Loading/LoadingComponent";
 
 const ListReferenceTransportPrice = () => {
   const itemsPerPage = 10;
@@ -59,7 +58,6 @@ const ListReferenceTransportPrice = () => {
   };
   return (
     <>
-      <Loading isLoading={isLoading} />
       <div className=" bg-white shadow-md rounded-lg p-6">
         <h2 className="text-xl font-semibold text-primary mb-4 text-center text-pretty">
           CHI PHÍ PHƯƠNG TIỆN DI CHUYỂN
@@ -137,6 +135,8 @@ const ListReferenceTransportPrice = () => {
               </tr>
             </thead>
             <tbody>
+              <LoadingComponent isLoading={isLoading} />
+
               {listData &&
                 listData.map((item, index) => (
                   <tr key={item.id}>

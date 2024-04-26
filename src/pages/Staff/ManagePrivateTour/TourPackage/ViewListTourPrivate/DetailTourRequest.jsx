@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPrivateTourById } from "../../../../../api/privateTourRequestApi";
-import Loading from "../../../../../components/Loading/Loading";
+import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
 import TourRequestSection from "../CreatePackage/TourRequestSection";
 import CreateOptionForm from "../CreatePackage/CreateOptionForm";
 import CreatePlanForm from "../../CreatePlan/CreatePlanForm";
@@ -43,7 +43,7 @@ function TourRequestPage() {
   ];
   return (
     <>
-      <Loading isLoading={isLoading} />
+      <LoadingOverlay isLoading={isLoading} />
       <div className="tabs">
         <div className="tab-headers my-10">
           {tabs.map((tab, index) => (

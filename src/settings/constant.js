@@ -51,3 +51,6 @@ export const ADMIN_PAGE ="admin";
 export const VIEW_REFERENCE_TRANSPORT_PRICE ="view-reference-transport-price";
 export const VIEW_USER="view-user";
 export const IMPORT_DATA="import-data";
+export const FACILITY="facility";
+export const DETAIL_FACILITY="detail";
+export const MENU= `menu`;
