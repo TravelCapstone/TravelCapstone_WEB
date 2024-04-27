@@ -27,7 +27,6 @@ const serviceTypeLabels= {
   1:"Ăn uống",
   2:"Vui chơi giải trí",
   3:"Cung cấp phương tiện",
-  4:"Đại lí vé máy bay"
 }
 
 const facilityTypeLabels ={

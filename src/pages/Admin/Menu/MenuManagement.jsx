@@ -56,6 +56,8 @@ function MenuManagement() {
               <th>Mô tả</th>
               <th>Bữa </th>
               <th>Loại</th>
+              <th>Số lượng phục vụ</th>
+              <th>Phí phụ thu <br /> (trẻ em) %</th>
               <th>Món ăn</th>
             </tr>
           </thead>
@@ -70,6 +72,8 @@ function MenuManagement() {
                   {renderDietaryPreference(item.menu.dietaryPreferenceId) ||
                     "N/A"}
                 </td>
+                <td>{item.menu.facilityService?.servingQuantity}</td>
+                <td>{item.menu.facilityService?.surchargePercent * 100}</td>
                 <td>{item.dishes.map((dish) => dish.name).join(", ")}</td>
               </tr>
             ))}

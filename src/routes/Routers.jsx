@@ -27,8 +27,8 @@ import ListReferenceTransportPrice from "../pages/Admin/ReferenceTransportPrice/
 import ListAccount from "../pages/Admin/Account/ListAccount";
 import ImportData from "../pages/Admin/ImportData/ImportData";
 import FacilityManagement from "../pages/Admin/Facility/FacilityManagement";
-import DetailFacility from "../pages/Admin/Facility/Price/DetailFacility";
-import MenuManagement from "../pages/Admin/Facility/MenuManagement";
+import DetailFacility from "../pages/Admin/Facility/DetailFacility";
+import MenuManagement from "../pages/Admin/Menu/MenuManagement";
 const ProtectedRouteAuth = ({ children }) => {
   const user = useSelector(selectUser);
   if (!user) {
