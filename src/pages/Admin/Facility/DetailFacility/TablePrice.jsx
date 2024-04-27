@@ -6,7 +6,7 @@ import {
 } from "../../../../api/PriceApi";
 import ServiceTypeBadge from "../../../../components/Badge/ServiceTypeBadge";
 import { formatDateTime, formatPrice } from "../../../../utils/Util";
-import MenuModal from "./MenuModal/MenuModal";
+import MenuModal from "../../Menu/MenuModal";
 import PaginationManagement from "../../../../components/UI/Pagination/PaginationManagement";
 function TablePrice({ id, serviceType }) {
   const [listCostHistory, setListCostHistory] = useState([]);

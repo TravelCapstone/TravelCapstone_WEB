@@ -9,7 +9,6 @@ function ServiceTypeBadge({ index }) {
     1: <i className="fas fa-utensils"></i>,
     2: <i className="fas fa-gamepad"></i>,
     3: <i className="fas fa-car-side"></i>,
-    4: <i class="fa-solid fa-plane-departure"></i>,
   };
   const icon = iconMap[index];
   const badgeColors = {
@@ -17,7 +16,6 @@ function ServiceTypeBadge({ index }) {
     1: "bg-badge-fb", // Ăn uống
     2: "bg-badge-entertaiment", // Vui chơi giải trí
     3: "bg-badge-vehicle text-white", // Cung cấp phương tiện
-    4: "bg-badge-air text-white", // Cung cấp phương tiện
   };
   console.log(index);
   return (

@@ -56,8 +56,8 @@ function TourRequestPage() {
             </button>
           ))}
         </div>
-        {tabs[activeTab].content}
       </div>
+      {tabs[activeTab].content}
     </>
   );
 }

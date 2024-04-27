@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import DetailFacilityService from "./DetailFacilityService";
-import DetailPrice from "./DetailPrice";
+import DetailFacilityService from "./DetailFacility/DetailFacilityService";
+import DetailPrice from "./DetailFacility/DetailPrice";
 function DetailFacility() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState(0);
@@ -35,8 +35,8 @@ function DetailFacility() {
             </button>
           ))}
         </div>
-        {tabs[activeTab].content}
       </div>
+      {tabs[activeTab].content}
     </>
   );
 }

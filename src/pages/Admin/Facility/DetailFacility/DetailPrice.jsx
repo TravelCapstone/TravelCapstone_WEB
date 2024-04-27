@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import TablePrice from "../TablePrice/TablePrice";
+import TablePrice from "./TablePrice";
 
 function DetailPrice({ id }) {
   const [listServiceCostHistory, setListServiceCostHistory] = useState([]);
@@ -22,10 +22,6 @@ function DetailPrice({ id }) {
       label: "Dịch vụ cung cấp phương tiện",
       content: <TablePrice id={id} serviceType={3} />,
     },
-    {
-      label: "Dịch vụ cung cấp vé máy bay",
-      content: <TablePrice id={id} serviceType={4} />,
-    },
   ];
   useEffect(() => {
     return () => {};
@@ -36,7 +32,7 @@ function DetailPrice({ id }) {
   };
   return (
     <>
-      <h3 className="font-bold text-xl text-center text-primary">
+      <h3 className="font-bold text-xl mt-4 text-center text-primary">
         QUẢN LÍ GIÁ NHẬP XUẤT
       </h3>
       <div className=" ">

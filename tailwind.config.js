@@ -19,8 +19,6 @@ export default {
         'badge-entertaiment':'#C9DABC',
         'badge-fb':'#AFE0EA',
         'badge-vehicle':'#6A6854',
-        'badge-air':'#6A6854',
-
       },
       fontSize: {
         14: "14px",
