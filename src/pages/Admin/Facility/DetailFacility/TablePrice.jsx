@@ -86,6 +86,7 @@ function TablePrice({ id, serviceType }) {
           <td>
             {<ServiceTypeBadge index={item.facilityService?.serviceTypeId} />}
           </td>
+          <td>{item.facilityService?.name}</td>
           <td>{item.moq}</td>
           <td>{item.facilityService?.servingQuantity}</td>
           <td>{renderUnit(item.facilityService?.unitId)}</td>
@@ -120,6 +121,50 @@ function TablePrice({ id, serviceType }) {
           </td>
         </tr>
       );
+    } else if (item.transportServiceDetail !== null) {
+      return (
+        <tr key={index}>
+          <td>{index + 1}</td>
+          <td>
+            {
+              <ServiceTypeBadge
+                index={
+                  activeTab == 1
+                    ? item.transportServiceDetail?.facilityService
+                        ?.serviceTypeId
+                    : item.transport?.facilityService?.serviceTypeId
+                }
+              />
+            }
+          </td>
+          <td>
+            {activeTab == 1
+              ? item.transportServiceDetail?.vehicleTypeId
+              : item.transport?.vehicleTypeId}
+          </td>
+          <td>
+              {activeTab == 1
+                ? item.transportServiceDetail?.facilityService?.name
+                : item.transport?.facilityService?.name}
+            </td>
+          <td>{item.moq}</td>
+          <td>
+            {activeTab == 1
+              ? item.transportServiceDetail?.facilityService?.servingQuantity
+              : item.transport?.facilityService?.servingQuantity}
+          </td>
+          
+          <td>{formatPrice(item.price)}</td>
+          <td>
+            {renderUnit(
+              activeTab == 1
+                ? item.transportServiceDetail?.facilityService?.unitId
+                : item.transport?.facilityService?.unitId
+            )}
+          </td>
+          <td>{formatDateTime(item.date)}</td>
+        </tr>
+      );
     }
   };
   const renderUnit = (unitId) => {
@@ -145,6 +190,7 @@ function TablePrice({ id, serviceType }) {
         <tr>
           <th>STT</th>
           <th>Dịch vụ</th>
+          <th>Tên</th>
           <th>
             Số lượng <br /> tối thiểu (MOQ)
           </th>
@@ -180,6 +226,20 @@ function TablePrice({ id, serviceType }) {
           <th>Hành động</th>
         </tr>
       );
+    } else if (serviceType == 3) {
+      return (
+        <tr>
+          <th>STT</th>
+          <th>Dịch vụ</th>
+          <th>Loại xe</th>
+          <th>Tên dịch vụ</th>
+          <th>Số lượng tối thiểu (MOQ)</th>
+          <th>Số lượng phục vụ</th>
+          <th>Gía</th>
+          <th>Đơn vị tính</th>
+          <th>Ngày</th>
+        </tr>
+      );
     }
   };
   const handleTabChange = (index) => {
@@ -211,7 +271,7 @@ function TablePrice({ id, serviceType }) {
       </div>
       <div className="overflow-x-auto mt-10 rounded-xl shadow-xl">
         <table className="table">
-          <thead className="bg-mainColor text-white h-14">
+          <thead className="bg-mainColor text-white w-full h-14">
             {renderHeader()}
           </thead>
           <tbody>
