@@ -3,7 +3,7 @@ import {
   dietaryPreferenceLabels,
   statusPrivateTourLabels,
 } from "../../../../../settings/globalStatus";
-import { formatPrice } from "../../../../../utils/Util";
+import { formatPrice, formatDate } from "../../../../../utils/Util";
 
 function TourRequestSection({ request }) {
   const renderOtherLocations = (locations) => {
@@ -52,9 +52,7 @@ function TourRequestSection({ request }) {
           <div class="mb-3">
             <span class="font-bold text-sm">Ngày tạo yêu cầu</span>
             <span class="font-normal text-sm ml-3">
-              {new Date(
-                request?.privateTourResponse?.createDate
-              ).toLocaleDateString()}
+              {formatDate(request?.privateTourResponse?.createDate)}
             </span>
           </div>
           <div class="mb-3">
@@ -144,13 +142,8 @@ function TourRequestSection({ request }) {
           <div class="mb-3">
             <span class="font-bold text-sm">Thời gian rảnh dự kiến:</span>
             <span class="font-normal text-sm ml-3">
-              {new Date(
-                request?.privateTourResponse?.startDate
-              ).toLocaleDateString()}{" "}
-              -{" "}
-              {new Date(
-                request?.privateTourResponse?.endDate
-              ).toLocaleDateString()}
+              {formatDate(request?.privateTourResponse?.startDate)} -{" "}
+              {formatDate(request?.privateTourResponse?.endDate)}
             </span>
           </div>
           <div class="mb-3">

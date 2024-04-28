@@ -9,6 +9,7 @@ import {
   getAllFacilityByProvince,
 } from "../../../api/FacilityApi";
 import { DETAIL_FACILITY } from "../../../settings/constant";
+import LocationSelect from "../../../components/UI/Address/LocationSelect";
 function FacilityManagement() {
   const [listFacility, setListFacility] = useState([]);
   const [listProvince, setListProvince] = useState([]);
@@ -49,7 +50,9 @@ function FacilityManagement() {
     console.log(ratingLabels[rating.id]);
     return ratingLabels[rating.id];
   };
-
+  const log = (data) => {
+    console.log(data);
+  };
   return (
     <>
       <div className=" bg-white shadow-xl rounded-lg p-6">
@@ -58,24 +61,6 @@ function FacilityManagement() {
         </h2>
         <div class="flex items-end justify-between my-10">
           <div>
-            <div className="mb-4">
-              <label for="departureProvince" class="label">
-                Tỉnh
-              </label>
-              <select
-                id="province"
-                class="select select-bordered w-36"
-                onChange={(e) => setSelectedProvince(e.target.value)}
-                value={selectedProvince}
-              >
-                {listProvince &&
-                  listProvince.map((item, index) => (
-                    <option key={index} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
             <div>
               <button
                 class="btn  m-0 bg-mainColor hover:bg-secondary text-white font-bold rounded-lg"
@@ -83,6 +68,40 @@ function FacilityManagement() {
               >
                 Lọc nâng cao
               </button>
+              {showFilter && (
+                <div className="flex flex-col mb-4">
+                  <LocationSelect isFlex={true} log={log} />
+                  <div className="flex">
+                    <div className="form-control mt-6">
+                      <label className="label">
+                        <span className="label-text font-semibold">
+                          Loại hình
+                        </span>
+                      </label>
+                      <select className="select select-bordered">
+                        <option value="">Chọn loại hình</option>
+                        <option value="">Khách sạn</option>
+                        <option value="">Nhà hàng</option>
+                      </select>
+                    </div>
+                    <div className="form-control mt-6 mx-8">
+                      <label className="label">
+                        <span className="label-text font-semibold">
+                          Loại hình
+                        </span>
+                      </label>
+                      <select className="select select-bordered">
+                        <option value="">Phân loại</option>
+                        <option value="">1 sao</option>
+                        <option value="">2 sao</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button className="btn w-16 mt-8 bg-mainColor text-white">
+                    Lọc
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <div className="">
@@ -119,11 +138,11 @@ function FacilityManagement() {
                     <td>{renderRatingType(item.facilityRating?.rating)}</td>
                     <td>
                       {item.isActive ? (
-                        <span className="badge bg-green-600 p-4 font-medium text-white">
+                        <span className="badge bg-green-600 whitespace-nowrap p-4 font-medium text-white">
                           Hoạt động
                         </span>
                       ) : (
-                        <span className="badge bg-red-600 font-medium text-white">
+                        <span className="badge bg-red-600 whitespace-nowrap font-medium text-white">
                           Ngưng hoạt động
                         </span>
                       )}

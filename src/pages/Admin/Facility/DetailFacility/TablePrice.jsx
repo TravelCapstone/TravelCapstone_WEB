@@ -22,6 +22,7 @@ function TablePrice({ id, serviceType }) {
   };
 
   const fetchData = async () => {
+    setListCostHistory([]);
     setIsLoading(true);
     const data = await getServiceCostByFacilityAndServiceType(
       id,
@@ -30,14 +31,17 @@ function TablePrice({ id, serviceType }) {
       itemsPerPage
     );
     if (data.isSuccess) {
-      setListCostHistory(data.result.items);
-      setTotalPages(data.result.totalPages);
-      console.log(data.result.items);
+      if (data.result !== null) {
+        setListCostHistory(data.result.items);
+        setTotalPages(data.result.totalPages);
+      }
       setIsLoading(false);
     }
   };
   const fetchExportData = async () => {
     setIsLoading(true);
+    setListCostHistory([]);
+
     const data = await getSellPriceByFacilityAndServiceType(
       id,
       serviceType,
@@ -45,8 +49,9 @@ function TablePrice({ id, serviceType }) {
       itemsPerPage
     );
     if (data.isSuccess) {
-      setListCostHistory(data.result.items);
-      console.log(data.result.items);
+      if (data.result !== null) {
+        setListCostHistory(data.result.items);
+      }
       setIsLoading(false);
     }
   };
@@ -109,7 +114,7 @@ function TablePrice({ id, serviceType }) {
           <td>{formatDateTime(item.date)}</td>
           <td>
             <i
-              class="fa-solid fa-eye"
+              className="fa-solid fa-eye cursor-pointer"
               onClick={() => handeOpen(item.menu.id)}
             ></i>
           </td>
@@ -199,7 +204,11 @@ function TablePrice({ id, serviceType }) {
         </div>
         {tabs[activeTab].content}
       </div>
-
+      <div className="flex justify-end">
+        <button className="bg-mainColor text-white px-4 py-2 rounded-md m-2">
+          Nhập dữ liệu Excel
+        </button>
+      </div>
       <div className="overflow-x-auto mt-10 rounded-xl shadow-xl">
         <table className="table">
           <thead className="bg-mainColor text-white h-14">
@@ -214,12 +223,6 @@ function TablePrice({ id, serviceType }) {
           <LoadingOverlay isLoading={isLoading} />
         </table>
       </div>
-      <MenuModal
-        isOpen={isOpen}
-        setIsOpen={handeOpen}
-        handleClose={() => setIsOpen(false)}
-        menuId={selectedMenuId}
-      />
       {listCostHistory.length > 0 && (
         <PaginationManagement
           currentPage={currentPage}
@@ -228,6 +231,12 @@ function TablePrice({ id, serviceType }) {
           showPagination={listCostHistory.length >= itemsPerPage}
         />
       )}
+      <MenuModal
+        isOpen={isOpen}
+        setIsOpen={handeOpen}
+        handleClose={() => setIsOpen(false)}
+        menuId={selectedMenuId}
+      />
     </>
   );
 }

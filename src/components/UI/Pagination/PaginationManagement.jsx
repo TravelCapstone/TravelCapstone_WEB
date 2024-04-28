@@ -43,7 +43,7 @@ const PaginationManagement = ({ currentPage, totalPages, handlePageClick }) => {
           <span className="btn btn-disabled">...</span>
         ) : (
           <button
-            className={`btn ${currentPage === page ? "btn-active" : ""}`}
+            className={`block px-4 py-2 rounded-md ${currentPage === page ? " bg-mainColor text-white" : ""}`}
             onClick={() => page !== currentPage && handlePageClick(page)}
             disabled={currentPage === page}
           >
@@ -60,7 +60,7 @@ const PaginationManagement = ({ currentPage, totalPages, handlePageClick }) => {
         {currentPage > 1 && (
           <li className="px-1">
             <button
-              className="btn"
+              className="bg-mainColor text-white rounded-lg block px-4 py-2"
               onClick={() => handlePageClick(currentPage - 1)}
             >
               Previous
@@ -71,7 +71,7 @@ const PaginationManagement = ({ currentPage, totalPages, handlePageClick }) => {
         {currentPage < totalPages && (
           <li className="px-1">
             <button
-              className="btn"
+              className="bg-mainColor text-white rounded-lg block px-4 py-2"
               onClick={() => handlePageClick(currentPage + 1)}
             >
               Next

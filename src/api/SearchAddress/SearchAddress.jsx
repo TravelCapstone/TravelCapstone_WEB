@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AutoComplete } from "antd";
-import {
-  getAutoCompleteSuggestions,
-  getLocationAllProvince,
-} from "../LocationApi";
+import { getAutoCompleteSuggestions } from "../LocationApi";
 
 const AddressSearch = ({ value, onChange }) => {
   const [options, setOptions] = useState([]);
@@ -30,22 +27,24 @@ const AddressSearch = ({ value, onChange }) => {
       // Thiết lập một timeout mới để gọi API sau một khoảng thời gian nhất định (ví dụ: 300ms)
       const newDebounceTimeout = setTimeout(async () => {
         const suggestions = await getAutoCompleteSuggestions(searchText);
-        const formattedSuggestions = suggestions.map((suggestion) => ({
-          value: suggestion.description,
-          label: (
-            <div>
-              {suggestion.description} {suggestion.compound.commune},{" "}
-              {suggestion.compound.district},{" "}
-              <strong>{suggestion.compound.province}</strong>
-            </div>
-          ),
-          data: {
-            provinceName: suggestion.compound.province,
-            districtName: suggestion.compound.district,
-            communeName: suggestion.compound.commune,
-          },
-        }));
-        setOptions(formattedSuggestions);
+        if (suggestions.isSuccess) {
+          const formattedSuggestions = suggestions.map((suggestion) => ({
+            value: suggestion.description,
+            label: (
+              <div>
+                {suggestion.description} {suggestion.compound.commune},{" "}
+                {suggestion.compound.district},{" "}
+                <strong>{suggestion.compound.province}</strong>
+              </div>
+            ),
+            data: {
+              provinceName: suggestion.compound.province,
+              districtName: suggestion.compound.district,
+              communeName: suggestion.compound.commune,
+            },
+          }));
+          setOptions(formattedSuggestions);
+        }
       }, 300);
 
       setDebounceTimeout(newDebounceTimeout);

@@ -5,7 +5,7 @@ import { DETAIL_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
 import { statusPrivateTourLabels } from "../../../../../settings/globalStatus";
 import PaginationManagement from "../../../../../components/UI/Pagination/PaginationManagement";
 import LoadingComponent from "../../../../../components/Loading/LoadingComponent";
-
+import { formatDate } from "../../../../../utils/Util";
 const ListingTourRequestStaff = () => {
   const itemsPerPage = 10;
   const [listTourRequest, setListTourRequest] = useState([]);
@@ -97,17 +97,16 @@ const ListingTourRequestStaff = () => {
                     <td>{renderOtherLocations(item.otherLocation)}</td>
                     <td>{item.mainDestination.name}</td>
                     <td>
-                      {new Date(item.startDate).toLocaleDateString()} -{" "}
-                      {new Date(item.endDate).toLocaleDateString()}
+                      {formatDate(item.startDate)} - {formatDate(item.endDate)}
                     </td>
                     <td>{item.startLocation}</td>
                     <td>{item.isEnterprise ? "Doanh nghiệp" : "Gia đình"}</td>
-                    <td>{new Date(item.createDate).toLocaleDateString()}</td>
+                    <td>{formatDate(item.createDate)}</td>
                     <td>
                       <NavLink
                         to={`/staff/${DETAIL_TOUR_REQUEST_STAFF}/${item.id}`}
                       >
-                        Xem thêm
+                        <i className="fa-solid fa-eye cursor-pointer"></i>
                       </NavLink>
                     </td>
                   </tr>

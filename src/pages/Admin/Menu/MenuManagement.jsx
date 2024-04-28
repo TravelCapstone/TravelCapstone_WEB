@@ -47,6 +47,11 @@ function MenuManagement() {
       <h3 className="text-center text-primary font-bold text-xl">
         QUẢN LÍ THỰC ĐƠN
       </h3>
+      <div className="flex justify-end">
+        <button className="bg-mainColor text-white px-4 py-2 rounded-lg m-2">
+          Nhập dữ liệu Excel
+        </button>
+      </div>
       <div className="overflow-x-auto rounded-xl shadow-xl my-8 ">
         <table className="table w-full ">
           <thead className="bg-mainColor text-white h-14">
@@ -57,8 +62,11 @@ function MenuManagement() {
               <th>Bữa </th>
               <th>Loại</th>
               <th>Số lượng phục vụ</th>
-              <th>Phí phụ thu <br /> (trẻ em) %</th>
+              <th>
+                Phí phụ thu <br /> (trẻ em) %
+              </th>
               <th>Món ăn</th>
+              <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -75,6 +83,10 @@ function MenuManagement() {
                 <td>{item.menu.facilityService?.servingQuantity}</td>
                 <td>{item.menu.facilityService?.surchargePercent * 100}</td>
                 <td>{item.dishes.map((dish) => dish.name).join(", ")}</td>
+                <td className="flex">
+                  <i className="fa-solid fa-eye cursor-pointer"></i>
+                  <i class="fa-solid fa-pen-to-square mx-2"></i>
+                </td>
               </tr>
             ))}
             <LoadingOverlay isLoading={isLoading} />
