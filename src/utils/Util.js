@@ -38,6 +38,25 @@ function formatDateTime(ngayGio) {
     return ngay + '/' + thang + '/' + nam + ' ' + gio + ':' + phut + ':' + giay;
 }
 
+function formatDate(ngayGio) {
+    /**
+     * Định dạng thời gian thành chuỗi dd/mm/yyyy hh/mm/ss.
+     * 
+     * @param {Date} ngayGio - Thời gian cần định dạng.
+     * @returns {string} - Chuỗi đã định dạng thời gian.
+     */
+    var date= new Date(ngayGio);
+    var ngay = date.getDate();
+    var thang = date.getMonth() + 1; // Tháng trong JavaScript bắt đầu từ 0
+    var nam = date.getFullYear();
+    var gio = date.getHours();
+    var phut = date.getMinutes();
+    var giay = date.getSeconds();
+
+  
+    return ngay + '/' + thang + '/' + nam ;
+}
 
 
-export{formatPrice, formatDateTime}
+
+export{formatPrice, formatDateTime,formatDate}

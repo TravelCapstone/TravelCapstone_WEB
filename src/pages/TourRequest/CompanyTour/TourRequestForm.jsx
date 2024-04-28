@@ -55,8 +55,10 @@ function TourRequestForm() {
   const handleMainLocationSelect = async (location) => {
     try {
       const provinceData = await getProvinceByName(location);
-      setMainLocation(location);
-      setMainDestinationId(provinceData.id);
+      if (provinceData.isSuccess) {
+        setMainLocation(location);
+        setMainDestinationId(provinceData.result?.id);
+      }
     } catch (error) {
       alertFail(
         "Failed to fetch province ID. Please check the location and try again."
@@ -74,7 +76,7 @@ function TourRequestForm() {
           communeName
         );
         if (communeData && communeData.length > 0) {
-          setStartCommuneId(communeData[0].id);
+          setStartCommuneId(communeData.result.items[0].id);
         } else {
           console.log("No communes found with the provided names");
         }
@@ -138,7 +140,9 @@ function TourRequestForm() {
       if (response?.data?.isSuccess) {
         alertSuccess("Tour created successfully!");
       } else {
-        alertFail("Failed to create tour. Please try again later.");
+        for (const message in response.messages) {
+          alertFail(message);
+        }
       }
     } catch (error) {
       console.error("Error creating tour:", error);

@@ -1,14 +1,6 @@
 import api from "../config/axios";
 
-const getLocationAllProvince = async () => {
-  try {
-    const response = await api.get('/location/get-all-province');
-    return response.data.result.items;
-  } catch (error) {
-    console.error('Error fetching provinces:', error);
-    return []; 
-  }
-};
+
 const getAllProvince = async () => {
   try {
     const response = await api.get('/location/get-all-province');
@@ -23,7 +15,7 @@ const getProvinceByName = async (provinceName) => {
   try {
       const response = await api.get(`/location/get-province-by-name/${encodeURIComponent(provinceName)}`);
       if (response.data.isSuccess) {
-          return response.data.result; 
+          return response.data; 
       } else {
           throw new Error(response.data.messages.join(", ") || "Unknown error");
       }
@@ -36,7 +28,7 @@ const getProvinceByName = async (provinceName) => {
 const getAllDistrictsByProvinceId = async (provinceId) => {
   try {
     const response = await api.get(`/location/get-all-district-by-provinceId/${provinceId}`);
-    return response.data.result.items; 
+    return response.data; 
   } catch (error) {
     console.error('Error fetching districts by province ID:', error);
     throw error;
@@ -46,7 +38,7 @@ const getAllDistrictsByProvinceId = async (provinceId) => {
 const getAllCommunesByDistrictId = async (districtId) => {
   try {
     const response = await api.get(`/location/get-all-commune-by-districtId/${districtId}`);
-    return response.data.result.items;  
+    return response.data;  
   } catch (error) {
     console.error('Error fetching communes by district ID:', error);
     throw error;
@@ -55,7 +47,7 @@ const getAllCommunesByDistrictId = async (districtId) => {
 const getCommuneByDistrictAndCommuneName = async (districtName, communeName) => {
   try {
     const response = await api.get(`/location/get-all-commune-by-districtName-communeName/${encodeURIComponent(districtName)}/${encodeURIComponent(communeName)}`);
-    return response.data.result.items;  
+    return response.data;  
   } catch (error) {
     console.error('Error fetching commune by names:', error);
     throw error;
@@ -78,7 +70,6 @@ const getAutoCompleteSuggestions = async (address) => {
 
 export { 
   getAllProvince,
-  getLocationAllProvince, 
   getProvinceByName,
   getAllDistrictsByProvinceId,
   getAllCommunesByDistrictId,

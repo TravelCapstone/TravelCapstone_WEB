@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import FoodModal from "./FoodModal/FoodModal";
 
 function FoodAndBevarageAssignment(props) {
   const [state, setState] = useState("");
@@ -21,52 +22,37 @@ function FoodAndBevarageAssignment(props) {
                   <div className="mx-2">Phú Thọ -TP Việt Trì</div>
                 </div>
                 <div className="w6/12">
-                  <strong>Ngày lưu trú: </strong>
+                  <strong>Ngày: </strong>
                   <span className="mx-2">27/04/2024 - 30/1/2024</span>
                 </div>
               </div>
               <div className="flex">
-                <p className="font-medium my-3">Loại hình lưu trú</p>
+                <p className="font-medium my-3">Loại hình ăn uống</p>
               </div>
               <div>
                 <div>
                   <div className="flex justify-between">
                     <p>
-                      <strong>Khách sạn - khách sạn 1 sao</strong> 800.000 -
-                      1.000.000 đ/ người
+                      <strong>Quán ăn bình dân</strong>
                     </p>
-                    <p>Số lượng ngày/đêm: 2</p>
                   </div>
                   <div className="flex my-4">
-                    <p className="w-3/12">Chọn khách sạn</p>
-                    <select
-                      name=""
-                      id=""
-                      className="select select-bordered w-9/12"
-                    >
-                      <option value="">
-                        Khách sạn 1 sao - Khách sạn Phương Nam: 800000/1 phòng
-                      </option>
-                    </select>
+                    <p className="w-3/12">Chọn quán ăn</p>
+                    
+                    <FoodModal />
                   </div>
-                  <div className="flex justify-between">
-                    <p>
-                      <strong>Khách sạn - khách sạn 1 sao</strong> 800.000 -
-                      1.000.000 đ/ người
+                  <div className="flex">
+                    <p>Quán ăn Phương Nam</p>
+                    <p className="mx-2">
+                      <strong>Địa chỉ: </strong>299 Nguyên Tử Lực, phường 8
                     </p>
-                    <p>Số lượng ngày/đêm: 2</p>
                   </div>
-                  <div className="flex my-4">
-                    <p className="w-3/12">Chọn khách sạn</p>
-                    <select
-                      name=""
-                      id=""
-                      className="select select-bordered w-9/12"
-                    >
-                      <option value="">
-                        Khách sạn 1 sao - Khách sạn Phương Nam: 800000/1 phòng
-                      </option>
-                    </select>
+                  <div>
+                    <strong>Menu ăn trưa</strong>
+                    <div className="mx-4">
+                      <p>1.Bún bò</p>
+                      <p>2.Cơm hến</p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -5,7 +5,7 @@ const getAllReferenceTransportPrice = async(pageNumber,pageSize) =>{
       const response = await api.get(
         `reference-transport-price/get-all-reference-transport/${pageNumber}/${pageSize}`
       );
-      return response;
+      return response.data;
     } catch (error) {
       console.log(error);
     }
@@ -15,7 +15,7 @@ const getAllReferenceTransportPrice = async(pageNumber,pageSize) =>{
       const response = await api.get(
         `reference-transport-price/get-all-reference-transport-by-province-id/${pageNumber}/${pageSize}?firstProvince=${firstProvince}&secondProvince=${secondProvince}`
       );
-      return response;
+      return response.data;
     } catch (error) {
       console.log(error);
     }
