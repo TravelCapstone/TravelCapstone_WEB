@@ -6,10 +6,11 @@ import { getAllProvince } from "../../../api/LocationApi";
 import PaginationManagement from "../../../components/UI/Pagination/PaginationManagement";
 import {
   getAllFacility,
-  getAllFacilityByProvince,
+  getAllFacilityByFilter,
 } from "../../../api/FacilityApi";
 import { DETAIL_FACILITY } from "../../../settings/constant";
 import LocationSelect from "../../../components/UI/Address/LocationSelect";
+import FilterFacility from "./Filter/FilterFacility";
 function FacilityManagement() {
   const [listFacility, setListFacility] = useState([]);
   const [listProvince, setListProvince] = useState([]);
@@ -51,7 +52,8 @@ function FacilityManagement() {
     return ratingLabels[rating.id];
   };
   const log = (data) => {
-    console.log(data);
+    setListFacility(data.data);
+    setTotalPages(data.totalPages);
   };
   return (
     <>
@@ -69,38 +71,12 @@ function FacilityManagement() {
                 Lọc nâng cao
               </button>
               {showFilter && (
-                <div className="flex flex-col mb-4">
-                  <LocationSelect isFlex={true} log={log} />
-                  <div className="flex">
-                    <div className="form-control mt-6">
-                      <label className="label">
-                        <span className="label-text font-semibold">
-                          Loại hình
-                        </span>
-                      </label>
-                      <select className="select select-bordered">
-                        <option value="">Chọn loại hình</option>
-                        <option value="">Khách sạn</option>
-                        <option value="">Nhà hàng</option>
-                      </select>
-                    </div>
-                    <div className="form-control mt-6 mx-8">
-                      <label className="label">
-                        <span className="label-text font-semibold">
-                          Loại hình
-                        </span>
-                      </label>
-                      <select className="select select-bordered">
-                        <option value="">Phân loại</option>
-                        <option value="">1 sao</option>
-                        <option value="">2 sao</option>
-                      </select>
-                    </div>
-                  </div>
-                  <button className="btn w-16 mt-8 bg-mainColor text-white">
-                    Lọc
-                  </button>
-                </div>
+                <FilterFacility
+                  isFilter={showFilter}
+                  log={log}
+                  currentPage={currentPage}
+                  itemsPerPage={itemsPerPage}
+                />
               )}
             </div>
           </div>
