@@ -10,10 +10,10 @@ const getAllReferenceTransportPrice = async(pageNumber,pageSize) =>{
       console.log(error);
     }
   }
-  const getAllReferenceTransportPriceByProvince = async(firstProvince,secondProvince,pageNumber,pageSize) =>{
+  const getAllReferenceTransportPriceByFilter = async(filter,pageNumber,pageSize) =>{
     try {
-      const response = await api.get(
-        `reference-transport-price/get-all-reference-transport-by-province-id/${pageNumber}/${pageSize}?firstProvince=${firstProvince}&secondProvince=${secondProvince}`
+      const response = await api.post(
+        `reference-transport-price/get-all-reference-transport-by-filter/${pageNumber}/${pageSize}`,filter
       );
       return response.data;
     } catch (error) {
@@ -21,5 +21,5 @@ const getAllReferenceTransportPrice = async(pageNumber,pageSize) =>{
     }
   }
 
-  export { getAllReferenceTransportPrice,getAllReferenceTransportPriceByProvince}
+  export { getAllReferenceTransportPrice,getAllReferenceTransportPriceByFilter}
   

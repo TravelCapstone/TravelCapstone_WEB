@@ -1,8 +1,17 @@
 import api from "../config/axios";
 
-const getAllFacilityByProvince = async (provinceId) => {
+const getAllFacilityByFilter = async (data,pageNumber,pageSize) => {
     try {
-      const response = await api.get(`/facility/get-all-facility-by-province-Id/${provinceId}`);
+      const response = await api.post(`/facility/get-all-facility-by-filter?pageNumber=${pageNumber}&pageSize=${pageSize}`,data);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching provinces:', error);
+      return []; 
+    }
+  };
+  const getAllFacilityByLocationAndRatingId = async (id,data,pageNumber,pageSize) => {
+    try {
+      const response = await api.post(`/facility/get-all-facility-by-location-and-ratingId/${id}?pageNumber=${pageNumber}&pageSize=${pageSize}`,data);
       return response.data;
     } catch (error) {
       console.error('Error fetching provinces:', error);
@@ -30,9 +39,22 @@ const getAllFacility = async (pageNumber,pageSize)=>{
     return []; 
   }
 }
-  export {
-    getAllFacilityByProvince,
-    getServiceByFacilityId,
-    getAllFacility
 
+const getAllFacilityRating  = async (id)=>{
+  try {
+    const response = await api.get(`/facility-type/get-all-facility-rating-by-facilityId/${id}
+    `);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching provinces:', error);
+    return []; 
+  }
+}
+
+  export {
+    getAllFacilityRating,
+    getAllFacilityByFilter,
+    getServiceByFacilityId,
+    getAllFacility,
+    getAllFacilityByLocationAndRatingId
   }
