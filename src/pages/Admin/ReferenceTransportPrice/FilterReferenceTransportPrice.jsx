@@ -34,7 +34,6 @@ function FilterReferenceTransportPrice({
       setEndDate(null);
     } else {
       if (startDate == null || endDate == null) {
-        toast.warning("Nhập ngày bắt đầu và kết thúc");
         return;
       }
     }
@@ -92,6 +91,9 @@ function FilterReferenceTransportPrice({
     setStartDate(null);
     setEndDate(null);
   };
+  useEffect(() => {
+    filterData();
+  }, [currentPage]);
   return (
     <>
       <LoadingComponent isLoading={isLoading} />
@@ -167,10 +169,7 @@ function FilterReferenceTransportPrice({
               >
                 <i class="fa-solid fa-filter"></i> Lọc
               </button>
-              <button
-                onClick={handleReset}
-                className="btn mt-14 bg-mainColor text-white"
-              >
+              <button onClick={handleReset} className="btn mt-14 ">
                 <i class="fa-solid fa-arrow-rotate-left"></i>
                 Reset
               </button>

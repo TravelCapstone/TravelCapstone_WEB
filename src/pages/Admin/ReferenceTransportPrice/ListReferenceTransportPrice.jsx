@@ -34,7 +34,9 @@ const ListReferenceTransportPrice = () => {
     }
   };
   useEffect(() => {
-    fetchData();
+    if (isFilter == false) {
+      fetchData();
+    }
   }, [currentPage]);
 
   const log = (data) => {
