@@ -34,7 +34,9 @@ const ListReferenceTransportPrice = () => {
     }
   };
   useEffect(() => {
-    fetchData();
+    if (isFilter == false) {
+      fetchData();
+    }
   }, [currentPage]);
 
   const log = (data) => {
@@ -50,19 +52,31 @@ const ListReferenceTransportPrice = () => {
           <span className="text-sm">MÁY BAY/ TÀU THỦY</span>
         </h2>
         <button
-          className="bg-mainColor text-white rounded-md px-4 py-2 my-4"
+          class="btn  my-2   bg-mainColor hover:bg-secondary text-white font-bold rounded-lg"
           onClick={() => setIsFilter(!isFilter)}
         >
           Lọc nâng cao
+          <svg
+            className={`fill-current transition-transform ${
+              isFilter ? "rotate-180" : ""
+            }`}
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+          </svg>
         </button>
         <FilterReferenceTransportPrice
           isFilter={isFilter}
           log={log}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
+          fetchData={fetchData}
         />
         <div className="overflow-x-auto rounded-xl">
-          <table className="table w-full ">
+          <table className="table ">
             <thead className="bg-mainColor text-white h-14">
               <tr>
                 <th>STT</th>
@@ -80,7 +94,7 @@ const ListReferenceTransportPrice = () => {
 
               {listData &&
                 listData.map((item, index) => (
-                  <tr key={item.id}>
+                  <tr className="hover" key={item.id}>
                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                     <td>
                       {item.arrival?.portType === 0

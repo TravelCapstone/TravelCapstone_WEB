@@ -10,6 +10,7 @@ function FilterReferenceTransportPrice({
   currentPage,
   itemsPerPage,
   isFilter,
+  fetchData,
 }) {
   const [province1, setProvince1] = useState(null);
   const [province2, setProvince2] = useState(null);
@@ -17,10 +18,12 @@ function FilterReferenceTransportPrice({
   const [district2, setDistrict2] = useState(null);
   const [commune1, setCommune1] = useState(null);
   const [commune2, setCommune2] = useState(null);
-  const [portType, setPortType] = useState(null);
+  const [portType, setPortType] = useState("default");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isReset, setIsReset] = useState(false);
+
   const filterData = async () => {
     if (portType == null) {
       toast.error("Vui lòng chọn loại cảng");
@@ -31,7 +34,6 @@ function FilterReferenceTransportPrice({
       setEndDate(null);
     } else {
       if (startDate == null || endDate == null) {
-        toast.warning("Nhập ngày bắt đầu và kết thúc");
         return;
       }
     }
@@ -76,22 +78,47 @@ function FilterReferenceTransportPrice({
     setDistrict2(data.districtId);
     setCommune2(data.communeId);
   };
-
+  const handleReset = () => {
+    fetchData();
+    setIsReset(!isReset);
+    setProvince1(null);
+    setProvince2(null);
+    setDistrict1(null);
+    setDistrict2(null);
+    setCommune1(null);
+    setCommune2(null);
+    setPortType("default");
+    setStartDate(null);
+    setEndDate(null);
+  };
+  useEffect(() => {
+    filterData();
+  }, [currentPage]);
   return (
     <>
       <LoadingComponent isLoading={isLoading} />
       {isFilter && (
-        <div class="flex  justify-between my-10">
-          <div className="flex ">
+        <div class="flex justify-between my-10">
+          <div className="flex flex-col md:flex md:flex-row ">
             <div>
               <span className="font-semibold">Nơi đi</span>
-              <LocationSelect log={log1} isFlex={false} />
+              <LocationSelect
+                log={log1}
+                isFlex={false}
+                isReset={isReset}
+                handleReset={handleReset}
+              />
             </div>
             <div className="mx-5">
               <span className="font-semibold">Nơi đến</span>
-              <LocationSelect log={log2} isFlex={false} />
+              <LocationSelect
+                log={log2}
+                isFlex={false}
+                isReset={isReset}
+                handleReset={handleReset}
+              />
             </div>
-            <div className="flex flex-col">
+            <div className=" md:flex md:flex-col">
               <div className="form-control mt-6">
                 <label className="label">
                   <span className="label-text font-semibold">
@@ -101,8 +128,9 @@ function FilterReferenceTransportPrice({
                 <select
                   className="select select-bordered"
                   onChange={(e) => setPortType(e.target.value)}
+                  value={portType}
                 >
-                  <option disabled selected>
+                  <option disabled value={"default"}>
                     Chọn loại bến
                   </option>
                   {Object.entries(typePortLabels).map(([value, label]) => (
@@ -134,13 +162,18 @@ function FilterReferenceTransportPrice({
               </div>
             </div>
 
-            <button class="btn  mt-14 mx-4" onClick={filterData}>
-              Lọc
-            </button>
-            <button class="btn  mt-14 ">
-              <i class="fa-solid fa-arrow-rotate-left"></i>
-              Reset
-            </button>
+            <div className="md:flex md:flex-row md:justify-between">
+              <button
+                className="btn mt-14 md:mx-4  bg-mainColor text-white"
+                onClick={filterData}
+              >
+                <i class="fa-solid fa-filter"></i> Lọc
+              </button>
+              <button onClick={handleReset} className="btn mt-14 ">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+                Reset
+              </button>
+            </div>
           </div>
         </div>
       )}

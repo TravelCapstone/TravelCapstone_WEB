@@ -6,10 +6,15 @@ import {
 } from "../../../api/LocationApi";
 import LoadingComponent from "../../Loading/LoadingComponent";
 
-const LocationSelect = ({ log, isFlex = false }) => {
-  const [selectedProvince, setSelectedProvince] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
-  const [selectedCommune, setSelectedCommunce] = useState(null);
+const LocationSelect = ({
+  log,
+  isFlex = false,
+  isReset = false,
+  handleReset,
+}) => {
+  const [selectedProvince, setSelectedProvince] = useState("default");
+  const [selectedDistrict, setSelectedDistrict] = useState("default");
+  const [selectedCommune, setSelectedCommunce] = useState("default");
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [communes, setCommunes] = useState([]);
@@ -26,7 +31,6 @@ const LocationSelect = ({ log, isFlex = false }) => {
   useEffect(() => {
     fetchProvinces();
   }, []);
-
   const handleProvinceChange = async (event) => {
     setIsLoading(true);
 
@@ -39,11 +43,10 @@ const LocationSelect = ({ log, isFlex = false }) => {
       setIsLoading(false);
 
       setSelectedProvince(provinceId);
-      setSelectedDistrict(null);
-      setSelectedCommunce(null);
+      setSelectedDistrict("default");
+      setSelectedCommunce("default");
     }
   };
-
   const handleDistrictChange = async (event) => {
     setIsLoading(true);
 
@@ -55,7 +58,7 @@ const LocationSelect = ({ log, isFlex = false }) => {
       }
       setIsLoading(false);
       setSelectedDistrict(districtId);
-      setSelectedCommunce(null);
+      setSelectedCommunce("default");
     }
   };
 
@@ -67,20 +70,34 @@ const LocationSelect = ({ log, isFlex = false }) => {
 
   const logData = () => {
     const data = {
-      provinceId: selectedProvince,
-      districtId: selectedDistrict,
-      communeId: selectedCommune,
+      provinceId: selectedProvince === "default" ? null : selectedProvince,
+      districtId: selectedDistrict === "default" ? null : selectedDistrict,
+      communeId: selectedCommune === "default" ? null : selectedCommune,
     };
     log(data);
   };
 
+  const handleResetComponent = () => {
+    setSelectedProvince("default");
+    setSelectedDistrict("default");
+    setSelectedCommunce("default");
+    handleReset();
+    logData();
+  };
+  useEffect(() => {
+    if (isReset === true) {
+      handleResetComponent();
+    }
+  }, [isReset]);
   useEffect(() => {
     logData();
   }, [selectedProvince, selectedDistrict, selectedCommune]);
   return (
     <>
       <LoadingComponent isLoading={isLoading} />
-      <div className={isFlex ? "flex gap-4" : ""}>
+      <div
+        className={isFlex ? "flex gap-4" : "flex justify-evenly md:flex-col"}
+      >
         <div className="form-control">
           <label className="label">
             <span className="label-text">Tỉnh/Thành phố</span>
@@ -90,7 +107,7 @@ const LocationSelect = ({ log, isFlex = false }) => {
             value={selectedProvince}
             onChange={async (e) => handleProvinceChange(e)}
           >
-            <option value="">Chọn Tỉnh/Thành phố</option>
+            <option value="default">Chọn Tỉnh/Thành phố</option>
             {provinces.map((item, index) => (
               <option key={index} value={item.id}>
                 {item.name}
@@ -107,7 +124,7 @@ const LocationSelect = ({ log, isFlex = false }) => {
             className="select select-bordered"
             value={selectedDistrict}
             onChange={handleDistrictChange}
-            disabled={!selectedProvince}
+            disabled={selectedProvince === "default" ? true : false}
           >
             <option value="">Chọn Quận/Huyện</option>
             {selectedProvince &&
@@ -127,9 +144,9 @@ const LocationSelect = ({ log, isFlex = false }) => {
             className="select select-bordered"
             value={selectedCommune}
             onChange={handleCommunceChange}
-            disabled={!selectedDistrict}
+            disabled={selectedDistrict === "default" ? true : false}
           >
-            <option value="">Chọn Phường/Xã</option>
+            <option value="default">Chọn Phường/Xã</option>
             {selectedDistrict &&
               communes.map((item, index) => (
                 <option key={index} value={item.id}>

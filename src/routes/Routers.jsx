@@ -79,6 +79,10 @@ function Routers() {
       path: STAFF_PAGE,
       element: <ManagementLayout isAdmin={false} />,
       children: [
+        {
+          path: VIEW_USER,
+          element: <ListAccount />,
+        },
         // Staff
         {
           path: LISTING_TOUR_REQUEST_STAFF,
