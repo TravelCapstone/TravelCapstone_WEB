@@ -69,10 +69,9 @@ const ManagementLayout = ({ isAdmin }) => {
   const menuStaff = [
     {
       title: "Người dùng",
-      path: "/users",
       icon: <i class="fa-solid fa-users"></i>,
       submenu: [
-        { title: "Quản lí người dùng", path: "/users/all" },
+        { title: "Quản lí người dùng", path: VIEW_USER },
         { title: "Nhập dữ liệu hướng dẫn viên", path: "/users/active" },
       ],
     },

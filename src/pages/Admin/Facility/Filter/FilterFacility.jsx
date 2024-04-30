@@ -11,12 +11,19 @@ import {
 } from "../../../../api/FacilityApi";
 import LoadingComponent from "../../../../components/Loading/LoadingComponent";
 
-function FilterFacility({ log, isFilter, currentPage, itemsPerPage }) {
+function FilterFacility({
+  log,
+  isFilter,
+  currentPage,
+  itemsPerPage,
+  fetchData,
+}) {
   const [rating, setRating] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFacilityType, setSelectedFacilityType] = useState(null);
   const [selectedFacilityRating, setSelectedFacilityRating] = useState(null);
   const [data, setData] = useState({});
+  const [isReset, setIsReset] = useState(false);
   useEffect(() => {
     return () => {};
   }, []);
@@ -73,13 +80,23 @@ function FilterFacility({ log, isFilter, currentPage, itemsPerPage }) {
     }
     setIsLoading(false);
   };
-
+  const handleReset = () => {
+    fetchData();
+    setIsReset(!isReset);
+    setSelectedFacilityRating(null);
+    setSelectedFacilityType(null);
+  };
   return (
     <>
       <LoadingComponent isLoading={isLoading} />
       {isFilter && (
         <div className="flex flex-col mb-4">
-          <LocationSelect isFlex={true} log={logData} />
+          <LocationSelect
+            isFlex={true}
+            log={logData}
+            isReset={isReset}
+            handleReset={handleReset}
+          />
           <div className="flex items-center">
             <div className="form-control mt-6">
               <label className="label">
@@ -117,11 +134,16 @@ function FilterFacility({ log, isFilter, currentPage, itemsPerPage }) {
             </div>
             <button
               onClick={() => filterData()}
-              className="btn w-16 mt-14 bg-mainColor text-white"
+              className="btn  mt-14 bg-mainColor text-white"
             >
-              Lọc
+              <i class="fa-solid fa-filter"></i> Lọc
             </button>
-            <button className="btn w-16 mt-14 mx-2 bg-gray-200">Reset</button>
+            <button
+              onClick={() => handleReset()}
+              className="btn mt-14 mx-2 bg-gray-200"
+            >
+              <i class="fa-solid fa-filter-circle-xmark"></i> Reset
+            </button>
           </div>
         </div>
       )}
