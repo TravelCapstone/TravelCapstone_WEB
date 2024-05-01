@@ -61,7 +61,7 @@ const getAutoCompleteSuggestions = async (address) => {
     const response = await api.get('/api/map/auto-complete', {
       params: { address }
     });
-    return response.data.result; 
+    return response.data; 
   } catch (error) {
     console.error('Error fetching autocomplete suggestions:', error);
     throw error; 
