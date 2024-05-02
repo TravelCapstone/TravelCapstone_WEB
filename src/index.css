@@ -43,3 +43,7 @@ body {
   background-color: rgb(0 132 137 / var(--tw-bg-opacity));
   color: white;
 }
+
+:where(.css-dev-only-do-not-override-11xg00t).ant-form-item .ant-form-item-label >label {
+  font-size: 18px !important;
+}

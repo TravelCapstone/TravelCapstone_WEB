@@ -14,7 +14,7 @@ const CreatePlanForm = () => {
       <h3 className="font-bold text-mainColor text-xl text-center">
         TẠO KẾ HOẠCH TOUR CHI TIẾT
       </h3>
-      <div className="p-4 shadow-xl rounded-xl w-full max-h-lvh overflow-y-auto">
+      <div className="py-6 px-20 shadow-xl rounded-xl w-full max-h-lvh overflow-y-auto">
         <div className="flex items-center">
           <h5 className="font-bold text-xl">Phân loại: </h5>
           <span className="font-light text-xl mx-2">Gói cơ bản</span>
