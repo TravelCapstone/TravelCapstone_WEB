@@ -13,6 +13,8 @@ import {
 import React, { useEffect, useState } from "react";
 import { createOptionsPrivateTour } from "../../../../../api/OptionsApi";
 import LodgingSection from "./FieldServices/LodgingSection";
+import RestaurantSection from "./FieldServices/RestaurantSection";
+import TransportationSection from "./FieldServices/TransportationSection";
 
 const { Option } = Select;
 
@@ -90,10 +92,26 @@ function CreateOptionForm() {
             TẠO CÁC DỊCH VỤ TRONG TOUR
           </h2>
           <div>
-            <h3 className="font-bold text-base my-2 text-mainColor">
+            <h3 className="font-bold text-lg my-2 text-mainColor">
               Nơi lưu trú:
             </h3>
             <LodgingSection form={form} />
+          </div>
+
+          {/* DỊCH VỤ ĂN UỐNG */}
+          <div>
+            <h3 className="font-bold text-lg my-2 text-mainColor">
+              Dịch vụ ăn uống:
+            </h3>
+            <RestaurantSection form={form} />
+          </div>
+
+          {/* PHƯƠNG TIỆN DI CHUYỂN */}
+          <div>
+            <h3 className="font-bold text-lg my-2 text-mainColor">
+              Phương tiện di chuyển
+            </h3>
+            <TransportationSection form={form} />
           </div>
 
           <div className="flex justify-center my-4">

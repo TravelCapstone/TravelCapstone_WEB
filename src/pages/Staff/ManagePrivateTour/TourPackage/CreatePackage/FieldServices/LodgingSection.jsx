@@ -41,7 +41,7 @@ const LodgingSection = ({ form, add, remove }) => {
       <Form.List name="locations" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
-            {fields.map(({ key, name, fieldKey, ...restField }, index) => (
+            {fields.map(({ key, name, ...restField }, index) => (
               <Space
                 key={key}
                 className="flex my-8  justify-between"
