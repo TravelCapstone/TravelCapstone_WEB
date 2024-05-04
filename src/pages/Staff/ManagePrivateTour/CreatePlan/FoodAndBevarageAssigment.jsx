@@ -83,7 +83,7 @@ function FoodAndBevarageAssignment({ data, privateTourResponse }) {
                       selectedRestaurent.map((restaurent, index) => (
                         <div key={index}>
                           <div className="flex">
-                            <strong className="mr-2">Tên khách sạn: </strong>
+                            <strong className="mr-2">Tên nhà hàng: </strong>
                             <p>{restaurent.facilityServices?.facility?.name}</p>
                           </div>
                           <div className="flex">
