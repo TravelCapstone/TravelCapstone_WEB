@@ -6,6 +6,8 @@ import {
 import { formatPrice, formatDate } from "../../../../../utils/Util";
 
 function TourRequestSection({ request }) {
+  console.log("request", request);
+
   const renderOtherLocations = (locations) => {
     return locations?.map((location) => (
       <div key={location.id}>

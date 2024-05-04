@@ -131,7 +131,7 @@ const TransportationSection = ({ form }) => {
                         },
                       ]}
                     >
-                      <RangePicker className="!w-[250px] mr-10" />
+                      <RangePicker showTime className="!w-[250px] mr-10" />
                     </Form.Item>
                   </div>
                   <div className="flex flex-wrap ">

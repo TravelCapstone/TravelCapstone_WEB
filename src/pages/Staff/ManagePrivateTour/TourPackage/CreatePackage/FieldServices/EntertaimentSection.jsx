@@ -32,22 +32,19 @@ const EntertainmentSection = ({ form }) => {
                           { required: true, message: "Missing district" },
                         ]}
                       >
-                        <div className="flex justify-between ml-6">
-                          <Select
-                            placeholder="Tỉnh"
-                            className="!w-[200px] mr-10"
-                          >
-                            <Option value="province">Hà Nội</Option>
-                            {/* Add more options as needed */}
-                          </Select>
-                          <Select
+                        {/* <div className="flex justify-between ml-6"> */}
+                        <Select placeholder="Tỉnh" className="!w-[200px] mr-10">
+                          <Option value="HaNoi">Hà Nội</Option>
+                          <Option value="SaiGon">TP. Hồ Chí Minh</Option>
+                          {/* Add more options as needed */}
+                        </Select>
+                        {/* <Select
                             placeholder="Huyện/TP"
                             className="!w-[200px] mr-10"
                           >
                             <Option value="commune">Thủ đô Hà Nội</Option>
-                            {/* Add more options as needed */}
-                          </Select>
-                        </div>
+                          </Select> */}
+                        {/* </div> */}
                       </Form.Item>
                       <div className="flex font-semibold text-gray-500">
                         <h3 className="text-lg mr-3">Khu du lịch - </h3>
