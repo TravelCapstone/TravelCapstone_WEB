@@ -5,18 +5,34 @@ import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
 import TourRequestSection from "../CreatePackage/TourRequestSection";
 import CreateOptionForm from "../CreatePackage/CreateOptionForm";
 import CreatePlanForm from "../../CreatePlan/CreatePlanForm";
+
 function TourRequestPage() {
   const { id } = useParams();
   const [request, setRequest] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
 
   const fetchData = async () => {
     const data = await getPrivateTourById(id);
     if (data?.data?.isSuccess) {
       setRequest(data?.data?.result);
       setIsLoading(false);
-      console.log(request);
+
+      // Kiểm tra xem có option nào có optionQuotationStatusId == 1 không
+      if (
+        data.data.result.option1?.optionQuotation?.optionQuotationStatusId === 1
+      ) {
+        setSelectedOption(data.data.result.option1);
+      } else if (
+        data.data.result.option2?.optionQuotation?.optionQuotationStatusId === 1
+      ) {
+        setSelectedOption(data.data.result.option2);
+      } else if (
+        data.data.result.option3?.optionQuotation?.optionQuotationStatusId === 1
+      ) {
+        setSelectedOption(data.data.result.option3);
+      }
     }
   };
   useEffect(() => {
@@ -24,37 +40,50 @@ function TourRequestPage() {
   }, [id]);
 
   const handleTabChange = (index) => {
-    console.log(index);
     setActiveTab(index);
   };
+
   const tabs = [
     {
       label: "Thông tin yêu cầu",
       content: <TourRequestSection request={request} />,
     },
     {
-      label: "Tạo gói tour",
-      content: <CreateOptionForm />,
+      label: selectedOption ? null : "Tạo gói tour",
+      content: selectedOption ? null : <CreateOptionForm />,
     },
     {
       label: "Tạo kế hoạch chi tiết",
-      content: <CreatePlanForm />,
+      content: selectedOption ? (
+        <CreatePlanForm
+          optionQuotation={selectedOption.optionQuotation}
+          quotationDetails={selectedOption.quotationDetails}
+          vehicleQuotationDetails={selectedOption.vehicleQuotationDetails}
+          privateTourResponse={request}
+        />
+      ) : null,
     },
   ];
+
   return (
     <>
       <LoadingOverlay isLoading={isLoading} />
       <div className="tabs">
         <div className="tab-headers my-10">
-          {tabs.map((tab, index) => (
-            <button
-              key={index}
-              className={`mx-2 tab-header ${activeTab === index ? "font-bold border-b-2" : ""}`}
-              onClick={() => handleTabChange(index)}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map(
+            (tab, index) =>
+              (tab.content || selectedOption) && (
+                <button
+                  key={index}
+                  className={`mx-2 tab-header ${
+                    activeTab === index ? "font-bold border-b-2" : ""
+                  }`}
+                  onClick={() => handleTabChange(index)}
+                >
+                  {tab.label}
+                </button>
+              )
+          )}
         </div>
       </div>
       {tabs[activeTab].content}

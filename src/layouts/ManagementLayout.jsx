@@ -23,11 +23,11 @@ const ManagementLayout = ({ isAdmin }) => {
     {
       title: "Thống kê",
       path: "/dashboard",
-      icon: <i class="fa-solid fa-chart-column"></i>,
+      icon: <i className="fa-solid fa-chart-column"></i>,
     },
     {
       title: "Người dùng",
-      icon: <i class="fa-solid fa-users"></i>,
+      icon: <i className="fa-solid fa-users"></i>,
       submenu: [
         {
           title: "Quản lí người dùng",
@@ -37,7 +37,7 @@ const ManagementLayout = ({ isAdmin }) => {
     },
     {
       title: "Đối tác",
-      icon: <i class="fa-solid fa-handshake"></i>,
+      icon: <i className="fa-solid fa-handshake"></i>,
       submenu: [
         {
           title: "Quản lí đối tác",
@@ -47,7 +47,7 @@ const ManagementLayout = ({ isAdmin }) => {
     },
     {
       title: "Các loại chi phí",
-      icon: <i class="fa-solid fa-money-bill"></i>,
+      icon: <i className="fa-solid fa-money-bill"></i>,
       submenu: [
         {
           title: "Chi phí phương tiện di chuyển",
@@ -58,7 +58,7 @@ const ManagementLayout = ({ isAdmin }) => {
     {
       title: "Cấu hình hệ thống",
       path: "/settings",
-      icon: <i class="fa-solid fa-gear"></i>,
+      icon: <i className="fa-solid fa-gear"></i>,
       submenu: [
         { title: "Ràng buộc kinh doanh", path: "/settings/general" },
         { title: "Cập nhật dữ liệu", path: "/settings/security" },
@@ -69,16 +69,17 @@ const ManagementLayout = ({ isAdmin }) => {
   const menuStaff = [
     {
       title: "Người dùng",
-      icon: <i class="fa-solid fa-users"></i>,
+      icon: <i className="fa-solid fa-users"></i>,
       submenu: [
-        { title: "Quản lí người dùng", path: VIEW_USER },
-        { title: "Nhập dữ liệu hướng dẫn viên", path: "/users/active" },
+        { title: "Khách hàng", path: VIEW_USER },
+        { title: "Hướng dẫn viên", path: "/users/active" },
+        { title: "Tài xế", path: "/users/active" },
       ],
     },
     {
       title: "Tour",
       path: "/users",
-      icon: <i class="fa-solid fa-bus-simple"></i>,
+      icon: <i className="fa-solid fa-bus-simple"></i>,
       submenu: [
         { title: "Quản lí tour", path: "/users/all" },
         { title: "Tạo tour", path: "/users/active" },
@@ -87,22 +88,10 @@ const ManagementLayout = ({ isAdmin }) => {
     },
     {
       title: "Các loại chi phí",
-      icon: <i class="fa-solid fa-money-bill"></i>,
+      icon: <i className="fa-solid fa-money-bill"></i>,
       submenu: [
         {
           title: "Chi phí phương tiện di chuyển",
-          path: VIEW_REFERENCE_TRANSPORT_PRICE,
-        },
-        {
-          title: "Nơi lưu trú",
-          path: VIEW_REFERENCE_TRANSPORT_PRICE,
-        },
-        {
-          title: "Dịch vụ ăn uống",
-          path: VIEW_REFERENCE_TRANSPORT_PRICE,
-        },
-        {
-          title: "Dịch vụ vui chơi giải trí",
           path: VIEW_REFERENCE_TRANSPORT_PRICE,
         },
       ],
