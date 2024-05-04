@@ -6,8 +6,6 @@ const AddressSearch = ({ value, onChange }) => {
   const [options, setOptions] = useState([]);
   const [debounceTimeout, setDebounceTimeout] = useState(null);
 
-  console.log("options", options);
-
   useEffect(() => {
     return () => {
       clearTimeout(debounceTimeout); // Xóa timeout khi component bị unmount
@@ -23,12 +21,14 @@ const AddressSearch = ({ value, onChange }) => {
       return;
     }
 
+    let formattedSuggestions = [];
+
     try {
       // Thiết lập một timeout mới để gọi API sau một khoảng thời gian nhất định (ví dụ: 300ms)
       const newDebounceTimeout = setTimeout(async () => {
         const suggestions = await getAutoCompleteSuggestions(searchText);
         if (suggestions.isSuccess) {
-          const formattedSuggestions = suggestions.map((suggestion) => ({
+          formattedSuggestions = suggestions.result.map((suggestion) => ({
             value: suggestion.description,
             label: (
               <div>
@@ -44,6 +44,8 @@ const AddressSearch = ({ value, onChange }) => {
             },
           }));
           setOptions(formattedSuggestions);
+        } else {
+          setOptions([]); // Set to empty array if there is no success
         }
       }, 300);
 
@@ -55,8 +57,8 @@ const AddressSearch = ({ value, onChange }) => {
   };
 
   const handleSelect = (selectedValue, option) => {
-    console.log("Selected option:", option);
-    // Check what's actually in the option
+    console.log("Selected value:", selectedValue);
+    console.log("Selected option:", option); // This should show what's inside option, including the data object
     if (option && option.data) {
       onChange(selectedValue, option.data);
     } else {
@@ -75,7 +77,7 @@ const AddressSearch = ({ value, onChange }) => {
       onSelect={handleSelect}
       onSearch={handleSearch}
       onChange={handleChange}
-      placeholder="Enter an address..."
+      placeholder="Nhập địa chỉ chi tiết..."
       style={{ width: "100%" }}
       value={value}
     />

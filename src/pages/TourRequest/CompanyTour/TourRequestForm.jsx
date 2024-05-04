@@ -34,8 +34,9 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 function TourRequestForm() {
-  const [value, setValue] = useState(1);
+  const [value, setValue] = useState();
   const [selectedLocations, setSelectedLocations] = useState([]);
+  const [valueFoodType, setValueFoodType] = useState();
   const [days, setDays] = useState(1);
   const [nights, setNights] = useState(0);
   const [form] = Form.useForm();
@@ -43,6 +44,9 @@ function TourRequestForm() {
   const [startCommuneId, setStartCommuneId] = useState("");
   const [mainLocation, setMainLocation] = useState("");
   const [mainDestinationId, setMainDestinationId] = useState("");
+
+  console.log("days", days);
+  console.log("nights", nights);
 
   useEffect(() => {
     if (selectedLocations.length === 1) {
@@ -68,6 +72,7 @@ function TourRequestForm() {
 
   const handleAddressSelect = async (value, details) => {
     form.setFieldsValue({ startLocation: value });
+    console.log("Address details received:", details);
     if (details) {
       const { districtName, communeName } = details;
       try {
@@ -75,7 +80,7 @@ function TourRequestForm() {
           districtName,
           communeName
         );
-        if (communeData && communeData.length > 0) {
+        if (communeData && communeData.result.items.length > 0) {
           setStartCommuneId(communeData.result.items[0].id);
         } else {
           console.log("No communes found with the provided names");
@@ -132,6 +137,8 @@ function TourRequestForm() {
       })),
       mainDestinationId: mainDestinationId,
       accountId: "208be820-3a09-4a8c-af3f-d86cb0f5ccee", // accoundId
+      dietaryPreference: valueFoodType,
+      wishPrice: formValues["budget"],
     };
     console.log("tourData", tourData);
     try {
@@ -139,6 +146,10 @@ function TourRequestForm() {
 
       if (response?.data?.isSuccess) {
         alertSuccess("Tour created successfully!");
+        form.resetFields(); // Reset all fields in the form
+        setSelectedLocations([]); // Reset state if needed for locations
+        setMainLocation(""); // Reset main location
+        setIsChecked(false); // Uncheck the terms and conditions box
       } else {
         for (const message in response.messages) {
           alertFail(message);
@@ -167,7 +178,7 @@ function TourRequestForm() {
       const detailedItemsWithIds = await Promise.all(
         selectedItems.map(async (item) => {
           const provinceData = await getProvinceByName(item.provinceName);
-          return { ...item, provinceId: provinceData.id };
+          return { ...item, provinceId: provinceData.result.id };
         })
       );
 
@@ -186,6 +197,10 @@ function TourRequestForm() {
 
   const onChange = (e) => {
     setValue(e.target.value);
+  };
+
+  const onChangeFoodType = (e) => {
+    setValueFoodType(e.target.value);
   };
 
   const prefixSelector = <span style={{ paddingRight: 5 }}>+84</span>;
@@ -276,6 +291,30 @@ function TourRequestForm() {
               </Radio>
             </Radio.Group>
           </Form.Item>
+
+          <Form.Item
+            label="Hình thức ăn:"
+            name="foodType"
+            className="font-semibold"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Radio.Group onChange={onChangeFoodType} defaultValue={value}>
+              <Radio className="font-normal" value={0}>
+                Ăn chay
+              </Radio>
+              <Radio className="font-normal" value={1}>
+                Ăn mặn
+              </Radio>
+              <Radio className="font-normal" value={2}>
+                Có người ăn chay, có người ăn mặn
+              </Radio>
+            </Radio.Group>
+          </Form.Item>
+
           <Flex vertical gap={32}>
             <Form.Item
               label="Mô tả yêu cầu:"
@@ -298,7 +337,14 @@ function TourRequestForm() {
 
           <Form.Item
             name="locations"
-            label="Địa điểm mong muốn:"
+            label={
+              <span>
+                Địa điểm mong muốn: &nbsp;
+                <Tooltip title="Bạn có thể chọn nhiều địa điểm trên thanh tìm kiếm!">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </span>
+            }
             className="font-semibold"
             rules={[
               {
@@ -351,17 +397,17 @@ function TourRequestForm() {
               </span>
             }
             className="font-semibold"
-            rules={[
-              {
-                required: true,
-                message: (
-                  <div>
-                    <WarningFilled /> Vui lòng chọn địa chỉ xuất phát hoặc tập
-                    trung!
-                  </div>
-                ),
-              },
-            ]}
+            // rules={[
+            //   {
+            //     required: true,
+            //     message: (
+            //       <div>
+            //         <WarningFilled /> Vui lòng chọn địa chỉ xuất phát hoặc tập
+            //         trung!
+            //       </div>
+            //     ),
+            //   },
+            // ]}
           >
             <AddressSearch onChange={handleAddressSelect} />
           </Form.Item>
@@ -425,19 +471,29 @@ function TourRequestForm() {
               <Form.Item
                 name="days"
                 label="Số ngày:"
-                className="font-normal"
+                className="font-normal "
                 style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
               >
-                <InputNumber min={1} value={days} onChange={handleDaysChange} />
+                <InputNumber
+                  className="text-right"
+                  min={1}
+                  value={days}
+                  onChange={handleDaysChange}
+                />
               </Form.Item>
-
               <Form.Item
                 name="nights"
                 label="Số đêm:"
                 className="font-normal"
-                style={{ flex: "1", marginLeft: "8px" }}
+                style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
               >
-                <Input readOnly placeholder={nights} value={nights} />
+                <InputNumber
+                  readOnly
+                  min={1}
+                  value={nights}
+                  placeholder={nights}
+                  className="text-right"
+                />
               </Form.Item>
             </div>
           </Form.Item>
@@ -507,6 +563,34 @@ function TourRequestForm() {
             className="font-semibold "
           >
             <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="budget"
+            label={
+              <span>
+                Ngân sách: &nbsp;
+                <Tooltip title="Ngân sách của bạn cho tour yêu cầu tính trên đầu người (người lớn).">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+            className="font-semibold w-1/2"
+            rules={[
+              {
+                required: true,
+                message: (
+                  <div>
+                    <WarningFilled /> Vui lòng nhập ngân sách của bạn!
+                  </div>
+                ),
+              },
+            ]}
+          >
+            <div className="flex align-items-center">
+              <InputNumber min={0} className="w-[40%]" />
+              <span className="ml-2">VND / Người</span>
+            </div>
           </Form.Item>
 
           <Flex vertical gap={32}>

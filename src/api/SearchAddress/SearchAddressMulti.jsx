@@ -22,11 +22,14 @@ const AddressSearchMultiple = ({ onChange }) => {
       return;
     }
 
+    let formattedSuggestions = [];
+
     // Thiết lập một timeout mới để gọi API sau một khoảng thời gian nhất định (ví dụ: 300ms)
     const newDebounceTimeout = setTimeout(async () => {
       const suggestions = await getAutoCompleteSuggestions(searchText);
-      if (suggestions.isSucess) {
-        const formattedSuggestions = suggestions?.map((suggestion) => ({
+      console.log("suggestions", suggestions);
+      if (suggestions.isSuccess) {
+        formattedSuggestions = suggestions.result.map((suggestion) => ({
           value: suggestion.description,
           label: (
             <div>
@@ -42,8 +45,10 @@ const AddressSearchMultiple = ({ onChange }) => {
             communeName: suggestion.compound.commune,
           },
         }));
+        setOptions(formattedSuggestions);
+      } else {
+        setOptions([]); // Set to empty array if there is no success
       }
-      setOptions(formattedSuggestions);
     }, 300);
 
     setDebounceTimeout(newDebounceTimeout);
@@ -90,7 +95,7 @@ const AddressSearchMultiple = ({ onChange }) => {
         onSelect={handleSelect}
         onSearch={handleSearch}
         style={{ width: "100%" }}
-        placeholder="Enter an address..."
+        placeholder="Nhập địa chỉ chi tiết..."
       />
     </>
   );
