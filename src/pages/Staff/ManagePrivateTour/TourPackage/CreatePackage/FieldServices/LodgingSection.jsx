@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Button,
   Dropdown,
@@ -21,13 +21,18 @@ const { Option } = Select;
 const { TreeNode } = TreeSelect;
 const { RangePicker } = DatePicker;
 
-const LodgingSection = ({ form, add, remove }) => {
+const LodgingSection = ({ form, add, remove, request }) => {
+  console.log("request", request);
+
   const [lodgingDetails, setLodgingDetails] = useState({});
 
-  const handleLodgingTypeChange = (selectedItems, name) => {
-    const newDetails = { ...lodgingDetails, [name]: selectedItems };
-    setLodgingDetails(newDetails);
-  };
+  const handleLodgingTypeChange = useCallback(
+    (selectedItems, name) => {
+      const newDetails = { ...lodgingDetails, [name]: selectedItems };
+      setLodgingDetails(newDetails);
+    },
+    [lodgingDetails]
+  );
 
   const lodgingTypeNames = {
     hotel1: "Khách sạn 1 sao",
@@ -50,6 +55,10 @@ const LodgingSection = ({ form, add, remove }) => {
                 <div className="text-center font-bold mr-2">{index + 1}</div>
                 <div className="flex flex-col flex-grow w-full">
                   <div className="flex flex-wrap ">
+                    {/* <h3>
+                      Khu vực: districtId:{" "}
+                      {request?.privateTourResponse?.otherLocation[0].id}{" "}
+                    </h3> */}
                     <Form.Item
                       {...restField}
                       label="Khu vực:"
@@ -57,19 +66,19 @@ const LodgingSection = ({ form, add, remove }) => {
                       className="flex font-semibold"
                       rules={[{ required: true, message: "Missing district" }]}
                     >
-                      <div className="flex justify-between ml-6">
-                        <Select placeholder="Tỉnh" className="!w-[200px] mr-10">
-                          <Option value="province">Hà Nội</Option>
-                          {/* Add more options as needed */}
-                        </Select>
-                        <Select
+                      {/* <div className="flex justify-between ml-6"> */}
+                      <Select placeholder="Tỉnh" className="!w-[200px] mr-10">
+                        <Option value="HaNoi">Hà Nội</Option>
+                        <Option value="SaiGon">TP. Hồ Chí Minh</Option>
+                        {/* Add more options as needed */}
+                      </Select>
+                      {/* <Select
                           placeholder="Huyện/TP"
                           className="!w-[200px] mr-10"
                         >
                           <Option value="commune">Thủ đô Hà Nội</Option>
-                          {/* Add more options as needed */}
-                        </Select>
-                      </div>
+                        </Select> */}
+                      {/* </div> */}
                     </Form.Item>
 
                     <Form.Item
@@ -84,7 +93,7 @@ const LodgingSection = ({ form, add, remove }) => {
                         },
                       ]}
                     >
-                      <RangePicker className="!min-w-[300px] mr-10" />
+                      <RangePicker showTime className="!min-w-[300px] mr-10" />
                     </Form.Item>
                   </div>
                   <Form.Item
@@ -109,8 +118,9 @@ const LodgingSection = ({ form, add, remove }) => {
                         overflow: "auto",
                       }}
                       allowClear
-                      multiple
+                      // multiple
                       treeCheckable
+                      treeDefaultExpandAll
                       placeholder="Chọn loại hình lưu trú"
                     >
                       <TreeNode
@@ -126,63 +136,65 @@ const LodgingSection = ({ form, add, remove }) => {
                       <TreeNode value="resort" title="Resort" />
                       {/* Add more options as needed */}
                     </TreeSelect>
-                  </Form.Item>
-
-                  {lodgingDetails[name] &&
-                    lodgingDetails[name].map((type, idx) => (
-                      <div key={index} className="mx-10 flex">
-                        <li className="list-disc" />
-                        <div>
-                          <div className="flex items-start">
-                            <h3 className="font-semibold text-base">
-                              {lodgingTypeNames[type]}{" "}
-                              <span className="mx-10">
-                                {" "}
-                                800.000 ~ 1.000.000 /người {" "}
-                              </span>
-                            </h3>
-                            <div className="flex">
-                              <h3> Số lượng ngày/đêm: </h3>
-                              <Form.Item
-                                name={[type, "numOfDay"]}
-                                className="ml-4"
-                              >
-                                <InputNumber min={1} max={30} />
-                              </Form.Item>
-                            </div>
-                          </div>
-                          <div className="flex ">
-                            <div className="flex">
-                              <h3> Loại phòng: </h3>
-                              <Form.Item name={[type, "roomType"]}>
-                                <Select
-                                  placeholder="Chọn loại phòng"
-                                  className="ml-4 !w-[200px] mr-10"
+                    {lodgingDetails[name] &&
+                      lodgingDetails[name].map((type, idx) => (
+                        <div
+                          key={`${name}-${idx}-${type}`}
+                          className="mt-4 flex"
+                        >
+                          {" "}
+                          {/* // Thay đổi ở key */}
+                          <li className="list-disc" />
+                          <div>
+                            <div className="flex items-start">
+                              <h3 className="font-semibold text-base">
+                                {lodgingTypeNames[type]}{" "}
+                                <span className="mx-10">
+                                  {" "}
+                                  800.000 ~ 1.000.000 /người{" "}
+                                </span>
+                              </h3>
+                              <div className="flex">
+                                <h3> Số lượng ngày/đêm: </h3>
+                                <Form.Item
+                                  name={[name, type, "numOfDay"]} // Thay đổi ở đây
+                                  className="ml-4"
                                 >
-                                  <Option value="province">
-                                    Phòng 4 người
-                                  </Option>
-                                  <Option value="province">
-                                    Phòng 2 người
-                                  </Option>
-                                  {/* Add more options as needed */}
-                                </Select>
-                              </Form.Item>
+                                  <InputNumber min={1} max={30} />
+                                </Form.Item>
+                              </div>
                             </div>
-                            <div className="flex">
-                              <h3> Số lượng phòng: </h3>
-                              <Form.Item
-                                name={[type, "numOfDay"]}
-                                className="ml-4"
-                              >
-                                <InputNumber min={1} max={30} />
-                              </Form.Item>
+                            <div className="flex ">
+                              <div className="flex">
+                                <h3> Loại phòng: </h3>
+                                <Form.Item name={[name, type, "roomType"]}>
+                                  {" "}
+                                  {/* // Thay đổi ở đây */}
+                                  <Select
+                                    placeholder="Chọn loại phòng"
+                                    className="ml-4 !w-[200px] mr-10"
+                                  >
+                                    <Option value="0">Phòng 4 người</Option>
+                                    <Option value="1">Phòng 2 người</Option>
+                                    {/* Add more options as needed */}
+                                  </Select>
+                                </Form.Item>
+                              </div>
+                              <div className="flex">
+                                <h3> Số lượng phòng: </h3>
+                                <Form.Item
+                                  name={[name, type, "numOfRooms"]} // Thay đổi ở đây
+                                  className="ml-4"
+                                >
+                                  <InputNumber min={1} max={30} />
+                                </Form.Item>
+                              </div>
                             </div>
                           </div>
+                          {/* Thêm các trường khác tương ứng */}
                         </div>
-                        {/* Thêm các trường khác tương ứng */}
-                      </div>
-                    ))}
+                      ))}
+                  </Form.Item>
                 </div>
                 <DeleteOutlined
                   onClick={() => {

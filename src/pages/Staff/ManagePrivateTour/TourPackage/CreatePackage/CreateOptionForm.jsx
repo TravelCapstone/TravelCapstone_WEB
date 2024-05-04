@@ -20,38 +20,39 @@ import VerhicleTravelSection from "./FieldServices/VerhicleTravelSection";
 
 const { Option } = Select;
 
-function CreateOptionForm() {
+function CreateOptionForm({ request }) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+
+  console.log("request", request);
 
   const onFinish = async (values) => {
     console.log("Received values of form: ", values);
 
     const payload = {
       optionClass: values.classification,
-      privateTourRequestId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      privateTourRequestId: request?.privateTourResponse?.id,
       locations: [
         {
-          districtId: values.locations,
+          districtId: "id huyện", //  Lấy tên tỉnh => GET /location/get-province-by-name/{provinceName}
+          //  => lấy id Tỉnh => GET /location/get-all-district-by-provinceId/{provinceId} => lấy id Huyện/TP với name = values.districtId
           hotels: [
             {
-              numOfDay: values.stayDates.length,
-              startDate: values.stayDates[0].format(
-                "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
-              ),
-              endDate: values.stayDates[1].format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+              numOfDay: values.numOfDay,
+              startDate: values.stayDates,
+              endDate: values.stayDates,
               rating: 0,
               servingQuantity: 0,
-              numOfRoom: 0,
+              numOfRoom: values.roomType,
             },
           ],
-          restaurants: [],
+          restaurants: [], // Thêm dữ liệu thu thập từ RestaurantSection
           entertainment: {
-            quantityLocation: 0,
+            quantityLocation: 0, // Thu thập từ EntertainmentSection
           },
         },
       ],
-      vehicles: [],
+      vehicles: [], // Thu thập từ các phần phương tiện
     };
 
     setLoading(true);
@@ -97,7 +98,7 @@ function CreateOptionForm() {
             <h3 className="font-bold text-lg my-2 text-mainColor">
               Nơi lưu trú:
             </h3>
-            <LodgingSection form={form} />
+            <LodgingSection form={form} request={request} />
           </div>
 
           {/* DỊCH VỤ ĂN UỐNG */}

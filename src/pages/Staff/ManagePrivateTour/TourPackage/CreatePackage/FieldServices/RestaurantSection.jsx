@@ -48,19 +48,19 @@ const RestaurantSection = ({ form }) => {
                     className="flex font-semibold"
                     rules={[{ required: true, message: "Missing district" }]}
                   >
-                    <div className="flex flex-wrap justify-between ml-6">
-                      <Select placeholder="Tỉnh" className="!w-[200px] mr-10">
-                        <Option value="province">Hà Nội</Option>
-                        {/* Add more options as needed */}
-                      </Select>
-                      <Select
+                    {/* <div className="flex flex-wrap justify-between ml-6"> */}
+                    <Select placeholder="Tỉnh" className="!w-[200px] mr-10">
+                      <Option value="HaNoi">Hà Nội</Option>
+                      <Option value="SaiGon">TP. Hồ Chí Minh</Option>
+                      {/* Add more options as needed */}
+                    </Select>
+                    {/* <Select
                         placeholder="Huyện/TP"
                         className="!w-[200px] mr-10"
                       >
                         <Option value="commune">Thủ đô Hà Nội</Option>
-                        {/* Add more options as needed */}
-                      </Select>
-                    </div>
+                      </Select> */}
+                    {/* </div> */}
                   </Form.Item>
 
                   <Form.Item
@@ -75,7 +75,7 @@ const RestaurantSection = ({ form }) => {
                       },
                     ]}
                   >
-                    <RangePicker className="!min-w-[300px] mr-10" />
+                    <RangePicker showTime className="!min-w-[300px] mr-10" />
                   </Form.Item>
                 </div>
                 <Form.Item
@@ -94,7 +94,7 @@ const RestaurantSection = ({ form }) => {
                     }
                     dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
                     allowClear
-                    multiple
+                    // multiple
                     treeCheckable
                     placeholder="Chọn loại hình ăn uống"
                   >
@@ -103,24 +103,23 @@ const RestaurantSection = ({ form }) => {
                     <TreeNode value="fastFood" title="Thức ăn nhanh" />
                     {/* Add more options as needed */}
                   </TreeSelect>
-                </Form.Item>
-
-                {diningDetails[name] &&
-                  diningDetails[name].map((type, idx) => (
-                    <div key={index} className="mx-10 flex">
-                      <li className="list-disc" />
-                      <div className="flex items-start">
-                        <h3 className="font-semibold text-base">
-                          {diningTypeNames[type]}{" "}
-                          <span className="mx-10">
-                            {" "}
-                            800.000 ~ 1.000.000 /người {" "}
-                          </span>
-                        </h3>
+                  {diningDetails[name] &&
+                    diningDetails[name].map((type, idx) => (
+                      <div key={index} className="mt-4 flex">
+                        <li className="list-disc" />
+                        <div className="flex items-start">
+                          <h3 className="font-semibold text-base">
+                            {diningTypeNames[type]}{" "}
+                            <span className="mx-10">
+                              {" "}
+                              800.000 ~ 1.000.000 /người {" "}
+                            </span>
+                          </h3>
+                        </div>
+                        {/* Thêm các trường khác tương ứng */}
                       </div>
-                      {/* Thêm các trường khác tương ứng */}
-                    </div>
-                  ))}
+                    ))}
+                </Form.Item>
               </div>
               <DeleteOutlined
                 onClick={() => {

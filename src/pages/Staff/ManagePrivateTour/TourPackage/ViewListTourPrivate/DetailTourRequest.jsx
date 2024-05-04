@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getPrivateTourById } from "../../../../../api/privateTourRequestApi";
 import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
 import TourRequestSection from "../CreatePackage/TourRequestSection";
@@ -8,16 +8,21 @@ import CreatePlanForm from "../../CreatePlan/CreatePlanForm";
 
 function TourRequestPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [request, setRequest] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
+
+  console.log("selectedOption", selectedOption);
 
   const fetchData = async () => {
     const data = await getPrivateTourById(id);
     if (data?.data?.isSuccess) {
       setRequest(data?.data?.result);
       setIsLoading(false);
+      console.log("data", data);
 
       // Kiểm tra xem có option nào có optionQuotationStatusId == 1 không
       if (
@@ -41,6 +46,7 @@ function TourRequestPage() {
 
   const handleTabChange = (index) => {
     setActiveTab(index);
+    navigate(`${location.pathname}?tab=${index}`);
   };
 
   const tabs = [
@@ -50,7 +56,7 @@ function TourRequestPage() {
     },
     {
       label: selectedOption ? null : "Tạo gói tour",
-      content: selectedOption ? null : <CreateOptionForm />,
+      content: selectedOption ? null : <CreateOptionForm request={request} />,
     },
     {
       label: "Tạo kế hoạch chi tiết",
