@@ -25,18 +25,6 @@ const TransportationSection = ({ form }) => {
     { id: 1, from: "", to: "", transport: "", dateRange: [], cost: 0 }, // Initial route
   ]);
 
-  const addRoute = () => {
-    const newRoute = {
-      id: routes.length + 1,
-      from: "",
-      to: "",
-      transport: "",
-      dateRange: [],
-      cost: 0,
-    };
-    setRoutes([...routes, newRoute]);
-  };
-
   const handleSelectForSwap = (index) => {
     const newSelection = [...selectedForSwap, index];
     if (newSelection.length > 2) {
@@ -62,46 +50,21 @@ const TransportationSection = ({ form }) => {
     }
   };
 
-  const removeRoute = (index) => {
-    const newRoutes = [...routes];
-    newRoutes.splice(index, 1);
-    setRoutes(newRoutes);
-  };
+  // const removeRoute = (index) => {
+  //   const newRoutes = [...routes];
+  //   newRoutes.splice(index, 1);
+  //   setRoutes(newRoutes);
+  // };
 
-  const handleTransportChange = (value, field, id) => {
-    const updatedRoutes = routes.map((route) => {
-      if (route.id === id) {
-        return { ...route, [field]: value };
-      }
-      return route;
-    });
-    setRoutes(updatedRoutes);
-  };
-
-  const moveRoute = (id, direction) => {
-    const index = routes.findIndex((route) => route.id === id);
-    if (index === -1) return;
-
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex === routes.length) return; // Can't move outside of list
-
-    const newRoutes = [...routes];
-    const [removedRoute] = newRoutes.splice(index, 1);
-    newRoutes.splice(newIndex, 0, removedRoute);
-
-    setRoutes(newRoutes);
-  };
-
-  const swapRoutes = (index, direction) => {
-    const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= routes.length) return; // Prevent out-of-bounds swapping
-
-    const newRoutes = [...routes];
-    const temp = newRoutes[index];
-    newRoutes[index] = newRoutes[targetIndex];
-    newRoutes[targetIndex] = temp;
-    setRoutes(newRoutes);
-  };
+  // const handleTransportChange = (value, field, id) => {
+  //   const updatedRoutes = routes.map((route) => {
+  //     if (route.id === id) {
+  //       return { ...route, [field]: value };
+  //     }
+  //     return route;
+  //   });
+  //   setRoutes(updatedRoutes);
+  // };
 
   return (
     <>
@@ -214,7 +177,7 @@ const TransportationSection = ({ form }) => {
                       selectedForSwap.includes(index) ? "primary" : "default"
                     }
                   />
-                  <DeleteOutlined onClick={() => removeRoute(remove, index)} />
+                  <DeleteOutlined onClick={() => remove(name)} />
                 </div>
               </Space>
             ))}
@@ -237,7 +200,7 @@ const TransportationSection = ({ form }) => {
                 block
                 icon={<PlusOutlined />}
               >
-                Thêm địa điểm và phương tiện di chuyển
+                Thêm phương tiện di chuyển
               </Button>
             </Form.Item>
           </>

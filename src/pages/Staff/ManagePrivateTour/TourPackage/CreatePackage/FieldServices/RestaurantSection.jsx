@@ -48,7 +48,7 @@ const RestaurantSection = ({ form }) => {
                     className="flex font-semibold"
                     rules={[{ required: true, message: "Missing district" }]}
                   >
-                    <div className="flex justify-between ml-6">
+                    <div className="flex flex-wrap justify-between ml-6">
                       <Select placeholder="Tỉnh" className="!w-[200px] mr-10">
                         <Option value="province">Hà Nội</Option>
                         {/* Add more options as needed */}

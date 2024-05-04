@@ -15,6 +15,8 @@ import { createOptionsPrivateTour } from "../../../../../api/OptionsApi";
 import LodgingSection from "./FieldServices/LodgingSection";
 import RestaurantSection from "./FieldServices/RestaurantSection";
 import TransportationSection from "./FieldServices/TransportationSection";
+import EntertainmentSection from "./FieldServices/EntertaimentSection";
+import VerhicleTravelSection from "./FieldServices/VerhicleTravelSection";
 
 const { Option } = Select;
 
@@ -114,14 +116,39 @@ function CreateOptionForm() {
             <TransportationSection form={form} />
           </div>
 
+          {/* PHƯƠNG TIỆN DU LỊCH*/}
+          <div>
+            <h3 className="font-bold text-lg my-2 text-mainColor">
+              Phương tiện du lịch trong tỉnh
+            </h3>
+            <VerhicleTravelSection form={form} />
+          </div>
+
+          {/* GIẢI TRÍ */}
+          <div>
+            <h3 className="font-bold text-lg my-6 text-mainColor">
+              Giải trí (Địa điểm du lịch)
+            </h3>
+            <EntertainmentSection form={form} />
+          </div>
+
+          <hr />
+          <div className="my-12 flex flex-wrap justify-between">
+            <h3 className="font-bold text-2xl  ">GIÁ DỰ KIẾN CỦA GÓI</h3>
+            <p className="font-bold text-2xl ">
+              {" "}
+              <span className="text-orange-600">11.500.000</span>/người ~{" "}
+              <span className="text-orange-600">12.500.000</span>/người
+            </p>
+          </div>
           <div className="flex justify-center my-4">
             <Form.Item>
               <Button
                 type="primary"
                 htmlType="submit"
-                className="bg-mainColor text-white"
+                className=" bg-teal-600 font-semibold text-white"
               >
-                Tạo kế hoạch tour
+                TẠO GÓI TOUR
               </Button>
             </Form.Item>
           </div>
