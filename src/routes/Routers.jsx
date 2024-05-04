@@ -92,6 +92,10 @@ function Routers() {
           path: `${DETAIL_TOUR_REQUEST_STAFF}/:id`,
           element: <TourRequestPage />,
         },
+        {
+          path: VIEW_REFERENCE_TRANSPORT_PRICE,
+          element: <ListReferenceTransportPrice />,
+        },
       ],
     },
     {

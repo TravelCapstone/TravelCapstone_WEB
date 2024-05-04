@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import MenuTable from "./MenuTable";
 
-function FoodModal(props) {
+function FoodModal({
+  privateTourRequestId,
+  districtId,
+  servingQuantity,
+  serviceType,
+  ratingId,
+  log,
+}) {
   const [activeTab, setActiveTab] = useState(0);
 
   const handleTabChange = (index) => {
@@ -9,21 +16,48 @@ function FoodModal(props) {
     setActiveTab(index);
   };
 
-  useEffect(() => {
-    return () => {};
-  }, []);
   const tabs = [
     {
       label: "Ăn sáng",
-      content: <MenuTable />,
+      content: (
+        <MenuTable
+          districtId={districtId}
+          servingQuantity={servingQuantity}
+          serviceType={serviceType}
+          ratingId={ratingId}
+          mealType={0}
+          privateTourRequestId={privateTourRequestId}
+          log={log}
+        />
+      ),
     },
     {
       label: "Ăn trưa",
-      content: <MenuTable />,
+      content: (
+        <MenuTable
+          districtId={districtId}
+          servingQuantity={servingQuantity}
+          serviceType={serviceType}
+          ratingId={ratingId}
+          mealType={1}
+          privateTourRequestId={privateTourRequestId}
+          log={log}
+        />
+      ),
     },
     {
       label: "Ăn tối",
-      content: <MenuTable />,
+      content: (
+        <MenuTable
+          districtId={districtId}
+          servingQuantity={servingQuantity}
+          serviceType={serviceType}
+          ratingId={ratingId}
+          mealType={0}
+          privateTourRequestId={privateTourRequestId}
+          log={log}
+        />
+      ),
     },
   ];
 
@@ -32,11 +66,11 @@ function FoodModal(props) {
       {/* Open the modal using document.getElementById('ID').showModal() method */}
       <button
         className="bg-mainColor text-white rounded-md p-2"
-        onClick={() => document.getElementById("my_modal_4").showModal()}
+        onClick={() => document.getElementById("foodModal").showModal()}
       >
         Chọn
       </button>
-      <dialog id="my_modal_4" className=" modal ">
+      <dialog id="foodModal" className=" modal ">
         <div className="modal-box w-11/12 max-w-7xl">
           <h3 className="font-bold text-lg">Chọn nhà hàng</h3>
           <p className="py-4">

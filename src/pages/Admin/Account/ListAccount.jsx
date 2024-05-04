@@ -53,8 +53,8 @@ const ListAccount = () => {
   return (
     <>
       <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-center text-pretty">
-          Quản lí người dùng
+        <h2 className="text-xl text-primary font-semibold mb-4 text-center text-pretty">
+         QUẢN LÍ KHÁCH HÀNG
         </h2>
 
         <div className="overflow-x-auto rounded-xl">
@@ -74,7 +74,7 @@ const ListAccount = () => {
 
               {listData &&
                 listData.map((item, index) => (
-                  <tr key={item.id}>
+                  <tr className="hover" key={item.id}>
                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                     <td>
                       {item.firstName} {item.lastName}
