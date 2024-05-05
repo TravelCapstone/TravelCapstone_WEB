@@ -98,7 +98,7 @@ function CreateOptionForm({ request }) {
             <h3 className="font-bold text-lg my-2 text-mainColor">
               Nơi lưu trú:
             </h3>
-            <LodgingSection form={form} request={request} />
+            <LodgingSection form={form} />
           </div>
 
           {/* DỊCH VỤ ĂN UỐNG */}

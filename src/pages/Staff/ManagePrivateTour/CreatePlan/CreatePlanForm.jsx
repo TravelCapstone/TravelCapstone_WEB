@@ -16,13 +16,13 @@ const CreatePlanForm = ({
   vehicleQuotationDetails,
 }) => {
   const entertainment = quotationDetails.filter(
-    (item) => item.facilityRating.facilityTypeId === 2
+    (item) => item?.facilityRating?.facilityTypeId === 2
   );
   const hotel = quotationDetails.filter(
-    (item) => item.facilityRating.facilityTypeId === 0
+    (item) => item?.facilityRating?.facilityTypeId === 0
   );
   const restaurant = quotationDetails.filter(
-    (item) => item.facilityRating?.facilityTypeId === 1
+    (item) => item?.facilityRating?.facilityTypeId === 1
   );
   console.log(hotel);
   return (
