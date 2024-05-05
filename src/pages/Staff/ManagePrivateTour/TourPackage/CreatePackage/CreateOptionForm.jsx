@@ -30,34 +30,59 @@ function CreateOptionForm({ request }) {
     console.log("Received values of form: ", values);
 
     const payload = {
-      optionClass: values.classification,
-      privateTourRequestId: request?.privateTourResponse?.id,
-      locations: [
+      optionClass: values.classification, // ok
+      privateTourRequestId: request?.privateTourResponse?.id, // ok
+      hotels: [
         {
-          districtId: "id huyện", //  Lấy tên tỉnh => GET /location/get-province-by-name/{provinceName}
-          //  => lấy id Tỉnh => GET /location/get-all-district-by-provinceId/{provinceId} => lấy id Huyện/TP với name = values.districtId
-          hotels: [
-            {
-              numOfDay: values.numOfDay,
-              startDate: values.stayDates,
-              endDate: values.stayDates,
-              rating: 0,
-              servingQuantity: 0,
-              numOfRoom: values.roomType,
-            },
-          ],
-          restaurants: [], // Thêm dữ liệu thu thập từ RestaurantSection
-          entertainment: {
-            quantityLocation: 0, // Thu thập từ EntertainmentSection
-          },
+          districtId: values.locations[0].districtId, //Lấy từ tỉnh request nhả ra tỉnh select rồi chọn district => lấy được districtId
+          numOfDay: values.numOfDay, // Số lượng ngày đêm
+          startDate: values.stayDates[0].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+          endDate: values.stayDates[1].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+          rating: values.hotelRating, // rating lấy theo số enum (0-4: khách sạn(có thể ngủ, ăn, thuê xe); 10: resort(ăn, ngủ, chơi, thuê xe)) :
+          // 0: Khách sạn 1 sao, 1: 2 sao, 2: 3 sao, 3: 4 sao, 4: 5 sao  , 10: Resort
+          // rồi  GET /sell-price/get-min-max-price-of-hotel/{districtId}/{privatetourRequestId}/{ratingId}/{pageNumber}/{pageSize}
+          // => lấy được giá min và max
+          servingQuantity: values.hotelServingQuantity, // Loại phòng
+          numOfRoom: values.numOfRoom, // Số lượng phòng
         },
       ],
-      vehicles: [], // Thu thập từ các phần phương tiện
+      restaurants: [
+        {
+          districtId: values.restaurantDistrictId, //Lấy từ tỉnh request nhả ra tỉnh select rồi chọn district => lấy được districtId
+          startDate: values.restaurantDates[0].format(
+            "YYYY-MM-DDTHH:mm:ss.SSSZ"
+          ),
+          endDate: values.restaurantDates[1].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+          rating: values.restaurantRating, // rating lấy theo số enum (5-9: nhà hàng(chỉ ăn)) :
+          // 5: Nhà hàng 1 sao, 6: 2 sao, 7: 3 sao, 8: 4 sao, 9: 5 sao
+          mealPerDay: values.mealPerDay,
+          numOfDay: values.restaurantNumOfDay,
+          servingQuantity: values.restaurantServingQuantity,
+          serviceAvailability: values.restaurantServiceAvailability,
+        },
+      ],
+      entertainments: [
+        {
+          districtId: values.entertainmentDistrictId, // Assuming entertainmentDistrictId is collected from EntertainmentSection
+          quantityLocation: values.entertainmentQuantityLocation,
+        },
+      ],
+      vehicles: [
+        {
+          vehicleType: values.vehicleType, // Assuming vehicleType is collected from VerhicleTravelSection
+          startPoint: values.vehicleStartPoint,
+          startPointDistrict: values.vehicleStartPointDistrict,
+          endPoint: values.vehicleEndPoint,
+          endPointDistrict: values.vehicleEndPointDistrict,
+          numOfRentingDay: values.numOfRentingDay,
+          numOfVehicle: values.numOfVehicle,
+        },
+      ],
     };
 
     setLoading(true);
     try {
-      const response = await createOptionsPrivateTour(values);
+      const response = await createOptionsPrivateTour(payload);
       message.success("Tour plan created successfully!");
       form.resetFields();
     } catch (error) {
@@ -98,7 +123,7 @@ function CreateOptionForm({ request }) {
             <h3 className="font-bold text-lg my-2 text-mainColor">
               Nơi lưu trú:
             </h3>
-            <LodgingSection form={form} />
+            <LodgingSection form={form} request={request} />
           </div>
 
           {/* DỊCH VỤ ĂN UỐNG */}

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Button,
   Dropdown,
@@ -16,29 +16,80 @@ import {
   MinusCircleOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
+import { ratingLabels } from "../../../../../../settings/globalStatus";
+import { getAllDistrictsByProvinceId } from "../../../../../../api/LocationApi";
 
 const { Option } = Select;
-const { TreeNode } = TreeSelect;
 const { RangePicker } = DatePicker;
 
-const LodgingSection = ({ form, add, remove }) => {
+const LodgingSection = ({ form, add, remove, request }) => {
   const [lodgingDetails, setLodgingDetails] = useState({});
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [districtEnabled, setDistrictEnabled] = useState(false);
+  const [selectedProvince, setSelectedProvince] = useState(undefined);
+
+  useEffect(() => {
+    if (request?.privateTourResponse?.otherLocation) {
+      setProvinces(
+        request.privateTourResponse.otherLocation.map((loc) => ({
+          id: loc.provinceId,
+          name: loc.province.name,
+        }))
+      );
+    }
+  }, [request]);
+
+  const handleProvinceChange = async (provinceId) => {
+    // Check if the newly selected province is different from the previously selected one
+    if (provinceId !== selectedProvince) {
+      setSelectedProvince(provinceId); // Update the selected province
+      setDistricts([]); // Clear previous districts
+      form.setFieldsValue({ ["locations[0].district"]: undefined });
+
+      setDistrictEnabled(true); // Enable district dropdown after province is selected
+
+      try {
+        const response = await getAllDistrictsByProvinceId(provinceId);
+        setDistricts(
+          response.result.items.map((district) => ({
+            id: district.id,
+            name: district.name,
+          }))
+        );
+      } catch (error) {
+        message.error("Failed to fetch districts");
+        console.error("Error fetching districts by province ID:", error);
+        setDistrictEnabled(false); // Disable again in case of error
+      }
+    }
+  };
 
   const handleLodgingTypeChange = useCallback(
-    (selectedItems, name) => {
-      const newDetails = { ...lodgingDetails, [name]: selectedItems };
+    (selectedType, name) => {
+      const newDetails = { ...lodgingDetails, [name]: [selectedType] }; // Store as an array
       setLodgingDetails(newDetails);
     },
     [lodgingDetails]
   );
 
-  const lodgingTypeNames = {
-    hotel1: "Khách sạn 1 sao",
-    hotel2: "Khách sạn 2 sao",
-    hotel3: "Khách sạn 3 sao",
-    hotel4: "Khách sạn 4 sao",
-    resort: "Resort",
-  };
+  // Define the keys you want to include in the dropdown
+  const keysToShow = [0, 1, 2, 3, 4, 10];
+
+  // Filter ratingLabels to only include the specified keys
+  const filteredLabels = Object.fromEntries(
+    Object.entries(ratingLabels).filter(([key]) =>
+      keysToShow.includes(parseInt(key))
+    )
+  );
+
+  // const handleProvinceClear = () => {
+  //   setSelectedProvince(undefined);
+  //   setDistricts([]);
+  //   setDistrictEnabled(false);
+  //   form.setFieldsValue({ ["locations[0].district"]: undefined });
+  // };
+
   return (
     <>
       <Form.List name="locations" initialValue={[{}]}>
@@ -53,31 +104,54 @@ const LodgingSection = ({ form, add, remove }) => {
                 <div className="text-center font-bold mr-2">{index + 1}</div>
                 <div className="flex flex-col flex-grow w-full">
                   <div className="flex flex-wrap ">
-                    {/* <h3>
-                      Khu vực: districtId:{" "}
-                      {request?.privateTourResponse?.otherLocation[0].id}{" "}
-                    </h3> */}
-                    <Form.Item
-                      {...restField}
-                      label="Khu vực:"
-                      name={[name, "districtId"]}
-                      className="flex font-semibold"
-                      rules={[{ required: true, message: "Missing district" }]}
-                    >
-                      {/* <div className="flex justify-between ml-6"> */}
-                      <Select placeholder="Tỉnh" className="!w-[200px] mr-10">
-                        <Option value="HaNoi">Hà Nội</Option>
-                        <Option value="SaiGon">TP. Hồ Chí Minh</Option>
-                        {/* Add more options as needed */}
-                      </Select>
-                      {/* <Select
-                          placeholder="Huyện/TP"
+                    <div className="flex flex-wrap">
+                      <Form.Item
+                        {...restField}
+                        label="Khu vực:"
+                        placeholder="Tỉnh"
+                        name={[name, "province"]}
+                        className="flex font-semibold"
+                        rules={[
+                          { required: true, message: "Missing province" },
+                        ]}
+                      >
+                        <Select
+                          placeholder="Tỉnh"
+                          onChange={handleProvinceChange}
                           className="!w-[200px] mr-10"
                         >
-                          <Option value="commune">Thủ đô Hà Nội</Option>
-                        </Select> */}
-                      {/* </div> */}
-                    </Form.Item>
+                          {provinces.map((province) => (
+                            <Option key={province.id} value={province.id}>
+                              {province.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "district"]}
+                        className="flex font-semibold"
+                        placeholder="Huyện/TP"
+                        rules={[
+                          { required: true, message: "Missing district" },
+                        ]}
+                        shouldUpdate={(prevValues, currentValues) =>
+                          prevValues.province !== currentValues.province
+                        }
+                      >
+                        <Select
+                          placeholder="Huyện/TP"
+                          className="!w-[200px] mr-10"
+                          disabled={!districtEnabled}
+                        >
+                          {districts.map((district) => (
+                            <Option key={district.id} value={district.id}>
+                              {district.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </div>
 
                     <Form.Item
                       {...restField}
@@ -94,105 +168,82 @@ const LodgingSection = ({ form, add, remove }) => {
                       <RangePicker showTime className="!min-w-[300px] mr-10" />
                     </Form.Item>
                   </div>
-                  <Form.Item
-                    {...restField}
-                    label="Loại hình lưu trú:"
-                    className="font-semibold"
-                    name={[name, "lodgingTypes"]}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please select lodging types!",
-                      },
-                    ]}
-                  >
-                    <TreeSelect
-                      className="w-full"
-                      onChange={(selectedItems) =>
-                        handleLodgingTypeChange(selectedItems, name)
-                      }
-                      dropdownStyle={{
-                        maxHeight: 400,
-                        overflow: "auto",
-                      }}
-                      allowClear
-                      // multiple
-                      treeCheckable
-                      treeDefaultExpandAll
-                      placeholder="Chọn loại hình lưu trú"
+                  <div className="flex flex-wrap">
+                    <Form.Item
+                      name={[name, "ratingHotel"]} // Updated to use 'ratingHotel'
+                      label="Loại hình lưu trú:"
+                      className="font-semibold"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select a lodging type!",
+                        },
+                      ]}
                     >
-                      <TreeNode
-                        value="hotel"
-                        title="Khách sạn"
-                        selectable={false}
+                      <Select
+                        className="!w-[250px] mr-10"
+                        placeholder="Chọn loại hình lưu trú"
+                        onChange={(selectedType) =>
+                          handleLodgingTypeChange(selectedType, name)
+                        }
                       >
-                        <TreeNode value="hotel1" title="Khách sạn 1 sao" />
-                        <TreeNode value="hotel2" title="Khách sạn 2 sao" />
-                        <TreeNode value="hotel3" title="Khách sạn 3 sao" />
-                        <TreeNode value="hotel4" title="Khách sạn 4 sao" />
-                      </TreeNode>
-                      <TreeNode value="resort" title="Resort" />
-                      {/* Add more options as needed */}
-                    </TreeSelect>
-                    {lodgingDetails[name] &&
-                      lodgingDetails[name].map((type, idx) => (
-                        <div
-                          key={`${name}-${idx}-${type}`}
-                          className="mt-4 flex"
-                        >
-                          {" "}
-                          {/* // Thay đổi ở key */}
-                          <li className="list-disc" />
-                          <div>
-                            <div className="flex items-start">
-                              <h3 className="font-semibold text-base">
-                                {lodgingTypeNames[type]}{" "}
-                                <span className="mx-10">
-                                  {" "}
-                                  800.000 ~ 1.000.000 /người{" "}
-                                </span>
-                              </h3>
-                              <div className="flex">
-                                <h3> Số lượng ngày/đêm: </h3>
-                                <Form.Item
-                                  name={[name, type, "numOfDay"]} // Thay đổi ở đây
-                                  className="ml-4"
-                                >
-                                  <InputNumber min={1} max={30} />
-                                </Form.Item>
-                              </div>
-                            </div>
-                            <div className="flex ">
-                              <div className="flex">
-                                <h3> Loại phòng: </h3>
-                                <Form.Item name={[name, type, "roomType"]}>
-                                  {" "}
-                                  {/* // Thay đổi ở đây */}
-                                  <Select
-                                    placeholder="Chọn loại phòng"
-                                    className="ml-4 !w-[200px] mr-10"
-                                  >
-                                    <Option value="0">Phòng 4 người</Option>
-                                    <Option value="1">Phòng 2 người</Option>
-                                    {/* Add more options as needed */}
-                                  </Select>
-                                </Form.Item>
-                              </div>
-                              <div className="flex">
-                                <h3> Số lượng phòng: </h3>
-                                <Form.Item
-                                  name={[name, type, "numOfRooms"]} // Thay đổi ở đây
-                                  className="ml-4"
-                                >
-                                  <InputNumber min={1} max={30} />
-                                </Form.Item>
-                              </div>
-                            </div>
-                          </div>
-                          {/* Thêm các trường khác tương ứng */}
-                        </div>
-                      ))}
-                  </Form.Item>
+                        {Object.entries(filteredLabels).map(([key, label]) => (
+                          <Option key={key} value={key}>
+                            {label}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    <div className="flex font-semibold text-gray-500">
+                      <h3 className="text-lg mr-3">Khoảng giá: </h3>
+                      <p className="text-lg"> 1.300.000 ~ 1.600.000 /người</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap">
+                    <Form.Item
+                      className=" font-semibold"
+                      name={[name, "roomType"]}
+                      label="Loại phòng:"
+                      rules={[
+                        { required: true, message: "Please select room type!" },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Chọn loại phòng"
+                        className="!w-[200px] mr-10"
+                      >
+                        <Option value="4">Phòng 4 người</Option>
+                        <Option value="2">Phòng 2 người</Option>
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                      name={[name, "numOfDay"]}
+                      className=" font-semibold"
+                      label="Số lượng ngày/đêm:"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please input number of days!",
+                        },
+                      ]}
+                    >
+                      <InputNumber min={1} max={30} className=" mr-10" />
+                    </Form.Item>
+
+                    <Form.Item
+                      className=" font-semibold"
+                      name={[name, "numOfRoom"]}
+                      label="Số lượng phòng:"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please input number of rooms!",
+                        },
+                      ]}
+                    >
+                      <InputNumber min={1} max={30} className=" mr-10" />
+                    </Form.Item>
+                  </div>
                 </div>
                 <DeleteOutlined
                   onClick={() => {
