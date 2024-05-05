@@ -21,9 +21,7 @@ const { Option } = Select;
 const { TreeNode } = TreeSelect;
 const { RangePicker } = DatePicker;
 
-const LodgingSection = ({ form, add, remove, request }) => {
-  console.log("request", request);
-
+const LodgingSection = ({ form, add, remove }) => {
   const [lodgingDetails, setLodgingDetails] = useState({});
 
   const handleLodgingTypeChange = useCallback(

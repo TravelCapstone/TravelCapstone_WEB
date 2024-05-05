@@ -17,32 +17,58 @@ function TourRequestPage() {
 
   console.log("selectedOption", selectedOption);
 
-  const fetchData = async () => {
-    const data = await getPrivateTourById(id);
-    if (data?.data?.isSuccess) {
-      setRequest(data?.data?.result);
-      setIsLoading(false);
-      console.log("data", data);
-
-      // Kiểm tra xem có option nào có optionQuotationStatusId == 1 không
-      if (
-        data.data.result.option1?.optionQuotation?.optionQuotationStatusId === 1
-      ) {
-        setSelectedOption(data.data.result.option1);
-      } else if (
-        data.data.result.option2?.optionQuotation?.optionQuotationStatusId === 1
-      ) {
-        setSelectedOption(data.data.result.option2);
-      } else if (
-        data.data.result.option3?.optionQuotation?.optionQuotationStatusId === 1
-      ) {
-        setSelectedOption(data.data.result.option3);
-      }
-    }
-  };
   useEffect(() => {
+    const fetchData = async () => {
+      const data = await getPrivateTourById(id);
+      if (data?.data?.isSuccess) {
+        setRequest(data?.data?.result);
+        setIsLoading(false);
+        // Kiểm tra xem có option nào có optionQuotationStatusId == 1 không
+        if (
+          data.data.result.option1?.optionQuotation?.optionQuotationStatusId ===
+          1
+        ) {
+          setSelectedOption(data.data.result.option1);
+        } else if (
+          data.data.result.option2?.optionQuotation?.optionQuotationStatusId ===
+          1
+        ) {
+          setSelectedOption(data.data.result.option2);
+        } else if (
+          data.data.result.option3?.optionQuotation?.optionQuotationStatusId ===
+          1
+        ) {
+          setSelectedOption(data.data.result.option3);
+        }
+
+        const selected = [
+          data.data.result.option1,
+          data.data.result.option2,
+          data.data.result.option3,
+        ].find(
+          (option) => option?.optionQuotation?.optionQuotationStatusId === 1
+        );
+        setSelectedOption(selected);
+      }
+    };
+
     fetchData();
-  }, [id]);
+    // Synchronize active tab with URL query parameters
+    const query = new URLSearchParams(location.search);
+    const tab = parseInt(query.get("tab"), 10);
+    if (!isNaN(tab)) {
+      setActiveTab(tab);
+    }
+  }, [id, location.search]);
+
+  const hasOptions = request.option1 && request.option2 && request.option3;
+
+  useEffect(() => {
+    // Adjust the active tab based on the status when it changes
+    if (request?.privateTourResponse?.status !== 0 && activeTab === 1) {
+      setActiveTab(0); // Default to the first tab
+    }
+  }, [request]);
 
   const handleTabChange = (index) => {
     setActiveTab(index);
@@ -55,41 +81,43 @@ function TourRequestPage() {
       content: <TourRequestSection request={request} />,
     },
     {
-      label: selectedOption ? null : "Tạo gói tour",
-      content: selectedOption ? null : <CreateOptionForm request={request} />,
+      label: request.privateTourResponse?.status === 0 ? "Tạo gói tour" : null,
+      content:
+        request.privateTourResponse?.status === 0 ? (
+          <CreateOptionForm request={request} />
+        ) : null,
     },
     {
-      label: "Tạo kế hoạch chi tiết",
-      content: selectedOption ? (
-        <CreatePlanForm
-          optionQuotation={selectedOption.optionQuotation}
-          quotationDetails={selectedOption.quotationDetails}
-          vehicleQuotationDetails={selectedOption.vehicleQuotationDetails}
-          privateTourResponse={request}
-        />
-      ) : null,
+      label:
+        request.privateTourResponse?.status === 2 && hasOptions
+          ? "Tạo kế hoạch chi tiết"
+          : null,
+      content:
+        request.privateTourResponse?.status === 2 && hasOptions ? (
+          <CreatePlanForm
+            optionQuotation={selectedOption?.optionQuotation}
+            quotationDetails={selectedOption?.quotationDetails}
+            vehicleQuotationDetails={selectedOption?.vehicleQuotationDetails}
+            privateTourResponse={request}
+          />
+        ) : null,
     },
-  ];
+  ].filter((tab) => tab.content != null);
 
   return (
     <>
       <LoadingOverlay isLoading={isLoading} />
       <div className="tabs">
         <div className="tab-headers my-10">
-          {tabs.map(
-            (tab, index) =>
-              (tab.content || selectedOption) && (
-                <button
-                  key={index}
-                  className={`mx-2 tab-header ${
-                    activeTab === index ? "font-bold border-b-2" : ""
-                  }`}
-                  onClick={() => handleTabChange(index)}
-                >
-                  {tab.label}
-                </button>
-              )
-          )}
+          {tabs.map((tab, index) => (
+            <button
+              key={index}
+              className={`mx-2 tab-header ${activeTab === index ? "font-bold border-b-2" : ""}`}
+              onClick={() => handleTabChange(index)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
       {tabs[activeTab].content}
