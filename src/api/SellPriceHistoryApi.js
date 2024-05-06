@@ -83,9 +83,10 @@ const getSellPriceByFacilityServiceId = async (facilityServiceId) => {
   };
   
   // Retrieve min and max price of a hotel
-  const getMinMaxPriceOfHotel = async (districtId, privatetourRequestId, ratingId, pageNumber, pageSize) => {
+  const getMinMaxPriceOfHotel = async (districtId, privatetourRequestId, ratingId, pageNumber, pageSize, numOfDay) => {
+    // debugger
       try {
-        const response = await api.get(`/sell-price/get-min-max-price-of-hotel/${districtId}/${privatetourRequestId}/${ratingId}?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+        const response = await api.get(`/sell-price/get-min-max-price-of-hotel/${districtId}/${privatetourRequestId}/${ratingId}/${pageNumber}/${pageSize}?numOfDay=${numOfDay}`);
         return response.data;
       } catch (error) {
         console.error('Error fetching hotel prices:', error);
