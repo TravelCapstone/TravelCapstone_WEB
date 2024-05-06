@@ -86,7 +86,7 @@ function TourRequestPage() {
           )}
         </div>
       </div>
-      {tabs[activeTab].content}
+      {tabs[activeTab]?.content}
     </>
   );
 }
