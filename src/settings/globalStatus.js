@@ -59,6 +59,35 @@ const optionClassLabels = {
   2: "Gói cao cấp",
 };
 
+const servingHotelsQuantity = {
+  2: "Loại phòng 2 người",
+  4: "Loại phòng 4 người",
+  6: "Loại phòng 6 người",
+};
+
+const servingFoodsQuantity = {
+  5: "Loại bàn ăn 5 người",
+  10: "Loại Bàn ăn 10 người",
+};
+
+const servingVehiclesQuantity = {
+  0: "Xe buýt - 44 chỗ",
+  1: "Xe khách - 29 chỗ",
+  2: "Limousine - 14 chỗ",
+  3: "Xe ô tô - 6 chỗ",
+  4: "Máy bay",
+  5: "Tàu/ thuyền",
+  6: "Xe đạp",
+  7: "Trực thăng",
+};
+
+const servingActor = {
+  0: "Người lớn",
+  1: "Trẻ em",
+  2: "Cả hai",
+};
+
+
 const vehicleTypeLabels = {
   0: "Xe buýt",
   1: "Xe khách",
@@ -84,4 +113,8 @@ export {
   serviceTypeLabels,
   facilityTypeLabels,
   ratingLabels,
+  servingHotelsQuantity,
+  servingFoodsQuantity,
+  servingVehiclesQuantity,  
+  servingActor,
 };

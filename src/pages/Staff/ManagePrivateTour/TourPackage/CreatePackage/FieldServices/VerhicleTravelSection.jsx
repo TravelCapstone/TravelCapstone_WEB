@@ -1,15 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, InputNumber, Button, Select, Space, DatePicker } from "antd";
 import {
   DeleteOutlined,
   MinusCircleOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
+import { servingVehiclesQuantity } from "../../../../../../settings/globalStatus";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const VerhicleTravelSection = ({ form }) => {
+const VerhicleTravelSection = ({
+  form,
+  request,
+  setProvinces,
+  districts,
+  provinces,
+  onProvinceChange,
+}) => {
+  useEffect(() => {
+    if (request?.privateTourResponse?.otherLocation) {
+      setProvinces(
+        request.privateTourResponse.otherLocation.map((loc) => ({
+          id: loc.provinceId,
+          name: loc.province.name,
+        }))
+      );
+    }
+  }, [request]);
+
   return (
     <>
       <Form.List name="travelOptions" initialValue={[{}]}>
@@ -26,29 +45,53 @@ const VerhicleTravelSection = ({ form }) => {
                   <div>
                     <div className="flex flex-wrap">
                       <Form.Item
-                        label="Tỉnh:"
-                        name={[name, "location"]}
-                        className=" font-semibold"
+                        label="Khu vực:"
+                        name={[name, "provinceId"]}
+                        className="flex font-semibold"
                         rules={[
-                          {
-                            required: true,
-                            message: "Please select a location",
-                          },
+                          { required: true, message: "Missing province" },
                         ]}
                       >
                         <Select
-                          placeholder="Chọn tỉnh"
+                          placeholder="Tỉnh"
+                          onChange={onProvinceChange}
                           className="!w-[200px] mr-10"
                         >
-                          <Option value="HaGiang">Hà Giang</Option>
-                          <Option value="PhuTho">Phú Thọ</Option>
+                          {provinces.map((province) => (
+                            <Option key={province.id} value={province.id}>
+                              {province.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
+                        name={[name, "districtId"]}
+                        className="flex font-semibold"
+                        placeholder="Huyện/TP"
+                        rules={[
+                          { required: true, message: "Missing district" },
+                        ]}
+                        shouldUpdate={(prevValues, currentValues) =>
+                          prevValues.province !== currentValues.province
+                        }
+                      >
+                        <Select
+                          placeholder="Huyện/TP"
+                          className="!w-[200px] mr-10"
+                          // disabled={!districtEnabled}
+                        >
+                          {districts.map((district) => (
+                            <Option key={district.id} value={district.id}>
+                              {district.name}
+                            </Option>
+                          ))}
                         </Select>
                       </Form.Item>
 
                       <Form.Item
                         label="Số ngày:"
                         className=" font-semibold"
-                        name={[name, "days"]}
+                        name={[name, "numOfRentingDay"]}
                         rules={[
                           {
                             required: true,
@@ -67,8 +110,8 @@ const VerhicleTravelSection = ({ form }) => {
                     <div className="flex flex-wrap">
                       <Form.Item
                         className=" font-semibold"
-                        label="Phương tiện:"
-                        name={[name, "vehicle"]}
+                        label="Phương tiện du lịch:"
+                        name={[name, "vehicleType"]}
                         rules={[
                           {
                             required: true,
@@ -80,16 +123,40 @@ const VerhicleTravelSection = ({ form }) => {
                           placeholder="Chọn phương tiện"
                           className="!w-[200px] mr-10"
                         >
-                          <Option value="7SeatTaxi">Xe taxi 7 chỗ</Option>
+                          {Object.entries(servingVehiclesQuantity).map(
+                            ([key, label]) => (
+                              <Option key={key} value={parseInt(key, 10)}>
+                                {label}
+                              </Option>
+                            )
+                          )}
                         </Select>
                       </Form.Item>
-                      <div className="flex font-semibold text-gray-500">
+                      <div className="flex font-semibold text-gray-500 mr-10">
                         <h3 className="text-lg mr-3">Khoảng giá: </h3>
                         <p className="text-lg">
                           {" "}
                           1.300.000 ~ 1.600.000/xe/ngày
                         </p>
                       </div>
+                      <Form.Item
+                        label="Số lượng xe:"
+                        className=" font-semibold"
+                        name={[name, "numOfVehicle"]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter number of days",
+                          },
+                        ]}
+                      >
+                        <InputNumber
+                          min={1}
+                          max={30}
+                          placeholder="Số lượng xe"
+                          className="!w-[200px] mr-10"
+                        />
+                      </Form.Item>
                     </div>
                   </div>
                 </div>

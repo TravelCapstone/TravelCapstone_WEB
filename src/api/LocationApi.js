@@ -28,7 +28,7 @@ const getProvinceByName = async (provinceName) => {
 const getAllDistrictsByProvinceId = async (provinceId) => {
   try {
     const response = await api.get(`/location/get-all-district-by-provinceId/${provinceId}`);
-    return response.data; 
+    return response.data.result.items; 
   } catch (error) {
     console.error('Error fetching districts by province ID:', error);
     throw error;
