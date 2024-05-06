@@ -28,6 +28,9 @@ function CreateOptionForm({ request }) {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState(undefined);
+  const [selectedDistrict, setSelectedDistrict] = useState(undefined);
+
+  console.log("request", request);
 
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
@@ -60,6 +63,10 @@ function CreateOptionForm({ request }) {
     setSelectedProvince(value);
   };
 
+  const handleDistrictChange = (value) => {
+    setSelectedDistrict(value);
+  };
+
   const onFinish = async (values) => {
     console.log("Received values of form: ", values);
 
@@ -90,9 +97,8 @@ function CreateOptionForm({ request }) {
       quantityLocation: entertainment.quantityLocation,
     }));
 
-    const vehicle = values.transportation.map((vehicle) => ({
-      vehicleType: vehicle.vehicleType, // Assuming vehicleType is collected from VerhicleTravelSection
-      startPoint: vehicle.startPoint,
+    const vehicleTransportation = values.transportation.map((vehicle) => ({
+      vehicleType: vehicle.vehicleType,
       startPointDistrict: vehicle.startPointDistrict,
       endPoint: vehicle.endPoint,
       endPointDistrict: vehicle.endPointDistrict,
@@ -100,6 +106,17 @@ function CreateOptionForm({ request }) {
       numOfVehicle: vehicle?.numOfVehicle,
       // startDate: vehicle.dateRange[0].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
     }));
+    const vehicleTravel = values.travelOptions.map((vehicle) => ({
+      vehicleType: vehicle.vehicleType,
+      startPoint: vehicle.provinceId,
+      startPointDistrict: vehicle.districtId,
+      numOfRentingDay: vehicle?.numOfRentingDay,
+      numOfVehicle: vehicle?.numOfVehicle,
+      // startDate: vehicle.dateRange[0].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+    }));
+
+    const vehicles = vehicleTransportation.concat(vehicleTravel);
+    console.log("vehicles", vehicles);
 
     const payload = {
       optionClass: values.classification, // ok
@@ -107,7 +124,7 @@ function CreateOptionForm({ request }) {
       hotels: hotels,
       restaurants: restaurants,
       entertainments: entertainment,
-      vehicles: vehicle,
+      vehicles: vehicles,
     };
 
     setLoading(true);
@@ -159,7 +176,10 @@ function CreateOptionForm({ request }) {
               provinces={provinces}
               districts={districts}
               onProvinceChange={handleProvinceChange}
+              onDistrictChange={handleDistrictChange}
               setProvinces={setProvinces}
+              selectedDistrict={selectedDistrict}
+              request={request}
             />
           </div>
 
