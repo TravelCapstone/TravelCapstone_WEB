@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Form, InputNumber, Button, Space, Select } from "antd";
 import {
   DeleteOutlined,
@@ -8,7 +8,25 @@ import {
 
 const { Option } = Select;
 
-const EntertainmentSection = ({ form }) => {
+const EntertainmentSection = ({
+  form,
+  request,
+  setProvinces,
+  districts,
+  provinces,
+  onProvinceChange,
+}) => {
+  useEffect(() => {
+    if (request?.privateTourResponse?.otherLocation) {
+      setProvinces(
+        request.privateTourResponse.otherLocation.map((loc) => ({
+          id: loc.provinceId,
+          name: loc.province.name,
+        }))
+      );
+    }
+  }, [request]);
+
   return (
     <Form.List name="entertainment" initialValue={[{}]}>
       {(fields, { add, remove }) => (
@@ -26,26 +44,48 @@ const EntertainmentSection = ({ form }) => {
                     <div className="flex flex-wrap">
                       <Form.Item
                         label="Khu vực:"
+                        name={[name, "provinceId"]}
+                        className="flex font-semibold"
+                        rules={[
+                          { required: true, message: "Missing province" },
+                        ]}
+                      >
+                        <Select
+                          placeholder="Tỉnh"
+                          onChange={onProvinceChange}
+                          className="!w-[200px] mr-10"
+                        >
+                          {provinces.map((province) => (
+                            <Option key={province.id} value={province.id}>
+                              {province.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
                         name={[name, "districtId"]}
                         className="flex font-semibold"
+                        placeholder="Huyện/TP"
                         rules={[
                           { required: true, message: "Missing district" },
                         ]}
+                        shouldUpdate={(prevValues, currentValues) =>
+                          prevValues.province !== currentValues.province
+                        }
                       >
-                        {/* <div className="flex justify-between ml-6"> */}
-                        <Select placeholder="Tỉnh" className="!w-[200px] mr-10">
-                          <Option value="HaNoi">Hà Nội</Option>
-                          <Option value="SaiGon">TP. Hồ Chí Minh</Option>
-                          {/* Add more options as needed */}
+                        <Select
+                          placeholder="Huyện/TP"
+                          className="!w-[200px] mr-10"
+                          // disabled={!districtEnabled}
+                        >
+                          {districts.map((district) => (
+                            <Option key={district.id} value={district.id}>
+                              {district.name}
+                            </Option>
+                          ))}
                         </Select>
-                        {/* <Select
-                            placeholder="Huyện/TP"
-                            className="!w-[200px] mr-10"
-                          >
-                            <Option value="commune">Thủ đô Hà Nội</Option>
-                          </Select> */}
-                        {/* </div> */}
                       </Form.Item>
+
                       <div className="flex font-semibold text-gray-500">
                         <h3 className="text-lg mr-3">Khu du lịch - </h3>
                         <h3 className="text-lg mr-3">Giá vé: </h3>
@@ -56,7 +96,7 @@ const EntertainmentSection = ({ form }) => {
 
                   <Form.Item
                     className=" font-semibold my-4"
-                    name={[name, "numberOfLocations"]}
+                    name={[name, "quantityLocation"]}
                     label="Số lượng địa điểm du lịch:"
                     rules={[
                       {

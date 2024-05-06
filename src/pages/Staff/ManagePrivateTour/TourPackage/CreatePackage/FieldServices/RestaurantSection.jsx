@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Form,
@@ -9,24 +9,50 @@ import {
   InputNumber,
 } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  ratingLabels,
+  servingActor,
+  servingFoodsQuantity,
+} from "../../../../../../settings/globalStatus";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { TreeNode } = TreeSelect;
 
-const RestaurantSection = ({ form }) => {
+const RestaurantSection = ({
+  form,
+  provinces,
+  districts,
+  onProvinceChange,
+  setProvinces,
+  request,
+}) => {
   const [diningDetails, setDiningDetails] = useState({});
+
+  useEffect(() => {
+    if (request?.privateTourResponse?.otherLocation) {
+      setProvinces(
+        request.privateTourResponse.otherLocation.map((loc) => ({
+          id: loc.provinceId,
+          name: loc.province.name,
+        }))
+      );
+    }
+  }, [request]);
 
   const handleDiningTypeChange = (selectedType, name) => {
     const newDetails = { ...diningDetails, [name]: [selectedType] }; // Store as an array for future multi-selection
     setDiningDetails(newDetails);
   };
 
-  const diningTypeNames = {
-    restaurant: "Nhà hàng",
-    cafe: "Quán cà phê",
-    fastFood: "Thức ăn nhanh",
-  };
+  const keysToShow = [5, 6, 7, 8, 9];
+
+  // Filter ratingLabels to only include the specified keys
+  const filteredLabels = Object.fromEntries(
+    Object.entries(ratingLabels).filter(([key]) =>
+      keysToShow.includes(parseInt(key))
+    )
+  );
 
   return (
     <Form.List name="diningOptions" initialValue={[{}]}>
@@ -46,18 +72,25 @@ const RestaurantSection = ({ form }) => {
                       {...restField}
                       label="Khu vực:"
                       placeholder="Tỉnh"
-                      name={[name, "province"]}
+                      name={[name, "provinceId"]}
                       className="flex font-semibold"
                       rules={[{ required: true, message: "Missing province" }]}
                     >
-                      <Select placeholder="Tỉnh" className="!w-[200px] mr-10">
-                        <Option value="HaNoi">Hà Nội</Option>
-                        <Option value="SaiGon">TP. Hồ Chí Minh</Option>
+                      <Select
+                        placeholder="Tỉnh"
+                        className="!w-[200px] mr-10"
+                        onChange={onProvinceChange}
+                      >
+                        {provinces.map((province) => (
+                          <Option key={province.id} value={province.id}>
+                            {province.name}
+                          </Option>
+                        ))}
                       </Select>
                     </Form.Item>
                     <Form.Item
                       {...restField}
-                      name={[name, "district"]}
+                      name={[name, "districtId"]}
                       className="flex font-semibold"
                       placeholder="Huyện/TP"
                       rules={[{ required: true, message: "Missing district" }]}
@@ -66,7 +99,11 @@ const RestaurantSection = ({ form }) => {
                         placeholder="Huyện/TP"
                         className="!w-[200px] mr-10"
                       >
-                        <Option value="commune">Thủ đô Hà Nội</Option>
+                        {districts.map((district) => (
+                          <Option key={district.id} value={district.id}>
+                            {district.name}
+                          </Option>
+                        ))}
                       </Select>
                     </Form.Item>
                   </div>
@@ -106,15 +143,85 @@ const RestaurantSection = ({ form }) => {
                       }
                       placeholder="Chọn loại hình ăn uống"
                     >
-                      <Option value="restaurant">Nhà hàng</Option>
-                      <Option value="cafe">Quán cà phê</Option>
-                      <Option value="fastFood">Thức ăn nhanh</Option>
+                      {Object.entries(filteredLabels).map(([key, label]) => (
+                        <Option key={key} value={parseInt(key, 10)}>
+                          {label}
+                        </Option>
+                      ))}
                     </Select>
                   </Form.Item>
-                  <div className="flex font-semibold text-gray-500">
+                  <div className="flex font-semibold text-gray-500 mr-10">
                     <h3 className="text-lg mr-3">Khoảng giá: </h3>
                     <p className="text-lg"> 1.300.000 ~ 1.600.000 /người</p>
                   </div>
+                  <Form.Item
+                    className=" font-semibold"
+                    name={[name, "servingQuantity"]}
+                    label="Loại bàn:"
+                    rules={[
+                      { required: true, message: "Vui lòng chọn loại bàn!" },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Chọn loại bàn"
+                      className="!w-[200px] mr-10"
+                    >
+                      {Object.entries(servingFoodsQuantity).map(
+                        ([key, value]) => (
+                          <Option key={key} value={parseInt(key, 10)}>
+                            {value}
+                          </Option>
+                        )
+                      )}
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    name={[name, "numOfDay"]}
+                    className=" font-semibold"
+                    label="Số lượng ngày dùng bữa:"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng điền số lượng ngày dùng bữa",
+                      },
+                    ]}
+                  >
+                    <InputNumber min={1} max={30} className=" mr-10" />
+                  </Form.Item>
+
+                  <Form.Item
+                    name={[name, "mealPerDay"]}
+                    className=" font-semibold"
+                    label="Số lượng bữa ăn dùng trong 1 ngày:"
+                    rules={[
+                      {
+                        required: true,
+                        message:
+                          "Vui lòng điền số lượng bữa ăn dùng trong 1 ngày",
+                      },
+                    ]}
+                  >
+                    <InputNumber min={1} max={30} className=" mr-10" />
+                  </Form.Item>
+                  <Form.Item
+                    className=" font-semibold"
+                    name={[name, "serviceAvailability"]}
+                    label="Đối tượng:"
+                    rules={[
+                      { required: true, message: "Vui lòng chọn đối tượng!" },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Chọn đối tượng"
+                      className="!w-[200px] mr-10"
+                    >
+                      {Object.entries(servingActor).map(([key, value]) => (
+                        <Option key={key} value={parseInt(key, 10)}>
+                          {value}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
                 </div>
               </div>
               <DeleteOutlined

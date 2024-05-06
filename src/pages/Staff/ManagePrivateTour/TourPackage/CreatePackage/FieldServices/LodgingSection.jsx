@@ -11,23 +11,24 @@ import {
   TreeSelect,
   InputNumber,
 } from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
-  DeleteOutlined,
-  MinusCircleOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-import { ratingLabels } from "../../../../../../settings/globalStatus";
-import { getAllDistrictsByProvinceId } from "../../../../../../api/LocationApi";
+  ratingLabels,
+  servingHotelsQuantity,
+} from "../../../../../../settings/globalStatus";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const LodgingSection = ({ form, add, remove, request }) => {
+const LodgingSection = ({
+  form,
+  districts,
+  onProvinceChange,
+  request,
+  setProvinces,
+  provinces,
+}) => {
   const [lodgingDetails, setLodgingDetails] = useState({});
-  const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [districtEnabled, setDistrictEnabled] = useState(false);
-  const [selectedProvince, setSelectedProvince] = useState(undefined);
 
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
@@ -39,31 +40,6 @@ const LodgingSection = ({ form, add, remove, request }) => {
       );
     }
   }, [request]);
-
-  const handleProvinceChange = async (provinceId) => {
-    // Check if the newly selected province is different from the previously selected one
-    if (provinceId !== selectedProvince) {
-      setSelectedProvince(provinceId); // Update the selected province
-      setDistricts([]); // Clear previous districts
-      form.setFieldsValue({ ["locations[0].district"]: undefined });
-
-      setDistrictEnabled(true); // Enable district dropdown after province is selected
-
-      try {
-        const response = await getAllDistrictsByProvinceId(provinceId);
-        setDistricts(
-          response.result.items.map((district) => ({
-            id: district.id,
-            name: district.name,
-          }))
-        );
-      } catch (error) {
-        message.error("Failed to fetch districts");
-        console.error("Error fetching districts by province ID:", error);
-        setDistrictEnabled(false); // Disable again in case of error
-      }
-    }
-  };
 
   const handleLodgingTypeChange = useCallback(
     (selectedType, name) => {
@@ -83,13 +59,6 @@ const LodgingSection = ({ form, add, remove, request }) => {
     )
   );
 
-  // const handleProvinceClear = () => {
-  //   setSelectedProvince(undefined);
-  //   setDistricts([]);
-  //   setDistrictEnabled(false);
-  //   form.setFieldsValue({ ["locations[0].district"]: undefined });
-  // };
-
   return (
     <>
       <Form.List name="locations" initialValue={[{}]}>
@@ -108,8 +77,7 @@ const LodgingSection = ({ form, add, remove, request }) => {
                       <Form.Item
                         {...restField}
                         label="Khu vực:"
-                        placeholder="Tỉnh"
-                        name={[name, "province"]}
+                        name={[name, "provinceId"]}
                         className="flex font-semibold"
                         rules={[
                           { required: true, message: "Missing province" },
@@ -117,7 +85,7 @@ const LodgingSection = ({ form, add, remove, request }) => {
                       >
                         <Select
                           placeholder="Tỉnh"
-                          onChange={handleProvinceChange}
+                          onChange={onProvinceChange}
                           className="!w-[200px] mr-10"
                         >
                           {provinces.map((province) => (
@@ -129,7 +97,7 @@ const LodgingSection = ({ form, add, remove, request }) => {
                       </Form.Item>
                       <Form.Item
                         {...restField}
-                        name={[name, "district"]}
+                        name={[name, "districtId"]}
                         className="flex font-semibold"
                         placeholder="Huyện/TP"
                         rules={[
@@ -142,7 +110,7 @@ const LodgingSection = ({ form, add, remove, request }) => {
                         <Select
                           placeholder="Huyện/TP"
                           className="!w-[200px] mr-10"
-                          disabled={!districtEnabled}
+                          // disabled={!districtEnabled}
                         >
                           {districts.map((district) => (
                             <Option key={district.id} value={district.id}>
@@ -188,7 +156,7 @@ const LodgingSection = ({ form, add, remove, request }) => {
                         }
                       >
                         {Object.entries(filteredLabels).map(([key, label]) => (
-                          <Option key={key} value={key}>
+                          <Option key={key} value={parseInt(key, 10)}>
                             {label}
                           </Option>
                         ))}
@@ -212,8 +180,13 @@ const LodgingSection = ({ form, add, remove, request }) => {
                         placeholder="Chọn loại phòng"
                         className="!w-[200px] mr-10"
                       >
-                        <Option value="4">Phòng 4 người</Option>
-                        <Option value="2">Phòng 2 người</Option>
+                        {Object.entries(servingHotelsQuantity).map(
+                          ([key, value]) => (
+                            <Option key={key} value={parseInt(key, 10)}>
+                              {value}
+                            </Option>
+                          )
+                        )}
                       </Select>
                     </Form.Item>
                     <Form.Item

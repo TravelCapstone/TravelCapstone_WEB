@@ -70,6 +70,15 @@ function TourRequestPage() {
     }
   }, [request]);
 
+  const renderActiveTabContent = () => {
+    const activeTabContent = tabs[activeTab];
+    if (!activeTabContent) {
+      console.error("Active tab index is out of range:", activeTab);
+      return null;
+    }
+    return activeTabContent.content;
+  };
+
   const handleTabChange = (index) => {
     setActiveTab(index);
     navigate(`${location.pathname}?tab=${index}`);
@@ -120,7 +129,7 @@ function TourRequestPage() {
           ))}
         </div>
       </div>
-      {tabs[activeTab].content}
+      {renderActiveTabContent()}
     </>
   );
 }

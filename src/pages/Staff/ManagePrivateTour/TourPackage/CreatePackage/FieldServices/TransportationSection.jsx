@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Form,
@@ -15,15 +15,36 @@ import {
   ArrowDownOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
+import {
+  ratingLabels,
+  servingVehiclesQuantity,
+} from "../../../../../../settings/globalStatus";
 
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
-const TransportationSection = ({ form }) => {
+const TransportationSection = ({
+  form,
+  request,
+  setProvinces,
+  districts,
+  provinces,
+  onProvinceChange,
+}) => {
   const [selectedForSwap, setSelectedForSwap] = useState([]);
   const [routes, setRoutes] = useState([
     { id: 1, from: "", to: "", transport: "", dateRange: [], cost: 0 }, // Initial route
   ]);
+
+  useEffect(() => {
+    if (request?.privateTourResponse?.otherLocation) {
+      setProvinces(
+        request.privateTourResponse.otherLocation.map((loc) => ({
+          id: loc.provinceId,
+          name: loc.province.name,
+        }))
+      );
+    }
+  }, [request]);
 
   const handleSelectForSwap = (index) => {
     const newSelection = [...selectedForSwap, index];
@@ -50,22 +71,6 @@ const TransportationSection = ({ form }) => {
     }
   };
 
-  // const removeRoute = (index) => {
-  //   const newRoutes = [...routes];
-  //   newRoutes.splice(index, 1);
-  //   setRoutes(newRoutes);
-  // };
-
-  // const handleTransportChange = (value, field, id) => {
-  //   const updatedRoutes = routes.map((route) => {
-  //     if (route.id === id) {
-  //       return { ...route, [field]: value };
-  //     }
-  //     return route;
-  //   });
-  //   setRoutes(updatedRoutes);
-  // };
-
   return (
     <>
       <Form.List name="transportation" initialValue={[{}]}>
@@ -78,65 +83,104 @@ const TransportationSection = ({ form }) => {
                 className="flex justify-between my-8 "
               >
                 <div className="text-center font-bold mr-2">{index + 1}</div>
-                <div className="flex flex-col flex-grow w-full">
+                <div className="flex flex-wrap flex-grow w-full">
                   <div className="flex flex-wrap ">
                     <Form.Item
-                      name={[name, "from"]}
-                      className="flex font-semibold"
                       label="Di chuyển từ:"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please select the departure!",
-                        },
-                      ]}
+                      name={[name, "startPoint"]}
+                      className="flex font-semibold"
+                      rules={[{ required: true, message: "Missing province" }]}
                     >
                       <Select
-                        placeholder="Select departure"
+                        placeholder="Tỉnh"
+                        onChange={onProvinceChange}
                         className="!w-[200px] mr-10"
                       >
-                        <Option value="HCM">TP. Hồ Chí Minh</Option>
-                        <Option value="PT">Phú Thọ</Option>
-                        <Option value="HG">Hà Giang</Option>
+                        {provinces.map((province) => (
+                          <Option key={province.id} value={province.id}>
+                            {province.name}
+                          </Option>
+                        ))}
                       </Select>
                     </Form.Item>
                     <Form.Item
-                      name={[name, "to"]}
+                      name={[name, "startPointDistrict"]}
                       className="flex font-semibold"
-                      label="Đến:"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please select the destination!",
-                        },
-                      ]}
+                      placeholder="Huyện/TP"
+                      rules={[{ required: true, message: "Missing district" }]}
+                      shouldUpdate={(prevValues, currentValues) =>
+                        prevValues.province !== currentValues.province
+                      }
                     >
                       <Select
-                        placeholder="Select destination"
+                        placeholder="Huyện/TP"
                         className="!w-[200px] mr-10"
                       >
-                        <Option value="HCM">TP. Hồ Chí Minh</Option>
-                        <Option value="PT">Phú Thọ</Option>
-                        <Option value="HG">Hà Giang</Option>
+                        {districts.map((district) => (
+                          <Option key={district.id} value={district.id}>
+                            {district.name}
+                          </Option>
+                        ))}
                       </Select>
-                    </Form.Item>
-                    <Form.Item
-                      name={[name, "dateRange"]}
-                      label="Ngày đi:"
-                      className="flex font-semibold"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng chọn ngày đi!",
-                        },
-                      ]}
-                    >
-                      <RangePicker showTime className="!w-[250px] mr-10" />
                     </Form.Item>
                   </div>
                   <div className="flex flex-wrap ">
                     <Form.Item
-                      name={[name, "transport"]}
+                      label="Đến:"
+                      name={[name, "endPoint"]}
+                      className="flex font-semibold"
+                      rules={[{ required: true, message: "Missing province" }]}
+                    >
+                      <Select
+                        placeholder="Tỉnh"
+                        onChange={onProvinceChange}
+                        className="!w-[200px] mr-10"
+                      >
+                        {provinces.map((province) => (
+                          <Option key={province.id} value={province.id}>
+                            {province.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                      name={[name, "endPointDistrict"]}
+                      className="flex font-semibold"
+                      placeholder="Huyện/TP"
+                      rules={[{ required: true, message: "Missing district" }]}
+                      shouldUpdate={(prevValues, currentValues) =>
+                        prevValues.province !== currentValues.province
+                      }
+                    >
+                      <Select
+                        placeholder="Huyện/TP"
+                        className="!w-[200px] mr-10"
+                      >
+                        {districts.map((district) => (
+                          <Option key={district.id} value={district.id}>
+                            {district.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+
+                  <Form.Item
+                    name={[name, "dateRange"]}
+                    label="Ngày đi:"
+                    className="flex font-semibold"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn ngày đi!",
+                      },
+                    ]}
+                  >
+                    <DatePicker showTime className="!w-[250px] mr-10" />
+                  </Form.Item>
+                  <div className="flex flex-wrap ">
+                    <Form.Item
+                      name={[name, "vehicleType"]}
                       label="Phương tiện di chuyển:"
                       className="flex font-semibold"
                       rules={[
@@ -150,18 +194,40 @@ const TransportationSection = ({ form }) => {
                         placeholder="Select transport"
                         className="!w-[250px] mr-10"
                       >
-                        <Option value="bus">Bus</Option>
-                        <Option value="limo">Limousine</Option>
-                        <Option value="train">Train</Option>
-                        <Option value="plane">Plane</Option>
+                        {Object.entries(servingVehiclesQuantity).map(
+                          ([key, label]) => (
+                            <Option key={key} value={parseInt(key, 10)}>
+                              {label}
+                            </Option>
+                          )
+                        )}
                       </Select>
                     </Form.Item>
-                    <div className="flex font-semibold text-gray-500">
+                    <div className="flex font-semibold text-gray-500 mr-10">
                       <h3 className="text-lg mr-3">Khoảng giá: </h3>
                       <p className="text-lg"> 1.300.000 ~ 1.600.000 /người</p>
                     </div>
+                    <Form.Item
+                      label="Số lượng xe:"
+                      className=" font-semibold"
+                      name={[name, "numOfVehicle"]}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter number of days",
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        min={1}
+                        max={30}
+                        placeholder="Số lượng xe"
+                        className="!w-[200px] mr-10"
+                      />
+                    </Form.Item>
                   </div>
                 </div>
+
                 <div>
                   <Button
                     className="mr-2"
