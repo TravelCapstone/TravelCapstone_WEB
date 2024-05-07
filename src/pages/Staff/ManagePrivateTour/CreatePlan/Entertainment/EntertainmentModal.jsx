@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAveragePriceOfService } from "../../../../../api/SellPriceHistoryApi";
 import { unitLabels } from "../../../../../settings/globalStatus";
 import { formatPrice } from "../../../../../utils/Util";
+
 const EntertainmentModal = ({
   districtId,
   privateTourRequestId,
@@ -11,7 +12,7 @@ const EntertainmentModal = ({
   log,
 }) => {
   const [listEntertainment, setListEntertainment] = useState([]);
-  const [selectedEntertainment, setSelectedEntertainment] = useState(null); // State để lưu trữ hàng được chọn
+  const [selectedEntertainment, setSelectedEntertainment] = useState([]); // Thay đổi thành một mảng
 
   const fetchData = async () => {
     const data = await getAveragePriceOfService(
@@ -39,17 +40,21 @@ const EntertainmentModal = ({
   ]);
 
   const handleSelectHotel = (item) => {
-    if (
-      selectedEntertainment &&
-      item.sellPriceHistory?.id === selectedEntertainment.sellPriceHistory?.id
-    ) {
-      setSelectedEntertainment(null);
+    const index = selectedEntertainment.findIndex(
+      (selectedItem) =>
+        selectedItem.sellPriceHistory?.id === item.sellPriceHistory?.id
+    );
+    if (index === -1) {
+      setSelectedEntertainment([...selectedEntertainment, item]);
     } else {
-      setSelectedEntertainment(item);
+      const updatedSelection = [...selectedEntertainment];
+      updatedSelection.splice(index, 1);
+      setSelectedEntertainment(updatedSelection);
     }
-    log(item);
   };
-
+  useEffect(() => {
+    log(selectedEntertainment);
+  }, [selectedEntertainment]);
   return (
     <>
       <button
@@ -82,8 +87,11 @@ const EntertainmentModal = ({
                     <tr
                       key={index}
                       className={
-                        item.sellPriceHistory?.id ===
-                        selectedEntertainment?.sellPriceHistory?.id
+                        selectedEntertainment.some(
+                          (selectedItem) =>
+                            selectedItem.sellPriceHistory?.id ===
+                            item.sellPriceHistory?.id
+                        )
                           ? "bg-yellow-100 text-black"
                           : ""
                       }
@@ -136,7 +144,15 @@ const EntertainmentModal = ({
               {<button className="btn  bg-mainColor text-white">Chọn</button>}
               <button
                 className="mx-2 btn"
-                onClick={() => setSelectedEntertainment(null)}
+                onClick={() => setSelectedEntertainment([])}
+              >
+                Clear
+              </button>
+              <button
+                className="mx-2 btn"
+                onClick={() =>
+                  document.getElementById("entertainment_modal").close()
+                }
               >
                 Close
               </button>
@@ -147,4 +163,5 @@ const EntertainmentModal = ({
     </>
   );
 };
+
 export default EntertainmentModal;

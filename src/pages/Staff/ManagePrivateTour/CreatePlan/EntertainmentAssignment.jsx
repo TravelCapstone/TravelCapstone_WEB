@@ -1,9 +1,13 @@
 import { formatPrice } from "../../../../utils/Util";
 import EntertainmentModal from "./Entertainment/EntertainmentModal";
+import React, { useState, useEffect } from "react";
 
 function EntertainmentAssignment({ data, privateTourResponse }) {
   console.log(data);
-
+  const [selectedEntertainment, setSelectedEntertainment] = useState([]); // Thay đổi thành một mảng
+  const log = (data) => {
+    setSelectedEntertainment(data);
+  };
   return (
     <>
       {data &&
@@ -42,8 +46,62 @@ function EntertainmentAssignment({ data, privateTourResponse }) {
                     servingQuantity={item.servingQuantity}
                     serviceType={2}
                     ratingId={item.facilityRating?.id}
+                    log={log}
                   />
                 </div>
+                {selectedEntertainment.length > 0 &&
+                  selectedEntertainment.map((entertainment, index) => (
+                    <div key={index}>
+                      <div className="flex">
+                        <strong className="mr-2">Địa điểm: </strong>
+                        <p>
+                          {
+                            entertainment?.sellPriceHistory?.facilityService
+                              ?.facility.name
+                          }
+                        </p>
+                      </div>
+                      <div className="flex">
+                        <strong className="mr-2">Địa chỉ: </strong>
+                        <p>
+                          {
+                            entertainment?.sellPriceHistory?.facilityService
+                              ?.facility.address
+                          }
+                          ,{" "}
+                          {
+                            entertainment?.sellPriceHistory?.facilityService
+                              ?.facility.communce?.name
+                          }
+                          ,{" "}
+                          {
+                            entertainment.sellPriceHistory?.facilityService
+                              ?.facility.communce?.district?.name
+                          }
+                          ,{" "}
+                          {
+                            entertainment?.sellPriceHistory?.facilityService
+                              ?.facility.communce?.district.province?.name
+                          }
+                        </p>
+                      </div>
+                      <div className="flex">
+                        <strong className="mr-2">Tên dịch vụ: </strong>
+                        <p>
+                          {
+                            entertainment.sellPriceHistory?.facilityService
+                              ?.name
+                          }
+                        </p>
+                      </div>
+                      <div className="flex">
+                        <strong className="mr-2">Giá: </strong>
+                        <p>
+                          {formatPrice(entertainment.sellPriceHistory?.price)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
