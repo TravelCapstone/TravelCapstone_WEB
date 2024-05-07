@@ -75,7 +75,10 @@ const CreatePlanForm = ({
             <h3 className="font-bold text-base my-2 text-mainColor">
               Giải trí- điểm du lịch
             </h3>
-            <EntertainmentAssignment data={entertainment} />
+            <EntertainmentAssignment
+              data={entertainment}
+              privateTourResponse={privateTourResponse}
+            />
           </div>
         </div>
         {/* //TẠO KẾ HOẠCH CHI TIẾT CHO TOUR */}

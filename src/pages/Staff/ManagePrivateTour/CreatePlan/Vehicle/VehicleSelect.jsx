@@ -1,30 +1,56 @@
 import { useEffect, useState } from "react";
 import { getReferenceTransportByProvince } from "../../../../../api/SellPriceHistoryApi";
+import { getPriceForVehicle } from "../../../../../api/VehicleApi";
+import { formatPrice } from "../../../../../utils/Util";
 
 const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
   const [listVehiclePrice, setListVehiclePrice] = useState();
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const fetchData = async () => {
-    const data = await getReferenceTransportByProvince(
-      startPoint,
-      endPoint,
-      vehicleType,
-      1,
-      100
-    );
+    const data = await getPriceForVehicle(1, 10, {
+      firstLocation: {
+        provinceId: startPoint,
+        districtId: null,
+      },
+      secondLocation: {
+        provinceId: endPoint,
+        districtId: null,
+      },
+      vehicleType: vehicleType,
+      startDate: new Date(startDate).toISOString(),
+      endDate: new Date(endDate).toISOString(),
+    });
     if (data.isSuccess) {
-      setListVehiclePrice(data.result?.items);
+      setListVehiclePrice(data.result.items);
     }
-    console.log(data.result?.items);
   };
 
   useEffect(() => {
     fetchData();
-  }, [startPoint, endPoint, vehicleType]);
+  }, [startPoint, endPoint, vehicleType, startDate, endDate]);
   return (
     <>
       {vehicleType === 4 && (
         <div>
           <div>
+            <div className="flex flex-col">
+              <div className="flex">
+                <strong className="mr-32">Ngày bắt đầu</strong>
+                <input
+                  type="date"
+                  onChange={(e) => setStartDate(e.target?.value)}
+                />
+              </div>
+              <div className="flex">
+                <strong className="mr-32">Ngày kết thúc</strong>
+                <input
+                  type="date"
+                  onChange={(e) => setEndDate(e.target?.value)}
+                />
+              </div>
+            </div>
             <div className="flex my-4">
               <p className="w-3/12">Chọn hãng máy bay</p>
               <select name="" id="" className="select select-bordered w-9/12">
@@ -36,10 +62,23 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
 
             <div className="flex my-4">
               <p className="w-3/12">Chọn chuyến máy bay</p>
-              <select name="" id="" className="select select-bordered w-9/12">
-                <option value="">
-                  Khách sạn 1 sao - Khách sạn Phương Nam: 800000/1 phòng
-                </option>
+              <select
+                name=""
+                id=""
+                className="select select-bordered w-9/12"
+                onChange={(e) => setSelectedVehicle(e.target.value)}
+                value={selectedVehicle}
+              >
+                {Array.isArray(listVehiclePrice) &&
+                  listVehiclePrice.length > 0 &&
+                  listVehiclePrice.map((item, index) => (
+                    <option key={index} value={item.id}>
+                      Hãng bay {item.providerName} {item.departure?.name} -{" "}
+                      {item.arrival?.name} Giá người lớn:{" "}
+                      {formatPrice(item.adultPrice)} Giá trẻ em{" "}
+                      {formatPrice(item.childPrice)}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>

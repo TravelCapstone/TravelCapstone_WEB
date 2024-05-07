@@ -41,8 +41,11 @@ function VehicleAssignment({ data }) {
                       {" "}
                       {vehicleTypeLabels[item.vehicleType]}
                     </strong>{" "}
-                    : {formatPrice(item.minPrice)} -{" "}
-                    {formatPrice(item.maxPrice)}
+                    :{" "}
+                    <span className=" text-red-600 font-bold">
+                      {formatPrice(item.minPrice)} -{" "}
+                      {formatPrice(item.maxPrice)}
+                    </span>
                   </p>
                 </div>
                 {item.vehicleType === 4 && (

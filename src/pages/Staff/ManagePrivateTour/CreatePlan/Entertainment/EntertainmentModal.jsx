@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getAveragePriceOfService } from "../../../../../api/SellPriceHistoryApi";
 import { unitLabels } from "../../../../../settings/globalStatus";
 import { formatPrice } from "../../../../../utils/Util";
-
-const HotelModal = ({
+const EntertainmentModal = ({
   districtId,
   privateTourRequestId,
   servingQuantity,
@@ -11,8 +10,8 @@ const HotelModal = ({
   ratingId,
   log,
 }) => {
-  const [listHotel, setListHotel] = useState([]);
-  const [selectedHotel, setSelectedHotel] = useState(null); // State để lưu trữ hàng được chọn
+  const [listEntertainment, setListEntertainment] = useState([]);
+  const [selectedEntertainment, setSelectedEntertainment] = useState(null); // State để lưu trữ hàng được chọn
 
   const fetchData = async () => {
     const data = await getAveragePriceOfService(
@@ -25,7 +24,7 @@ const HotelModal = ({
       10
     );
     if (data.isSuccess) {
-      setListHotel(data.result.items);
+      setListEntertainment(data.result.items);
     }
   };
 
@@ -41,35 +40,36 @@ const HotelModal = ({
 
   const handleSelectHotel = (item) => {
     if (
-      selectedHotel &&
-      item.sellPriceHistory?.id === selectedHotel.sellPriceHistory?.id
+      selectedEntertainment &&
+      item.sellPriceHistory?.id === selectedEntertainment.sellPriceHistory?.id
     ) {
-      setSelectedHotel(null);
+      setSelectedEntertainment(null);
     } else {
-      setSelectedHotel(item);
+      setSelectedEntertainment(item);
     }
     log(item);
   };
 
   return (
     <>
-      {/* You can open the modal using document.getElementById('ID').showModal() method */}
       <button
         className="btn bg-mainColor text-white"
-        onClick={() => document.getElementById("hotel_modal").showModal()}
+        onClick={() =>
+          document.getElementById("entertainment_modal").showModal()
+        }
       >
         Chọn
       </button>
-      <dialog id="hotel_modal" className="modal">
+      <dialog id="entertainment_modal" className="modal">
         <div className="modal-box w-11/12 max-w-6xl">
-          <h3 className="font-bold text-lg">Chọn khách sạn</h3>
+          <h3 className="font-bold text-lg">Chọn địa điểm vui chơi</h3>
 
           <div className="overflow-x-auto rounded-xl shadow-xl my-4">
             <table className="table w-full ">
               <thead className="bg-mainColor text-white h-14">
                 <tr>
                   <th>STT</th>
-                  <th>Khách sạn</th>
+                  <th>Địa điểm</th>
                   <th>Địa chỉ</th>
                   <th>Dịch vụ </th>
                   <th>Đơn vị</th>
@@ -77,13 +77,13 @@ const HotelModal = ({
                 </tr>
               </thead>
               <tbody>
-                {listHotel &&
-                  listHotel.map((item, index) => (
+                {listEntertainment &&
+                  listEntertainment.map((item, index) => (
                     <tr
                       key={index}
                       className={
                         item.sellPriceHistory?.id ===
-                        selectedHotel?.sellPriceHistory?.id
+                        selectedEntertainment?.sellPriceHistory?.id
                           ? "bg-yellow-100 text-black"
                           : ""
                       }
@@ -136,7 +136,7 @@ const HotelModal = ({
               {<button className="btn  bg-mainColor text-white">Chọn</button>}
               <button
                 className="mx-2 btn"
-                onClick={() => setSelectedHotel(null)}
+                onClick={() => setSelectedEntertainment(null)}
               >
                 Close
               </button>
@@ -147,5 +147,4 @@ const HotelModal = ({
     </>
   );
 };
-
-export default HotelModal;
+export default EntertainmentModal;
