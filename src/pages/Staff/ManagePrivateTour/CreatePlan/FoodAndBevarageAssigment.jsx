@@ -125,15 +125,11 @@ function FoodAndBevarageAssignment({ data, privateTourResponse }) {
                           </div>
                           <div className="flex">
                             <strong className="mr-2">
-                              Giá tổng = giá menu x số bữa ={" "}
+                              Giá :
                             </strong>
                             <p>
-                              {formatPrice(restaurent.sellPriceHistory?.price)}{" "}
-                              x {item.mealPerDay} ={" "}
-                              {formatPrice(
-                                restaurent.sellPriceHistory?.price *
-                                  item.mealPerDay
-                              )}{" "}
+                              {formatPrice(restaurent.sellPriceHistory?.price)}
+                              
                             </p>
                           </div>
                         </div>

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
 import { formatPrice } from "../../../../utils/Util";
+import EntertainmentModal from "./Entertainment/EntertainmentModal";
 
-function EntertainmentAssignment({ data }) {
+function EntertainmentAssignment({ data, privateTourResponse }) {
+  console.log(data);
+
   return (
     <>
       {data &&
@@ -31,14 +33,16 @@ function EntertainmentAssignment({ data }) {
                   </div>
                 </div>
                 <div className="flex my-4">
-                  <p className="w-3/12">Chọn khu du lịch</p>
-                  <div className="w-9/12">
-                    <select
-                      name=""
-                      id=""
-                      className="w-full select select-bordered mb-3"
-                    ></select>
-                  </div>
+                  <p className="w-3/12 font-bold">Chọn nơi lưu trú</p>
+                  <EntertainmentModal
+                    districtId={item.districtId}
+                    privateTourRequestId={
+                      privateTourResponse?.privateTourResponse?.id
+                    }
+                    servingQuantity={item.servingQuantity}
+                    serviceType={2}
+                    ratingId={item.facilityRating?.id}
+                  />
                 </div>
               </div>
             </div>

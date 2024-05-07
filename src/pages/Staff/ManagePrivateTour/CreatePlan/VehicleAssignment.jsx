@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { vehicleTypeLabels } from "../../../../settings/globalStatus";
 import { formatPrice } from "../../../../utils/Util";
+import VehicleSelect from "./Vehicle/VehicleSelect";
 
 function VehicleAssignment({ data }) {
   console.log(data);
+
   return (
     <>
       <p>
@@ -39,84 +41,27 @@ function VehicleAssignment({ data }) {
                       {" "}
                       {vehicleTypeLabels[item.vehicleType]}
                     </strong>{" "}
-                    : {formatPrice(item.minPrice)} -{" "}
-                    {formatPrice(item.maxPrice)}
+                    :{" "}
+                    <span className=" text-red-600 font-bold">
+                      {formatPrice(item.minPrice)} -{" "}
+                      {formatPrice(item.maxPrice)}
+                    </span>
                   </p>
                 </div>
                 {item.vehicleType === 4 && (
-                  <div>
-                    <div>
-                      <div className="flex my-4">
-                        <p className="w-3/12">Chọn hãng máy bay</p>
-                        <select
-                          name=""
-                          id=""
-                          className="select select-bordered w-9/12"
-                        >
-                          <option value="">VietnamAirline</option>
-                        </select>
-                      </div>
-
-                      <div className="flex my-4">
-                        <p className="w-3/12">Chọn chuyến máy bay</p>
-                        <select
-                          name=""
-                          id=""
-                          className="select select-bordered w-9/12"
-                        >
-                          <option value="">
-                            Khách sạn 1 sao - Khách sạn Phương Nam: 800000/1
-                            phòng
-                          </option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
+                  <VehicleSelect
+                    startPoint={item.startPointId}
+                    endPoint={item.endPointId}
+                    vehicleType={item.vehicleType}
+                  />
                 )}
 
                 {item.vehicleType !== 4 && item.vehicleType !== 5 && (
-                  <>
-                    <div>
-                      <strong>Số lượng xe </strong>
-                      <span className="mx-2">1</span>
-                    </div>
-                    <div className="flex my-4">
-                      <p className="w-3/12">Ngày di chuyển</p>
-                      <div className="flex">
-                        <input type="date" />
-                        -
-                        <input type="date" />
-                      </div>
-                    </div>
-                    <div>
-                      <div>
-                        <div className="flex my-4">
-                          <p className="w-3/12">Nhà cung cấp xe</p>
-                          <select
-                            name=""
-                            id=""
-                            className="select select-bordered w-9/12"
-                          >
-                            <option value="">Mon</option>
-                          </select>
-                        </div>
-
-                        <div className="flex my-4">
-                          <p className="w-3/12">Chọn tài xế</p>
-                          <select
-                            name=""
-                            id=""
-                            className="select select-bordered w-9/12"
-                          >
-                            <option value="">
-                              Phạm Bùi Minh Khang SĐT: 0336678864 - Tiền công:
-                              1.000.000/ngày
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </>
+                  <VehicleSelect
+                    startPoint={item.startPointId}
+                    endPoint={item.endPointId}
+                    vehicleType={item.vehicleType}
+                  />
                 )}
               </div>
             </div>
