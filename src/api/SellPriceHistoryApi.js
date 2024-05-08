@@ -101,11 +101,12 @@ const getMinMaxPriceOfHotel = async (
   privatetourRequestId,
   ratingId,
   pageNumber,
-  pageSize
+  pageSize,
+  numOfDay
 ) => {
   try {
     const response = await api.get(
-      `/sell-price/get-min-max-price-of-hotel/${districtId}/${privatetourRequestId}/${ratingId}?pageNumber=${pageNumber}&pageSize=${pageSize}`
+      `/sell-price/get-min-max-price-of-hotel/${districtId}/${privatetourRequestId}/${ratingId}/${pageNumber}/${pageSize}?numOfDay=${numOfDay}`
     );
     return response.data;
   } catch (error) {
