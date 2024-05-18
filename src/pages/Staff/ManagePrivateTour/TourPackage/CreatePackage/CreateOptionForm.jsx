@@ -18,7 +18,11 @@ import TransportationSection from "./FieldServices/TransportationSection";
 import EntertainmentSection from "./FieldServices/EntertaimentSection";
 import VerhicleTravelSection from "./FieldServices/VerhicleTravelSection";
 import { getAllDistrictsByProvinceId } from "../../../../../api/LocationApi";
+import { formatDate } from "../../../../../utils/Util";
+import InfoTourGuideSection from "./FieldServices/InfoTourGuideSection";
+import EachServiceSection from "./FieldServices/EachServiceSection";
 
+const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 function CreateOptionForm({ request }) {
@@ -30,7 +34,21 @@ function CreateOptionForm({ request }) {
   const [selectedProvince, setSelectedProvince] = useState(undefined);
   const [selectedDistrict, setSelectedDistrict] = useState(undefined);
 
+  const [selectedProvinces, setSelectedProvinces] = useState([]);
+  const [selectedDistricts, setSelectedDistricts] = useState([]);
+
   console.log("request", request);
+
+  const renderOtherLocations = (locations) => {
+    return locations?.map((location) => (
+      <div key={location.id}>
+        <div className="flex">
+          <h2 className="font-semibold mx-2">{location.province?.name}</h2>
+          <p>{location.address}</p>
+        </div>
+      </div>
+    ));
+  };
 
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
@@ -59,11 +77,19 @@ function CreateOptionForm({ request }) {
     }
   }, [selectedProvince]);
 
-  const handleProvinceChange = (value) => {
+  const handleProvinceChange = (value, name) => {
+    // Update selected provinces
+    const newSelectedProvinces = form.getFieldValue("provinces") || [];
+    newSelectedProvinces[name] = value;
+    setSelectedProvinces(newSelectedProvinces);
     setSelectedProvince(value);
   };
 
-  const handleDistrictChange = (value) => {
+  const handleDistrictChange = (value, name) => {
+    // Update selected districts
+    const newSelectedDistricts = form.getFieldValue("districts") || [];
+    newSelectedDistricts[name] = value;
+    setSelectedDistricts(newSelectedDistricts);
     setSelectedDistrict(value);
   };
 
@@ -141,101 +167,143 @@ function CreateOptionForm({ request }) {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 shadow-xl rounded-xl w-full max-h-lvh overflow-y-auto">
       <Form form={form} onFinish={onFinish}>
         <h3 className="font-bold text-mainColor text-xl text-center">
           TẠO GÓI TOUR
         </h3>
-        <div className="py-6 px-20 shadow-xl rounded-xl w-full max-h-lvh overflow-y-auto">
-          {/* PHÂN LOẠI TOUR*/}
-          <Form.Item
-            name="classification"
-            className="font-semibold"
-            label="Phân loại:"
-            rules={[
-              { required: true, message: "Please select a classification!" },
-            ]}
-          >
-            <Select placeholder="Chọn loại tour" style={{ width: "100%" }}>
-              {!request.option1 && <Option value={0}>Gói Tiết Kiệm</Option>}
-              {!request.option2 && <Option value={1}>Gói Cơ Bản</Option>}
-              {!request.option3 && <Option value={2}>Gói Nâng Cao</Option>}
-            </Select>
-          </Form.Item>
-
-          {/* NƠI LƯU TRÚ */}
+        {/* THÔNG TIN YÊU CẦU CHUNG */}
+        <div className="text-lg px-20 my-10">
           <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
-            TẠO CÁC DỊCH VỤ TRONG TOUR
+            THÔNG TIN YÊU CẦU CHUNG
           </h2>
-          <div>
-            <h3 className="font-bold text-lg my-2 text-mainColor">
-              Nơi lưu trú:
-            </h3>
-            <LodgingSection
+          <div className="mx-4">
+            <div className="mb-3 flex">
+              <span className="font-bold ">Địa điểm xuất phát:</span>
+              <div className="font-normal  ml-3">
+                {request?.privateTourResponse?.startLocation}
+              </div>
+            </div>
+            <div className="flex ">
+              <div className="flex mb-3">
+                <span className="font-bold ">Địa điểm mong muốn:</span>
+                <span className="font-normal  ml-3">
+                  {renderOtherLocations(
+                    request?.privateTourResponse?.otherLocation
+                  )}
+                </span>
+              </div>
+              <div className="ml-4">
+                <span className="font-bold ">Địa điểm mong muốn chính:</span>
+                <span className="font-normal  ml-3">
+                  {request?.privateTourResponse?.mainDestination?.name}
+                </span>
+              </div>
+            </div>
+            <div className="mb-3">
+              <span className="font-bold ">Số người lớn:</span>
+              <span className="font-normal ml-3">
+                {request?.privateTourResponse?.numOfAdult}
+              </span>
+              <span className="font-bold ml-5">Số trẻ em:</span>
+              <span className="font-normal ml-3">
+                {request?.privateTourResponse?.numOfChildren}
+              </span>
+            </div>
+            <div className="flex">
+              <div className="mb-3">
+                <span className="font-bold ">Khoảng thời gian:</span>
+                <span className="font-normal  ml-3">
+                  {request?.privateTourResponse?.numOfDay} ngày{" "}
+                  {request?.privateTourResponse?.numOfNight} đêm
+                </span>
+              </div>
+              <div className="ml-10">
+                <span className="font-bold ">Thời gian rảnh dự kiến:</span>
+                <span className="font-normal  ml-3">
+                  {formatDate(request?.privateTourResponse?.startDate)} -{" "}
+                  {formatDate(request?.privateTourResponse?.endDate)}
+                </span>
+              </div>
+            </div>
+
+            <Form.Item
+              label="Chọn ngày diễn ra tour:  "
+              className=" font-bold"
+              name={[name, "stayDates"]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please choose the stay dates!",
+                },
+              ]}
+            >
+              <RangePicker showTime className="!min-w-[300px] mr-10" />
+            </Form.Item>
+          </div>
+        </div>
+        {/* DỊCH VỤ CHUNG */}
+        <div className="text-lg px-20 my-10">
+          <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
+            DỊCH VỤ CHUNG
+          </h2>
+          <div className=" mx-4">
+            {/* PHƯƠNG TIỆN DI CHUYỂN */}
+            <div>
+              <h3 className="font-bold text-lg my-2 text-mainColor">
+                Phương tiện di chuyển
+              </h3>
+              <TransportationSection
+                form={form}
+                provinces={provinces}
+                districts={districts}
+                onProvinceChange={handleProvinceChange}
+                setProvinces={setProvinces}
+              />
+            </div>
+
+            {/* PHƯƠNG TIỆN DU LỊCH*/}
+            <div>
+              <h3 className="font-bold text-lg my-2 text-mainColor">
+                Phương tiện du lịch trong tỉnh
+              </h3>
+              <VerhicleTravelSection
+                form={form}
+                provinces={provinces}
+                districts={districts}
+                onProvinceChange={handleProvinceChange}
+                setProvinces={setProvinces}
+              />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg my-2 text-mainColor">
+                Thông tin hướng dẫn viên
+              </h3>
+              <InfoTourGuideSection
+                form={form}
+                provinces={provinces}
+                onProvinceChange={handleProvinceChange}
+                setProvinces={setProvinces}
+              />
+            </div>
+          </div>
+        </div>
+        {/* DỊCH VỤ RIÊNG TỪNG GÓI */}
+        <div className="px-20 my-10 ">
+          <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
+            DỊCH VỤ RIÊNG TỪNG GÓI
+          </h2>
+          <div className=" mx-4">
+            <EachServiceSection
               form={form}
               provinces={provinces}
-              districts={districts}
               onProvinceChange={handleProvinceChange}
-              onDistrictChange={handleDistrictChange}
               setProvinces={setProvinces}
-              selectedDistrict={selectedDistrict}
               request={request}
-            />
-          </div>
-
-          {/* DỊCH VỤ ĂN UỐNG */}
-          <div>
-            <h3 className="font-bold text-lg my-2 text-mainColor">
-              Dịch vụ ăn uống:
-            </h3>
-            <RestaurantSection
-              form={form}
-              provinces={provinces}
               districts={districts}
-              onProvinceChange={handleProvinceChange}
-              setProvinces={setProvinces}
-            />
-          </div>
-
-          {/* PHƯƠNG TIỆN DI CHUYỂN */}
-          <div>
-            <h3 className="font-bold text-lg my-2 text-mainColor">
-              Phương tiện di chuyển
-            </h3>
-            <TransportationSection
-              form={form}
-              provinces={provinces}
-              districts={districts}
-              onProvinceChange={handleProvinceChange}
-              setProvinces={setProvinces}
-            />
-          </div>
-
-          {/* PHƯƠNG TIỆN DU LỊCH*/}
-          <div>
-            <h3 className="font-bold text-lg my-2 text-mainColor">
-              Phương tiện du lịch trong tỉnh
-            </h3>
-            <VerhicleTravelSection
-              form={form}
-              provinces={provinces}
-              districts={districts}
-              onProvinceChange={handleProvinceChange}
-              setProvinces={setProvinces}
-            />
-          </div>
-
-          {/* GIẢI TRÍ */}
-          <div>
-            <h3 className="font-bold text-lg my-6 text-mainColor">
-              Giải trí (Địa điểm du lịch)
-            </h3>
-            <EntertainmentSection
-              form={form}
-              provinces={provinces}
-              districts={districts}
-              onProvinceChange={handleProvinceChange}
-              setProvinces={setProvinces}
+              onDistrictChange={handleDistrictChange}
+              selectedProvinces={selectedProvinces}
+              selectedDistricts={selectedDistricts}
             />
           </div>
 
