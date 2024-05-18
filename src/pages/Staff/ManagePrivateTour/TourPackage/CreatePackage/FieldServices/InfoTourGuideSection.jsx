@@ -10,7 +10,7 @@ import { servingVehiclesQuantity } from "../../../../../../settings/globalStatus
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const VerhicleTravelSection = ({
+const InfoTourGuideSection = ({
   form,
   request,
   setProvinces,
@@ -64,29 +64,6 @@ const VerhicleTravelSection = ({
                           ))}
                         </Select>
                       </Form.Item>
-                      <Form.Item
-                        name={[name, "districtId"]}
-                        className="flex font-semibold"
-                        placeholder="Huyện/TP"
-                        rules={[
-                          { required: true, message: "Missing district" },
-                        ]}
-                        shouldUpdate={(prevValues, currentValues) =>
-                          prevValues.province !== currentValues.province
-                        }
-                      >
-                        <Select
-                          placeholder="Huyện/TP"
-                          className="!w-[200px] mr-10"
-                          // disabled={!districtEnabled}
-                        >
-                          {districts.map((district) => (
-                            <Option key={district.id} value={district.id}>
-                              {district.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
 
                       <Form.Item
                         label="Số ngày:"
@@ -106,57 +83,33 @@ const VerhicleTravelSection = ({
                           className="!w-[200px] mr-10"
                         />
                       </Form.Item>
-                    </div>
-                    <div className="flex flex-wrap">
                       <Form.Item
+                        label="Số lượng hướng dẫn viên:"
                         className=" font-semibold"
-                        label="Phương tiện du lịch:"
-                        name={[name, "vehicleType"]}
+                        name={[name, "numOfGuide"]}
                         rules={[
                           {
                             required: true,
-                            message: "Please select a vehicle",
-                          },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Chọn phương tiện"
-                          className="!w-[200px] mr-10"
-                        >
-                          {Object.entries(servingVehiclesQuantity).map(
-                            ([key, label]) => (
-                              <Option key={key} value={parseInt(key, 10)}>
-                                {label}
-                              </Option>
-                            )
-                          )}
-                        </Select>
-                      </Form.Item>
-                      <div className="flex font-semibold text-gray-500 mr-10">
-                        <h3 className="text-lg mr-3">Khoảng giá: </h3>
-                        <p className="text-lg">
-                          {" "}
-                          1.300.000 ~ 1.600.000/xe/ngày
-                        </p>
-                      </div>
-                      <Form.Item
-                        label="Số lượng xe:"
-                        className=" font-semibold"
-                        name={[name, "numOfVehicle"]}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter number of days",
+                            message: "Vui lòng điền số lượng hướng dẫn viên",
                           },
                         ]}
                       >
                         <InputNumber
                           min={1}
                           max={30}
-                          placeholder="Số lượng xe"
+                          placeholder="Số lượng hướng dẫn viên"
                           className="!w-[200px] mr-10"
                         />
                       </Form.Item>
+                    </div>
+                    <div className="w-full">
+                      <div className="flex font-semibold text-gray-500 mr-10">
+                        <h3 className="text-lg mr-3 ">Khoảng giá: </h3>
+                        <p className="text-lg ">
+                          {" "}
+                          1.300.000 ~ 1.600.000/xe/ngày
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -171,7 +124,7 @@ const VerhicleTravelSection = ({
                 block
                 icon={<PlusOutlined />}
               >
-                Thêm phương tiện du lịch
+                Thêm tỉnh
               </Button>
             </Form.Item>
           </>
@@ -180,4 +133,4 @@ const VerhicleTravelSection = ({
     </>
   );
 };
-export default VerhicleTravelSection;
+export default InfoTourGuideSection;
