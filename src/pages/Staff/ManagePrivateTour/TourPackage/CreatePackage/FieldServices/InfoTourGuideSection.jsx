@@ -31,7 +31,7 @@ const InfoTourGuideSection = ({
 
   return (
     <>
-      <Form.List name="travelOptions" initialValue={[{}]}>
+      <Form.List name="InfoTourGuide" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name }, index) => (

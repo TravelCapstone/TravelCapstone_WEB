@@ -28,6 +28,7 @@ const { Option } = Select;
 function CreateOptionForm({ request }) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
 
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -38,6 +39,7 @@ function CreateOptionForm({ request }) {
   const [selectedDistricts, setSelectedDistricts] = useState([]);
 
   console.log("request", request);
+  console.log("selectedProvince", selectedProvince);
 
   const renderOtherLocations = (locations) => {
     return locations?.map((location) => (
@@ -62,22 +64,27 @@ function CreateOptionForm({ request }) {
   }, [request]);
 
   useEffect(() => {
+    const loadDistricts = async () => {
+      setLoadingDistricts(true);
+      try {
+        const response = await getAllDistrictsByProvinceId(selectedProvince);
+        setDistricts(response);
+      } catch (error) {
+        message.error("Failed to fetch districts");
+      } finally {
+        setLoadingDistricts(false);
+      }
+    };
+
     if (selectedProvince) {
-      const loadDistricts = async () => {
-        try {
-          const response = await getAllDistrictsByProvinceId(selectedProvince);
-          setDistricts(response);
-        } catch (error) {
-          message.error("Failed to fetch districts");
-        }
-      };
       loadDistricts();
     } else {
-      setDistricts([]); // Clear districts when no province is selected
+      setDistricts([]);
     }
   }, [selectedProvince]);
 
   const handleProvinceChange = (value, name) => {
+    debugger;
     // Update selected provinces
     const newSelectedProvinces = form.getFieldValue("provinces") || [];
     newSelectedProvinces[name] = value;
@@ -93,65 +100,93 @@ function CreateOptionForm({ request }) {
     setSelectedDistrict(value);
   };
 
+  const adjustFormToAPI = (values) => {
+    const apiPayload = {
+      startDate: values.startDate,
+      endDate: values.endDate,
+      tourGuideCosts: values.InfoTourGuide.map((guide) => ({
+        quantity: guide.numOfGuide,
+        numOfDay: guide.numOfRentingDay,
+        provinceId: guide.provinceId,
+      })),
+      materialCosts: [], // Include actual fields from your form if any
+      assurancePriceHistoryId: "", // Assume a value or add a field in your form
+      organizationCost: 0, // Static or from form
+      contigencyFeePerPerson: 0, // Static or from form
+      escortFee: 0, // Static or from form
+      operatingFee: 0, // Static or from form
+      privateTourRequestId: "", // From form or preset
+      provinceServices: values.provinceServices.map((service) => ({
+        hotels: [
+          {
+            districtId: service.districtId,
+            startDate: service.hotelStartDate,
+            endDate: service.hotelEndDate,
+            servingQuantity: service.servingQuantity,
+            numOfRoom: service.numOfRoom,
+            hotelOptionRatingOption1: service.hotelOption1,
+            hotelOptionRatingOption2: service.hotelOption2,
+            hotelOptionRatingOption3: service.hotelOption3,
+          },
+        ],
+        restaurants: [
+          {
+            districtId: service.districtId,
+            menuQuotations: [
+              {
+                date: service.menuDate, // Assuming a date field for simplicity
+                breakfastMenuOption1: service.breakfastOption1,
+                breakfastMenuOption2: service.breakfastOption2,
+                breakfastMenuOption3: service.breakfastOption3,
+                lunchMenuOption1: service.lunchOption1,
+                lunchMenuOption2: service.lunchOption2,
+                lunchMenuOption3: service.lunchOption3,
+                dinnerMenuOption1: service.dinnerOption1,
+                dinnerMenuOption2: service.dinnerOption2,
+                dinnerMenuOption3: service.dinnerOption3,
+              },
+            ],
+          },
+        ],
+        entertainments: [
+          {
+            districtId: service.districtId,
+            quantityLocationOption1: service.entertainmentOption1,
+            quantityLocationOption2: service.entertainmentOption2,
+            quantityLocationOption3: service.entertainmentOption3,
+          },
+        ],
+        eventGalas: [
+          {
+            date: service.galaDate,
+            option1EventId: service.galaOption1,
+            option2EventId: service.galaOption2,
+            option3EventId: service.galaOption3,
+          },
+        ],
+      })),
+      vehicles: values.transportation.map((vehicle) => ({
+        vehicleType: vehicle.vehicleType,
+        startPoint: vehicle.startPoint,
+        startPointDistrict: vehicle.startPointDistrict,
+        endPoint: vehicle.endPoint,
+        endPointDistrict: vehicle.endPointDistrict,
+        startDate: vehicle.startDate,
+        endDate: vehicle.endDate,
+        numOfVehicle: vehicle.numOfVehicle,
+        optionClass1: vehicle.optionClass1,
+        optionClass2: vehicle.optionClass2,
+        optionClass3: vehicle.optionClass3,
+      })),
+    };
+
+    return apiPayload;
+  };
+
   const onFinish = async (values) => {
     console.log("Received values of form: ", values);
 
-    const hotels = values.locations.map((location) => ({
-      districtId: location.districtId,
-      numOfDay: location.numOfDay,
-      startDate: location.stayDates[0].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-      endDate: location.stayDates[1].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-      rating: location.ratingHotel,
-      servingQuantity: location.roomType,
-      numOfRoom: location.numOfRoom,
-    }));
-    // debugger;
-
-    const restaurants = values.diningOptions.map((restaurants) => ({
-      districtId: restaurants.districtId,
-      startDate: restaurants.mealDates[0].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-      endDate: restaurants.mealDates[1].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-      rating: restaurants.diningType,
-      mealPerDay: restaurants.mealPerDay,
-      numOfDay: restaurants.numOfDay,
-      servingQuantity: restaurants.servingQuantity,
-      serviceAvailability: restaurants.serviceAvailability,
-    }));
-
-    const entertainment = values.entertainment.map((entertainment) => ({
-      districtId: entertainment.districtId,
-      quantityLocation: entertainment.quantityLocation,
-    }));
-
-    const vehicleTransportation = values.transportation.map((vehicle) => ({
-      vehicleType: vehicle.vehicleType,
-      startPointDistrict: vehicle.startPointDistrict,
-      endPoint: vehicle.endPoint,
-      endPointDistrict: vehicle.endPointDistrict,
-      numOfRentingDay: vehicle?.numOfRentingDay,
-      numOfVehicle: vehicle?.numOfVehicle,
-      // startDate: vehicle.dateRange[0].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-    }));
-    const vehicleTravel = values.travelOptions.map((vehicle) => ({
-      vehicleType: vehicle.vehicleType,
-      startPoint: vehicle.provinceId,
-      startPointDistrict: vehicle.districtId,
-      numOfRentingDay: vehicle?.numOfRentingDay,
-      numOfVehicle: vehicle?.numOfVehicle,
-      // startDate: vehicle.dateRange[0].format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-    }));
-
-    const vehicles = vehicleTransportation.concat(vehicleTravel);
-    console.log("vehicles", vehicles);
-
-    const payload = {
-      optionClass: values.classification, // ok
-      privateTourRequestId: request?.privateTourResponse?.id, // ok
-      hotels: hotels,
-      restaurants: restaurants,
-      entertainments: entertainment,
-      vehicles: vehicles,
-    };
+    const payload = {};
 
     setLoading(true);
     try {
@@ -293,6 +328,10 @@ function CreateOptionForm({ request }) {
           <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
             DỊCH VỤ RIÊNG TỪNG GÓI
           </h2>
+          <div className="mt-10">
+            <h3>Form Data:</h3>
+            <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
+          </div>
           <div className=" mx-4">
             <EachServiceSection
               form={form}
@@ -303,7 +342,12 @@ function CreateOptionForm({ request }) {
               districts={districts}
               onDistrictChange={handleDistrictChange}
               selectedProvinces={selectedProvinces}
+              selectedProvince={selectedProvince}
               selectedDistricts={selectedDistricts}
+              loadingDistricts={loadingDistricts}
+              getAllDistrictsByProvinceId={getAllDistrictsByProvinceId}
+              setLoadingDistricts={setLoadingDistricts}
+              setDistricts={setDistricts}
             />
           </div>
 
