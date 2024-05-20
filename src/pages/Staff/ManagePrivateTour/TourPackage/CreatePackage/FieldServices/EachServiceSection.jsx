@@ -22,8 +22,8 @@ import { getMinMaxPriceOfHotel } from "../../../../../../api/SellPriceHistoryApi
 import LodgingSection from "./LodgingSection";
 import RestaurantSection from "./RestaurantSection";
 import EntertainmentSection from "./EntertaimentSection";
-// import DistrictServicesSection from "./DistrictServicesSection";
 import { v4 as uuidv4 } from "uuid";
+import EventGalasSection from "./eventGalasSection";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -199,9 +199,24 @@ const EachServiceSection = ({
                                 {/* GIẢI TRÍ */}
                                 <div>
                                   <h3 className="font-bold text-lg my-6 text-mainColor">
-                                    Giải trí (Địa điểm du lịch)
+                                    Gói dịch vụ giải trí:
                                   </h3>
                                   <EntertainmentSection
+                                    basePath={[field.name]}
+                                    form={form}
+                                    provinces={provinces}
+                                    districts={districts}
+                                    onProvinceChange={onProvinceChange}
+                                    setProvinces={setProvinces}
+                                  />
+                                </div>
+
+                                {/* GALA/TEAMBULDING */}
+                                <div>
+                                  <h3 className="font-bold text-lg my-6 text-mainColor">
+                                    Gói GALA/ TEAMBULDING
+                                  </h3>
+                                  <EventGalasSection
                                     basePath={[field.name]}
                                     form={form}
                                     provinces={provinces}

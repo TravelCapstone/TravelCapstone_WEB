@@ -29,47 +29,101 @@ const EntertainmentSection = ({
   }, [request]);
 
   return (
-    <Form.Item>
-      <Space
-        direction="vertical"
-        size="large"
-        className="flex my-8  justify-between"
-        align="baseline"
-      >
-        <div className="flex">
-          <div>
-            <div className="flex ">
-              <div className="flex flex-wrap">
-                <div className="flex font-semibold text-gray-500">
-                  <h3 className="text-lg mr-3">Khu du lịch - </h3>
-                  <h3 className="text-lg mr-3">Giá vé: </h3>
-                  <p className="text-lg"> 40.000 ~ 180.000/vé</p>
+    <Form.List name={[...basePath, "entertainments"]}>
+      {(fields, { add, remove }) => (
+        <>
+          {fields.map((field, index) => (
+            <Space
+              direction="vertical"
+              size="large"
+              className="flex justify-between"
+              align="baseline"
+            >
+              <div className="flex">
+                <div>
+                  <div className="flex ">
+                    <div className="flex flex-wrap">
+                      <div className="flex font-semibold text-gray-500">
+                        <h3 className="text-lg mr-3">Khu du lịch - </h3>
+                        <h3 className="text-lg mr-3">Giá vé: </h3>
+                        <p className="text-lg"> 40.000 ~ 180.000/vé</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="Options my-4">
+                    <div className="Option1 my-4">
+                      <li className="list-disc text-lg font-semibold mb-2 text-red-400">
+                        Gói Tiết Kiệm:
+                      </li>
+                      <Form.Item
+                        className=" font-semibold my-2"
+                        name={[...basePath, "quantityLocation1"]}
+                        label="Số lượng địa điểm du lịch:"
+                      >
+                        <InputNumber
+                          min={1}
+                          className="!w-[200px] mr-10"
+                          max={100}
+                          placeholder="Số lượng địa điểm du lịch"
+                        />
+                      </Form.Item>
+                    </div>
+
+                    <div className="Option2 my-4">
+                      <li className="list-disc text-lg font-semibold mb-2 text-red-400">
+                        Gói Cơ Bản:
+                      </li>
+                      <Form.Item
+                        className=" font-semibold my-2"
+                        name={[...basePath, "quantityLocation2"]}
+                        label="Số lượng địa điểm du lịch:"
+                      >
+                        <InputNumber
+                          min={1}
+                          className="!w-[200px] mr-10"
+                          max={100}
+                          placeholder="Số lượng địa điểm du lịch"
+                        />
+                      </Form.Item>
+                    </div>
+
+                    <div className="Option3 my-4">
+                      <li className="list-disc text-lg font-semibold mb-2 text-red-400">
+                        Gói Nâng Cao:
+                      </li>
+                      <Form.Item
+                        className=" font-semibold my-2"
+                        name={[...basePath, "quantityLocation3"]}
+                        label="Số lượng địa điểm du lịch:"
+                      >
+                        <InputNumber
+                          min={1}
+                          className="!w-[200px] mr-10"
+                          max={100}
+                          placeholder="Số lượng địa điểm du lịch"
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <Form.Item
-              className=" font-semibold my-4"
-              name={[...basePath, "quantityLocation"]}
-              label="Số lượng địa điểm du lịch:"
-              rules={[
-                {
-                  required: true,
-                  message: "Missing number of locations",
-                },
-              ]}
+            </Space>
+          ))}
+          <Form.Item>
+            <Button
+              onClick={() => add()}
+              className="bg-teal-600 font-semibold text-white"
+              type="dashed"
+              style={{ marginTop: 16 }}
+              icon={<PlusOutlined />}
             >
-              <InputNumber
-                min={1}
-                className="!w-[200px] mr-10"
-                max={100}
-                placeholder="Số lượng địa điểm du lịch"
-              />
-            </Form.Item>
-          </div>
-        </div>
-      </Space>
-    </Form.Item>
+              Tạo Gói dịch vụ giải trí
+            </Button>
+          </Form.Item>
+        </>
+      )}
+    </Form.List>
   );
 };
 export default EntertainmentSection;
