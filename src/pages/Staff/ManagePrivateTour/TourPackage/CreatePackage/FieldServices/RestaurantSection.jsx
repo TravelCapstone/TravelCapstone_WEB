@@ -205,7 +205,7 @@ const RestaurantSection = ({ form, basePath }) => {
     return String.fromCharCode(97 + index);
   };
   return (
-    <Form.List name={[...basePath, "restaurants"]} initialValue={[{}]}>
+    <Form.List name={[...basePath, "restaurants"]}>
       {(fields, { add, remove }) => (
         <>
           {fields.map((field, index) => (
@@ -237,7 +237,7 @@ const RestaurantSection = ({ form, basePath }) => {
               </div>
             </div>
           ))}
-          <Form.Item className="w-1/3">
+          <Form.Item>
             <Button
               onClick={() => add({ key: uuidv4() })}
               className="bg-teal-600 font-semibold text-white"
@@ -245,7 +245,7 @@ const RestaurantSection = ({ form, basePath }) => {
               style={{ marginTop: 16 }}
               icon={<PlusOutlined />}
             >
-              Thêm ngày
+              Thêm ngày dùng bữa
             </Button>
           </Form.Item>
         </>
