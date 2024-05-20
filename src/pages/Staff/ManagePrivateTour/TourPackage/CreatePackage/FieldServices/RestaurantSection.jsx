@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Button,
   Form,
@@ -7,166 +7,250 @@ import {
   Space,
   TreeSelect,
   InputNumber,
+  Table,
+  Popconfirm,
+  Input,
+  Checkbox,
+  Typography,
 } from "antd";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import {
   ratingLabels,
   servingActor,
   servingFoodsQuantity,
 } from "../../../../../../settings/globalStatus";
+import { v4 as uuidv4 } from "uuid";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { TreeNode } = TreeSelect;
 
-const RestaurantSection = ({
-  form,
-  provinces,
-  districts,
-  onProvinceChange,
-  setProvinces,
-  request,
+const EditableCell = ({
+  editing,
+  dataIndex,
+  title,
+  record,
+  children,
+  ...restProps
 }) => {
-  const [diningDetails, setDiningDetails] = useState({});
-
-  useEffect(() => {
-    if (request?.privateTourResponse?.otherLocation) {
-      setProvinces(
-        request.privateTourResponse.otherLocation.map((loc) => ({
-          id: loc.provinceId,
-          name: loc.province.name,
-        }))
-      );
-    }
-  }, [request]);
-
-  const handleDiningTypeChange = (selectedType, name) => {
-    const newDetails = { ...diningDetails, [name]: [selectedType] }; // Store as an array for future multi-selection
-    setDiningDetails(newDetails);
-  };
-
-  const keysToShow = [5, 6, 7, 8, 9];
-
-  // Filter ratingLabels to only include the specified keys
-  const filteredLabels = Object.fromEntries(
-    Object.entries(ratingLabels).filter(([key]) =>
-      keysToShow.includes(parseInt(key))
-    )
+  return (
+    <td {...restProps}>
+      {editing ? (
+        <Form.Item style={{ margin: 0 }} name={[record.name, dataIndex]}>
+          {children}
+        </Form.Item>
+      ) : (
+        children
+      )}
+    </td>
   );
+};
+
+const DaySection = ({ basePath, name }) => {
+  const columns = [
+    {
+      title: "Bữa",
+      dataIndex: "meal",
+      render: (_, record) => (
+        <Form.Item
+          name={[record.name, "meal"]}
+          rules={[{ required: true, message: "Please select a meal!" }]}
+          style={{ margin: 0 }}
+        >
+          <Select>
+            <Option value="breakfast">Sáng</Option>
+            <Option value="lunch">Trưa</Option>
+            <Option value="dinner">Tối</Option>
+          </Select>
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Tự túc",
+      dataIndex: "selfServe",
+      render: (_, record) => (
+        <Form.Item
+          name={[record.name, "selfServe"]}
+          valuePropName="checked"
+          style={{ margin: 0 }}
+        >
+          <Checkbox />
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Tên Quán",
+      dataIndex: "name",
+      render: (_, record) => (
+        <Form.Item
+          name={[record.name, "name"]}
+          rules={[{ required: true, message: "Please select a name!" }]}
+          style={{ margin: 0 }}
+        >
+          <Select>
+            <Option value="Bích Phương">Bích Phương</Option>
+            <Option value="Mạnh Cường">Mạnh Cường</Option>
+            <Option value="Gia Khiêm">Gia Khiêm</Option>
+          </Select>
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Loại bàn",
+      dataIndex: "tableType",
+      render: (_, record) => (
+        <Form.Item
+          name={[record.name, "tableType"]}
+          rules={[{ required: true, message: "Please select a table type!" }]}
+          style={{ margin: 0 }}
+        >
+          <Select placeholder="Chọn loại bàn">
+            <Option value="type1">Bàn loại 1</Option>
+            <Option value="type2">Bàn loại 2</Option>
+          </Select>
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Menu Gói Tiết Kiệm",
+      dataIndex: "economyMenu",
+      render: (_, record) => (
+        <Form.Item name={[record.name, "economyMenu"]} style={{ margin: 0 }}>
+          <Select placeholder="Select menu">
+            <Option value="menu1">Menu 1</Option>
+            <Option value="menu2">Menu 2</Option>
+          </Select>
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Menu Gói Cơ Bản",
+      dataIndex: "basicMenu",
+      render: (_, record) => (
+        <Form.Item name={[record.name, "basicMenu"]} style={{ margin: 0 }}>
+          <Select placeholder="Select menu">
+            <Option value="menu1">Menu 1</Option>
+            <Option value="menu2">Menu 2</Option>
+          </Select>
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Menu Gói Nâng Cao",
+      dataIndex: "advancedMenu",
+      render: (_, record) => (
+        <Form.Item name={[record.name, "advancedMenu"]} style={{ margin: 0 }}>
+          <Select placeholder="Select menu">
+            <Option value="menu1">Menu 1</Option>
+            <Option value="menu2">Menu 2</Option>
+          </Select>
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Xoá",
+      dataIndex: "actions",
+      render: (_, record) => (
+        <Button
+          type="link"
+          onClick={() => remove(record.name)}
+          icon={<DeleteOutlined />}
+        ></Button>
+      ),
+    },
+  ];
 
   return (
-    <Form.Item>
-      <Space
-        direction="vertical"
-        size="large"
-        className="flex my-8  justify-between"
-        align="baseline"
-      >
-        <div className="flex flex-col flex-grow w-full">
-          <div className="flex flex-wrap">
-            <Form.Item
-              label="Ngày dùng bữa:"
-              className="font-semibold"
-              name={[name, "mealDates"]}
-              rules={[
-                {
-                  required: true,
-                  message: "Please choose the meal dates!",
-                },
-              ]}
-            >
-              <RangePicker showTime className="!min-w-[300px] mr-10" />
-            </Form.Item>
-          </div>
-          <div className="flex flex-wrap">
-            <Form.Item
-              className="font-semibold"
-              label="Loại hình ăn uống:"
-              name={[name, "diningType"]}
-              rules={[
-                {
-                  required: true,
-                  message: "Please select a dining type!",
-                },
-              ]}
-            >
-              <Select
-                className="!w-[250px] mr-10"
-                onChange={(selectedType) =>
-                  handleDiningTypeChange(selectedType, name)
-                }
-                placeholder="Chọn loại hình ăn uống"
-              >
-                {Object.entries(filteredLabels).map(([key, label]) => (
-                  <Option key={key} value={parseInt(key, 10)}>
-                    {label}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <div className="flex font-semibold text-gray-500 mr-10">
-              <h3 className="text-lg mr-3">Khoảng giá: </h3>
-              <p className="text-lg"> 1.300.000 ~ 1.600.000 /người</p>
-            </div>
-            <Form.Item
-              className=" font-semibold"
-              name={[name, "servingQuantity"]}
-              label="Loại bàn:"
-              rules={[{ required: true, message: "Vui lòng chọn loại bàn!" }]}
-            >
-              <Select placeholder="Chọn loại bàn" className="!w-[200px] mr-10">
-                {Object.entries(servingFoodsQuantity).map(([key, value]) => (
-                  <Option key={key} value={parseInt(key, 10)}>
-                    {value}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name={[name, "numOfDay"]}
-              className=" font-semibold"
-              label="Số lượng ngày dùng bữa:"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng điền số lượng ngày dùng bữa",
-                },
-              ]}
-            >
-              <InputNumber min={1} max={30} className=" mr-10" />
-            </Form.Item>
+    <Form.List name={name} initialValue={[{}]}>
+      {(fields, { add, remove }) => (
+        <>
+          <Table
+            dataSource={fields.map((field) => ({ ...field, key: field.key }))}
+            columns={columns}
+            pagination={false}
+            components={{ body: { cell: EditableCell } }}
+          />
+          <Button
+            onClick={() =>
+              add({
+                key: uuidv4(),
+                meal: "",
+                selfServe: false,
+                name: "",
+                tableType: "",
+                economyMenu: "",
+                basicMenu: "",
+                advancedMenu: "",
+              })
+            }
+            icon={<PlusOutlined />}
+            type="dashed"
+            style={{ width: "100%", marginTop: 16 }}
+          >
+            Thêm bữa ăn
+          </Button>
+        </>
+      )}
+    </Form.List>
+  );
+};
 
-            <Form.Item
-              name={[name, "mealPerDay"]}
-              className=" font-semibold"
-              label="Số lượng bữa ăn dùng trong 1 ngày:"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng điền số lượng bữa ăn dùng trong 1 ngày",
-                },
-              ]}
+const RestaurantSection = ({ form, basePath }) => {
+  const indexToAlpha = (index) => {
+    // Converts 0 to 'a', 1 to 'b', etc.
+    return String.fromCharCode(97 + index);
+  };
+  return (
+    <Form.List name={[...basePath, "restaurants"]} initialValue={[{}]}>
+      {(fields, { add, remove }) => (
+        <>
+          {fields.map((field, index) => (
+            <div key={field.key}>
+              <div className="flex justify-between">
+                <div className="font-semibold mr-5 text-lg">
+                  {indexToAlpha(index)}.
+                </div>
+                <div>
+                  <Form.Item
+                    name={[field.name, "date"]}
+                    className=" font-semibold"
+                    label="Ngày"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please choose the stay dates!",
+                      },
+                    ]}
+                  >
+                    <DatePicker className="!min-w-[300px]" />
+                  </Form.Item>
+                  <DaySection form={form} name={[field.name, "days"]} />
+                </div>
+                <DeleteOutlined
+                  onClick={() => remove(field.name)}
+                  className="self-start mt-2"
+                />
+              </div>
+            </div>
+          ))}
+          <Form.Item className="w-1/3">
+            <Button
+              onClick={() => add({ key: uuidv4() })}
+              className="bg-teal-600 font-semibold text-white"
+              type="dashed"
+              style={{ marginTop: 16 }}
+              icon={<PlusOutlined />}
             >
-              <InputNumber min={1} max={30} className=" mr-10" />
-            </Form.Item>
-            <Form.Item
-              className=" font-semibold"
-              name={[name, "serviceAvailability"]}
-              label="Đối tượng:"
-              rules={[{ required: true, message: "Vui lòng chọn đối tượng!" }]}
-            >
-              <Select placeholder="Chọn đối tượng" className="!w-[200px] mr-10">
-                {Object.entries(servingActor).map(([key, value]) => (
-                  <Option key={key} value={parseInt(key, 10)}>
-                    {value}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </div>
-        </div>
-      </Space>
-    </Form.Item>
+              Thêm ngày
+            </Button>
+          </Form.Item>
+        </>
+      )}
+    </Form.List>
   );
 };
 
