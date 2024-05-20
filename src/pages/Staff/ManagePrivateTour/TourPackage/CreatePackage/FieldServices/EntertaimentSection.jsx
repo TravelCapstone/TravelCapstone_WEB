@@ -15,6 +15,7 @@ const EntertainmentSection = ({
   districts,
   provinces,
   onProvinceChange,
+  basePath,
 }) => {
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
@@ -49,7 +50,7 @@ const EntertainmentSection = ({
 
             <Form.Item
               className=" font-semibold my-4"
-              name={[name, "quantityLocation"]}
+              name={[...basePath, "quantityLocation"]}
               label="Số lượng địa điểm du lịch:"
               rules={[
                 {

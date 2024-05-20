@@ -173,6 +173,7 @@ const EachServiceSection = ({
                                     Nơi lưu trú:
                                   </h3>
                                   <LodgingSection
+                                    basePath={[field.name]}
                                     form={form}
                                     provinces={provinces}
                                     districts={districts}
@@ -189,11 +190,10 @@ const EachServiceSection = ({
                                     Dịch vụ ăn uống:
                                   </h3>
                                   <RestaurantSection
+                                    basePath={[field.name]}
                                     form={form}
-                                    provinces={provinces}
-                                    districts={districts}
-                                    onProvinceChange={onProvinceChange}
-                                    setProvinces={setProvinces}
+                                    // basePath={["provinceServices", field.name]}
+                                    index={index}
                                   />
                                 </div>
                                 {/* GIẢI TRÍ */}
@@ -202,6 +202,7 @@ const EachServiceSection = ({
                                     Giải trí (Địa điểm du lịch)
                                   </h3>
                                   <EntertainmentSection
+                                    basePath={[field.name]}
                                     form={form}
                                     provinces={provinces}
                                     districts={districts}
