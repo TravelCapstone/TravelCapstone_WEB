@@ -20,15 +20,20 @@ import {
   servingVehiclesQuantity,
 } from "../../../../../../settings/globalStatus";
 
+const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const TransportationSection = ({
   form,
+  priceInfo,
+  setPriceInfo,
   request,
   setProvinces,
   districts,
   provinces,
   onProvinceChange,
+  fetchVehiclePriceRange,
+  handleFieldChange,
 }) => {
   const [selectedForSwap, setSelectedForSwap] = useState([]);
   const [routes, setRoutes] = useState([
@@ -93,7 +98,9 @@ const TransportationSection = ({
                     >
                       <Select
                         placeholder="Tỉnh"
-                        onChange={onProvinceChange}
+                        onChange={(value) =>
+                          onProvinceChange(index, value, "startPoint")
+                        }
                         className="!w-[200px] mr-10"
                       >
                         {provinces.map((province) => (
@@ -133,7 +140,9 @@ const TransportationSection = ({
                     >
                       <Select
                         placeholder="Tỉnh"
-                        onChange={onProvinceChange}
+                        onChange={(value) =>
+                          onProvinceChange(index, value, "endPoint")
+                        }
                         className="!w-[200px] mr-10"
                       >
                         {provinces.map((province) => (
@@ -176,7 +185,11 @@ const TransportationSection = ({
                       },
                     ]}
                   >
-                    <DatePicker showTime className="!w-[250px] mr-10" />
+                    <RangePicker
+                      onChange={() => fetchVehiclePriceRange(index)}
+                      showTime
+                      className="!w-[350px] mr-10"
+                    />
                   </Form.Item>
                   <div className="flex flex-wrap ">
                     <Form.Item
@@ -193,6 +206,9 @@ const TransportationSection = ({
                       <Select
                         placeholder="Select transport"
                         className="!w-[250px] mr-10"
+                        onChange={(value) =>
+                          onProvinceChange(index, value, "vehicleType")
+                        }
                       >
                         {Object.entries(servingVehiclesQuantity).map(
                           ([key, label]) => (
@@ -203,10 +219,29 @@ const TransportationSection = ({
                         )}
                       </Select>
                     </Form.Item>
-                    <div className="flex font-semibold text-gray-500 mr-10">
-                      <h3 className="text-lg mr-3">Khoảng giá: </h3>
-                      <p className="text-lg"> 1.300.000 ~ 1.600.000 /người</p>
-                    </div>
+                    {priceInfo[index] && (
+                      <div className="flex font-semibold text-gray-500 mr-10">
+                        <h3 className="text-lg mr-3">Khoảng giá: </h3>
+                        <p className="text-lg">
+                          {priceInfo[index].minCostperPerson.toLocaleString(
+                            "vi-VN",
+                            {
+                              style: "currency",
+                              currency: "VND",
+                            }
+                          )}{" "}
+                          ~{" "}
+                          {priceInfo[index].maxCostperPerson.toLocaleString(
+                            "vi-VN",
+                            {
+                              style: "currency",
+                              currency: "VND",
+                            }
+                          )}{" "}
+                          /người
+                        </p>
+                      </div>
+                    )}
                     <Form.Item
                       label="Số lượng xe:"
                       className=" font-semibold"
@@ -221,6 +256,7 @@ const TransportationSection = ({
                       <InputNumber
                         min={1}
                         max={30}
+                        onChange={() => fetchVehiclePriceRange(index)}
                         placeholder="Số lượng xe"
                         className="!w-[200px] mr-10"
                       />

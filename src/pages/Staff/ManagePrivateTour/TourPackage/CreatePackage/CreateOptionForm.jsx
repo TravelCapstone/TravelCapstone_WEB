@@ -24,6 +24,8 @@ import InfoTourGuideSection from "./FieldServices/InfoTourGuideSection";
 import EachServiceSection from "./FieldServices/EachServiceSection";
 import InsuranceSection from "./FieldServices/InsuranceSection";
 import { postHumanResourceSalaryWithIsForTourguide } from "../../../../../api/HumanResourceSalaryApi";
+import { getVehiclePriceRange } from "../../../../../api/SellPriceHistoryApi";
+import MaterialCostsSection from "./FieldServices/materialCostsSection";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -43,6 +45,9 @@ function CreateOptionForm({ request }) {
 
   const [salaryInfo, setSalaryInfo] = useState(null);
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
+
+  // Get giá Verhicle
+  const [priceInfo, setPriceInfo] = useState({});
 
   console.log("salaryInfo", salaryInfo);
 
@@ -75,13 +80,74 @@ function CreateOptionForm({ request }) {
       }
     };
 
+    // Only fetch salary if both values are present
+    if (
+      quantityTourGuide !== null &&
+      request?.privateTourResponse?.numOfDay !== undefined
+    ) {
+      fetchSalary();
+    }
+
     // Call fetchSalary if both values are present
-    fetchSalary();
   }, [quantityTourGuide, , request?.privateTourResponse?.numOfDay]); // Dependency array
 
   // Update state when form field changes
   const handleQuantityChange = (value) => {
     setQuantityTourGuide(value);
+  };
+
+  // get giá verhicle
+  const fetchVehiclePriceRange = async (index) => {
+    debugger;
+
+    const quantity =
+      request?.privateTourResponse?.numOfAdult +
+      request?.privateTourResponse?.numOfChildren;
+    const values = form.getFieldValue("transportation")[index];
+    if (
+      !values.startPoint ||
+      !values.endPoint ||
+      !values.vehicleType ||
+      !values.dateRange ||
+      !values.numOfVehicle ||
+      !quantity
+    ) {
+      return;
+    }
+    const startDate = values.dateRange[0].toISOString();
+    const endDate = values.dateRange[1].toISOString();
+
+    try {
+      debugger;
+      const response = await getVehiclePriceRange(
+        values.startPoint,
+        values.endPoint,
+        values.vehicleType,
+        quantity,
+        startDate,
+        endDate
+      );
+      console.log("responseVerhicle", response);
+      if (response && response.result) {
+        setPriceInfo((prev) => ({
+          ...prev,
+          [index]: {
+            minCostperPerson: response.result.minCostperPerson,
+            maxCostperPerson: response.result.maxCostperPerson,
+          },
+        }));
+      } else {
+        message.error("Failed to fetch vehicle price range");
+      }
+    } catch (error) {
+      console.error("Failed to fetch vehicle price range:", error);
+      message.error("Failed to fetch vehicle price range");
+    }
+  };
+
+  // Get giá verhicle change
+  const handleFieldChange = (index) => {
+    fetchVehiclePriceRange(index);
   };
 
   console.log("request", request);
@@ -129,11 +195,12 @@ function CreateOptionForm({ request }) {
     }
   }, [selectedProvince]);
 
-  const handleProvinceChange = (value, name) => {
-    debugger;
+  const handleProvinceChange = (index, value, name) => {
     // Update selected provinces
     const newSelectedProvinces = form.getFieldValue("provinces") || [];
     newSelectedProvinces[name] = value;
+    fetchVehiclePriceRange(index);
+
     setSelectedProvinces(newSelectedProvinces);
     setSelectedProvince(value);
   };
@@ -335,11 +402,15 @@ function CreateOptionForm({ request }) {
                 Phương tiện di chuyển
               </h3>
               <TransportationSection
+                priceInfo={priceInfo}
+                setPriceInfo={setPriceInfo}
                 form={form}
                 provinces={provinces}
                 districts={districts}
                 onProvinceChange={handleProvinceChange}
                 setProvinces={setProvinces}
+                fetchVehiclePriceRange={fetchVehiclePriceRange}
+                handleFieldChange={handleFieldChange}
               />
             </div>
 
@@ -349,52 +420,74 @@ function CreateOptionForm({ request }) {
                 Phương tiện du lịch trong tỉnh
               </h3>
               <VerhicleTravelSection
+                priceInfo={priceInfo}
+                setPriceInfo={setPriceInfo}
                 form={form}
                 provinces={provinces}
                 districts={districts}
                 onProvinceChange={handleProvinceChange}
                 setProvinces={setProvinces}
+                fetchVehiclePriceRange={fetchVehiclePriceRange}
+                handleFieldChange={handleFieldChange}
               />
             </div>
+
             <div>
               <h3 className="font-bold text-lg my-2 text-mainColor">
                 Thông tin hướng dẫn viên cả tour
               </h3>
-              <Form.Item
-                label="Số lượng hướng dẫn viên:"
-                className=" font-semibold"
-                name="quantityTourGuide"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng điền số lượng hướng dẫn viên",
-                  },
-                ]}
-              >
-                <InputNumber
-                  min={1}
-                  max={30}
-                  onChange={handleQuantityChange}
-                  placeholder="Số lượng hướng dẫn viên"
-                  className="!w-[200px] mr-10"
-                />
-              </Form.Item>
-              {salaryInfo && (
-                <p>
-                  Phí hướng dẫn viên:{" "}
-                  {salaryInfo.result.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                </p>
-              )}{" "}
-              {/* Adjust based on actual response structure */}
+              <div className="flex flex-wrap">
+                <Form.Item
+                  label="Số lượng hướng dẫn viên:"
+                  className=" font-semibold"
+                  name="quantityTourGuide"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng điền số lượng hướng dẫn viên",
+                    },
+                  ]}
+                >
+                  <InputNumber
+                    min={1}
+                    max={30}
+                    onChange={handleQuantityChange}
+                    placeholder="Số lượng hướng dẫn viên"
+                    className="!w-[200px] mr-10"
+                  />
+                </Form.Item>
+                <div className="flex font-semibold text-gray-500 ml-10">
+                  {salaryInfo && (
+                    <p>
+                      Phí hướng dẫn viên:{" "}
+                      {salaryInfo.result.toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </p>
+                  )}{" "}
+                  {/* Adjust based on actual response structure */}
+                </div>
+              </div>
             </div>
+            {/* THÔNG TIN HƯỚNG DẪN VIÊN TRONG TỈNH */}
             <div>
               <h3 className="font-bold text-lg my-2 text-mainColor">
                 Thông tin hướng dẫn viên trong tỉnh
               </h3>
               <InfoTourGuideSection
+                form={form}
+                provinces={provinces}
+                onProvinceChange={handleProvinceChange}
+                setProvinces={setProvinces}
+              />
+            </div>
+            {/* MATERIAL COST */}
+            <div>
+              <h3 className="font-bold text-lg my-2 text-mainColor">
+                Dịch vụ khác
+              </h3>
+              <MaterialCostsSection
                 form={form}
                 provinces={provinces}
                 onProvinceChange={handleProvinceChange}

@@ -90,7 +90,6 @@ const LodgingSection = ({
           if (priceData) {
             console.log("Min and Max prices:", priceData.result.items);
             const prices = priceData.result.items;
-            // debugger;
             const uniqueAvailabilities = new Set(
               priceData.result.items.map((item) => item.serviceAvailability)
             );

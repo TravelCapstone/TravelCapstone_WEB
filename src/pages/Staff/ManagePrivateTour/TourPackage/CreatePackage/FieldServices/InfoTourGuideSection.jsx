@@ -22,6 +22,7 @@ const InfoTourGuideSection = ({
   const [salaryInfo, setSalaryInfo] = useState({});
   const [numOfDay, setNumOfDay] = useState(null);
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
+  const [selectedProvinces, setSelectedProvinces] = useState([]);
 
   console.log("salaryInfo", salaryInfo);
 
@@ -44,6 +45,16 @@ const InfoTourGuideSection = ({
           idx === index ? { ...item, numOfDay: value } : item
         ),
     });
+    fetchSalaries();
+  };
+
+  const handleProvinceChange = (index, value) => {
+    const currentValues = form.getFieldValue("tourGuideCosts");
+    const newValues = currentValues.map((item, idx) =>
+      idx === index ? { ...item, provinceId: value } : item
+    );
+    form.setFieldsValue({ tourGuideCosts: newValues });
+    setSelectedProvinces(newValues.map((item) => item.provinceId));
     fetchSalaries();
   };
 
@@ -107,6 +118,22 @@ const InfoTourGuideSection = ({
     }
   }, [request]);
 
+  const handleRemove = (index) => {
+    const currentValues = form.getFieldValue("tourGuideCosts");
+    const newValues = currentValues.filter((_, idx) => idx !== index);
+    form.setFieldsValue({ tourGuideCosts: newValues });
+    setSelectedProvinces(newValues.map((item) => item.provinceId));
+    setSalaryInfo((prev) => {
+      const newSalaries = { ...prev };
+      delete newSalaries[index];
+      return newSalaries;
+    });
+  };
+
+  const availableProvinces = provinces.filter(
+    (province) => !selectedProvinces.includes(province.id)
+  );
+
   return (
     <>
       <Form.List name="tourGuideCosts" initialValue={[{}]}>
@@ -132,10 +159,12 @@ const InfoTourGuideSection = ({
                       >
                         <Select
                           placeholder="Tỉnh"
-                          onChange={onProvinceChange}
+                          onChange={(value) =>
+                            handleProvinceChange(index, value)
+                          }
                           className="!w-[200px] mr-10"
                         >
-                          {provinces.map((province) => (
+                          {availableProvinces.map((province) => (
                             <Option key={province.id} value={province.id}>
                               {province.name}
                             </Option>
@@ -202,7 +231,7 @@ const InfoTourGuideSection = ({
                     </div>
                   </div>
                 </div>
-                <DeleteOutlined onClick={() => remove(name)} />
+                <DeleteOutlined onClick={() => handleRemove(index)} />
               </Space>
             ))}
             <Form.Item className="w-1/3 ">
