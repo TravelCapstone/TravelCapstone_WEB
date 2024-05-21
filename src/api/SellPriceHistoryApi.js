@@ -201,6 +201,27 @@ const getVehiclePriceRange = async (
   }
 };
 
+// Retrieve vehicle price range
+const getVehiclePriceRangeNoEndPoint = async (
+  startPoint,
+  vehicleType,
+  quantity,
+  startDate,
+  endDate,
+  pageNumber = 1,
+  pageSize = 10
+) => {
+  try {
+    const response = await api.get(
+      `/sell-price/get-vehicle-price-range?startPoint=${startPoint}&vehicleType=${vehicleType}&Quantity=${quantity}&StartDate=${startDate}&EndDate=${endDate}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching vehicle price range:", error);
+    return [];
+  }
+};
+
 export {
   getAveragePriceOfService,
   getAveragePriceOfMealService,
@@ -214,4 +235,5 @@ export {
   getReferenceTransportByProvince,
   getAttractionSellPriceRange,
   getVehiclePriceRange,
+  getVehiclePriceRangeNoEndPoint,
 };

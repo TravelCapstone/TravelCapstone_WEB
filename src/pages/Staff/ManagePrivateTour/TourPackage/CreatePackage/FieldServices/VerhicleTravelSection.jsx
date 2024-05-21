@@ -6,6 +6,10 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { servingVehiclesQuantity } from "../../../../../../settings/globalStatus";
+import {
+  getVehiclePriceRange,
+  getVehiclePriceRangeNoEndPoint,
+} from "../../../../../../api/SellPriceHistoryApi";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -17,11 +21,65 @@ const VerhicleTravelSection = ({
   districts,
   provinces,
   onProvinceChange,
-  priceInfo,
-  setPriceInfo,
-  fetchVehiclePriceRange,
-  handleFieldChange,
 }) => {
+  // Get giá Verhicle
+  const [priceInfo, setPriceInfo] = useState({});
+
+  // get giá verhicle
+  const fetchVehiclePriceRange = async (index) => {
+    debugger;
+
+    const quantity =
+      request?.privateTourResponse?.numOfAdult +
+      request?.privateTourResponse?.numOfChildren;
+    const values = form.getFieldValue("travelOptions")[index];
+    if (
+      !values.provinceId ||
+      // !values.districtId ||
+      !values.vehicleType ||
+      !values.dateRange ||
+      !quantity
+    ) {
+      debugger;
+      return;
+    }
+    const startDate = values.dateRange[0].toISOString();
+    const endDate = values.dateRange[1].toISOString();
+
+    try {
+      const response = await getVehiclePriceRangeNoEndPoint(
+        values.provinceId,
+        values.vehicleType,
+        quantity,
+        startDate,
+        endDate
+      );
+      console.log("responseVerhicle", response);
+      if (response && response.result) {
+        setPriceInfo((prev) => ({
+          ...prev,
+          [index]: {
+            minCostperPerson: response.result.minCostperPerson,
+            maxCostperPerson: response.result.maxCostperPerson,
+          },
+        }));
+      } else {
+        message.error("Failed to fetch vehicle price range");
+      }
+    } catch (error) {
+      console.error("Failed to fetch vehicle price range:", error);
+      message.error("Failed to fetch vehicle price range");
+    }
+  };
+
+  // Get giá verhicle change
+  const handleProvinceChange = (index, value, name) => {
+    // Update selected provinces
+    const newSelectedProvinces = form.getFieldValue("provinces") || [];
+    newSelectedProvinces[name] = value;
+    fetchVehiclePriceRange(index);
+  };
+
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
       setProvinces(
@@ -59,7 +117,7 @@ const VerhicleTravelSection = ({
                         <Select
                           placeholder="Tỉnh"
                           onChange={(value) =>
-                            onProvinceChange(index, value, "provinceId")
+                            handleProvinceChange(index, value, "provinceId")
                           }
                           className="!w-[200px] mr-10"
                         >
@@ -70,7 +128,7 @@ const VerhicleTravelSection = ({
                           ))}
                         </Select>
                       </Form.Item>
-                      <Form.Item
+                      {/* <Form.Item
                         name={[name, "districtId"]}
                         className="flex font-semibold"
                         placeholder="Huyện/TP"
@@ -92,7 +150,7 @@ const VerhicleTravelSection = ({
                             </Option>
                           ))}
                         </Select>
-                      </Form.Item>
+                      </Form.Item> */}
 
                       <Form.Item
                         name={[name, "dateRange"]}
@@ -128,7 +186,7 @@ const VerhicleTravelSection = ({
                           placeholder="Chọn phương tiện"
                           className="!w-[200px] mr-10"
                           onChange={(value) =>
-                            onProvinceChange(index, value, "vehicleType")
+                            handleProvinceChange(index, value, "vehicleType")
                           }
                         >
                           {Object.entries(servingVehiclesQuantity).map(
@@ -163,7 +221,7 @@ const VerhicleTravelSection = ({
                           </p>
                         </div>
                       )}
-                      <Form.Item
+                      {/* <Form.Item
                         label="Số lượng xe:"
                         className=" font-semibold"
                         name={[name, "numOfVehicle"]}
@@ -181,7 +239,7 @@ const VerhicleTravelSection = ({
                           placeholder="Số lượng xe"
                           className="!w-[200px] mr-10"
                         />
-                      </Form.Item>
+                      </Form.Item> */}
                     </div>
                   </div>
 
