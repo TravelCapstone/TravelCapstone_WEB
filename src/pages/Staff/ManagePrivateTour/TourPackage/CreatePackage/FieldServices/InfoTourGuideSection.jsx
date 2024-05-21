@@ -6,18 +6,96 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { servingVehiclesQuantity } from "../../../../../../settings/globalStatus";
+import { postHumanResourceSalaryWithIsForTourguide } from "../../../../../../api/HumanResourceSalaryApi";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 const InfoTourGuideSection = ({
-  form,
   request,
+  form,
   setProvinces,
   districts,
   provinces,
   onProvinceChange,
 }) => {
+  const [salaryInfo, setSalaryInfo] = useState({});
+  const [numOfDay, setNumOfDay] = useState(null);
+  const [quantityTourGuide, setQuantityTourGuide] = useState(null);
+
+  console.log("salaryInfo", salaryInfo);
+
+  const handleQuantityChange = (index, value) => {
+    form.setFieldsValue({
+      tourGuideCosts: form
+        .getFieldValue("tourGuideCosts")
+        .map((item, idx) =>
+          idx === index ? { ...item, quantity: value } : item
+        ),
+    });
+    fetchSalaries();
+  };
+
+  const handleNumOfDayChange = (index, value) => {
+    form.setFieldsValue({
+      tourGuideCosts: form
+        .getFieldValue("tourGuideCosts")
+        .map((item, idx) =>
+          idx === index ? { ...item, numOfDay: value } : item
+        ),
+    });
+    fetchSalaries();
+  };
+
+  const fetchSalaries = async () => {
+    // // Assuming your form fields are named appropriately
+    // const values = await form.validateFields(["tourGuideCosts"]);
+    // const updates = {};
+
+    try {
+      const values = await form.validateFields(["tourGuideCosts"]);
+      const updates = {};
+      for (const [index, item] of values.tourGuideCosts.entries()) {
+        if (item.quantity && item.numOfDay && item.provinceId) {
+          const data = [
+            {
+              quantity: item.quantity,
+              numOfDay: item.numOfDay,
+              provinceId: item.provinceId,
+            },
+          ];
+          try {
+            const response = await postHumanResourceSalaryWithIsForTourguide(
+              true,
+              data
+            );
+            if (response.data.isSuccess) {
+              updates[index] = response.data;
+            } else {
+              notification.error({ message: "Failed to fetch salary data" });
+            }
+          } catch (error) {
+            console.error("Failed to fetch salary data for an item:", error);
+            notification.error({ message: "Failed to fetch salary data" });
+          }
+        }
+      }
+      setSalaryInfo(updates);
+    } catch (error) {
+      console.error(
+        "Validation failed, ensure all fields are correctly filled:",
+        error
+      );
+      notification.error({
+        message: "Validation failed, check the form fields.",
+      });
+    }
+  };
+
+  // Fetch salaries when numOfDay or quantityTourGuide change
+  useEffect(() => {
+    fetchSalaries();
+  }, [numOfDay, quantityTourGuide]);
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
       setProvinces(
@@ -31,7 +109,7 @@ const InfoTourGuideSection = ({
 
   return (
     <>
-      <Form.List name="InfoTourGuide" initialValue={[{}]}>
+      <Form.List name="tourGuideCosts" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name }, index) => (
@@ -68,7 +146,7 @@ const InfoTourGuideSection = ({
                       <Form.Item
                         label="Số ngày:"
                         className=" font-semibold"
-                        name={[name, "numOfRentingDay"]}
+                        name={[name, "numOfDay"]}
                         rules={[
                           {
                             required: true,
@@ -79,6 +157,9 @@ const InfoTourGuideSection = ({
                         <InputNumber
                           min={1}
                           max={30}
+                          onChange={(value) =>
+                            handleNumOfDayChange(index, value)
+                          }
                           placeholder="Số ngày"
                           className="!w-[200px] mr-10"
                         />
@@ -86,7 +167,7 @@ const InfoTourGuideSection = ({
                       <Form.Item
                         label="Số lượng hướng dẫn viên:"
                         className=" font-semibold"
-                        name={[name, "numOfGuide"]}
+                        name={[name, "quantity"]}
                         rules={[
                           {
                             required: true,
@@ -97,6 +178,9 @@ const InfoTourGuideSection = ({
                         <InputNumber
                           min={1}
                           max={30}
+                          onChange={(value) =>
+                            handleQuantityChange(index, value)
+                          }
                           placeholder="Số lượng hướng dẫn viên"
                           className="!w-[200px] mr-10"
                         />
@@ -104,11 +188,16 @@ const InfoTourGuideSection = ({
                     </div>
                     <div className="w-full">
                       <div className="flex font-semibold text-gray-500 mr-10">
-                        <h3 className="text-lg mr-3 ">Khoảng giá: </h3>
-                        <p className="text-lg ">
-                          {" "}
-                          1.300.000 ~ 1.600.000/xe/ngày
-                        </p>
+                        {salaryInfo[index] && (
+                          <p>
+                            {" "}
+                            Phí hướng dẫn viên:{" "}
+                            {salaryInfo[index].result.toLocaleString("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            })}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

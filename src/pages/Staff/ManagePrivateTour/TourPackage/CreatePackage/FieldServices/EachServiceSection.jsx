@@ -24,6 +24,7 @@ import RestaurantSection from "./RestaurantSection";
 import EntertainmentSection from "./EntertaimentSection";
 import { v4 as uuidv4 } from "uuid";
 import EventGalasSection from "./eventGalasSection";
+import InsuranceSection from "./InsuranceSection";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;

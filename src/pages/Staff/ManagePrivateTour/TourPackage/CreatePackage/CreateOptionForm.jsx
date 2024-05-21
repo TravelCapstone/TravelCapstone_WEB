@@ -9,6 +9,7 @@ import {
   DatePicker,
   TreeSelect,
   InputNumber,
+  notification,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { createOptionsPrivateTour } from "../../../../../api/OptionsApi";
@@ -21,6 +22,8 @@ import { getAllDistrictsByProvinceId } from "../../../../../api/LocationApi";
 import { formatDate } from "../../../../../utils/Util";
 import InfoTourGuideSection from "./FieldServices/InfoTourGuideSection";
 import EachServiceSection from "./FieldServices/EachServiceSection";
+import InsuranceSection from "./FieldServices/InsuranceSection";
+import { postHumanResourceSalaryWithIsForTourguide } from "../../../../../api/HumanResourceSalaryApi";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -37,6 +40,49 @@ function CreateOptionForm({ request }) {
 
   const [selectedProvinces, setSelectedProvinces] = useState([]);
   const [selectedDistricts, setSelectedDistricts] = useState([]);
+
+  const [salaryInfo, setSalaryInfo] = useState(null);
+  const [quantityTourGuide, setQuantityTourGuide] = useState(null);
+
+  console.log("salaryInfo", salaryInfo);
+
+  useEffect(() => {
+    const fetchSalary = async () => {
+      try {
+        const values = await form.validateFields(["quantityTourGuide"]);
+        const numOfDays = request?.privateTourResponse?.numOfDay;
+
+        if (values.quantityTourGuide && numOfDays) {
+          const data = [
+            {
+              quantity: values.quantityTourGuide,
+              numOfDay: numOfDays,
+            },
+          ];
+
+          const response = await postHumanResourceSalaryWithIsForTourguide(
+            true,
+            data
+          );
+          if (response && response.data) {
+            setSalaryInfo(response.data);
+          } else {
+            throw new Error("No data received");
+          }
+        }
+      } catch (error) {
+        console.error(error.message || "Failed to fetch salary data");
+      }
+    };
+
+    // Call fetchSalary if both values are present
+    fetchSalary();
+  }, [quantityTourGuide, , request?.privateTourResponse?.numOfDay]); // Dependency array
+
+  // Update state when form field changes
+  const handleQuantityChange = (value) => {
+    setQuantityTourGuide(value);
+  };
 
   console.log("request", request);
   console.log("selectedProvince", selectedProvince);
@@ -265,7 +311,7 @@ function CreateOptionForm({ request }) {
             <Form.Item
               label="Chọn ngày diễn ra tour:  "
               className=" font-bold"
-              name={[name, "stayDates"]}
+              name="tourDate"
               rules={[
                 {
                   required: true,
@@ -312,7 +358,41 @@ function CreateOptionForm({ request }) {
             </div>
             <div>
               <h3 className="font-bold text-lg my-2 text-mainColor">
-                Thông tin hướng dẫn viên
+                Thông tin hướng dẫn viên cả tour
+              </h3>
+              <Form.Item
+                label="Số lượng hướng dẫn viên:"
+                className=" font-semibold"
+                name="quantityTourGuide"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng điền số lượng hướng dẫn viên",
+                  },
+                ]}
+              >
+                <InputNumber
+                  min={1}
+                  max={30}
+                  onChange={handleQuantityChange}
+                  placeholder="Số lượng hướng dẫn viên"
+                  className="!w-[200px] mr-10"
+                />
+              </Form.Item>
+              {salaryInfo && (
+                <p>
+                  Phí hướng dẫn viên:{" "}
+                  {salaryInfo.result.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </p>
+              )}{" "}
+              {/* Adjust based on actual response structure */}
+            </div>
+            <div>
+              <h3 className="font-bold text-lg my-2 text-mainColor">
+                Thông tin hướng dẫn viên trong tỉnh
               </h3>
               <InfoTourGuideSection
                 form={form}
@@ -331,6 +411,21 @@ function CreateOptionForm({ request }) {
           <div className="mt-10">
             <h3>Form Data:</h3>
             <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
+          </div>
+          {/* BẢO HIỂM */}
+          <div>
+            <h3 className="font-bold text-lg my-6 text-mainColor">
+              Gói Bảo Hiểm
+            </h3>
+            <InsuranceSection
+              // basePath={[field.name]}
+              request={request}
+              form={form}
+              provinces={provinces}
+              districts={districts}
+              onProvinceChange={handleProvinceChange}
+              setProvinces={setProvinces}
+            />
           </div>
           <div className=" mx-4">
             <EachServiceSection

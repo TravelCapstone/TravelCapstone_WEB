@@ -40,7 +40,7 @@ const VerhicleTravelSection = ({
                 align="baseline"
                 className="mb-4 flex justify-between"
               >
-                <div className="flex flex-wrap">
+                <div className="flex ">
                   <div className="text-center font-bold mr-14">{index + 1}</div>
                   <div>
                     <div className="flex flex-wrap">
@@ -159,8 +159,12 @@ const VerhicleTravelSection = ({
                       </Form.Item>
                     </div>
                   </div>
+
+                  <DeleteOutlined
+                    className="self-start mt-2"
+                    onClick={() => remove(name)}
+                  />
                 </div>
-                <DeleteOutlined onClick={() => remove(name)} />
               </Space>
             ))}
             <Form.Item className="w-1/3 ">
