@@ -17,6 +17,10 @@ const VerhicleTravelSection = ({
   districts,
   provinces,
   onProvinceChange,
+  priceInfo,
+  setPriceInfo,
+  fetchVehiclePriceRange,
+  handleFieldChange,
 }) => {
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
@@ -54,7 +58,9 @@ const VerhicleTravelSection = ({
                       >
                         <Select
                           placeholder="Tỉnh"
-                          onChange={onProvinceChange}
+                          onChange={(value) =>
+                            onProvinceChange(index, value, "provinceId")
+                          }
                           className="!w-[200px] mr-10"
                         >
                           {provinces.map((province) => (
@@ -89,21 +95,20 @@ const VerhicleTravelSection = ({
                       </Form.Item>
 
                       <Form.Item
-                        label="Số ngày:"
-                        className=" font-semibold"
-                        name={[name, "numOfRentingDay"]}
+                        name={[name, "dateRange"]}
+                        label="Ngày đi:"
+                        className="flex font-semibold"
                         rules={[
                           {
                             required: true,
-                            message: "Please enter number of days",
+                            message: "Vui lòng chọn ngày đi!",
                           },
                         ]}
                       >
-                        <InputNumber
-                          min={1}
-                          max={30}
-                          placeholder="Số ngày"
-                          className="!w-[200px] mr-10"
+                        <RangePicker
+                          onChange={() => fetchVehiclePriceRange(index)}
+                          showTime
+                          className="!w-[350px] mr-10"
                         />
                       </Form.Item>
                     </div>
@@ -122,6 +127,9 @@ const VerhicleTravelSection = ({
                         <Select
                           placeholder="Chọn phương tiện"
                           className="!w-[200px] mr-10"
+                          onChange={(value) =>
+                            onProvinceChange(index, value, "vehicleType")
+                          }
                         >
                           {Object.entries(servingVehiclesQuantity).map(
                             ([key, label]) => (
@@ -132,13 +140,29 @@ const VerhicleTravelSection = ({
                           )}
                         </Select>
                       </Form.Item>
-                      <div className="flex font-semibold text-gray-500 mr-10">
-                        <h3 className="text-lg mr-3">Khoảng giá: </h3>
-                        <p className="text-lg">
-                          {" "}
-                          1.300.000 ~ 1.600.000/xe/ngày
-                        </p>
-                      </div>
+                      {priceInfo[index] && (
+                        <div className="flex font-semibold text-gray-500 mr-10">
+                          <h3 className="text-lg mr-3">Khoảng giá: </h3>
+                          <p className="text-lg">
+                            {priceInfo[index].minCostperPerson.toLocaleString(
+                              "vi-VN",
+                              {
+                                style: "currency",
+                                currency: "VND",
+                              }
+                            )}{" "}
+                            ~{" "}
+                            {priceInfo[index].maxCostperPerson.toLocaleString(
+                              "vi-VN",
+                              {
+                                style: "currency",
+                                currency: "VND",
+                              }
+                            )}{" "}
+                            /người
+                          </p>
+                        </div>
+                      )}
                       <Form.Item
                         label="Số lượng xe:"
                         className=" font-semibold"
@@ -153,6 +177,7 @@ const VerhicleTravelSection = ({
                         <InputNumber
                           min={1}
                           max={30}
+                          onChange={() => fetchVehiclePriceRange(index)}
                           placeholder="Số lượng xe"
                           className="!w-[200px] mr-10"
                         />
