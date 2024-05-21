@@ -98,27 +98,24 @@ function CreateOptionForm({ request }) {
 
   // get giá verhicle
   const fetchVehiclePriceRange = async (index) => {
-    debugger;
-
     const quantity =
       request?.privateTourResponse?.numOfAdult +
       request?.privateTourResponse?.numOfChildren;
     const values = form.getFieldValue("transportation")[index];
-    if (
-      !values.startPoint ||
-      !values.endPoint ||
-      !values.vehicleType ||
-      !values.dateRange ||
-      !values.numOfVehicle ||
-      !quantity
-    ) {
-      return;
-    }
+    // if (
+    //   !values.startPoint ||
+    //   !values.endPoint ||
+    //   !values.vehicleType ||
+    //   !values.dateRange ||
+    //   !values.numOfVehicle ||
+    //   !quantity
+    // ) {
+    //   return;
+    // }
     const startDate = values.dateRange[0].toISOString();
     const endDate = values.dateRange[1].toISOString();
 
     try {
-      debugger;
       const response = await getVehiclePriceRange(
         values.startPoint,
         values.endPoint,
@@ -194,6 +191,15 @@ function CreateOptionForm({ request }) {
       setDistricts([]);
     }
   }, [selectedProvince]);
+
+  const handleProvinceChange2 = (index, value, name) => {
+    // Update selected provinces
+    const newSelectedProvinces = form.getFieldValue("provinces") || [];
+    newSelectedProvinces[name] = value;
+
+    setSelectedProvinces(newSelectedProvinces);
+    setSelectedProvince(value);
+  };
 
   const handleProvinceChange = (index, value, name) => {
     // Update selected provinces
@@ -478,7 +484,7 @@ function CreateOptionForm({ request }) {
               <InfoTourGuideSection
                 form={form}
                 provinces={provinces}
-                onProvinceChange={handleProvinceChange}
+                onProvinceChange={handleProvinceChange2}
                 setProvinces={setProvinces}
               />
             </div>
@@ -488,9 +494,10 @@ function CreateOptionForm({ request }) {
                 Dịch vụ khác
               </h3>
               <MaterialCostsSection
+                request={request}
                 form={form}
                 provinces={provinces}
-                onProvinceChange={handleProvinceChange}
+                onProvinceChange={handleProvinceChange2}
                 setProvinces={setProvinces}
               />
             </div>
@@ -516,7 +523,7 @@ function CreateOptionForm({ request }) {
               form={form}
               provinces={provinces}
               districts={districts}
-              onProvinceChange={handleProvinceChange}
+              onProvinceChange={handleProvinceChange2}
               setProvinces={setProvinces}
             />
           </div>
@@ -524,7 +531,7 @@ function CreateOptionForm({ request }) {
             <EachServiceSection
               form={form}
               provinces={provinces}
-              onProvinceChange={handleProvinceChange}
+              onProvinceChange={handleProvinceChange2}
               setProvinces={setProvinces}
               request={request}
               districts={districts}

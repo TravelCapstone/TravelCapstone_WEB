@@ -70,7 +70,7 @@ const InsuranceSection = ({
                         <div className="flex">
                           <Form.Item
                             {...field}
-                            className=" font-semibold my-2"
+                            className=" font-semibold my-2 !w-full"
                             name={[field.name, `insurance${idx}`]}
                             label="Gói Bảo Hiểm:"
                           >

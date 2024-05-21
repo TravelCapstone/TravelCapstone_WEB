@@ -191,9 +191,9 @@ const EachServiceSection = ({
                                     Dịch vụ ăn uống:
                                   </h3>
                                   <RestaurantSection
+                                    request={request}
                                     basePath={[field.name]}
                                     form={form}
-                                    // basePath={["provinceServices", field.name]}
                                     index={index}
                                   />
                                 </div>
@@ -219,6 +219,7 @@ const EachServiceSection = ({
                                   </h3>
                                   <EventGalasSection
                                     basePath={[field.name]}
+                                    request={request}
                                     form={form}
                                     provinces={provinces}
                                     districts={districts}
