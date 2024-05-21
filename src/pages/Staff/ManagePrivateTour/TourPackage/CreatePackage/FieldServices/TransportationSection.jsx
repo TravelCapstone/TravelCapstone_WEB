@@ -242,7 +242,7 @@ const TransportationSection = ({
                         </p>
                       </div>
                     )}
-                    <Form.Item
+                    {/* <Form.Item
                       label="Số lượng xe:"
                       className=" font-semibold"
                       name={[name, "numOfVehicle"]}
@@ -260,7 +260,7 @@ const TransportationSection = ({
                         placeholder="Số lượng xe"
                         className="!w-[200px] mr-10"
                       />
-                    </Form.Item>
+                    </Form.Item> */}
                   </div>
                 </div>
 

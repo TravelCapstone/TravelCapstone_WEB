@@ -9,7 +9,7 @@ const getAllFacilityByFilter = async (data,pageNumber,pageSize) => {
       return []; 
     }
   };
-  const getAllFacilityByLocationAndRatingId = async (id,data,pageNumber,pageSize) => {
+  const getAllFacilityByLocationAndRatingId = async (ratingId,data,pageNumber,pageSize) => {
     try {
       const response = await api.post(`/facility/get-all-facility-by-location-and-ratingId/${id}?pageNumber=${pageNumber}&pageSize=${pageSize}`,data);
       return response.data;

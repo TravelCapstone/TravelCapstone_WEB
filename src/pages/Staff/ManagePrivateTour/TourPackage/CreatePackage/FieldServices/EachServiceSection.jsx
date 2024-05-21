@@ -48,6 +48,8 @@ const EachServiceSection = ({
 }) => {
   console.log("selectedProvinces: ", selectedProvinces);
   console.log("selectedProvince: ", selectedProvince);
+  console.log("selectedDistrict: ", selectedDistrict);
+  console.log("selectedDistricts: ", selectedDistricts);
   // Lấy dữ liệu provinceId và province name từ request để hiển thị lên form
 
   useEffect(() => {
