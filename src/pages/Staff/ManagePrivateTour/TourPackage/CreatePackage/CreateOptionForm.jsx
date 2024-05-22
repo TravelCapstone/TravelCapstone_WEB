@@ -27,6 +27,9 @@ import { postHumanResourceSalaryWithIsForTourguide } from "../../../../../api/Hu
 import { getVehiclePriceRange } from "../../../../../api/SellPriceHistoryApi";
 import MaterialCostsSection from "./FieldServices/materialCostsSection";
 import ExpectedPriceOption from "./FieldServices/ExpectedPriceOption";
+import dayjs from "dayjs";
+import CustomSurchangeSection from "./FieldServices/CustomSurchangeSection";
+import EventGalasSection from "./FieldServices/eventGalasSection";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -449,6 +452,17 @@ function CreateOptionForm({ request }) {
       setLoading(false);
     }
   };
+  const startDate = request?.privateTourResponse?.startDate;
+  const endDate = request?.privateTourResponse?.endDate;
+  const parsedStartDate = startDate ? dayjs(startDate) : null;
+  const parsedEndDate = endDate ? dayjs(endDate) : null;
+
+  const disableDates = (current) => {
+    if (!parsedStartDate || !parsedEndDate) {
+      return false; // If no dates are set, don't disable anything
+    }
+    return current && (current < parsedStartDate || current >= parsedEndDate);
+  };
 
   return (
     <div className="p-4 shadow-xl rounded-xl w-full max-h-lvh overflow-y-auto">
@@ -522,7 +536,12 @@ function CreateOptionForm({ request }) {
                 },
               ]}
             >
-              <RangePicker showTime className="!min-w-[300px] mr-10" />
+              <RangePicker
+                showTime
+                className="!min-w-[300px] mr-10"
+                disabledDate={disableDates}
+                format={"DD/MM/YYYY"}
+              />
             </Form.Item>
           </div>
         </div>
@@ -541,12 +560,17 @@ function CreateOptionForm({ request }) {
                 priceInfo={priceInfo}
                 setPriceInfo={setPriceInfo}
                 form={form}
-                provinces={provinces}
+                provinces={[
+                  request?.privateTourResponse?.startLocationCommune?.district
+                    ?.province,
+                  ...provinces,
+                ]}
                 districts={districts}
                 onProvinceChange={handleProvinceChange}
                 setProvinces={setProvinces}
                 fetchVehiclePriceRange={fetchVehiclePriceRange}
                 handleFieldChange={handleFieldChange}
+                startProvince={request?.privateTourResponse?.startLocation}
               />
             </div>
 
@@ -632,24 +656,12 @@ function CreateOptionForm({ request }) {
               <h3 className="font-bold text-lg my-2 text-mainColor">
                 Phụ phí tuỳ chỉnh
               </h3>
-              <Form.Item label="Phí dịch vụ tổ chức" name="organizationCost">
-                <InputNumber min={5000000} />
-              </Form.Item>
-
-              <Form.Item
-                label="Phí dự phòng mỗi người"
-                name="contigencyFeePerPerson"
-              >
-                <InputNumber min={50000} />
-              </Form.Item>
-
-              <Form.Item label="Phí khác" name="escortFee">
-                <InputNumber min={0} />
-              </Form.Item>
-
-              <Form.Item label="Phí vận hành" name="operatingFee">
-                <InputNumber min={0} />
-              </Form.Item>
+              <CustomSurchangeSection
+                quantity={
+                  request?.privateTourResponse.numOfAdult +
+                  request?.privateTourResponse.numOfChildren
+                }
+              />
             </div>
           </div>
         </div>
@@ -663,20 +675,7 @@ function CreateOptionForm({ request }) {
             <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
           </div> */}
           {/* BẢO HIỂM */}
-          <div>
-            <h3 className="font-bold text-lg my-6 text-mainColor">
-              Gói Bảo Hiểm
-            </h3>
-            <InsuranceSection
-              // basePath={[field.name]}
-              request={request}
-              form={form}
-              provinces={provinces}
-              districts={districts}
-              onProvinceChange={handleProvinceChange2}
-              setProvinces={setProvinces}
-            />
-          </div>
+
           <div className=" mx-4">
             <EachServiceSection
               form={form}
@@ -698,6 +697,32 @@ function CreateOptionForm({ request }) {
           </div>
 
           <hr />
+          <div>
+            <h3 className="font-bold text-lg my-6 text-mainColor">
+              Gói Bảo Hiểm
+            </h3>
+            <InsuranceSection
+              // basePath={[field.name]}
+              request={request}
+              form={form}
+              provinces={provinces}
+              districts={districts}
+              onProvinceChange={handleProvinceChange2}
+              setProvinces={setProvinces}
+            />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg my-6 text-mainColor">
+              Gói GALA/ TEAMBULDING
+            </h3>
+            <EventGalasSection
+              request={request}
+              form={form}
+              provinces={provinces}
+              districts={districts}
+              setProvinces={setProvinces}
+            />
+          </div>
           <div className="my-12 ">
             <h3 className="font-bold text-2xl  ">GIÁ DỰ KIẾN CỦA GÓI</h3>
             <ExpectedPriceOption />
