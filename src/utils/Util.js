@@ -70,5 +70,31 @@ function differenceInDays(ngayGio1, ngayGio2) {
 
   return difference;
 }
+function secondsToHours(seconds) {
+  if (isNaN(seconds) || seconds < 0) {
+    return "Vui lòng nhập số giây hợp lệ (lớn hơn hoặc bằng 0)";
+  }
 
-export { formatPrice, formatDateTime, formatDate, differenceInDays };
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.round((seconds % 3600) / 60);
+  const roundedSeconds = Math.round(seconds % 60);
+
+  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${roundedSeconds.toString().padStart(2, "0")}`;
+}
+function metersToKilometers(meters) {
+  if (isNaN(meters) || meters < 0) {
+    return "Vui lòng nhập số mét hợp lệ (lớn hơn hoặc bằng 0)";
+  }
+
+  const kilometers = Math.round(meters / 1000);
+
+  return `${kilometers} km`;
+}
+export {
+  formatPrice,
+  formatDateTime,
+  formatDate,
+  differenceInDays,
+  secondsToHours,
+  metersToKilometers,
+};

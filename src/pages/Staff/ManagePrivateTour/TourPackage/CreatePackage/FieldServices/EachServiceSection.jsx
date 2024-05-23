@@ -193,6 +193,7 @@ const EachServiceSection = ({
                                     Dịch vụ ăn uống:
                                   </h3>
                                   <RestaurantSection
+                                    selectedDistrict={selectedDistrict}
                                     request={request}
                                     basePath={[field.name]}
                                     form={form}

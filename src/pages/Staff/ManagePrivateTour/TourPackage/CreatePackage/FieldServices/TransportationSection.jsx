@@ -5,6 +5,11 @@ import {
   ratingLabels,
   servingVehiclesQuantity,
 } from "../../../../../../settings/globalStatus";
+import { getOptimalPath } from "../../../../../../api/VehicleApi";
+import {
+  metersToKilometers,
+  secondsToHours,
+} from "../../../../../../utils/Util";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -26,7 +31,7 @@ const TransportationSection = ({
   const [routes, setRoutes] = useState([
     { id: 1, from: "", to: "", transport: "", dateRange: [], cost: 0 },
   ]);
-
+  const [optimalPath, setOptimalPath] = useState({});
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
       setProvinces(
@@ -37,6 +42,17 @@ const TransportationSection = ({
       );
     }
   }, [request]);
+  const getSuggestPath = async () => {
+    const result = provinces.map((item) => item.id);
+
+    const data = await getOptimalPath(result[0], result);
+    if (data.isSuccess) {
+      setOptimalPath(data.result);
+    }
+  };
+  useEffect(() => {
+    getSuggestPath();
+  }, [provinces]);
 
   const handleSelectForSwap = (index) => {
     const newSelection = [...selectedForSwap, index];
@@ -95,6 +111,70 @@ const TransportationSection = ({
 
   return (
     <>
+      <div className="p-6 bg-white rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold mb-6 text-primary">
+          Hành trình tối ưu
+        </h2>
+        <div className="mb-6">
+          <p className="text-gray-800 text-lg font-bold">
+            Tổng quãng đường:{" "}
+            <span className="font-medium text-blue-600">
+              {metersToKilometers(optimalPath?.totalDistance)}
+            </span>
+          </p>
+          <p className="text-gray-800 text-lg font-bold">
+            Tổng thời gian:{" "}
+            <span className="font-medium text-blue-600">
+              {secondsToHours(optimalPath?.totalDuration)}
+            </span>
+          </p>
+        </div>
+        <ul className="list-none pl-0">
+          {optimalPath?.optimalTrip?.length > 0 &&
+            optimalPath?.optimalTrip?.map((stop, index) => (
+              <li key={index} className="mb-6 pb-4 border-b border-gray-200">
+                <div className="flex items-center mb-3">
+                  <span className="text-blue-800 text-xl font-bold mr-3">
+                    {index + 1}.
+                  </span>
+                  <span className="text-2xl text-gray-900 font-semibold">
+                    {stop.provinceName}
+                  </span>
+                </div>
+                <div className="ml-10">
+                  <div className="flex items-center text-gray-700 mb-2">
+                    <i className="fa-solid fa-stopwatch text-green-500 mr-3"></i>
+                    <span className="text-lg">
+                      Thời gian di chuyển:{" "}
+                      <span className="font-medium">
+                        {secondsToHours(stop?.duration)}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <i className="fa-solid fa-map-location-dot text-red-500 mr-3"></i>
+                    <span className="text-lg">
+                      Quãng đường:{" "}
+                      <span className="font-medium">
+                        {metersToKilometers(stop?.distanceToNextDestination)}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <i className="fa-solid fa-bus-simple mx-2"></i>{" "}
+                    <span className="text-lg">
+                      Phương tiện:{" "}
+                      <span className="font-medium">
+                        {servingVehiclesQuantity[stop.vehicleToNextDestination]}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </li>
+            ))}
+        </ul>
+      </div>
+
       <Form.List name="transportation" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
