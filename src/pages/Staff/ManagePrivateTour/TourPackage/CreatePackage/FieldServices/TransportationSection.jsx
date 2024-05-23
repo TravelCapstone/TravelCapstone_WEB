@@ -108,71 +108,62 @@ const TransportationSection = ({
       });
     }
   };
+  const getRouteInfo = (from, to) => {
+    const fromProvince = optimalPath[from];
+    const toProvince = optimalPath[to];
 
+    const distanceToNextDestination =
+      fromProvince.distanceToNextDestination +
+      (toProvince ? toProvince.distanceToNextDestination : 0);
+
+    const duration =
+      fromProvince.duration + (toProvince ? toProvince.duration : 0);
+
+    return {
+      fromProvince: fromProvince.provinceName,
+      toProvince: toProvince
+        ? toProvince.provinceName
+        : optimalPath[0].provinceName,
+      distance: distanceToNextDestination,
+      duration,
+    };
+  };
   return (
     <>
       <div className="p-6 bg-white rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-6 text-primary">
           Hành trình tối ưu
         </h2>
-        <div className="mb-6">
-          <p className="text-gray-800 text-lg font-bold">
-            Tổng quãng đường:{" "}
-            <span className="font-medium text-blue-600">
-              {metersToKilometers(optimalPath?.totalDistance)}
-            </span>
-          </p>
-          <p className="text-gray-800 text-lg font-bold">
-            Tổng thời gian:{" "}
-            <span className="font-medium text-blue-600">
-              {secondsToHours(optimalPath?.totalDuration)}
-            </span>
-          </p>
-        </div>
-        <ul className="list-none pl-0">
-          {optimalPath?.optimalTrip?.length > 0 &&
-            optimalPath?.optimalTrip?.map((stop, index) => (
-              <li key={index} className="mb-6 pb-4 border-b border-gray-200">
-                <div className="flex items-center mb-3">
-                  <span className="text-blue-800 text-xl font-bold mr-3">
-                    {index + 1}.
-                  </span>
-                  <span className="text-2xl text-gray-900 font-semibold">
-                    {stop.provinceName}
-                  </span>
-                </div>
-                <div className="ml-10">
-                  <div className="flex items-center text-gray-700 mb-2">
-                    <i className="fa-solid fa-stopwatch text-green-500 mr-3"></i>
-                    <span className="text-lg">
-                      Thời gian di chuyển:{" "}
-                      <span className="font-medium">
-                        {secondsToHours(stop?.duration)}
-                      </span>
-                    </span>
+        {optimalPath.length > 0 && (
+          <div className="grid gap-4">
+            {optimalPath.map((item, index) => {
+              const routeInfo = getRouteInfo(index, index + 1);
+              return (
+                <div
+                  key={index}
+                  className="bg-gray-100 p-4 rounded-lg flex flex-col justify-between"
+                >
+                  <div>
+                    <p className="text-lg font-bold text-gray-800">
+                      {routeInfo.fromProvince} -{" "}
+                      {routeInfo.toProvince ? ` ${routeInfo.toProvince}` : ""}
+                    </p>
                   </div>
-                  <div className="flex items-center text-gray-700">
-                    <i className="fa-solid fa-map-location-dot text-red-500 mr-3"></i>
-                    <span className="text-lg">
-                      Quãng đường:{" "}
-                      <span className="font-medium">
-                        {metersToKilometers(stop?.distanceToNextDestination)}
-                      </span>
-                    </span>
-                  </div>
-                  <div className="flex items-center text-gray-700">
-                    <i className="fa-solid fa-bus-simple mx-2"></i>{" "}
-                    <span className="text-lg">
-                      Phương tiện:{" "}
-                      <span className="font-medium">
-                        {servingVehiclesQuantity[stop.vehicleToNextDestination]}
-                      </span>
-                    </span>
+                  <div className="mt-2 flex justify-between text-gray-600">
+                    <p>
+                      <span className="font-bold">Khoảng cách:</span>{" "}
+                      {metersToKilometers(routeInfo.distance)}
+                    </p>
+                    <p>
+                      <span className="font-bold">Thời gian:</span>{" "}
+                      {secondsToHours(routeInfo.duration)}
+                    </p>
                   </div>
                 </div>
-              </li>
-            ))}
-        </ul>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <Form.List name="transportation" initialValue={[{}]}>
