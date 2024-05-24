@@ -134,7 +134,7 @@ const TransportationSection = ({
         <h2 className="text-2xl font-bold mb-6 text-primary">
           Hành trình tối ưu
         </h2>
-        {optimalPath.length > 0 && (
+        {optimalPath?.length > 0 && (
           <div className="grid gap-4">
             {optimalPath.map((item, index) => {
               const routeInfo = getRouteInfo(index, index + 1);

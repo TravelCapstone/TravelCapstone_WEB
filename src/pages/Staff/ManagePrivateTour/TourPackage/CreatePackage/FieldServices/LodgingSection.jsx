@@ -20,6 +20,7 @@ import {
 } from "../../../../../../settings/globalStatus";
 import { getMinMaxPriceOfHotel } from "../../../../../../api/SellPriceHistoryApi";
 import { getAllFacility } from "../../../../../../api/FacilityApi";
+import moment from "moment";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -34,6 +35,8 @@ const LodgingSection = ({
   onDistrictChange,
   selectedDistrict,
   basePath,
+  setNumOfDaysLoging,
+  numOfDaysLoging,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,12 +44,27 @@ const LodgingSection = ({
 
   const [facilities, setFacilities] = useState([]);
 
+  const [selectedOptions, setSelectedOptions] = useState({
+    hotelOptionRatingOption1: null,
+    hotelOptionRatingOption2: null,
+    hotelOptionRatingOption3: null,
+  });
+  const [priceData, setPriceData] = useState({});
+
+  const numOfRooms =
+    (request.privateTourResponse.numOfAdult +
+      request.privateTourResponse.numOfChildren) /
+    roomType;
+
+  console.log("numOfRooms", numOfRooms);
+
   const indexToAlpha = (index) => {
     // Converts 0 to 'a', 1 to 'b', etc.
     return String.fromCharCode(97 + index);
   };
 
   const privatetourRequestId = request.privateTourResponse.id;
+  const districtId = selectedDistrict;
 
   const fetchFacilities = async () => {
     const allFacilities = await getAllFacility(1, 1000); // Giả sử bạn lấy 100 cơ sở lưu trú
@@ -65,9 +83,78 @@ const LodgingSection = ({
       keysToShow.includes(facility.facilityRating.ratingId)
   );
 
-  // console.log("selectedDistrict", selectedDistrict);
-  // console.log("facilities", facilities);
   console.log("filteredFacilities", filteredFacilities);
+
+  const fetchPriceData = async (
+    districtId,
+    privatetourRequestId,
+    ratingId,
+    numOfDays
+  ) => {
+    console.log("ratingId", ratingId);
+    const filteredRatingID = filteredFacilities.filter(
+      (facility) => ratingId === facility.id
+    );
+    console.log("filteredRatingID", filteredRatingID);
+
+    setIsLoading(true);
+    try {
+      const priceInfo = await getMinMaxPriceOfHotel(
+        districtId,
+        privatetourRequestId,
+        filteredRatingID[0].facilityRating.id,
+        1, // pageNumber
+        10, // pageSize
+        numOfDays
+      );
+      debugger;
+
+      setPriceData((prev) => ({
+        ...prev,
+        [ratingId]: priceInfo.result.items,
+      }));
+    } catch (error) {
+      console.error("Error fetching hotel prices:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onDateRangeChange = (dates, dateStrings, fieldKey) => {
+    if (dates) {
+      const startDate = dates[0].toDate(); // Convert moment to Date object
+      const endDate = dates[1].toDate();
+      const duration = endDate - startDate; // Difference in milliseconds
+      const hours = duration / 3600000; // Convert milliseconds to hours
+
+      const numOfDays = Math.ceil(hours / 24); // Rounds up to the nearest whole day
+      setNumOfDaysLoging(numOfDays);
+      // Set the number of days in the form
+      fetchPriceData(districtId, privatetourRequestId, ratingId, numOfDays);
+      form.setFieldsValue({
+        [basePath.join(".")]: {
+          ...form.getFieldValue(basePath.join(".")),
+          [fieldKey]: {
+            ...form.getFieldValue([...basePath, fieldKey]),
+            numOfDays: numOfDays, // Assuming 'numOfRoom' is where you want to store this, adjust as necessary
+          },
+        },
+      });
+    }
+  };
+
+  const onOptionChange = (value, optionKey) => {
+    setSelectedOptions((prev) => ({
+      ...prev,
+      [optionKey]: value,
+    }));
+    fetchPriceData(
+      selectedDistrict,
+      request.privateTourResponse.id,
+      value,
+      numOfDaysLoging
+    );
+  };
 
   // Lấy dữ liệu provinceId và province name từ request để hiển thị lên form
   useEffect(() => {
@@ -81,14 +168,15 @@ const LodgingSection = ({
     }
   }, [request]);
 
-  // Define the keys you want to include in the dropdown
-
-  // Filter ratingLabels to only include the specified keys
-  const filteredLabels = Object.fromEntries(
-    Object.entries(ratingLabels).filter(([key]) =>
-      keysToShow.includes(parseInt(key))
-    )
-  );
+  const minMaxPrice1 = priceData[
+    selectedOptions[`hotelOptionRatingOption1`]
+  ]?.filter((item) => item.servingQuantity === roomType);
+  const minMaxPrice2 = priceData[
+    selectedOptions[`hotelOptionRatingOption2`]
+  ]?.filter((item) => item.servingQuantity === roomType);
+  const minMaxPrice3 = priceData[
+    selectedOptions[`hotelOptionRatingOption3`]
+  ]?.filter((item) => item.servingQuantity === roomType);
 
   return (
     <Form.List name={[...basePath, "hotels"]}>
@@ -120,12 +208,27 @@ const LodgingSection = ({
                         },
                       ]}
                     >
-                      <RangePicker showTime className="!min-w-[300px] mr-10" />
+                      <RangePicker
+                        showTime
+                        className="!min-w-[300px] mr-10"
+                        onChange={(dates, dateStrings) =>
+                          onDateRangeChange(dates, dateStrings, field.name)
+                        }
+                      />
                     </Form.Item>
-                    <div className="ml-4 text-lg">
-                      <span className="font-semibold ">Số lượng ngày/đêm:</span>
-                      <span className="font-normal  ml-3">1</span>
-                    </div>
+                    <Form.Item
+                      className=" font-semibold"
+                      {...field}
+                      name={[field.name, "numOfDays"]}
+                      label="Số lượng ngày/đêm:"
+                    >
+                      <InputNumber
+                        value={numOfDaysLoging}
+                        min={numOfDaysLoging}
+                        placeholder={numOfDaysLoging}
+                        disabled
+                      />
+                    </Form.Item>
                   </div>
                   <div className="flex flex-wrap">
                     <Form.Item
@@ -154,20 +257,6 @@ const LodgingSection = ({
                         )}
                       </Select>
                     </Form.Item>
-                    <Form.Item
-                      className=" font-semibold"
-                      {...field}
-                      name={[field.name, "numOfRoom"]}
-                      label="Số lượng phòng:"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input number of rooms!",
-                        },
-                      ]}
-                    >
-                      <InputNumber min={1} max={30} className=" mr-10" />
-                    </Form.Item>
                   </div>
 
                   {/* Các gói */}
@@ -193,17 +282,46 @@ const LodgingSection = ({
                             <Select
                               className="!w-full mr-10"
                               placeholder="Chọn loại hình lưu trú"
+                              onChange={(value) =>
+                                onOptionChange(
+                                  value,
+                                  `hotelOptionRatingOption1`
+                                )
+                              }
                             >
                               {filteredFacilities.map((facility) => (
                                 <p key={facility.id}>
                                   {facility.name} - {facility.description}
-                                  {/* {facility.facilityRating.rating.name} */}
-                                  {/* Vĩ độ: {facility.province.lat}, Kinh độ:{" "}
-                                  {facility.province.lng} */}
                                 </p>
                               ))}
                             </Select>
                           </Form.Item>
+                          <div className="flex font-semibold text-sm text-gray-500 ml-10">
+                            {priceData[
+                              selectedOptions[`hotelOptionRatingOption1`]
+                            ] && (
+                              <p>
+                                {" "}
+                                Giá khoảng:{" "}
+                                {minMaxPrice1[0].minPrice.toLocaleString(
+                                  "vi-VN",
+                                  {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }
+                                )}{" "}
+                                -{" "}
+                                {minMaxPrice1[0].maxPrice.toLocaleString(
+                                  "vi-VN",
+                                  {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }
+                                )}
+                                / Người / Đêm
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="Option1">
@@ -226,17 +344,46 @@ const LodgingSection = ({
                             <Select
                               className="!w-full mr-10"
                               placeholder="Chọn loại hình lưu trú"
+                              onChange={(value) =>
+                                onOptionChange(
+                                  value,
+                                  `hotelOptionRatingOption2`
+                                )
+                              }
                             >
                               {filteredFacilities.map((facility) => (
                                 <p key={facility.id}>
                                   {facility.name} - {facility.description}
-                                  {/* {facility.facilityRating.rating.name} */}
-                                  {/* Vĩ độ: {facility.province.lat}, Kinh độ:{" "}
-                                  {facility.province.lng} */}
                                 </p>
                               ))}
                             </Select>
                           </Form.Item>
+                          <div className="flex font-semibold text-sm text-gray-500 ml-10">
+                            {priceData[
+                              selectedOptions[`hotelOptionRatingOption2`]
+                            ] && (
+                              <p>
+                                {" "}
+                                Giá khoảng:{" "}
+                                {minMaxPrice2[0].minPrice.toLocaleString(
+                                  "vi-VN",
+                                  {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }
+                                )}{" "}
+                                -{" "}
+                                {minMaxPrice2[0].maxPrice.toLocaleString(
+                                  "vi-VN",
+                                  {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }
+                                )}
+                                / Người / Đêm
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="Option1">
@@ -260,17 +407,46 @@ const LodgingSection = ({
                             <Select
                               className="!w-full mr-10"
                               placeholder="Chọn loại hình lưu trú"
+                              onChange={(value) =>
+                                onOptionChange(
+                                  value,
+                                  `hotelOptionRatingOption3`
+                                )
+                              }
                             >
                               {filteredFacilities?.map((facility) => (
                                 <p key={facility.id}>
                                   {facility.name} - {facility.description}
-                                  {/* {facility.facilityRating.rating.name} */}
-                                  {/* Vĩ độ: {facility.province.lat}, Kinh độ:{" "}
-                                  {facility.province.lng} */}
                                 </p>
                               ))}
                             </Select>
                           </Form.Item>
+                          <div className="flex font-semibold text-sm text-gray-500 ml-10">
+                            {priceData[
+                              selectedOptions[`hotelOptionRatingOption3`]
+                            ] && (
+                              <p>
+                                {" "}
+                                Giá khoảng:{" "}
+                                {minMaxPrice3[0].minPrice.toLocaleString(
+                                  "vi-VN",
+                                  {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }
+                                )}{" "}
+                                -{" "}
+                                {minMaxPrice3[0].maxPrice.toLocaleString(
+                                  "vi-VN",
+                                  {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }
+                                )}{" "}
+                                / Người / Đêm
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
