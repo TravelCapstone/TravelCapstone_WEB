@@ -24,6 +24,7 @@ import {
   servingFoodsQuantity,
 } from "../../../../../../settings/globalStatus";
 import { v4 as uuidv4 } from "uuid";
+import { getAllFacilityByLocationAndRatingId } from "../../../../../../api/FacilityApi";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -197,7 +198,8 @@ const DaySection = ({ basePath, name, form, mealTime, remove }) => {
   );
 };
 
-const RestaurantSection = ({ form, basePath }) => {
+const RestaurantSection = ({ form, basePath, selectedDistrict }) => {
+  console.log(selectedDistrict);
   const [mealTime, setMealTime] = useState(null);
 
   const handleDateChange = (date, dateString) => {
@@ -215,6 +217,7 @@ const RestaurantSection = ({ form, basePath }) => {
     // Converts 0 to 'a', 1 to 'b', etc.
     return String.fromCharCode(97 + index);
   };
+
   return (
     <Form.List name={[...basePath, "restaurants"]}>
       {(fields, { add, remove }) => (

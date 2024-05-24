@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Form,
-  Select,
-  DatePicker,
-  Space,
-  InputNumber,
-  message,
-} from "antd";
-import {
-  DeleteOutlined,
-  PlusOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  SwapOutlined,
-} from "@ant-design/icons";
+import { Button, Form, Select, DatePicker, Space, message } from "antd";
+import { DeleteOutlined, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import {
   ratingLabels,
   servingVehiclesQuantity,
 } from "../../../../../../settings/globalStatus";
+import { getOptimalPath } from "../../../../../../api/VehicleApi";
+import {
+  metersToKilometers,
+  secondsToHours,
+} from "../../../../../../utils/Util";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -34,12 +25,13 @@ const TransportationSection = ({
   onProvinceChange,
   fetchVehiclePriceRange,
   handleFieldChange,
+  startProvince,
 }) => {
   const [selectedForSwap, setSelectedForSwap] = useState([]);
   const [routes, setRoutes] = useState([
-    { id: 1, from: "", to: "", transport: "", dateRange: [], cost: 0 }, // Initial route
+    { id: 1, from: "", to: "", transport: "", dateRange: [], cost: 0 },
   ]);
-
+  const [optimalPath, setOptimalPath] = useState({});
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
       setProvinces(
@@ -50,11 +42,22 @@ const TransportationSection = ({
       );
     }
   }, [request]);
+  const getSuggestPath = async () => {
+    const result = provinces.map((item) => item.id);
+
+    const data = await getOptimalPath(result[0], result);
+    if (data.isSuccess) {
+      setOptimalPath(data.result);
+    }
+  };
+  useEffect(() => {
+    getSuggestPath();
+  }, [provinces]);
 
   const handleSelectForSwap = (index) => {
     const newSelection = [...selectedForSwap, index];
     if (newSelection.length > 2) {
-      newSelection.shift(); // Ensure only two items can be selected at once
+      newSelection.shift();
     }
     setSelectedForSwap(newSelection);
   };
@@ -62,7 +65,6 @@ const TransportationSection = ({
   const executeSwap = () => {
     if (selectedForSwap.length === 2) {
       const [firstIndex, secondIndex] = selectedForSwap;
-      // Swap the values in the form
       const firstValues = form.getFieldValue(["transportation", firstIndex]);
       const secondValues = form.getFieldValue(["transportation", secondIndex]);
       form.setFieldsValue({
@@ -71,13 +73,99 @@ const TransportationSection = ({
           [secondIndex]: firstValues,
         },
       });
-      setSelectedForSwap([]); // Clear selections after swap
+      setSelectedForSwap([]);
       message.success("Items swapped successfully!");
     }
   };
 
+  const addRoute = (add) => {
+    const fields = form.getFieldValue("transportation") || [];
+    const lastRoute = fields[fields.length - 1];
+    const newRoute = {
+      startPoint: lastRoute ? lastRoute.endPoint : "",
+      startPointDistrict: lastRoute ? lastRoute.endPointDistrict : "",
+      dateRange: lastRoute ? [lastRoute.dateRange[1], null] : [],
+    };
+    add(newRoute);
+  };
+
+  const updateNextRoute = (index) => {
+    const fields = form.getFieldValue("transportation") || [];
+    if (index < fields.length - 1) {
+      const currentRoute = fields[index];
+      const nextRoute = fields[index + 1];
+      const updatedNextRoute = {
+        ...nextRoute,
+        startPoint: currentRoute.endPoint,
+        startPointDistrict: currentRoute.endPointDistrict,
+        dateRange: [currentRoute.dateRange[1], nextRoute.dateRange[1]],
+      };
+      form.setFieldsValue({
+        transportation: {
+          ...fields,
+          [index + 1]: updatedNextRoute,
+        },
+      });
+    }
+  };
+  const getRouteInfo = (from, to) => {
+    const fromProvince = optimalPath[from];
+    const toProvince = optimalPath[to];
+
+    const distanceToNextDestination =
+      fromProvince.distanceToNextDestination +
+      (toProvince ? toProvince.distanceToNextDestination : 0);
+
+    const duration =
+      fromProvince.duration + (toProvince ? toProvince.duration : 0);
+
+    return {
+      fromProvince: fromProvince.provinceName,
+      toProvince: toProvince
+        ? toProvince.provinceName
+        : optimalPath[0].provinceName,
+      distance: distanceToNextDestination,
+      duration,
+    };
+  };
   return (
     <>
+      <div className="p-6 bg-white rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold mb-6 text-primary">
+          Hành trình tối ưu
+        </h2>
+        {optimalPath.length > 0 && (
+          <div className="grid gap-4">
+            {optimalPath.map((item, index) => {
+              const routeInfo = getRouteInfo(index, index + 1);
+              return (
+                <div
+                  key={index}
+                  className="bg-gray-100 p-4 rounded-lg flex flex-col justify-between"
+                >
+                  <div>
+                    <p className="text-lg font-bold text-gray-800">
+                      {routeInfo.fromProvince} -{" "}
+                      {routeInfo.toProvince ? ` ${routeInfo.toProvince}` : ""}
+                    </p>
+                  </div>
+                  <div className="mt-2 flex justify-between text-gray-600">
+                    <p>
+                      <span className="font-bold">Khoảng cách:</span>{" "}
+                      {metersToKilometers(routeInfo.distance)}
+                    </p>
+                    <p>
+                      <span className="font-bold">Thời gian:</span>{" "}
+                      {secondsToHours(routeInfo.duration)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       <Form.List name="transportation" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
@@ -186,9 +274,13 @@ const TransportationSection = ({
                     ]}
                   >
                     <RangePicker
-                      onChange={() => fetchVehiclePriceRange(index)}
+                      onChange={() => {
+                        fetchVehiclePriceRange(index);
+                        updateNextRoute(index);
+                      }}
                       showTime
                       className="!w-[350px] mr-10"
+                      format={"DD/MM/YYYY"}
                     />
                   </Form.Item>
                   <div className="flex flex-wrap ">
@@ -242,25 +334,6 @@ const TransportationSection = ({
                         </p>
                       </div>
                     )}
-                    {/* <Form.Item
-                      label="Số lượng xe:"
-                      className=" font-semibold"
-                      name={[name, "numOfVehicle"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please enter number of days",
-                        },
-                      ]}
-                    >
-                      <InputNumber
-                        min={1}
-                        max={30}
-                        onChange={() => fetchVehiclePriceRange(index)}
-                        placeholder="Số lượng xe"
-                        className="!w-[200px] mr-10"
-                      />
-                    </Form.Item> */}
                   </div>
                 </div>
 
@@ -298,7 +371,7 @@ const TransportationSection = ({
               <Button
                 className="bg-teal-600 font-semibold text-white"
                 type="dashed"
-                onClick={() => add()}
+                onClick={() => addRoute(add)}
                 block
                 icon={<PlusOutlined />}
               >

@@ -23,7 +23,7 @@ const InfoTourGuideSection = ({
   const [numOfDay, setNumOfDay] = useState(null);
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
   const [selectedProvinces, setSelectedProvinces] = useState([]);
-
+  const [availableProvinces, setAvailableProvinces] = useState([]);
   console.log("salaryInfo", salaryInfo);
 
   const handleQuantityChange = (index, value) => {
@@ -129,10 +129,14 @@ const InfoTourGuideSection = ({
       return newSalaries;
     });
   };
-
-  const availableProvinces = provinces.filter(
-    (province) => !selectedProvinces.includes(province.id)
-  );
+  useEffect(() => {
+    setAvailableProvinces(provinces);
+  }, [provinces]);
+  useEffect(() => {
+    setAvailableProvinces(
+      provinces.filter((province) => !selectedProvinces.includes(province.id))
+    );
+  }, [selectedProvinces]);
 
   return (
     <>
@@ -164,7 +168,7 @@ const InfoTourGuideSection = ({
                           }
                           className="!w-[200px] mr-10"
                         >
-                          {availableProvinces.map((province) => (
+                          {availableProvinces?.map((province) => (
                             <Option key={province.id} value={province.id}>
                               {province.name}
                             </Option>

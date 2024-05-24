@@ -193,6 +193,7 @@ const EachServiceSection = ({
                                     Dịch vụ ăn uống:
                                   </h3>
                                   <RestaurantSection
+                                    selectedDistrict={selectedDistrict}
                                     request={request}
                                     basePath={[field.name]}
                                     form={form}
@@ -215,20 +216,6 @@ const EachServiceSection = ({
                                 </div>
 
                                 {/* GALA/TEAMBULDING */}
-                                <div>
-                                  <h3 className="font-bold text-lg my-6 text-mainColor">
-                                    Gói GALA/ TEAMBULDING
-                                  </h3>
-                                  <EventGalasSection
-                                    basePath={[field.name]}
-                                    request={request}
-                                    form={form}
-                                    provinces={provinces}
-                                    districts={districts}
-                                    onProvinceChange={onProvinceChange}
-                                    setProvinces={setProvinces}
-                                  />
-                                </div>
                               </div>
                             </div>
                           </div>

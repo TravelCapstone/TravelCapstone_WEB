@@ -22,33 +22,40 @@ const EventGalasSection = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [loading, setLoading] = useState(false);
-  console.log("events", events);
-  console.log("selectedPackage", selectedPackage);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const quantity =
     request?.privateTourResponse?.numOfAdult +
     request?.privateTourResponse?.numOfChildren;
 
-  console.log("quantity", quantity);
-
   const fetchEvents = async () => {
     setLoading(true);
-    const eventList = await fetchEventListWithQuantity(quantity); // Example quantity
-    setEvents(eventList);
+    const eventList = await fetchEventListWithQuantity(quantity);
+    if (eventList.isSuccess) {
+      setEvents(eventList.result);
+      console.log(events);
+    }
     setLoading(false);
   };
 
   const showModal = (packageType) => {
     setSelectedPackage(packageType);
-    fetchEvents();
     setModalVisible(true);
   };
 
+  useEffect(() => {
+    fetchEvents();
+  }, [quantity]);
   const handleSelectEvent = (event) => {
     form.setFieldsValue({
       [selectedPackage]: event.id,
     });
     setModalVisible(false);
+  };
+  const handleSelectChange = (value) => {
+    const event = events.find((e) => e.event.id === value);
+    setSelectedEvent(event);
+    showModal(value);
   };
 
   const columns = [
@@ -104,152 +111,57 @@ const EventGalasSection = ({
         onCancel={() => setModalVisible(false)}
         footer={null}
       >
-        <Table
-          columns={columns}
-          dataSource={events}
-          rowKey="id"
-          loading={loading}
-          scroll={{ y: 500 }}
-        />
+        {selectedEvent && (
+          <Table
+            columns={columns}
+            dataSource={[selectedEvent]}
+            rowKey="id"
+            loading={loading}
+            scroll={{ y: 500 }}
+          />
+        )}
       </Modal>
 
-      <Form.List name={[...basePath, "eventGalas"]}>
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map((field, index) => (
-              <Space
-                key={field.key}
-                direction="vertical"
-                size="large"
-                className="flex justify-between"
-                align="baseline"
-              >
+      <Space
+        direction="vertical"
+        size="large"
+        className="flex justify-between"
+        align="baseline"
+      >
+        <div className="flex">
+          <div>
+            <div className="Options my-4">
+              <div className="Option2 my-4">
                 <div className="flex">
-                  <div>
-                    <div className="Options my-4">
-                      <div className="Option1 my-4">
-                        <li className="list-disc text-lg font-semibold mb-2 text-red-400">
-                          Gói Tiết Kiệm:
-                        </li>
-                        <div className="flex">
-                          <Form.Item
-                            className="font-semibold my-2"
-                            name={[field.name, "option1EventId"]}
-                            label="Gói Event/Game:"
-                          >
-                            <Select
-                              placeholder="Gói Event/Game"
-                              className="!w-[200px] mr-10"
-                            >
-                              {events.map((event) => (
-                                <Option
-                                  key={event.event.id}
-                                  value={event.event.id}
-                                >
-                                  {event.event.name}
-                                </Option>
-                              ))}
-                            </Select>
-                          </Form.Item>
-                          <Button
-                            type="primary"
-                            onClick={() =>
-                              showModal([field.name, "option1EventId"])
-                            }
-                          >
-                            Xem chi tiết các gói dịch vụ Event
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="Option2 my-4">
-                        <li className="list-disc text-lg font-semibold mb-2 text-red-400">
-                          Gói Cơ Bản:
-                        </li>
-                        <div className="flex">
-                          <Form.Item
-                            className="font-semibold my-2"
-                            name={[field.name, "option2EventId"]}
-                            label="Gói Event/Game:"
-                          >
-                            <Select
-                              placeholder="Gói Event/Game"
-                              className="!w-[200px] mr-10"
-                            >
-                              {events.map((event) => (
-                                <Option
-                                  key={event.event.id}
-                                  value={event.event.id}
-                                >
-                                  {event.event.name}
-                                </Option>
-                              ))}
-                            </Select>
-                          </Form.Item>
-                          <Button
-                            type="primary"
-                            onClick={() =>
-                              showModal([field.name, "option2EventId"])
-                            }
-                          >
-                            Xem chi tiết các gói dịch vụ Event
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="Option3 my-4">
-                        <li className="list-disc text-lg font-semibold mb-2 text-red-400">
-                          Gói Nâng Cao:
-                        </li>
-                        <div className="flex">
-                          <Form.Item
-                            className="font-semibold my-2"
-                            name={[field.name, "option3EventId"]}
-                            label="Gói Event/Game:"
-                          >
-                            <Select
-                              placeholder="Gói Event/Game"
-                              className="!w-[200px] mr-10"
-                            >
-                              {events.map((event) => (
-                                <Option
-                                  key={event.event.id}
-                                  value={event.event.id}
-                                >
-                                  {event.event.name}
-                                </Option>
-                              ))}
-                            </Select>
-                          </Form.Item>
-                          <Button
-                            type="primary"
-                            onClick={() =>
-                              showModal([field.name, "option3EventId"])
-                            }
-                          >
-                            Xem chi tiết các gói dịch vụ Event
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <Form.Item
+                    className="font-semibold my-2"
+                    label="Gói Event/Game:"
+                  >
+                    <Select
+                      placeholder="Gói Event/Game"
+                      className="!w-[200px] mr-10"
+                      onChange={handleSelectChange}
+                    >
+                      {events.length > 0 &&
+                        events.map((event) => (
+                          <Option key={event.event?.id} value={event.event?.id}>
+                            {event?.event?.name}
+                          </Option>
+                        ))}
+                    </Select>
+                  </Form.Item>
+                  <Button
+                    className="bg-mainColor text-white mt-2"
+                    onClick={showModal}
+                  >
+                    Xem chi tiết
+                  </Button>
                 </div>
-              </Space>
-            ))}
-            <Form.Item>
-              <Button
-                onClick={() => add()}
-                className="bg-teal-600 font-semibold text-white"
-                type="dashed"
-                style={{ marginTop: 16 }}
-                icon={<PlusOutlined />}
-              >
-                Tạo Gói Event/Teambulding
-              </Button>
-            </Form.Item>
-          </>
-        )}
-      </Form.List>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Space>
     </>
   );
 };

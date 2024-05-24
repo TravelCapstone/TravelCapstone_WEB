@@ -117,7 +117,7 @@ const ManagementLayout = ({ isAdmin }) => {
           <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
           <ul className=" h-full menu p-4 w-60 max-w-xs bg-base-100 text-base-content">
             <NavLink
-              className="mt-12 block mb-4 text-xl font-semibold text-primary italic"
+              className="mt-2 block mb-4 text-xl font-semibold text-primary italic"
               to={`/`}
             >
               Cóc Travel

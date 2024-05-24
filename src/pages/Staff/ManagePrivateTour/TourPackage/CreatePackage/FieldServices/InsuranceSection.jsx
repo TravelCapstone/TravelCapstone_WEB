@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, InputNumber, Button, Space, Select } from "antd";
+import { Form, InputNumber, Button, Space, Select, Modal } from "antd"; // Import Modal
 import {
   DeleteOutlined,
   MinusCircleOutlined,
@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { getAvailableAssurancesWithNumOfDays } from "../../../../../../api/AssuranceApi";
 import { optionClassLabels } from "../../../../../../settings/globalStatus";
+import { formatPrice } from "../../../../../../utils/Util";
 
 const { Option } = Select;
 
@@ -19,7 +20,8 @@ const InsuranceSection = ({
   onProvinceChange,
   basePath,
 }) => {
-  const [insurances, setInsurances] = useState([]);
+  const [insurances, setInsurances] = useState({});
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const numOfDays = request?.privateTourResponse?.numOfDay;
 
   console.log("insurances", insurances);
@@ -38,8 +40,8 @@ const InsuranceSection = ({
     const fetchInsurances = async () => {
       const response = await getAvailableAssurancesWithNumOfDays(numOfDays);
       console.log("response", response);
-      if (response.data.isSuccess) {
-        setInsurances(response.data.result.flat()); // Flatten the array if nested
+      if (response.isSuccess) {
+        setInsurances(response.result); // Flatten the array if nested
       }
     };
 
@@ -48,57 +50,48 @@ const InsuranceSection = ({
     }
   }, [request, numOfDays]);
 
+  // Function to handle modal opening
+  const showModal = () => {
+    setModalVisible(true);
+  };
+
+  // Function to handle modal closing
+  const handleCancel = () => {
+    setModalVisible(false);
+  };
+
   return (
-    <Form.List name="insurance" initialValue={[{}]}>
-      {(fields, { add, remove }) => (
-        <>
-          {fields.map((field, index) => (
-            <Space
-              direction="vertical"
-              size="large"
-              className="flex justify-between"
-              align="baseline"
-            >
-              <div className="flex">
-                <div>
-                  {Object.values(optionClassLabels).map((label, idx) => (
-                    <div className="Options my-4">
-                      <div key={idx} className="Option1 my-4">
-                        <li className="list-disc text-lg font-semibold mb-2 text-red-400">
-                          {label}:
-                        </li>
-                        <div className="flex">
-                          <Form.Item
-                            {...field}
-                            className=" font-semibold my-2 !w-full"
-                            name={[field.name, `insurance${idx}`]}
-                            label="Gói Bảo Hiểm:"
-                          >
-                            <Select
-                              placeholder="Chọn gói bảo hiểm"
-                              className="!w-full mr-10"
-                            >
-                              {insurances.map((insurance) => (
-                                <Option
-                                  key={insurance.assuranceId}
-                                  value={insurance.assuranceId}
-                                >
-                                  {`${insurance.assurance.name} - ${insurance.price.toLocaleString()} VND / Người`}
-                                </Option>
-                              ))}
-                            </Select>
-                          </Form.Item>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Space>
-          ))}
-        </>
-      )}
-    </Form.List>
+    <>
+      <Form.Item
+        className=" font-semibold my-2 !w-full"
+        name={"insurance"}
+        label="Gói Bảo Hiểm:"
+      >
+        <span onClick={showModal} className="text-lg cursor-pointer ">
+          {insurances.assurance?.name}.... Xem chi tiết
+        </span>
+      </Form.Item>
+      <Modal
+        title="Thông Tin Bảo Hiểm"
+        visible={modalVisible}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        <p>
+          <strong>Tên:</strong> {insurances.assurance?.name}
+        </p>
+        <p>
+          <strong>Giá:</strong> {formatPrice(insurances.price)}
+        </p>
+        <p>
+          <strong>Mô tả:</strong> {insurances.assurance?.description}
+        </p>
+        <p>
+          <strong>Yêu cầu tối thiểu số ngày:</strong>{" "}
+          {insurances.assurance?.dayMOQ}
+        </p>
+      </Modal>
+    </>
   );
 };
 export default InsuranceSection;
