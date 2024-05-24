@@ -24,7 +24,7 @@ const InfoTourGuideSection = ({
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
   const [selectedProvinces, setSelectedProvinces] = useState([]);
   const [availableProvinces, setAvailableProvinces] = useState([]);
-  console.log("salaryInfo", salaryInfo);
+  console.log("availableProvinces", availableProvinces);
 
   const handleQuantityChange = (index, value) => {
     form.setFieldsValue({
@@ -129,9 +129,11 @@ const InfoTourGuideSection = ({
       return newSalaries;
     });
   };
+
   useEffect(() => {
     setAvailableProvinces(provinces);
   }, [provinces]);
+
   useEffect(() => {
     setAvailableProvinces(
       provinces.filter((province) => !selectedProvinces.includes(province.id))

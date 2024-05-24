@@ -45,6 +45,8 @@ const EachServiceSection = ({
   getAllDistrictsByProvinceId,
   setLoadingDistricts,
   setDistricts,
+  numOfDaysLoging,
+  setNumOfDaysLoging,
 }) => {
   console.log("selectedProvinces: ", selectedProvinces);
   console.log("selectedProvince: ", selectedProvince);
@@ -185,6 +187,8 @@ const EachServiceSection = ({
                                     setProvinces={setProvinces}
                                     selectedDistrict={selectedDistrict}
                                     request={request}
+                                    numOfDaysLoging={numOfDaysLoging}
+                                    setNumOfDaysLoging={setNumOfDaysLoging}
                                   />
                                 </div>
                                 {/* DỊCH VỤ ĂN UỐNG */}

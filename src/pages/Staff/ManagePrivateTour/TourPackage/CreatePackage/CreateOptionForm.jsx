@@ -49,11 +49,13 @@ function CreateOptionForm({ request }) {
 
   const [salaryInfo, setSalaryInfo] = useState(null);
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
+  const [numOfDaysLoging, setNumOfDaysLoging] = useState(0);
 
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
 
   console.log("salaryInfo", salaryInfo);
+  console.log("numOfDaysLoging", numOfDaysLoging);
 
   useEffect(() => {
     const fetchSalary = async () => {
@@ -670,10 +672,10 @@ function CreateOptionForm({ request }) {
           <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
             DỊCH VỤ RIÊNG TỪNG GÓI
           </h2>
-          {/* <div className="mt-10">
+          <div className="mt-10">
             <h3>Form Data:</h3>
             <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
-          </div> */}
+          </div>
           {/* BẢO HIỂM */}
 
           <div className=" mx-4">
@@ -693,6 +695,8 @@ function CreateOptionForm({ request }) {
               getAllDistrictsByProvinceId={getAllDistrictsByProvinceId}
               setLoadingDistricts={setLoadingDistricts}
               setDistricts={setDistricts}
+              numOfDaysLoging={numOfDaysLoging}
+              setNumOfDaysLoging={setNumOfDaysLoging}
             />
           </div>
 
