@@ -191,8 +191,25 @@ const getVehiclePriceRange = async (
   pageSize = 10
 ) => {
   try {
-    const response = await api.get(
-      `/sell-price/get-vehicle-price-range?startPoint=${startPoint}&endPoint=${endPoint}&vehicleType=${vehicleType}&Quantity=${quantity}&StartDate=${startDate}&EndDate=${endDate}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    const requestBody = {
+      startPoint: startPoint,
+      endPoint: endPoint,
+      vehicleType: vehicleType,
+      quantity: quantity,
+      startDate: startDate,
+      endDate: endDate,
+      pageNumber: pageNumber,
+      pageSize: pageSize
+    };
+    debugger;
+    const response = await api.post(
+      '/sell-price/get-vehicle-price-range',
+      requestBody,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
     return response.data;
   } catch (error) {
@@ -212,8 +229,24 @@ const getVehiclePriceRangeNoEndPoint = async (
   pageSize = 10
 ) => {
   try {
-    const response = await api.get(
-      `/sell-price/get-vehicle-price-range?startPoint=${startPoint}&vehicleType=${vehicleType}&Quantity=${quantity}&StartDate=${startDate}&EndDate=${endDate}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    const requestBody = {
+      startPoint: startPoint,
+      vehicleType: vehicleType,
+      quantity: quantity,
+      startDate: startDate,
+      endDate: endDate,
+      pageNumber: pageNumber,
+      pageSize: pageSize
+    };
+    debugger;
+    const response = await api.post(
+      '/sell-price/get-vehicle-price-range',
+      requestBody,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
     return response.data;
   } catch (error) {
@@ -221,6 +254,7 @@ const getVehiclePriceRangeNoEndPoint = async (
     return [];
   }
 };
+
 
 export {
   getAveragePriceOfService,

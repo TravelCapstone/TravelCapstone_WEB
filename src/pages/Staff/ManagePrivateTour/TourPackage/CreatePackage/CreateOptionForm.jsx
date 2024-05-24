@@ -102,7 +102,7 @@ function CreateOptionForm({ request }) {
 
   // get giá verhicle
   const fetchVehiclePriceRange = async (index) => {
-    debugger;
+    // debugger;
 
     const quantity =
       request?.privateTourResponse?.numOfAdult +
