@@ -10,6 +10,8 @@ import {
   TreeSelect,
   InputNumber,
   notification,
+  List,
+  Card,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { createOptionsPrivateTour } from "../../../../../api/OptionsApi";
@@ -50,6 +52,12 @@ function CreateOptionForm({ request }) {
   const [salaryInfo, setSalaryInfo] = useState(null);
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
   const [numOfDaysLoging, setNumOfDaysLoging] = useState(0);
+
+  const [startDateChange, setStartDateChange] = useState(null);
+  const [endDateChange, setEndDateChange] = useState(null);
+
+  console.log("endDateChange", endDateChange);
+  console.log("startDateChange", startDateChange);
 
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
@@ -459,11 +467,32 @@ function CreateOptionForm({ request }) {
   const parsedStartDate = startDate ? dayjs(startDate) : null;
   const parsedEndDate = endDate ? dayjs(endDate) : null;
 
+  const handleStartDateChange = (dates) => {
+    if (dates && dates[0]) {
+      const start = dates[0];
+      setStartDateChange(start);
+      const numOfDays =
+        request?.privateTourResponse?.numOfNight + (start.hour() >= 14 ? 1 : 0);
+      setEndDateChange(start.add(numOfDays, "day"));
+    }
+  };
+
   const disableDates = (current) => {
     if (!parsedStartDate || !parsedEndDate) {
-      return false; // If no dates are set, don't disable anything
+      return false;
+    } else {
+      if (!startDateChange) {
+        return (
+          current && (current < parsedStartDate || current > parsedEndDate)
+        );
+      } else {
+        if (endDateChange < parsedEndDate)
+          return (
+            current && (current < startDateChange || current > endDateChange)
+          );
+      }
+      return current && (current < startDateChange || current > parsedEndDate);
     }
-    return current && (current < parsedStartDate || current >= parsedEndDate);
   };
 
   return (
@@ -500,16 +529,39 @@ function CreateOptionForm({ request }) {
                 </span>
               </div>
             </div>
-            <div className="mb-3">
-              <span className="font-bold ">Số người lớn:</span>
-              <span className="font-normal ml-3">
-                {request?.privateTourResponse?.numOfAdult}
-              </span>
-              <span className="font-bold ml-5">Số trẻ em:</span>
-              <span className="font-normal ml-3">
-                {request?.privateTourResponse?.numOfChildren}
-              </span>
+            <div className="mb-3 flex flex-wrap items-center">
+              <p>
+                <span className="font-bold ">Số người lớn:</span>
+                <span className="font-normal ml-3">
+                  {request?.privateTourResponse?.numOfAdult}
+                </span>
+              </p>
+              <p>
+                <span className="font-bold ml-5">Số trẻ em:</span>
+                <span className="font-normal ml-3">
+                  {request?.privateTourResponse?.numOfChildren}
+                </span>
+              </p>
+              <div className="ml-10 flex items-center">
+                <span className="font-bold text-lg mr-4 ">
+                  Yêu cầu lưu trú:
+                </span>
+                <List
+                  dataSource={request.privateTourResponse?.roomDetails}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <Card className="mr-4 bg-teal-100">
+                        <Card.Meta
+                          title={`Phòng ${item.quantityPerRoom === 4 ? "đôi" : "đơn"} `}
+                          description={`Tổng số phòng: ${item.totalRoom}`}
+                        />
+                      </Card>
+                    </List.Item>
+                  )}
+                />
+              </div>
             </div>
+
             <div className="flex">
               <div className="mb-3">
                 <span className="font-bold ">Khoảng thời gian:</span>
@@ -541,8 +593,16 @@ function CreateOptionForm({ request }) {
               <RangePicker
                 showTime
                 className="!min-w-[300px] mr-10"
+                onCalendarChange={handleStartDateChange}
                 disabledDate={disableDates}
                 format={"DD/MM/YYYY"}
+                onOpenChange={(status) => {
+                  // Additional handling if needed when picker opens/closes
+                  if (!status) {
+                    // status false when picker closes
+                    handleStartDateChange(null); // Reset on picker close if needed
+                  }
+                }}
               />
             </Form.Item>
           </div>

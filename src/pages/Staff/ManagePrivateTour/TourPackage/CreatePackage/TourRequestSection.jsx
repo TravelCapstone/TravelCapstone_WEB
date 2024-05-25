@@ -106,7 +106,7 @@ function TourRequestSection({ request }) {
                 dataSource={request.privateTourResponse?.roomDetails}
                 renderItem={(item) => (
                   <List.Item>
-                    <Card>
+                    <Card className="mr-4 bg-teal-100">
                       <Card.Meta
                         title={`Phòng ${item.quantityPerRoom === 4 ? "đôi" : "đơn"} `}
                         description={`Tổng số phòng: ${item.totalRoom}`}
