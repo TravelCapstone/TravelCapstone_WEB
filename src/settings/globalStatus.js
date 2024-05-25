@@ -50,40 +50,6 @@ const ratingLabels = {
   11: "Khu du lịch",
 };
 
-const ratingLabelsAPI = [
-  {
-    id: "34115F50-25D5-4750-8500-5CB917F27DA5",
-    ratingId: 0,
-    label: "Nhà nghỉ",
-  },
-  {
-    id: "1E955290-E063-439F-8E17-D2EDCB2AD69B",
-    ratingId: 1,
-    label: "Khách sạn 2 sao",
-  },
-  {
-    id: "1BA853DB-84E4-4E9C-B750-DBE432D1A2B0",
-    ratingId: 2,
-    label: "Khách sạn 3 sao",
-  },
-  {
-    id: "EF3FC5D9-7C7A-44C3-8FC1-8DA12CA7E93B",
-    ratingId: 3,
-    label: "Khách sạn 4 sao",
-  },
-  {
-    id: "F2603607-D947-4ACA-888E-9FD3BC3C0339",
-    ratingId: 4,
-    label: "Khách sạn 5 sao",
-  },
-  
-  {
-    id: "D39D6346-6831-4155-B27A-A2A779271BA2",
-    ratingId: 10,
-    label: "Khu resort nghỉ dưỡng",
-  },
-  
-];
 
 const ratingEntertaimentAPI = [{
   id: "994CB1A9-6D4E-4D34-B904-91B229A12D5C",
@@ -182,7 +148,6 @@ export {
   servingFoodsQuantity,
   servingVehiclesQuantity,  
   servingActor,
-  ratingLabelsAPI,
   ratingEntertaimentAPI,
   ratingRestaurantAPI,
 };

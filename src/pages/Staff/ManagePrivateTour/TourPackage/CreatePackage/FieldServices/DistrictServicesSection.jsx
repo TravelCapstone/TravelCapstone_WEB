@@ -14,7 +14,6 @@ import {
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   ratingLabels,
-  ratingLabelsAPI,
   servingActor,
   servingHotelsQuantity,
 } from "../../../../../../settings/globalStatus";
