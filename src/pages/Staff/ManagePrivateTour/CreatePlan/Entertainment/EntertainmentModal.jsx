@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { getAveragePriceOfService } from "../../../../../api/SellPriceHistoryApi";
 import { unitLabels } from "../../../../../settings/globalStatus";
 import { formatPrice } from "../../../../../utils/Util";
+import { Button, Modal, Table, Typography } from "antd";
+
+const { Text } = Typography;
 
 const EntertainmentModal = ({
   districtId,
@@ -12,7 +15,8 @@ const EntertainmentModal = ({
   log,
 }) => {
   const [listEntertainment, setListEntertainment] = useState([]);
-  const [selectedEntertainment, setSelectedEntertainment] = useState([]); // Thay đổi thành một mảng
+  const [selectedEntertainment, setSelectedEntertainment] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const fetchData = async () => {
     const data = await getAveragePriceOfService(
@@ -52,114 +56,85 @@ const EntertainmentModal = ({
       setSelectedEntertainment(updatedSelection);
     }
   };
+
   useEffect(() => {
     log(selectedEntertainment);
   }, [selectedEntertainment]);
+
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: "Địa điểm",
+      dataIndex: ["sellPriceHistory", "facilityService", "facility", "name"],
+      key: "facilityName",
+    },
+    {
+      title: "Địa chỉ",
+      key: "address",
+      render: (text, record) => {
+        const facility = record.sellPriceHistory?.facilityService?.facility;
+        return `${facility?.address}, ${facility?.communce?.name}, ${facility?.communce?.district?.name}, ${facility?.communce?.district?.province?.name}`;
+      },
+    },
+    {
+      title: "Dịch vụ",
+      dataIndex: ["sellPriceHistory", "facilityService", "name"],
+      key: "serviceName",
+    },
+    {
+      title: "Đơn vị",
+      key: "unit",
+      render: (text, record) =>
+        unitLabels[record.sellPriceHistory?.facilityService?.unitId],
+    },
+    {
+      title: "Giá",
+      key: "price",
+      render: (text, record) => formatPrice(record.sellPriceHistory?.price),
+    },
+  ];
+
   return (
     <>
-      <button
-        className="btn bg-mainColor text-white"
-        onClick={() =>
-          document.getElementById("entertainment_modal").showModal()
-        }
-      >
+      <Button type="primary" onClick={() => setIsModalVisible(true)}>
         Chọn
-      </button>
-      <dialog id="entertainment_modal" className="modal">
-        <div className="modal-box w-11/12 max-w-6xl">
-          <h3 className="font-bold text-lg">Chọn địa điểm vui chơi</h3>
-
-          <div className="overflow-x-auto rounded-xl shadow-xl my-4">
-            <table className="table w-full ">
-              <thead className="bg-mainColor text-white h-14">
-                <tr>
-                  <th>STT</th>
-                  <th>Địa điểm</th>
-                  <th>Địa chỉ</th>
-                  <th>Dịch vụ </th>
-                  <th>Đơn vị</th>
-                  <th>Giá</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listEntertainment &&
-                  listEntertainment.map((item, index) => (
-                    <tr
-                      key={index}
-                      className={
-                        selectedEntertainment.some(
-                          (selectedItem) =>
-                            selectedItem.sellPriceHistory?.id ===
-                            item.sellPriceHistory?.id
-                        )
-                          ? "bg-yellow-100 text-black"
-                          : ""
-                      }
-                      onClick={() => handleSelectHotel(item)}
-                    >
-                      <td>{index + 1}</td>
-                      <td>
-                        {item.sellPriceHistory?.facilityService?.facility.name}
-                      </td>
-                      <td>
-                        {
-                          item.sellPriceHistory?.facilityService?.facility
-                            .address
-                        }
-                        ,{" "}
-                        {
-                          item.sellPriceHistory?.facilityService?.facility
-                            .communce?.name
-                        }
-                        ,{" "}
-                        {
-                          item.sellPriceHistory?.facilityService?.facility
-                            .communce?.district?.name
-                        }
-                        ,{" "}
-                        {
-                          item.sellPriceHistory?.facilityService?.facility
-                            .communce?.district.province?.name
-                        }
-                      </td>
-                      <td>{item.sellPriceHistory?.facilityService?.name}</td>
-
-                      <td>
-                        {
-                          unitLabels[
-                            item.sellPriceHistory?.facilityService?.unitId
-                          ]
-                        }
-                      </td>
-                      <td>{formatPrice(item.sellPriceHistory?.price)}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="modal-action">
-            <form method="dialog">
-              {/* if there is a button, it will close the modal */}
-              {<button className="btn  bg-mainColor text-white">Chọn</button>}
-              <button
-                className="mx-2 btn"
-                onClick={() => setSelectedEntertainment([])}
-              >
-                Clear
-              </button>
-              <button
-                className="mx-2 btn"
-                onClick={() =>
-                  document.getElementById("entertainment_modal").close()
-                }
-              >
-                Close
-              </button>
-            </form>
-          </div>
-        </div>
-      </dialog>
+      </Button>
+      <Modal
+        title="Chọn địa điểm vui chơi"
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key="clear" onClick={() => setSelectedEntertainment([])}>
+            Clear
+          </Button>,
+          <Button key="close" onClick={() => setIsModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
+      >
+        <Table
+          dataSource={listEntertainment}
+          columns={columns}
+          rowKey={(record) => record.sellPriceHistory?.id}
+          rowClassName={(record) =>
+            selectedEntertainment.some(
+              (selectedItem) =>
+                selectedItem.sellPriceHistory?.id ===
+                record.sellPriceHistory?.id
+            )
+              ? "bg-yellow-100 text-black"
+              : ""
+          }
+          onRow={(record) => ({
+            onClick: () => handleSelectHotel(record),
+          })}
+        />
+      </Modal>
     </>
   );
 };

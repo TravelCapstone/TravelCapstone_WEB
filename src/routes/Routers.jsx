@@ -29,6 +29,7 @@ import ImportData from "../pages/Admin/ImportData/ImportData";
 import FacilityManagement from "../pages/Admin/Facility/FacilityManagement";
 import DetailFacility from "../pages/Admin/Facility/DetailFacility";
 import MenuManagement from "../pages/Admin/Menu/MenuManagement";
+import CreatePlanForm from "../pages/Staff/ManagePrivateTour/CreatePlan/CreatePlanForm";
 const ProtectedRouteAuth = ({ children }) => {
   const user = useSelector(selectUser);
   if (!user) {
@@ -95,6 +96,10 @@ function Routers() {
         {
           path: VIEW_REFERENCE_TRANSPORT_PRICE,
           element: <ListReferenceTransportPrice />,
+        },
+        {
+          path: `create-plan`,
+          element: <CreatePlanForm />,
         },
       ],
     },
