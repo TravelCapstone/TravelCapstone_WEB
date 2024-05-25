@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Spin, Table } from "antd";
 import { getAveragePriceOfService } from "../../../../../api/SellPriceHistoryApi";
 import { unitLabels } from "../../../../../settings/globalStatus";
 import { formatPrice } from "../../../../../utils/Util";
@@ -12,24 +13,24 @@ const HotelModal = ({
   log,
 }) => {
   const [listHotel, setListHotel] = useState([]);
-  const [selectedHotel, setSelectedHotel] = useState(null); // State để lưu trữ hàng được chọn
-
-  const fetchData = async () => {
-    const data = await getAveragePriceOfService(
-      districtId,
-      privateTourRequestId,
-      ratingId,
-      serviceType,
-      servingQuantity,
-      1,
-      10
-    );
-    if (data.isSuccess) {
-      setListHotel(data.result.items);
-    }
-  };
+  const [selectedHotel, setSelectedHotel] = useState(null);
 
   useEffect(() => {
+    const fetchData = async () => {
+      const data = await getAveragePriceOfService(
+        districtId,
+        privateTourRequestId,
+        ratingId,
+        serviceType,
+        servingQuantity,
+        1,
+        10
+      );
+      if (data.isSuccess) {
+        setListHotel(data.result.items);
+      }
+    };
+
     fetchData();
   }, [
     districtId,
@@ -40,110 +41,104 @@ const HotelModal = ({
   ]);
 
   const handleSelectHotel = (item) => {
-    if (
+    setSelectedHotel(
       selectedHotel &&
-      item.sellPriceHistory?.id === selectedHotel.sellPriceHistory?.id
-    ) {
-      setSelectedHotel(null);
-    } else {
-      setSelectedHotel(item);
-    }
+        item.sellPriceHistory?.id === selectedHotel.sellPriceHistory?.id
+        ? null
+        : item
+    );
     log(item);
   };
 
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+    },
+    {
+      title: "Khách sạn",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      key: "address",
+    },
+    {
+      title: "Dịch vụ",
+      dataIndex: "service",
+      key: "service",
+    },
+    {
+      title: "Đơn vị",
+      dataIndex: "unit",
+      key: "unit",
+      render: (unitId) => unitLabels[unitId],
+    },
+    {
+      title: "Giá",
+      dataIndex: "price",
+      key: "price",
+      render: (price) => formatPrice(price),
+    },
+  ];
+
+  const data = listHotel.map((item, index) => ({
+    key: index,
+    index: index + 1,
+    name: item.sellPriceHistory?.facilityService?.facility.name,
+    address: `${item.sellPriceHistory?.facilityService?.facility.address}, ${item.sellPriceHistory?.facilityService?.facility.communce?.name}, ${item.sellPriceHistory?.facilityService?.facility.communce?.district?.name}, ${item.sellPriceHistory?.facilityService?.facility.communce?.district.province?.name}`,
+    service: item.sellPriceHistory?.facilityService?.name,
+    unit: item.sellPriceHistory?.facilityService?.unitId,
+    price: item.sellPriceHistory?.price,
+  }));
+
   return (
     <>
-      {/* You can open the modal using document.getElementById('ID').showModal() method */}
-      <button
-        className="btn bg-mainColor text-white"
-        onClick={() => document.getElementById("hotel_modal").showModal()}
-      >
-        Chọn
-      </button>
-      <dialog id="hotel_modal" className="modal">
-        <div className="modal-box w-11/12 max-w-6xl">
-          <h3 className="font-bold text-lg">Chọn khách sạn</h3>
+      <Spin spinning={!listHotel.length}>
+        <button
+          className="btn bg-mainColor text-white"
+          onClick={() => document.getElementById("hotel_modal").showModal()}
+        >
+          Chọn
+        </button>
+        <dialog id="hotel_modal" className="modal">
+          <div className="modal-box w-11/12 max-w-6xl">
+            <h3 className="font-bold text-lg">Chọn khách sạn</h3>
 
-          <div className="overflow-x-auto rounded-xl shadow-xl my-4">
-            <table className="table w-full ">
-              <thead className="bg-mainColor text-white h-14">
-                <tr>
-                  <th>STT</th>
-                  <th>Khách sạn</th>
-                  <th>Địa chỉ</th>
-                  <th>Dịch vụ </th>
-                  <th>Đơn vị</th>
-                  <th>Giá</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listHotel &&
-                  listHotel.map((item, index) => (
-                    <tr
-                      key={index}
-                      className={
-                        item.sellPriceHistory?.id ===
-                        selectedHotel?.sellPriceHistory?.id
-                          ? "bg-yellow-100 text-black"
-                          : ""
-                      }
-                      onClick={() => handleSelectHotel(item)}
-                    >
-                      <td>{index + 1}</td>
-                      <td>
-                        {item.sellPriceHistory?.facilityService?.facility.name}
-                      </td>
-                      <td>
-                        {
-                          item.sellPriceHistory?.facilityService?.facility
-                            .address
-                        }
-                        ,{" "}
-                        {
-                          item.sellPriceHistory?.facilityService?.facility
-                            .communce?.name
-                        }
-                        ,{" "}
-                        {
-                          item.sellPriceHistory?.facilityService?.facility
-                            .communce?.district?.name
-                        }
-                        ,{" "}
-                        {
-                          item.sellPriceHistory?.facilityService?.facility
-                            .communce?.district.province?.name
-                        }
-                      </td>
-                      <td>{item.sellPriceHistory?.facilityService?.name}</td>
+            <div className="overflow-x-auto rounded-xl shadow-xl my-4">
+              <Table
+                dataSource={data}
+                columns={columns}
+                onRow={(record) => ({
+                  onClick: () => handleSelectHotel(record),
+                })}
+                rowClassName={(record) =>
+                  record.sellPriceHistory?.id ===
+                  selectedHotel?.sellPriceHistory?.id
+                    ? "bg-yellow-100 text-black"
+                    : ""
+                }
+                pagination={false}
+              />
+            </div>
 
-                      <td>
-                        {
-                          unitLabels[
-                            item.sellPriceHistory?.facilityService?.unitId
-                          ]
-                        }
-                      </td>
-                      <td>{formatPrice(item.sellPriceHistory?.price)}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+            <div className="modal-action">
+              <form method="dialog">
+                <button className="btn bg-mainColor text-white">Chọn</button>
+                <button
+                  className="mx-2 btn"
+                  onClick={() => setSelectedHotel(null)}
+                >
+                  Close
+                </button>
+              </form>
+            </div>
           </div>
-
-          <div className="modal-action">
-            <form method="dialog">
-              {/* if there is a button, it will close the modal */}
-              {<button className="btn  bg-mainColor text-white">Chọn</button>}
-              <button
-                className="mx-2 btn"
-                onClick={() => setSelectedHotel(null)}
-              >
-                Close
-              </button>
-            </form>
-          </div>
-        </div>
-      </dialog>
+        </dialog>
+      </Spin>
     </>
   );
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { Spin, Table } from "antd";
 import { getAveragePriceOfMealService } from "../../../../../api/SellPriceHistoryApi";
-import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
 import { formatPrice } from "../../../../../utils/Util";
-function MenuTable({
+
+const MenuTable = ({
   privateTourRequestId,
   districtId,
   servingQuantity,
@@ -10,29 +11,29 @@ function MenuTable({
   ratingId,
   mealType,
   log,
-}) {
+}) => {
   const [listMenu, setListMenu] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const fetchData = async () => {
-    setIsLoading(true);
-    const data = await getAveragePriceOfMealService(
-      districtId,
-      privateTourRequestId,
-      ratingId,
-      serviceType,
-      mealType,
-      servingQuantity,
-      1,
-      10
-    );
-    if (data.isSuccess) {
-      console.log(data.result?.items);
-      setListMenu(data?.result?.items);
-    }
-    setIsLoading(false);
-  };
 
   useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const data = await getAveragePriceOfMealService(
+        districtId,
+        privateTourRequestId,
+        ratingId,
+        serviceType,
+        mealType,
+        servingQuantity,
+        1,
+        10
+      );
+      if (data.isSuccess) {
+        setListMenu(data?.result?.items);
+      }
+      setIsLoading(false);
+    };
+
     fetchData();
   }, [
     privateTourRequestId,
@@ -42,85 +43,98 @@ function MenuTable({
     ratingId,
     mealType,
   ]);
-  const [selectedRestaurent, setSelectedRestaurent] = useState(null); // State để lưu trữ hàng được chọn
-  const handleSelectRestaurent = (item) => {
-    if (
-      selectedRestaurent &&
-      item.sellPriceHistory?.id === selectedRestaurent.sellPriceHistory?.id
-    ) {
-      setSelectedRestaurent(null);
-    } else {
-      setSelectedRestaurent(item);
-    }
+
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+
+  const handleSelectRestaurant = (item) => {
+    setSelectedRestaurant(
+      selectedRestaurant &&
+        item.sellPriceHistory?.id === selectedRestaurant.sellPriceHistory?.id
+        ? null
+        : item
+    );
     log(item);
   };
 
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+    },
+    {
+      title: "Tên nhà hàng",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      key: "address",
+    },
+    {
+      title: "Menu",
+      dataIndex: "menu",
+      key: "menu",
+      render: (menu) => menu.map((dish) => dish.dish.name).join(", "),
+    },
+    {
+      title: "Bữa",
+      dataIndex: "mealType",
+      key: "mealType",
+      render: (mealType) =>
+        mealType === 0 ? "Ăn sáng" : mealType === 1 ? "Ăn trưa" : "Ăn tối",
+    },
+    {
+      title: "Số lượng phục vụ",
+      dataIndex: "servingQuantity",
+      key: "servingQuantity",
+    },
+    {
+      title: "Giá",
+      dataIndex: "price",
+      key: "price",
+      render: (price) => formatPrice(price),
+    },
+  ];
+
+  const data = listMenu.map((item, index) => ({
+    key: index,
+    index: index + 1,
+    name: item.facilityServices?.facility?.name,
+    address: `${item.facilityServices?.facility?.address}, ${item.facilityServices?.facility?.communce?.name}, ${item.facilityServices?.facility?.communce?.district?.name}, ${item.facilityServices?.facility?.communce?.district.province?.name}`,
+    menu: item.menuDishes,
+    mealType: item.sellPriceHistory?.menu.mealTypeId,
+    servingQuantity: item.facilityServices?.servingQuantity,
+    price: item.sellPriceHistory?.price,
+  }));
+
   return (
     <>
-      <LoadingOverlay isLoading={isLoading} />
-      <div className="flex mt-4">
-        <strong className="text-sm">Yêu cầu về ăn uống: </strong>
-        <p className="mx-2 text-sm"></p>
-      </div>
-      <div className="overflow-x-auto rounded-xl mt-4 shadow-xl">
-        <table className="table w-full ">
-          <thead className="bg-mainColor text-white h-14">
-            <tr>
-              <th>STT</th>
-              <th>Tên nhà hàng</th>
-              <th>Địa chỉ</th>
-              <th>Menu </th>
-              <th>Bữa</th>
-              <th>Loại</th>
-              <th>Số lượng phục vụ</th>
-              <th>Giá</th>
-            </tr>
-          </thead>
-          <tbody>
-            {listMenu.length > 0 &&
-              listMenu.map((item, index) => (
-                <tr
-                  key={index}
-                  className={
-                    item.sellPriceHistory?.id ===
-                    selectedRestaurent?.sellPriceHistory?.id
-                      ? "bg-yellow-100 text-black"
-                      : ""
-                  }
-                  onClick={() => handleSelectRestaurent(item)}
-                >
-                  {" "}
-                  <td>{index + 1}</td>
-                  <td>{item.facilityServices?.facility?.name}</td>
-                  <td>
-                    {item.facilityServices?.facility?.address},{" "}
-                    {item.facilityServices?.facility?.communce?.name},{" "}
-                    {item.facilityServices?.facility?.communce?.district?.name},{" "}
-                    {
-                      item.facilityServices?.facility?.communce?.district
-                        .province?.name
-                    }
-                  </td>{" "}
-                  <td>
-                    {item.menuDishes.map((dish) => dish.dish.name).join(", ")}
-                  </td>
-                  <td>
-                    {item.sellPriceHistory?.menu.mealTypeId == 0
-                      ? "Ăn sáng"
-                      : item.sellPriceHistory?.menu.mealTypeId == 1
-                        ? " Ăn trưa"
-                        : "Ăn tối"}
-                  </td>
-                  <td></td>
-                  <td>{item.facilityServices?.servingQuantity}</td>
-                  <td>{formatPrice(item.sellPriceHistory?.price)}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+      <Spin spinning={isLoading}>
+        <div className="flex mt-4">
+          <strong className="text-sm">Yêu cầu về ăn uống: </strong>
+          <p className="mx-2 text-sm"></p>
+        </div>
+        <div className="overflow-x-auto rounded-xl mt-4 shadow-xl">
+          <Table
+            dataSource={data}
+            columns={columns}
+            onRow={(record) => ({
+              onClick: () => handleSelectRestaurant(record),
+            })}
+            rowClassName={(record) =>
+              record.sellPriceHistory?.id ===
+              selectedRestaurant?.sellPriceHistory?.id
+                ? "bg-yellow-100 text-black"
+                : ""
+            }
+            pagination={false}
+          />
+        </div>
+      </Spin>
     </>
   );
-}
+};
 
 export default MenuTable;

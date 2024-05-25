@@ -1,74 +1,98 @@
-import React, { useState, useEffect } from "react";
-import { vehicleTypeLabels } from "../../../../settings/globalStatus";
+import { Form, Input, Select, DatePicker, Button } from "antd";
 import { formatPrice } from "../../../../utils/Util";
-import VehicleSelect from "./Vehicle/VehicleSelect";
+import { vehicleTypeLabels } from "../../../../settings/globalStatus";
 
-function VehicleAssignment({ data }) {
+const { Option } = Select;
+
+const VehicleAssignment = ({ data }) => {
   console.log(data);
 
   return (
-    <>
+    <Form layout="vertical">
       <p>
         Địa điểm đón khách: <strong>TP. HCM</strong>
       </p>
       {data &&
         data.map((item, index) => (
-          <div>
-            <div className="flex">
-              <strong className="w-1/12">{index + 1}</strong>
-
-              <div className="flex flex-col justify-between w-11/12">
-                <div className="flex justify-between">
-                  <div className="flex justify-between w6/12">
-                    <strong>Khu vực: </strong>
-                    <div className="mx-2">
+          <Form.List name={`vehicles[${index}]`} key={index}>
+            {(fields) =>
+              fields.map((field, fieldIndex) => (
+                <div key={field.key}>
+                  <Form.Item
+                    name={[field.name, "id"]}
+                    label={`${index + 1}`}
+                    style={{ marginBottom: 0 }}
+                  >
+                    <Input disabled />
+                  </Form.Item>
+                  <Form.Item
+                    name={[field.name, "region"]}
+                    label="Khu vực"
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
+                    <span>
                       {item.startPoint?.name} - {item.endPoint?.name}
-                    </div>
-                  </div>
-                  <div className="w6/12">
-                    <strong>Ngày đi: </strong>
-                    <span className="mx-2"></span>
-                  </div>
-                </div>
-                <div className="flex my-3">
-                  <p className="font-medium ">
-                    Phương tiện di chuyển từ{" "}
-                    <strong>{item.startPoint?.name}</strong> đến{" "}
-                    <strong>{item.endPoint?.name}</strong>
-                  </p>
-                  <p className="mx-2">
-                    <strong className="ml-8">
-                      {" "}
-                      {vehicleTypeLabels[item.vehicleType]}
-                    </strong>{" "}
-                    :{" "}
-                    <span className=" text-red-600 font-bold">
+                    </span>
+                  </Form.Item>
+                  <Form.Item
+                    name={[field.name, "departureDate"]}
+                    label="Ngày đi"
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
+                    <DatePicker />
+                  </Form.Item>
+                  <Form.Item
+                    name={[field.name, "vehicleType"]}
+                    label={
+                      <span>
+                        Phương tiện di chuyển từ{" "}
+                        <strong>{item.startPoint?.name}</strong> đến{" "}
+                        <strong>{item.endPoint?.name}</strong>
+                      </span>
+                    }
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
+                    <Select
+                      style={{ width: 200 }}
+                      value={vehicleTypeLabels[item.vehicleType]}
+                    >
+                      {Object.entries(vehicleTypeLabels).map(
+                        ([value, label]) => (
+                          <Option key={value} value={value}>
+                            {label}
+                          </Option>
+                        )
+                      )}
+                    </Select>
+                    <span className="ml-2 text-red-600 font-bold">
                       {formatPrice(item.minPrice)} -{" "}
                       {formatPrice(item.maxPrice)}
                     </span>
-                  </p>
+                  </Form.Item>
+                  {item.vehicleType === 4 && (
+                    <VehicleSelect
+                      startPoint={item.startPointId}
+                      endPoint={item.endPointId}
+                      vehicleType={item.vehicleType}
+                    />
+                  )}
+                  {item.vehicleType !== 4 && item.vehicleType !== 5 && (
+                    <VehicleSelect
+                      startPoint={item.startPointId}
+                      endPoint={item.endPointId}
+                      vehicleType={item.vehicleType}
+                    />
+                  )}
                 </div>
-                {item.vehicleType === 4 && (
-                  <VehicleSelect
-                    startPoint={item.startPointId}
-                    endPoint={item.endPointId}
-                    vehicleType={item.vehicleType}
-                  />
-                )}
-
-                {item.vehicleType !== 4 && item.vehicleType !== 5 && (
-                  <VehicleSelect
-                    startPoint={item.startPointId}
-                    endPoint={item.endPointId}
-                    vehicleType={item.vehicleType}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
+              ))
+            }
+          </Form.List>
         ))}
-    </>
+      <Form.Item>
+        <Button type="primary">Tạo kế hoạch tour</Button>
+      </Form.Item>
+    </Form>
   );
-}
+};
 
 export default VehicleAssignment;

@@ -4,54 +4,45 @@ import {
   statusPrivateTourLabels,
 } from "../../../../../settings/globalStatus";
 import { formatPrice, formatDate } from "../../../../../utils/Util";
-import { Button } from "antd";
+import { Button, Card, List } from "antd";
 import { useNavigate } from "react-router-dom";
 
 function TourRequestSection({ request }) {
   const navigate = useNavigate();
-  console.log("status", request.privateTourResponse?.status === 1);
-  if (
-    request.privateTourResponse?.status !== 1 &&
-    !request.option1 &&
-    !request.option2 &&
-    !request.option3
-  ) {
-  }
 
   const handleCreateTour = () => {
-    // Logic to execute before navigation
     const TourId = request?.privateTourResponse?.id;
     navigate(`/staff/view-list-tour-private/${TourId}?tab=1`);
   };
 
   const renderOtherLocations = (locations) => {
-    return locations?.map((location) => (
-      <div key={location.id}>
-        <div className="flex">
-          <h2 className="font-semibold mx-2">{location.province?.name}</h2>
-          <p>{location.address}</p>
-        </div>
+    return (
+      <div className="flex flex-wrap">
+        {locations?.map((location, index) => (
+          <div key={location.id} className="pr-2 mb-4">
+            <div className="flex items-center">
+              <h2 className=" mr-2">{location.province?.name}</h2>
+              {index !== locations.length - 1 && <span className="">-</span>}
+              <p>{location.address}</p>
+            </div>
+          </div>
+        ))}
       </div>
-    ));
+    );
   };
 
   const renderFoodRequest = (food) => {
-    if (food === 0) return dietaryPreferenceLabels[0];
-    else if (food === 1) return dietaryPreferenceLabels[1];
-    else if (food === 2) return dietaryPreferenceLabels[2];
-    else if (food === 3) return dietaryPreferenceLabels[3];
-    else if (food === 4) return dietaryPreferenceLabels[4];
-    else if (food === 5) return dietaryPreferenceLabels[5];
-    else if (food === 6) return dietaryPreferenceLabels[6];
+    return dietaryPreferenceLabels[food] || "Không yêu cầu";
   };
 
   return (
     <>
-      <h1 class="text-center font-bold text-xl mb-5 text-mainColor">
+      <h1 className="text-center font-bold text-xl mb-5 text-mainColor">
         THÔNG TIN YÊU CẦU TOUR
       </h1>
       <div className="shadow-xl p-5 rounded-6xl">
         <div className="flex flex-row mt-10 p-5 rounded-4xl ">
+          {/* Thông tin khách hàng */}
           <div className="w-4/12 border-r border-solid border-gray-300">
             <h2 className="text-start font-semibold text-mainColor text-lg mb-5">
               Thông tin khách hàng
@@ -77,16 +68,12 @@ function TourRequestSection({ request }) {
             <div className="mb-3">
               <span className="font-bold text-sm">Trạng thái</span>
               <span className="font-normal text-sm ml-3">
-                {request?.privateTourResponse?.status === 0
-                  ? statusPrivateTourLabels[0]
-                  : request?.privateTourResponse?.status === 1
-                    ? statusPrivateTourLabels[1]
-                    : request?.privateTourResponse?.status === 2
-                      ? statusPrivateTourLabels[2]
-                      : statusPrivateTourLabels[3]}
+                {statusPrivateTourLabels[request?.privateTourResponse?.status]}
               </span>
             </div>
           </div>
+
+          {/* Chi tiết yêu cầu */}
           <div className="w-8/12 px-2">
             <h2 className="text-start font-semibold text-mainColor text-lg mb-5">
               Chi tiết yêu cầu
@@ -114,6 +101,22 @@ function TourRequestSection({ request }) {
               </span>
             </div>
             <div className="mb-3">
+              <span className="font-bold text-sm">Yêu cầu lưu trú:</span>
+              <List
+                dataSource={request.privateTourResponse?.roomDetails}
+                renderItem={(item) => (
+                  <List.Item>
+                    <Card>
+                      <Card.Meta
+                        title={`Phòng ${item.quantityPerRoom === 4 ? "đôi" : "đơn"} `}
+                        description={`Tổng số phòng: ${item.totalRoom}`}
+                      />
+                    </Card>
+                  </List.Item>
+                )}
+              />
+            </div>
+            <div className="mb-3">
               <span className="font-bold text-sm">
                 Ngân sách dự tính trên đầu người:
               </span>
@@ -138,51 +141,22 @@ function TourRequestSection({ request }) {
               </span>
             </div>
             <div className="mb-3">
-              <span className="font-bold text-sm">Địa điểm mong muốn:</span>
+              <span className="font-bold text-sm">Địa điểm yêu cầu:</span>
               <span className="font-normal text-sm ml-3">
                 {renderOtherLocations(
                   request?.privateTourResponse?.otherLocation
                 )}
               </span>
             </div>
-            <div className="mb-3">
-              <span className="font-bold text-sm">Địa điểm chính:</span>
-              <span className="font-normal text-sm ml-3">
-                {request?.privateTourResponse?.mainDestination?.name}
-              </span>
-            </div>
-            <div className="mb-3">
-              <span className="font-bold text-sm">Khoảng thời gian:</span>
-              <span className="font-normal text-sm ml-3">
-                {request?.privateTourResponse?.numOfDay} ngày{" "}
-                {request?.privateTourResponse?.numOfNight} đêm
-              </span>
-            </div>
-            <div className="mb-3">
-              <span className="font-bold text-sm">Thời gian rảnh dự kiến:</span>
-              <span className="font-normal text-sm ml-3">
-                {formatDate(request?.privateTourResponse?.startDate)} -{" "}
-                {formatDate(request?.privateTourResponse?.endDate)}
-              </span>
-            </div>
-            <div className="mb-3">
-              <span className="font-bold text-sm">URL tour đề xuất:</span>
-              <span className="font-normal text-sm ml-3">
-                {request?.privateTourResponse?.recommnendedTourUrl}
-              </span>
-            </div>
-            <div className="mb-3">
-              <span className="font-bold text-sm">Yêu cầu khác:</span>
-              <span className="font-normal text-sm ml-3">
-                {request?.privateTourResponse?.note}
-              </span>
-            </div>
+            {/* Các thông tin khác */}
           </div>
         </div>
+
+        {/* Nút tạo tour */}
         <div className="text-right my-4 w-5/6">
           {request.privateTourResponse?.status === 0 && (
             <Button
-              className="bg-mainColor text-white font-semibold "
+              className="bg-mainColor text-white font-semibold"
               onClick={handleCreateTour}
             >
               TẠO GÓI TOUR

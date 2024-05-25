@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-import { getReferenceTransportByProvince } from "../../../../../api/SellPriceHistoryApi";
 import { getPriceForVehicle } from "../../../../../api/VehicleApi";
 import { formatPrice } from "../../../../../utils/Util";
+import { DatePicker, Select, Typography, Space, Input } from "antd";
+
+const { Option } = Select;
+const { Text } = Typography;
 
 const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
-  const [listVehiclePrice, setListVehiclePrice] = useState();
+  const [listVehiclePrice, setListVehiclePrice] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+
   const fetchData = async () => {
     const data = await getPriceForVehicle(1, 10, {
       firstLocation: {
@@ -30,92 +34,79 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
   useEffect(() => {
     fetchData();
   }, [startPoint, endPoint, vehicleType, startDate, endDate]);
+
   return (
     <>
       {vehicleType === 4 && (
         <div>
-          <div>
-            <div className="flex flex-col">
-              <div className="flex">
-                <strong className="mr-32">Ngày bắt đầu</strong>
-                <input
-                  type="date"
-                  onChange={(e) => setStartDate(e.target?.value)}
-                />
-              </div>
-              <div className="flex">
-                <strong className="mr-32">Ngày kết thúc</strong>
-                <input
-                  type="date"
-                  onChange={(e) => setEndDate(e.target?.value)}
-                />
-              </div>
+          <div className="flex flex-col">
+            <div className="flex mb-4">
+              <Text className="mr-32">Ngày bắt đầu</Text>
+              <DatePicker onChange={(date) => setStartDate(date)} />
             </div>
-            <div className="flex my-4">
-              <p className="w-3/12">Chọn hãng máy bay</p>
-              <select name="" id="" className="select select-bordered w-9/12">
-                <option value={0}>VietnamAirline</option>
-                <option value={1}>VietJet</option>
-                <option value={2}>Bamboo Airline</option>
-              </select>
+            <div className="flex mb-4">
+              <Text className="mr-32">Ngày kết thúc</Text>
+              <DatePicker onChange={(date) => setEndDate(date)} />
             </div>
-
-            <div className="flex my-4">
-              <p className="w-3/12">Chọn chuyến máy bay</p>
-              <select
-                name=""
-                id=""
-                className="select select-bordered w-9/12"
-                onChange={(e) => setSelectedVehicle(e.target.value)}
-                value={selectedVehicle}
-              >
-                {Array.isArray(listVehiclePrice) &&
-                  listVehiclePrice.length > 0 &&
-                  listVehiclePrice.map((item, index) => (
-                    <option key={index} value={item.id}>
-                      Hãng bay {item.providerName} {item.departure?.name} -{" "}
-                      {item.arrival?.name} Giá người lớn:{" "}
-                      {formatPrice(item.adultPrice)} Giá trẻ em{" "}
-                      {formatPrice(item.childPrice)}
-                    </option>
-                  ))}
-              </select>
-            </div>
+          </div>
+          <div className="flex my-4">
+            <Text className="w-3/12">Chọn hãng máy bay</Text>
+            <Select className="w-9/12" defaultValue={0}>
+              <Option value={0}>VietnamAirline</Option>
+              <Option value={1}>VietJet</Option>
+              <Option value={2}>Bamboo Airline</Option>
+            </Select>
+          </div>
+          <div className="flex my-4">
+            <Text className="w-3/12">Chọn chuyến máy bay</Text>
+            <Select
+              className="w-9/12"
+              onChange={(value) => setSelectedVehicle(value)}
+              value={selectedVehicle}
+            >
+              {Array.isArray(listVehiclePrice) &&
+                listVehiclePrice.length > 0 &&
+                listVehiclePrice.map((item, index) => (
+                  <Option key={index} value={item.id}>
+                    Hãng bay {item.providerName} {item.departure?.name} -{" "}
+                    {item.arrival?.name} Giá người lớn:{" "}
+                    {formatPrice(item.adultPrice)} Giá trẻ em{" "}
+                    {formatPrice(item.childPrice)}
+                  </Option>
+                ))}
+            </Select>
           </div>
         </div>
       )}
       {vehicleType !== 4 && vehicleType !== 5 && (
         <>
           <div>
-            <strong>Số lượng xe </strong>
-            <span className="mx-2">1</span>
+            <Text>Số lượng xe</Text>
+            <Text className="mx-2">1</Text>
           </div>
           <div className="flex my-4">
-            <p className="w-3/12">Ngày di chuyển</p>
-            <div className="flex">
-              <input type="date" />
-              -
-              <input type="date" />
-            </div>
+            <Text className="w-3/12">Ngày di chuyển</Text>
+            <Space>
+              <DatePicker />
+              <Text>-</Text>
+              <DatePicker />
+            </Space>
           </div>
           <div>
-            <div>
-              <div className="flex my-4">
-                <p className="w-3/12">Nhà cung cấp xe</p>
-                <select name="" id="" className="select select-bordered w-9/12">
-                  <option value="">Mon</option>
-                </select>
-              </div>
-
-              <div className="flex my-4">
-                <p className="w-3/12">Chọn tài xế</p>
-                <select name="" id="" className="select select-bordered w-9/12">
-                  <option value="">
-                    Phạm Bùi Minh Khang SĐT: 0336678864 - Tiền công:
-                    1.000.000/ngày
-                  </option>
-                </select>
-              </div>
+            <div className="flex my-4">
+              <Text className="w-3/12">Nhà cung cấp xe</Text>
+              <Select className="w-9/12">
+                <Option value="">Mon</Option>
+              </Select>
+            </div>
+            <div className="flex my-4">
+              <Text className="w-3/12">Chọn tài xế</Text>
+              <Select className="w-9/12">
+                <Option value="">
+                  Phạm Bùi Minh Khang SĐT: 0336678864 - Tiền công:
+                  1.000.000/ngày
+                </Option>
+              </Select>
             </div>
           </div>
         </>
@@ -123,4 +114,5 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
     </>
   );
 };
+
 export default VehicleSelect;

@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Select, Button, Space } from "antd";
+import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 
 function TourguideAssignment(props) {
   const [tourGuides, setTourGuides] = useState([
@@ -43,76 +45,71 @@ function TourguideAssignment(props) {
   };
 
   return (
-    <>
-      <div className="my-16">
-        <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
-          THÔNG TIN HƯỚNG DẪN VIÊN
-        </h2>
-        <div className="flex  justify-center item-center flex-col">
-          {tourGuides.map((guide) => (
-            <div key={guide.id} className="relative flex flex-col">
-              <div className="flex flex-col justify-evenly item-center">
-                <div className="flex items-center justify-evenly">
-                  <span className="m-6 font-bold">Tên hướng dẫn viên</span>
-                  <p className="mx-5 font-bold">Nơi hướng dẫn du lịch</p>
-                </div>
-                <div className="flex items-center">
-                  <select
-                    name=""
-                    className="select select-bordered w-6/12"
-                    id=""
-                    value={`${guide.name} ${guide.phone} Tiền công: ${guide.cost}`}
-                    onChange={(e) =>
-                      handleChangeTourGuideInfo(
-                        guide.id,
-                        "name",
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option
-                      value={`${guide.name} ${guide.phone} Tiền công: ${guide.cost}`}
-                    >
-                      {`${guide.name} ${guide.phone} Tiền công: ${guide.cost}`}
-                    </option>
-                  </select>
-                  <select
-                    name=""
-                    className="select select-bordered w-5/12 mx-4"
-                    id=""
-                    value={guide.location}
-                    onChange={(e) =>
-                      handleChangeTourGuideInfo(
-                        guide.id,
-                        "location",
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option value={guide.location}>{guide.location}</option>
-                  </select>
-                </div>
+    <div className="my-16">
+      <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
+        THÔNG TIN HƯỚNG DẪN VIÊN
+      </h2>
+      <div className="flex flex-col justify-center items-center">
+        {tourGuides.map((guide) => (
+          <div
+            key={guide.id}
+            className="relative flex flex-col mb-4 w-full max-w-lg"
+          >
+            <div className="flex flex-col justify-evenly items-center">
+              <div className="flex items-center justify-evenly w-full mb-2">
+                <span className="font-bold w-1/2 text-center">
+                  Tên hướng dẫn viên
+                </span>
+                <p className="font-bold w-1/2 text-center">
+                  Nơi hướng dẫn du lịch
+                </p>
               </div>
-              <button
-                className="absolute top-0 right-0 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full"
-                onClick={() => handleRemoveTourGuide(guide.id)}
-              >
-                <i className="fa-solid fa-xmark"></i>
-              </button>
+              <div className="flex items-center w-full">
+                <Select
+                  className="w-1/2"
+                  value={`${guide.name} ${guide.phone} Tiền công: ${guide.cost}`}
+                  onChange={(value) =>
+                    handleChangeTourGuideInfo(guide.id, "name", value)
+                  }
+                >
+                  <Select.Option
+                    value={`${guide.name} ${guide.phone} Tiền công: ${guide.cost}`}
+                  >
+                    {`${guide.name} ${guide.phone} Tiền công: ${guide.cost}`}
+                  </Select.Option>
+                </Select>
+                <Select
+                  className="w-1/2 ml-4"
+                  value={guide.location}
+                  onChange={(value) =>
+                    handleChangeTourGuideInfo(guide.id, "location", value)
+                  }
+                >
+                  <Select.Option value={guide.location}>
+                    {guide.location}
+                  </Select.Option>
+                </Select>
+              </div>
             </div>
-          ))}
-        </div>
-        <button
-          className="btn bg-mainColor w46 text-white rounded-lg mt-4"
+            <Button
+              className="absolute top-0 right-0 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full"
+              icon={<CloseOutlined />}
+              onClick={() => handleRemoveTourGuide(guide.id)}
+            />
+          </div>
+        ))}
+      </div>
+      <Space className="mt-4">
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
           onClick={handleAddTourGuide}
         >
           Thêm hướng dẫn viên
-        </button>
-        <button className="btn rounded-lg mt-4" onClick={handleGetData}>
-          Log dữ liệu
-        </button>
-      </div>
-    </>
+        </Button>
+        <Button onClick={handleGetData}>Log dữ liệu</Button>
+      </Space>
+    </div>
   );
 }
 

@@ -1,72 +1,41 @@
-import React, { useState, useEffect } from "react";
+import { Form, Input, Select, DatePicker, Button } from "antd";
 
-function LocalVehicleAssignment(props) {
-  const [state, setState] = useState("");
+const { Option } = Select;
 
-  useEffect(() => {
-    return () => {};
-  }, []);
-
+const LocalVehicleAssignment = () => {
   return (
-    <>
-      <div>
-        <div>
-          <div className="flex">
-            <strong className="w-1/12">1</strong>
-
-            <div className="flex flex-col justify-between w-11/12">
-              <div className="flex justify-between">
-                <div className="flex justify-between w6/12">
-                  <strong>Khu vực: </strong>
-                  <div className="mx-2">Hà Giang - TP Hà Giang</div>
-                </div>
-                <div className="w6/12">
-                  <strong>Số lượng xe </strong>
-                  <span className="mx-2">1</span>
-                </div>
-              </div>
-              <div className="flex my-4">
-                <p className="w-3/12">Ngày di chuyển</p>
-                <div className="flex">
-                  <input type="date" />
-                  -
-                  <input type="date" />
-                </div>
-              </div>
-              <div>
-                <div>
-                  <div className="flex my-4">
-                    <p className="w-3/12">Nhà cung cấp xe</p>
-                    <select
-                      name=""
-                      id=""
-                      className="select select-bordered w-9/12"
-                    >
-                      <option value="">Mon</option>
-                    </select>
-                  </div>
-
-                  <div className="flex my-4">
-                    <p className="w-3/12">Chọn tài xế</p>
-                    <select
-                      name=""
-                      id=""
-                      className="select select-bordered w-9/12"
-                    >
-                      <option value="">
-                        Phạm Bùi Minh Khang SĐT: 0336678864 - Tiền công:
-                        1.000.000/ngày
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+    <Form layout="vertical">
+      <Form.Item label="1">
+        <Input disabled />
+      </Form.Item>
+      <Form.Item label="Khu vực">
+        <span>Hà Giang - TP Hà Giang</span>
+      </Form.Item>
+      <Form.Item label="Số lượng xe">
+        <span>1</span>
+      </Form.Item>
+      <Form.Item label="Ngày di chuyển">
+        <DatePicker.RangePicker />
+      </Form.Item>
+      <Form.Item label="Nhà cung cấp xe">
+        <Select style={{ width: "100%" }}>
+          <Option value="">Mon</Option>
+          {/* Add more options as needed */}
+        </Select>
+      </Form.Item>
+      <Form.Item label="Chọn tài xế">
+        <Select style={{ width: "100%" }}>
+          <Option value="">
+            Phạm Bùi Minh Khang SĐT: 0336678864 - Tiền công: 1.000.000/ngày
+          </Option>
+          {/* Add more options as needed */}
+        </Select>
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary">Submit</Button>
+      </Form.Item>
+    </Form>
   );
-}
+};
 
 export default LocalVehicleAssignment;

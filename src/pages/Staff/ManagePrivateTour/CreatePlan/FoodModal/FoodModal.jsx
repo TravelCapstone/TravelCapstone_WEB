@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Modal, Button, Tabs } from "antd";
 import MenuTable from "./MenuTable";
+
+const { TabPane } = Tabs;
 
 function FoodModal({
   privateTourRequestId,
@@ -9,94 +12,66 @@ function FoodModal({
   ratingId,
   log,
 }) {
-  const [activeTab, setActiveTab] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState("0");
 
-  const handleTabChange = (index) => {
-    console.log(index);
-    setActiveTab(index);
+  const handleTabChange = (key) => {
+    setActiveTab(key);
   };
 
   const tabs = [
     {
       label: "Ăn sáng",
-      content: (
-        <MenuTable
-          districtId={districtId}
-          servingQuantity={servingQuantity}
-          serviceType={serviceType}
-          ratingId={ratingId}
-          mealType={0}
-          privateTourRequestId={privateTourRequestId}
-          log={log}
-        />
-      ),
+      key: "0",
+      mealType: 0,
     },
     {
       label: "Ăn trưa",
-      content: (
-        <MenuTable
-          districtId={districtId}
-          servingQuantity={servingQuantity}
-          serviceType={serviceType}
-          ratingId={ratingId}
-          mealType={1}
-          privateTourRequestId={privateTourRequestId}
-          log={log}
-        />
-      ),
+      key: "1",
+      mealType: 1,
     },
     {
       label: "Ăn tối",
-      content: (
-        <MenuTable
-          districtId={districtId}
-          servingQuantity={servingQuantity}
-          serviceType={serviceType}
-          ratingId={ratingId}
-          mealType={0}
-          privateTourRequestId={privateTourRequestId}
-          log={log}
-        />
-      ),
+      key: "2",
+      mealType: 0,
     },
   ];
 
   return (
     <>
-      {/* Open the modal using document.getElementById('ID').showModal() method */}
-      <button
-        className="bg-mainColor text-white rounded-md p-2"
-        onClick={() => document.getElementById("foodModal").showModal()}
+      <Button
+        type="primary"
+        className="rounded-md"
+        onClick={() => setVisible(true)}
       >
         Chọn
-      </button>
-      <dialog id="foodModal" className=" modal ">
-        <div className="modal-box w-11/12 max-w-7xl">
-          <h3 className="font-bold text-lg">Chọn nhà hàng</h3>
-          <p className="py-4">
-            <div className="tabs">
-              <div className="tab-headers">
-                {tabs.map((tab, index) => (
-                  <button
-                    key={index}
-                    className={`mx-2 tab-header ${activeTab === index ? "font-bold border-b-2" : ""}`}
-                    onClick={() => handleTabChange(index)}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {tabs[activeTab].content}
-          </p>
-          <div className="modal-action">
-            <form method="dialog">
-              {/* if there is a button in form, it will close the modal */}
-              <button className="btn">Close</button>
-            </form>
-          </div>
-        </div>
-      </dialog>{" "}
+      </Button>
+      <Modal
+        title="Chọn nhà hàng"
+        visible={visible}
+        onCancel={() => setVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setVisible(false)}>
+            Close
+          </Button>,
+        ]}
+      >
+        <Tabs activeKey={activeTab} onChange={handleTabChange}>
+          {tabs.map((tab) => (
+            <TabPane tab={tab.label} key={tab.key}>
+              <MenuTable
+                districtId={districtId}
+                servingQuantity={servingQuantity}
+                serviceType={serviceType}
+                ratingId={ratingId}
+                mealType={tab.mealType}
+                privateTourRequestId={privateTourRequestId}
+                log={log}
+              />
+            </TabPane>
+          ))}
+        </Tabs>
+      </Modal>
     </>
   );
 }

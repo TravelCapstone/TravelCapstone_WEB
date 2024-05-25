@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from "react";
-import FoodModal from "./FoodModal/FoodModal";
+import { Form, Input, Select, DatePicker, Button, Typography } from "antd";
+import { formatPrice, formatDate } from "../../../../utils/Util";
 import { ratingLabels } from "../../../../settings/globalStatus";
-import { formatDate, formatPrice } from "../../../../utils/Util";
 
-function FoodAndBevarageAssignment({ data, privateTourResponse }) {
+const { Option } = Select;
+const { Text } = Typography;
+
+const FoodAndBevarageAssignment = ({ data, privateTourResponse }) => {
   console.log(data);
   const [selectedRestaurent, setSelectedRestaurent] = useState([]);
+
   const log = (data) => {
     const filter = selectedRestaurent.filter(
       (item) => item.sellPriceHistory?.id === data.sellPriceHistory?.id
@@ -19,129 +22,145 @@ function FoodAndBevarageAssignment({ data, privateTourResponse }) {
       setSelectedRestaurent(list);
     }
   };
+
   return (
-    <>
+    <Form layout="vertical">
       {data &&
         data.map((item, index) => (
-          <div>
-            <div className="flex">
-              <strong className="w-1/12">{index + 1}</strong>
-
-              <div className="flex flex-col justify-between w-11/12">
-                <div className="flex justify-between">
-                  <div className="flex justify-between w6/12">
-                    <strong>Khu vực: </strong>
-                    <div className="mx-2">
-                      {" "}
+          <Form.List name={`foodAndBeverage[${index}]`} key={index}>
+            {(fields) =>
+              fields.map((field, fieldIndex) => (
+                <div key={field.key}>
+                  <Form.Item
+                    name={[field.name, "id"]}
+                    label={`${index + 1}`}
+                    style={{ marginBottom: 0 }}
+                  >
+                    <Input disabled />
+                  </Form.Item>
+                  <Form.Item
+                    name={[field.name, "region"]}
+                    label="Khu vực"
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
+                    <Text>
                       {item.district?.name} - {item.district?.province?.name}
-                    </div>
-                  </div>
-                  <div className="w6/12">
-                    <strong>Ngày: </strong>
-                    <span className="mx-2">
-                      {" "}
+                    </Text>
+                  </Form.Item>
+                  <Form.Item
+                    name={[field.name, "date"]}
+                    label="Ngày"
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
+                    <span>
                       {formatDate(item.startDate)} - {formatDate(item.endDate)}
                     </span>
-                  </div>
-                </div>
-                <div className="flex">
-                  <p className="font-bold my-3">Loại hình ăn uống</p>
-                </div>
-                <div>
-                  <div className="mx-6">
-                    <div className="flex justify-start">
-                      <p className="font-bold">
-                        {" "}
-                        {ratingLabels[item.facilityRating?.rating?.id]}:
+                  </Form.Item>
+                  <Form.Item label="Loại hình ăn uống">
+                    <div className="mx-6">
+                      <div className="flex justify-start">
+                        <Text className="font-bold mr-2">
+                          {ratingLabels[item.facilityRating?.rating?.id]}:
+                        </Text>
+                        <Text className="text-red-600 font-bold">
+                          {formatPrice(item.minPrice)} -{" "}
+                          {formatPrice(item.maxPrice)}
+                        </Text>
+                      </div>
+                      <p className="my-2">
+                        <Text strong>Số lượng bữa:</Text> {item.mealPerDay}
                       </p>
-                      <span className="text-red-600 font-bold ml-2">
-                        {formatPrice(item.minPrice)} -{" "}
-                        {formatPrice(item.maxPrice)}
-                      </span>
+                      <p className="my-2">
+                        <Text strong>Bàn:</Text> {item.servingQuantity} người
+                      </p>
+                      <Form.Item
+                        name={[field.name, "restaurant"]}
+                        label="Chọn quán ăn"
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <FoodModal
+                          districtId={item.districtId}
+                          servingQuantity={item.servingQuantity}
+                          serviceType={0}
+                          ratingId={item.facilityRating?.id}
+                          privateTourRequestId={
+                            privateTourResponse?.privateTourResponse?.id
+                          }
+                          log={log}
+                        />
+                      </Form.Item>
+                      {selectedRestaurent.length > 0 &&
+                        selectedRestaurent.map((restaurent, index) => (
+                          <div key={index}>
+                            <div className="flex">
+                              <Text strong className="mr-2">
+                                Tên nhà hàng:
+                              </Text>
+                              <Text>
+                                {restaurent.facilityServices?.facility?.name}
+                              </Text>
+                            </div>
+                            <div className="flex">
+                              <Text strong className="mr-2">
+                                Địa chỉ:
+                              </Text>
+                              <Text>
+                                {restaurent.facilityServices?.facility?.address}
+                                ,{" "}
+                                {
+                                  restaurent.facilityServices?.facility
+                                    ?.communce?.name
+                                }
+                                ,{" "}
+                                {
+                                  restaurent.facilityServices?.facility
+                                    ?.communce?.district?.name
+                                }
+                                ,{" "}
+                                {
+                                  restaurent.facilityServices?.facility
+                                    ?.communce?.district.province?.name
+                                }
+                              </Text>
+                            </div>
+                            <div className="flex">
+                              <Text strong>
+                                Thực đơn{" "}
+                                {restaurent.sellPriceHistory?.menu
+                                  .mealTypeId === 0
+                                  ? "ăn sáng"
+                                  : restaurent.sellPriceHistory?.menu
+                                        .mealTypeId === 1
+                                    ? " ăn trưa"
+                                    : "ăn tối"}
+                              </Text>
+                              <Text className="mx-2">
+                                {restaurent.menuDishes
+                                  .map((dish) => dish.dish.name)
+                                  .join(", ")}
+                              </Text>
+                            </div>
+                            <div className="flex">
+                              <Text strong className="mr-2">
+                                Giá:
+                              </Text>
+                              <Text>
+                                {formatPrice(
+                                  restaurent.sellPriceHistory?.price
+                                )}
+                              </Text>
+                            </div>
+                          </div>
+                        ))}
                     </div>
-                    <p className="my-2">
-                      <strong>Số lượng bữa:</strong> {item.mealPerDay}
-                    </p>
-                    <p className="my-2">
-                      <strong>Bàn:</strong> {item.servingQuantity} người
-                    </p>
-                    <div className="flex my-4">
-                      <p className="w-3/12">Chọn quán ăn</p>
-
-                      <FoodModal
-                        districtId={item.districtId}
-                        servingQuantity={item.servingQuantity}
-                        serviceType={0}
-                        ratingId={item.facilityRating?.id}
-                        privateTourRequestId={
-                          privateTourResponse?.privateTourResponse?.id
-                        }
-                        log={log}
-                      />
-                    </div>
-                    {selectedRestaurent.length > 0 &&
-                      selectedRestaurent.map((restaurent, index) => (
-                        <div key={index}>
-                          <div className="flex">
-                            <strong className="mr-2">Tên nhà hàng: </strong>
-                            <p>{restaurent.facilityServices?.facility?.name}</p>
-                          </div>
-                          <div className="flex">
-                            <strong className="mr-2">Địa chỉ: </strong>
-                            <p>
-                              {restaurent.facilityServices?.facility?.address},{" "}
-                              {
-                                restaurent.facilityServices?.facility?.communce
-                                  ?.name
-                              }
-                              ,{" "}
-                              {
-                                restaurent.facilityServices?.facility?.communce
-                                  ?.district?.name
-                              }
-                              ,{" "}
-                              {
-                                restaurent.facilityServices?.facility?.communce
-                                  ?.district.province?.name
-                              }{" "}
-                            </p>
-                          </div>
-                          <div className="flex">
-                            <strong>
-                              Thực đơn{" "}
-                              {restaurent.sellPriceHistory?.menu.mealTypeId == 0
-                                ? "ăn sáng"
-                                : restaurent.sellPriceHistory?.menu
-                                      .mealTypeId == 1
-                                  ? " ăn trưa"
-                                  : "ăn tối"}
-                            </strong>
-                            <p className="mx-2">
-                              {" "}
-                              {restaurent.menuDishes
-                                .map((dish) => dish.dish.name)
-                                .join(", ")}
-                            </p>
-                          </div>
-                          <div className="flex">
-                            <strong className="mr-2">
-                              Giá :
-                            </strong>
-                            <p>
-                              {formatPrice(restaurent.sellPriceHistory?.price)}
-                              
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
+                  </Form.Item>
                 </div>
-              </div>
-            </div>
-          </div>
+              ))
+            }
+          </Form.List>
         ))}
-    </>
+    </Form>
   );
-}
+};
 
 export default FoodAndBevarageAssignment;
