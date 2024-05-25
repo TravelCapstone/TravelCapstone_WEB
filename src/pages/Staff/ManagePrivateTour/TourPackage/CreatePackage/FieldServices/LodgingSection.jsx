@@ -10,11 +10,12 @@ import {
   DatePicker,
   TreeSelect,
   InputNumber,
+  List,
+  Card,
 } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   ratingLabels,
-  ratingLabelsAPI,
   servingActor,
   servingHotelsQuantity,
 } from "../../../../../../settings/globalStatus";
@@ -49,14 +50,13 @@ const LodgingSection = ({
     hotelOptionRatingOption2: null,
     hotelOptionRatingOption3: null,
   });
+
   const [priceData, setPriceData] = useState({});
 
-  const numOfRooms =
-    (request.privateTourResponse.numOfAdult +
-      request.privateTourResponse.numOfChildren) /
-    roomType;
-
-  console.log("numOfRooms", numOfRooms);
+  console.log(
+    "request.privateTourResponse?.roomDetails",
+    request.privateTourResponse?.roomDetails
+  );
 
   const indexToAlpha = (index) => {
     // Converts 0 to 'a', 1 to 'b', etc.
@@ -168,16 +168,6 @@ const LodgingSection = ({
     }
   }, [request]);
 
-  const minMaxPrice1 = priceData[
-    selectedOptions[`hotelOptionRatingOption1`]
-  ]?.filter((item) => item.servingQuantity === roomType);
-  const minMaxPrice2 = priceData[
-    selectedOptions[`hotelOptionRatingOption2`]
-  ]?.filter((item) => item.servingQuantity === roomType);
-  const minMaxPrice3 = priceData[
-    selectedOptions[`hotelOptionRatingOption3`]
-  ]?.filter((item) => item.servingQuantity === roomType);
-
   return (
     <Form.List name={[...basePath, "hotels"]}>
       {(fields, { add, remove }) => (
@@ -230,227 +220,222 @@ const LodgingSection = ({
                       />
                     </Form.Item>
                   </div>
-                  <div className="flex flex-wrap">
-                    <Form.Item
-                      className=" font-semibold"
-                      {...field}
-                      name={[field.name, "roomType"]}
-                      label="Loại phòng:"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please select room type!",
-                        },
-                      ]}
-                    >
-                      <Select
-                        placeholder="Chọn loại phòng"
-                        onChange={(value) => setRoomType(parseInt(value, 10))}
-                        className="!w-[200px] mr-10"
-                      >
-                        {Object.entries(servingHotelsQuantity).map(
-                          ([key, value]) => (
-                            <Option key={key} value={parseInt(key, 10)}>
-                              {value}
-                            </Option>
-                          )
-                        )}
-                      </Select>
-                    </Form.Item>
-                  </div>
-
-                  {/* Các gói */}
-                  {selectedDistrict && (
-                    <div className="Options">
-                      <div className="Option1">
-                        <li className="list-disc text-lg font-semibold mb-2 text-red-400">
-                          Gói Tiết Kiệm:
-                        </li>
-                        <div className="flex flex-wrap">
-                          <Form.Item
-                            {...field}
-                            name={[field.name, "hotelOptionRatingOption1"]}
-                            label="Loại hình lưu trú:"
-                            className="font-semibold"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please select a lodging type!",
-                              },
-                            ]}
+                  <div className="Options">
+                    <div className="Option1">
+                      <li className="list-disc text-lg font-semibold mb-2 text-red-400">
+                        Gói Tiết Kiệm:
+                      </li>
+                      <div className="flex flex-wrap">
+                        <Form.Item
+                          name={[field.name, "hotelOptionRatingOption1"]}
+                          label="Loại hình lưu trú:"
+                          className="font-semibold"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select a lodging type!",
+                            },
+                          ]}
+                        >
+                          <Select
+                            className="!w-full mr-10"
+                            placeholder="Chọn loại hình lưu trú"
+                            onChange={(value) =>
+                              onOptionChange(value, "hotelOptionRatingOption1")
+                            }
                           >
-                            <Select
-                              className="!w-full mr-10"
-                              placeholder="Chọn loại hình lưu trú"
-                              onChange={(value) =>
-                                onOptionChange(
-                                  value,
-                                  `hotelOptionRatingOption1`
-                                )
-                              }
-                            >
-                              {filteredFacilities.map((facility) => (
-                                <p key={facility.id}>
-                                  {facility.name} - {facility.description}
-                                </p>
-                              ))}
-                            </Select>
-                          </Form.Item>
-                          <div className="flex font-semibold text-sm text-gray-500 ml-10">
-                            {priceData[
-                              selectedOptions[`hotelOptionRatingOption1`]
-                            ] && (
-                              <p>
-                                {" "}
-                                Giá khoảng:{" "}
-                                {minMaxPrice1[0].minPrice.toLocaleString(
-                                  "vi-VN",
-                                  {
-                                    style: "currency",
-                                    currency: "VND",
-                                  }
-                                )}{" "}
-                                -{" "}
-                                {minMaxPrice1[0].maxPrice.toLocaleString(
-                                  "vi-VN",
-                                  {
-                                    style: "currency",
-                                    currency: "VND",
-                                  }
-                                )}
-                                / Người / Đêm
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="Option1">
-                        <li className="list-disc text-lg font-semibold mb-2 text-red-400">
-                          Gói Cơ Bản:
-                        </li>
-                        <div className="flex flex-wrap">
-                          <Form.Item
-                            {...field}
-                            name={[field.name, "hotelOptionRatingOption2"]}
-                            label="Loại hình lưu trú:"
-                            className="font-semibold"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please select a lodging type!",
-                              },
-                            ]}
-                          >
-                            <Select
-                              className="!w-full mr-10"
-                              placeholder="Chọn loại hình lưu trú"
-                              onChange={(value) =>
-                                onOptionChange(
-                                  value,
-                                  `hotelOptionRatingOption2`
-                                )
-                              }
-                            >
-                              {filteredFacilities.map((facility) => (
-                                <p key={facility.id}>
-                                  {facility.name} - {facility.description}
-                                </p>
-                              ))}
-                            </Select>
-                          </Form.Item>
-                          <div className="flex font-semibold text-sm text-gray-500 ml-10">
-                            {priceData[
-                              selectedOptions[`hotelOptionRatingOption2`]
-                            ] && (
-                              <p>
-                                {" "}
-                                Giá khoảng:{" "}
-                                {minMaxPrice2[0].minPrice.toLocaleString(
-                                  "vi-VN",
-                                  {
-                                    style: "currency",
-                                    currency: "VND",
-                                  }
-                                )}{" "}
-                                -{" "}
-                                {minMaxPrice2[0].maxPrice.toLocaleString(
-                                  "vi-VN",
-                                  {
-                                    style: "currency",
-                                    currency: "VND",
-                                  }
-                                )}
-                                / Người / Đêm
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="Option1">
-                        <li className="list-disc text-lg font-semibold mb-2 text-red-400">
-                          Gói Nâng Cao:
-                        </li>
-                        <div className="flex flex-wrap">
-                          <Form.Item
-                            {...field}
-                            name={[field.name, "hotelOptionRatingOption3"]}
-                            // name={[...basePath, "hotelOptionRatingOption3"]} // Updated to use 'ratingHotel'
-                            label="Loại hình lưu trú:"
-                            className="font-semibold"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please select a lodging type!",
-                              },
-                            ]}
-                          >
-                            <Select
-                              className="!w-full mr-10"
-                              placeholder="Chọn loại hình lưu trú"
-                              onChange={(value) =>
-                                onOptionChange(
-                                  value,
-                                  `hotelOptionRatingOption3`
-                                )
-                              }
-                            >
-                              {filteredFacilities?.map((facility) => (
-                                <p key={facility.id}>
-                                  {facility.name} - {facility.description}
-                                </p>
-                              ))}
-                            </Select>
-                          </Form.Item>
-                          <div className="flex font-semibold text-sm text-gray-500 ml-10">
-                            {priceData[
-                              selectedOptions[`hotelOptionRatingOption3`]
-                            ] && (
-                              <p>
-                                {" "}
-                                Giá khoảng:{" "}
-                                {minMaxPrice3[0].minPrice.toLocaleString(
-                                  "vi-VN",
-                                  {
-                                    style: "currency",
-                                    currency: "VND",
-                                  }
-                                )}{" "}
-                                -{" "}
-                                {minMaxPrice3[0].maxPrice.toLocaleString(
-                                  "vi-VN",
-                                  {
-                                    style: "currency",
-                                    currency: "VND",
-                                  }
-                                )}{" "}
-                                / Người / Đêm
-                              </p>
-                            )}
-                          </div>
-                        </div>
+                            {filteredFacilities.map((facility) => (
+                              <Option key={facility.id} value={facility.id}>
+                                {facility.name} - {facility.description}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
                       </div>
                     </div>
-                  )}
+                    <div className="Option1">
+                      <li className="list-disc text-lg font-semibold mb-2 text-red-400">
+                        Gói Cơ Bản:
+                      </li>
+                      <div className="flex flex-wrap">
+                        <Form.Item
+                          name={[field.name, "hotelOptionRatingOption2"]}
+                          label="Loại hình lưu trú:"
+                          className="font-semibold"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select a lodging type!",
+                            },
+                          ]}
+                        >
+                          <Select
+                            className="!w-full mr-10"
+                            placeholder="Chọn loại hình lưu trú"
+                            onChange={(value) =>
+                              onOptionChange(value, "hotelOptionRatingOption2")
+                            }
+                          >
+                            {filteredFacilities.map((facility) => (
+                              <Option key={facility.id} value={facility.id}>
+                                {facility.name} - {facility.description}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                      </div>
+                    </div>
+                    <div className="Option1">
+                      <li className="list-disc text-lg font-semibold mb-2 text-red-400">
+                        Gói Nâng Cao:
+                      </li>
+                      <div className="flex flex-wrap">
+                        <Form.Item
+                          name={[field.name, "hotelOptionRatingOption3"]}
+                          label="Loại hình lưu trú:"
+                          className="font-semibold"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select a lodging type!",
+                            },
+                          ]}
+                        >
+                          <Select
+                            className="!w-full mr-10"
+                            placeholder="Chọn loại hình lưu trú"
+                            onChange={(value) =>
+                              onOptionChange(value, "hotelOptionRatingOption3")
+                            }
+                          >
+                            {filteredFacilities.map((facility) => (
+                              <Option key={facility.id} value={facility.id}>
+                                {facility.name} - {facility.description}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                      </div>
+                    </div>
+                  </div>
+
+                  <List
+                    dataSource={request.privateTourResponse?.roomDetails}
+                    renderItem={(roomDetail) => {
+                      const minMaxPrice1 = priceData[
+                        selectedOptions["hotelOptionRatingOption1"]
+                      ]?.filter(
+                        (item) =>
+                          item.servingQuantity === roomDetail.quantityPerRoom
+                      );
+                      const minMaxPrice2 = priceData[
+                        selectedOptions["hotelOptionRatingOption2"]
+                      ]?.filter(
+                        (item) =>
+                          item.servingQuantity === roomDetail.quantityPerRoom
+                      );
+                      const minMaxPrice3 = priceData[
+                        selectedOptions["hotelOptionRatingOption3"]
+                      ]?.filter(
+                        (item) =>
+                          item.servingQuantity === roomDetail.quantityPerRoom
+                      );
+                      console.log("minMaxPrice1", minMaxPrice1);
+                      console.log("minMaxPrice2", minMaxPrice2);
+                      console.log("minMaxPrice3", minMaxPrice3);
+
+                      return (
+                        <List.Item key={roomDetail.id}>
+                          <div className="mr-10">
+                            <div className="mb-6">
+                              <p className="font-semibold text-lg mb-3">
+                                Loại Phòng:
+                              </p>
+                              <Card className="mr-4 bg-teal-100">
+                                <Card.Meta
+                                  title={`Phòng ${
+                                    roomDetail.quantityPerRoom === 4
+                                      ? "đôi"
+                                      : "đơn"
+                                  } `}
+                                  description={`Tổng số phòng: ${roomDetail.totalRoom}`}
+                                />
+                              </Card>
+                            </div>
+                            <div className="flex font-semibold text-sm text-gray-500 mb-4">
+                              {minMaxPrice1?.length > 0 && (
+                                <p>
+                                  Gói Tiết Kiệm: Giá khoảng:{" "}
+                                  {minMaxPrice1[0].minPrice.toLocaleString(
+                                    "vi-VN",
+                                    {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }
+                                  )}{" "}
+                                  ~{" "}
+                                  {minMaxPrice1[0].maxPrice.toLocaleString(
+                                    "vi-VN",
+                                    {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }
+                                  )}
+                                  / Người / {numOfDaysLoging} Đêm
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex font-semibold text-sm text-gray-500 mb-4 ">
+                              {minMaxPrice2?.length > 0 && (
+                                <p>
+                                  Gói Cơ Bản: Giá khoảng:{" "}
+                                  {minMaxPrice2[0].minPrice.toLocaleString(
+                                    "vi-VN",
+                                    {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }
+                                  )}{" "}
+                                  ~{" "}
+                                  {minMaxPrice2[0].maxPrice.toLocaleString(
+                                    "vi-VN",
+                                    {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }
+                                  )}
+                                  / Người / {numOfDaysLoging} Đêm
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex font-semibold text-sm text-gray-500  mb-4">
+                              {minMaxPrice3?.length > 0 && (
+                                <p>
+                                  Gói Nâng Cao: Giá khoảng:{" "}
+                                  {minMaxPrice3[0].minPrice.toLocaleString(
+                                    "vi-VN",
+                                    {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }
+                                  )}{" "}
+                                  ~{" "}
+                                  {minMaxPrice3[0].maxPrice.toLocaleString(
+                                    "vi-VN",
+                                    {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }
+                                  )}
+                                  / Người / {numOfDaysLoging} Đêm
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </List.Item>
+                      );
+                    }}
+                  />
                 </div>
                 <DeleteOutlined
                   onClick={() => remove(field.name)}
