@@ -40,7 +40,7 @@ const VerhicleTravelSection = ({
       !values.dateRange ||
       !quantity
     ) {
-      debugger;
+      // debugger;
       return;
     }
     const startDate = values.dateRange[0].toISOString();

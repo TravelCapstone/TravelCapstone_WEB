@@ -53,12 +53,12 @@ const ListingTourRequestStaff = () => {
 
   return (
     <>
-      <div className="bg-white shadow-md rounded-lg p-6">
+      <div className="bg-white shadow-md rounded-lg p-6 overflow-x-auto ">
         <h2 className="text-xl text-primary font-semibold mb-4 text-center text-pretty">
           LỊCH SỬ TOUR YÊU CẦU
         </h2>
 
-        <div className="">
+        <div className="overflow-auto">
           <div className="tabs-bordered mb-4">
             {["all", "0", "1", "2", "3"].map((status) => (
               <a
@@ -70,7 +70,7 @@ const ListingTourRequestStaff = () => {
               </a>
             ))}
           </div>
-          <div className="overflow-x-auto rounded-xl shadow-xl">
+          <div className="overflow-x-auto rounded-xl shadow-xl ">
             <table className="table w-full ">
               <thead className="bg-mainColor text-white h-14">
                 <tr>
