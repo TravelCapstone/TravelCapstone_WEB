@@ -116,12 +116,13 @@ const getMinMaxPriceOfHotel = async (
 };
 
 // Retrieve price of meal
-const getPriceOfMeal = async (districtId, privatetourRequestId, ratingId) => {
+const getPriceOfMeal = async (districtId, privatetourRequestId, ratingId, numOfMeal = 1, pageNumber = 1, pageSize = 10) => {
+  debugger;
   try {
     const response = await api.get(
-      `/sell-price/get-price-of-meal/${districtId}/${privatetourRequestId}/${ratingId}`
+      `/sell-price/get-price-of-meal/${districtId}/${privatetourRequestId}/${ratingId}?numOfMeal=${numOfMeal}&pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    return response.data;
+    return response.data.result.items;
   } catch (error) {
     console.error("Error fetching meal prices:", error);
     return [];
@@ -201,7 +202,7 @@ const getVehiclePriceRange = async (
       pageNumber: pageNumber,
       pageSize: pageSize
     };
-    debugger;
+    // debugger;
     const response = await api.post(
       '/sell-price/get-vehicle-price-range',
       requestBody,
@@ -238,7 +239,7 @@ const getVehiclePriceRangeNoEndPoint = async (
       pageNumber: pageNumber,
       pageSize: pageSize
     };
-    debugger;
+    // debugger;
     const response = await api.post(
       '/sell-price/get-vehicle-price-range',
       requestBody,

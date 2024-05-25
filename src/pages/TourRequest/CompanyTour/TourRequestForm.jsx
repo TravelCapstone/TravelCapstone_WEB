@@ -28,6 +28,7 @@ import {
   getProvinceByName,
 } from "../../../api/LocationApi";
 import AddressSearchMultiple from "../../../api/SearchAddress/SearchAddressMulti";
+import RoomTypeSection from "../RoomTypeSection";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -44,6 +45,7 @@ function TourRequestForm() {
   const [startCommuneId, setStartCommuneId] = useState("");
   const [mainLocation, setMainLocation] = useState("");
   const [mainDestinationId, setMainDestinationId] = useState("");
+  const [totalRooms, setTotalRooms] = useState(0);
 
   console.log("days", days);
   console.log("nights", nights);
@@ -55,6 +57,53 @@ function TourRequestForm() {
       setMainLocation(null);
     }
   }, [selectedLocations]);
+
+  const calculateTotalRooms = () => {
+    const values = form.getFieldsValue();
+    const { adult, children, roomTypes } = values;
+
+    if (!adult || !children || !roomTypes) {
+      form.setFieldsValue({
+        roomTypes: roomTypes.map((room) => ({ ...room, totalRoom: 0 })),
+      });
+      return;
+    }
+
+    let totalPeople = adult + children;
+    let roomsNeeded = { 2: 0, 4: 0 };
+
+    roomTypes.forEach((room) => {
+      if (room && room.RoomType) {
+        const roomCapacity = room.RoomType;
+        roomsNeeded[roomCapacity] = room.totalRoom || 0;
+      }
+    });
+
+    // Calculate rooms for type 4 (Phòng đôi) first
+    let remainingPeople = totalPeople - roomsNeeded[4] * 4;
+    if (remainingPeople < 0) remainingPeople = 0;
+
+    // Calculate rooms for type 2 (Phòng đơn) with the remaining people
+    let singleRoomsNeeded = Math.ceil(remainingPeople / 2);
+
+    // Update the form values
+    const updatedRoomTypes = roomTypes.map((room) => {
+      if (room && room.RoomType === 2) {
+        return { ...room, totalRoom: singleRoomsNeeded };
+      } else if (room && room.RoomType === 4) {
+        return { ...room, totalRoom: roomsNeeded[4] };
+      }
+      return room;
+    });
+
+    form.setFieldsValue({
+      roomTypes: updatedRoomTypes,
+    });
+  };
+
+  useEffect(() => {
+    form.setFieldsValue({ totalRooms });
+  }, [totalRooms, form]);
 
   const handleMainLocationSelect = async (location) => {
     try {
@@ -131,6 +180,10 @@ function TourRequestForm() {
       recommnendedTourUrl: formValues["recommnendedTourUrl"],
       note: formValues["note"],
       isEnterprise: formValues["isEnterprise"],
+      roomQuantityDetailRequest: formValues["roomTypes"].map((loc) => ({
+        quantityPerRoom: loc.RoomType,
+        totalRoom: loc.totalRoom,
+      })),
       otherLocation: selectedLocations.map((loc) => ({
         address: loc.location,
         provinceId: loc.provinceId,
@@ -521,7 +574,7 @@ function TourRequestForm() {
                 },
               ]}
             >
-              <InputNumber min={1} />
+              <InputNumber min={1} onChange={calculateTotalRooms} />
             </Form.Item>
 
             <Form.Item
@@ -546,8 +599,15 @@ function TourRequestForm() {
                 },
               ]}
             >
-              <InputNumber min={0} />
+              <InputNumber min={0} onChange={calculateTotalRooms} />
             </Form.Item>
+          </div>
+          <div>
+            <p className="font-semibold text-lg mb-4">Loại phòng mong muốn:</p>
+            <RoomTypeSection
+              form={form}
+              onRoomTypeChange={calculateTotalRooms}
+            />
           </div>
 
           <Form.Item
