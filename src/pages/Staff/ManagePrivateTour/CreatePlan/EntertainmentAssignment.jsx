@@ -1,23 +1,13 @@
 import React, { useState } from "react";
-import { Form, Button } from "antd";
+import { Form } from "antd";
 import { formatPrice } from "../../../../utils/Util";
 import EntertainmentModal from "./Entertainment/EntertainmentModal";
 
 function EntertainmentAssignment({ data, privateTourResponse }) {
   const [selectedEntertainment, setSelectedEntertainment] = useState([]);
 
-  const log = (data) => {
-    const filter = selectedEntertainment.filter(
-      (item) => item.sellPriceHistory?.id === data.sellPriceHistory?.id
-    );
-    if (filter.length === 0) {
-      setSelectedEntertainment([...selectedEntertainment, data]);
-    } else {
-      const list = selectedEntertainment.filter(
-        (item) => item.sellPriceHistory?.id !== data.sellPriceHistory?.id
-      );
-      setSelectedEntertainment(list);
-    }
+  const log = (selectedList) => {
+    setSelectedEntertainment(selectedList);
   };
 
   return (
@@ -30,23 +20,22 @@ function EntertainmentAssignment({ data, privateTourResponse }) {
                 <div key={index}>
                   <div className="flex">
                     <strong className="w-1/12">{index + 1}</strong>
-
                     <div className="flex flex-col justify-between w-11/12">
                       <div className="flex justify-between">
-                        <div className="flex justify-between w6/12">
+                        <div className="flex justify-between w-6/12">
                           <strong>
                             {item.district?.name} -{" "}
                             {item.district?.province?.name}
                           </strong>
                           <div className="ml-8">
-                            <strong className="mr-2"> Gía vé:</strong>
+                            <strong className="mr-2">Giá vé:</strong>
                             <span className="font-bold text-red-600">
                               {formatPrice(item.minPrice)} -{" "}
                               {formatPrice(item.maxPrice)}/vé
                             </span>
                           </div>
                         </div>
-                        <div className="w6/12">
+                        <div className="w-6/12">
                           <strong>Số lượng địa điểm du lịch: </strong>
                           <span>{item.quantity}</span>
                         </div>
@@ -125,11 +114,6 @@ function EntertainmentAssignment({ data, privateTourResponse }) {
                   </div>
                 </div>
               ))}
-            <Form.Item>
-              <Button type="dashed" onClick={() => add()} block>
-                Add Entertainment
-              </Button>
-            </Form.Item>
           </>
         )}
       </Form.List>

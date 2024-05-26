@@ -9,7 +9,7 @@ import DetailPlanFollowingTimeline from "./PlanDetail/DetailPlanFollowingTimelin
 import MaterialAssignment from "./PlanDetail/MaterialAssignment";
 import TourguideAssignment from "./PlanDetail/TourguideAssignment";
 import LocalVehicleAssignment from "./LocalVehicleAssignment";
-
+import { optionClassLabels } from "../../../../settings/globalStatus";
 const CreatePlanForm = ({
   privateTourResponse,
   optionQuotation,
@@ -25,14 +25,14 @@ const CreatePlanForm = ({
   const restaurant = quotationDetails?.filter(
     (item) => item?.facilityRating?.facilityTypeId === 1
   );
-
+  console.log(hotel);
   const onFinish = (values) => {
     console.log("Form values:", values);
     // Handle form submission here
   };
 
   return (
-    <div className="p-4">
+    <div className="  p-4  bg-white">
       <h3 className="font-bold text-mainColor text-xl text-center">
         TẠO KẾ HOẠCH TOUR CHI TIẾT
       </h3>
@@ -41,12 +41,19 @@ const CreatePlanForm = ({
         name="createPlan"
         initialValues={{ remember: true }}
         onFinish={onFinish}
+        className="max-h-dvh  overflow-y-auto "
       >
         <Form.Item label="Phân loại">
-          {optionQuotation && <span>{optionQuotation.optionClassLabels}</span>}
+          {optionQuotation && (
+            <span className="font-semibold text-xl">
+              {optionClassLabels[optionQuotation.optionClassId]}
+            </span>
+          )}
         </Form.Item>
 
         <Form.Item>
+          <h3 className="font-bold text-primary text-xl">Dịch vụ lưu trú</h3>
+
           <RestingAssignment
             data={hotel}
             privateTourResponse={privateTourResponse}
@@ -54,6 +61,8 @@ const CreatePlanForm = ({
         </Form.Item>
 
         <Form.Item>
+          <h3 className="font-bold text-primary text-xl">Dịch vụ ăn uống</h3>
+
           <FoodAndBevarageAssignment
             data={restaurant}
             privateTourResponse={privateTourResponse}
@@ -61,12 +70,20 @@ const CreatePlanForm = ({
         </Form.Item>
 
         <Form.Item>
+          <h3 className="font-bold text-primary text-xl">
+            Phương tiện di chuyển
+          </h3>
+
           <VehicleAssignment data={vehicleQuotationDetails} />
         </Form.Item>
         <Form.Item>
-          <LocalVehicleAssignment data={vehicleQuotationDetails} />
+          {/* <LocalVehicleAssignment data={vehicleQuotationDetails} /> */}
         </Form.Item>
         <Form.Item>
+          <h3 className="font-bold text-primary text-xl">
+            Dịch vụ vui chơi giải trí
+          </h3>
+
           <EntertainmentAssignment
             data={entertainment}
             privateTourResponse={privateTourResponse}

@@ -9,22 +9,15 @@ import {
 import { ratingLabels } from "../../../../settings/globalStatus";
 
 const RestingAssignment = ({ data, privateTourResponse }) => {
-  const [selectedHotel, setSelectedHotel] = useState([]);
-
-  const log = (data) => {
-    const filter = selectedHotel.filter(
-      (item) => item.sellPriceHistory?.id === data.sellPriceHistory?.id
-    );
-    if (filter.length === 0) {
-      setSelectedHotel([...selectedHotel, data]);
-    } else {
-      const list = selectedHotel.filter(
-        (item) => item.sellPriceHistory?.id !== data.sellPriceHistory?.id
-      );
-      setSelectedHotel(list);
+  const [selectedHotels, setSelectedHotels] = useState([[]]);
+  const log = (hotel, dataIndex, hotelIndex) => {
+    const updatedSelectedHotels = [...selectedHotels];
+    if (!updatedSelectedHotels[dataIndex]) {
+      updatedSelectedHotels[dataIndex] = [];
     }
+    updatedSelectedHotels[dataIndex][hotelIndex] = hotel;
+    setSelectedHotels(updatedSelectedHotels);
   };
-
   return (
     <Form>
       <Form.List name="hotels">
@@ -91,67 +84,51 @@ const RestingAssignment = ({ data, privateTourResponse }) => {
                               }
                               servingQuantity={item.servingQuantity}
                               serviceType={0}
-                              log={log}
+                              log={(hotel) => log(hotel, index, 0)} // Assuming single hotel selection for now
                               ratingId={item.facilityRating?.id}
                             />
                           </div>
 
-                          {selectedHotel.length > 0 &&
-                            selectedHotel.map((hotel, index) => (
-                              <div key={index}>
-                                <div className="flex">
-                                  <strong className="mr-2">
-                                    Tên khách sạn:{" "}
-                                  </strong>
-                                  <p>
-                                    {
-                                      hotel?.sellPriceHistory?.facilityService
-                                        ?.facility.name
-                                    }
-                                  </p>
-                                </div>
-                                <div className="flex">
-                                  <strong className="mr-2">Địa chỉ: </strong>
-                                  <p>
-                                    {
-                                      hotel?.sellPriceHistory?.facilityService
-                                        ?.facility.address
-                                    }
-                                    ,{" "}
-                                    {
-                                      hotel?.sellPriceHistory?.facilityService
-                                        ?.facility.communce?.name
-                                    }
-                                    ,{" "}
-                                    {
-                                      hotel.sellPriceHistory?.facilityService
-                                        ?.facility.communce?.district?.name
-                                    }
-                                    ,{" "}
-                                    {
-                                      hotel?.sellPriceHistory?.facilityService
-                                        ?.facility.communce?.district.province
-                                        ?.name
-                                    }
-                                  </p>
-                                </div>
-                                <div className="flex">
-                                  <strong className="mr-2">
-                                    Giá tổng = giá phòng x số phòng x số ngày
-                                    thuê =
-                                  </strong>
-                                  {formatPrice(hotel?.sellPriceHistory?.price)}{" "}
-                                  x {item.quantity} x{" "}
-                                  {differenceInDays(
-                                    item.startDate,
-                                    item.endDate
-                                  )}
-                                  ={" "}
-                                  {formatPrice(
-                                    hotel?.sellPriceHistory?.price *
-                                      item.quantity
-                                  )}
-                                </div>
+                          {selectedHotels[index] &&
+                            selectedHotels[index].map((hotel, hotelIndex) => (
+                              <div key={hotelIndex}>
+                                {hotel && (
+                                  <>
+                                    <div className="flex">
+                                      <strong className="mr-2">
+                                        Tên khách sạn:{" "}
+                                      </strong>
+                                      <p>{hotel.facilityName}</p>
+                                    </div>
+                                    <div className="flex">
+                                      <strong className="mr-2">
+                                        Địa chỉ:{" "}
+                                      </strong>
+                                      <p>{hotel.address}</p>
+                                    </div>
+                                    <div className="flex">
+                                      <strong className="mr-2">
+                                        Giá tổng = giá phòng x số phòng x số
+                                        ngày thuê =
+                                      </strong>
+                                      {formatPrice(hotel.price)} x{" "}
+                                      {item.quantity} x{" "}
+                                      {differenceInDays(
+                                        item.startDate,
+                                        item.endDate
+                                      )}
+                                      ={" "}
+                                      {formatPrice(
+                                        hotel.price *
+                                          item.quantity *
+                                          differenceInDays(
+                                            item.startDate,
+                                            item.endDate
+                                          )
+                                      )}
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             ))}
                         </div>
@@ -160,11 +137,6 @@ const RestingAssignment = ({ data, privateTourResponse }) => {
                   </div>
                 </div>
               ))}
-            <Form.Item>
-              <Button type="dashed" onClick={() => add()} block>
-                Add Hotel
-              </Button>
-            </Form.Item>
           </>
         )}
       </Form.List>

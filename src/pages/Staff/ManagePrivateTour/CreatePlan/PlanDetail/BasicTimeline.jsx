@@ -63,7 +63,6 @@ function BasicTimeline(props) {
                     ]}
                   >
                     <Select
-                      className="select select-bordered"
                       value={item.location}
                       onChange={(value) => handleChangeLocation(index, value)}
                     >
@@ -78,11 +77,7 @@ function BasicTimeline(props) {
                       <i className="fa-solid fa-minus"></i>
                       <i className="fa-solid fa-minus"></i>
                       <i className="fa-solid fa-minus"></i>
-                      <i className="fa-solid fa-minus"></i>
-                      <i className="fa-solid fa-minus"></i>
                       <i className="fa-solid fa-map-pin text-4xl text-center"></i>
-                      <i className="fa-solid fa-minus"></i>
-                      <i className="fa-solid fa-minus"></i>
                       <i className="fa-solid fa-minus"></i>
                       <i className="fa-solid fa-minus"></i>
                       <i className="fa-solid fa-minus"></i>

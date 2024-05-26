@@ -90,6 +90,20 @@ function metersToKilometers(meters) {
 
   return `${kilometers} km`;
 }
+function getTimePeriod(dateTimeString) {
+  const dateTime = new Date(dateTimeString);
+  const hours = dateTime.getHours();
+
+  if (hours < 10) {
+    return "Sáng";
+  } else if (hours >= 10 && hours < 14) {
+    return "Trưa";
+  } else if (hours >= 18) {
+    return "Tối";
+  } else {
+    return "";
+  }
+}
 export {
   formatPrice,
   formatDateTime,
@@ -97,4 +111,5 @@ export {
   differenceInDays,
   secondsToHours,
   metersToKilometers,
+  getTimePeriod,
 };

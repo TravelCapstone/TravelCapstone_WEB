@@ -24,23 +24,6 @@ function TourRequestPage() {
         setRequest(data?.data?.result);
         setIsLoading(false);
         // Kiểm tra xem có option nào có optionQuotationStatusId == 1 không
-        if (
-          data.data.result.option1?.optionQuotation?.optionQuotationStatusId ===
-          1
-        ) {
-          setSelectedOption(data.data.result.option1);
-        } else if (
-          data.data.result.option2?.optionQuotation?.optionQuotationStatusId ===
-          1
-        ) {
-          setSelectedOption(data.data.result.option2);
-        } else if (
-          data.data.result.option3?.optionQuotation?.optionQuotationStatusId ===
-          1
-        ) {
-          setSelectedOption(data.data.result.option3);
-        }
-
         const selected = [
           data.data.result.option1,
           data.data.result.option2,
@@ -60,7 +43,7 @@ function TourRequestPage() {
       setActiveTab(tab);
     }
   }, [id, location.search]);
-
+  console.log(selectedOption);
   const hasOptions = request.option1 && request.option2 && request.option3;
 
   useEffect(() => {
