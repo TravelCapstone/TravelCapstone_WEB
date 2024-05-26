@@ -59,7 +59,6 @@ const DaySection = ({
   name,
   form,
   mealTime,
-  remove,
   ratingId,
   setRatingId,
   facilities,
@@ -73,8 +72,11 @@ const DaySection = ({
   const [priceRanges, setPriceRanges] = useState({});
   const [selectedFacilities, setSelectedFacilities] = useState({});
   const [servingQuantities, setServingQuantities] = useState({});
+  const [selectedMealTypes, setSelectedMealTypes] = useState([]);
+  const [selfServeStates, setSelfServeStates] = useState({});
 
   console.log("menuStates", menuStates);
+  console.log("selectedMeals", selectedMeals);
 
   const handleFacilityChange = async (fieldKey, facilityId) => {
     const fetchedMenus = await fetchMenus(facilityId);
@@ -82,33 +84,17 @@ const DaySection = ({
       ...prevStates,
       [fieldKey]: fetchedMenus,
     }));
+
     setSelectedFacilities((prevStates) => ({
       ...prevStates,
       [fieldKey]: facilityId,
     }));
-  };
-
-  const handleMealChange = (fieldKey, mealTypeId) => {
-    setSelectedMeals((prevStates) => ({
-      ...prevStates,
-      [fieldKey]: mealTypeId,
-    }));
-  };
-
-  const handleServingQuantityChange = async (fieldKey, servingQuantity) => {
-    setServingQuantities((prevStates) => ({
-      ...prevStates,
-      [fieldKey]: servingQuantity,
-    }));
-
-    const facilityId = selectedFacilities[fieldKey];
-    if (!facilityId) return;
 
     const facility = facilities.find((f) => f.id === facilityId);
     const ratingId = facility ? facility.facilityRating.id : null;
 
     if (!ratingId) return;
-    debugger;
+
     const prices = await getPriceOfMeal(
       districtId,
       request.privateTourResponse.id,
@@ -123,16 +109,74 @@ const DaySection = ({
     }));
   };
 
+  const handleMealTypeChange = (value, fieldKey, index) => {
+    // Update selectedMeals
+    setSelectedMeals((prevStates) => ({
+      ...prevStates,
+      [fieldKey]: value,
+    }));
+
+    // Update selectedMealTypes
+    const updatedMealTypes = [...selectedMealTypes];
+    updatedMealTypes[index] = value;
+    setSelectedMealTypes(updatedMealTypes);
+  };
+
+  const handleRemove = (field, remove) => {
+    // Remove from selectedMealTypes
+    const updatedMealTypes = selectedMealTypes.filter(
+      (_, i) => i !== field.index
+    );
+    setSelectedMealTypes(updatedMealTypes);
+
+    // Remove from selectedMeals
+    setSelectedMeals((prevMeals) => {
+      const newMeals = { ...prevMeals };
+      delete newMeals[field.key];
+      return newMeals;
+    });
+
+    // Remove item
+    remove(field.name);
+  };
+
+  const handleServingQuantityChange = (fieldKey, servingQuantity) => {
+    setServingQuantities((prevStates) => ({
+      ...prevStates,
+      [fieldKey]: servingQuantity,
+    }));
+  };
+
+  const handleSelfServeChange = (fieldKey, value) => {
+    setSelfServeStates((prevStates) => ({
+      ...prevStates,
+      [fieldKey]: value,
+    }));
+
+    if (value) {
+      // Set facilityId to null
+      setSelectedFacilities((prevStates) => ({
+        ...prevStates,
+        [fieldKey]: null,
+      }));
+      form.setFieldsValue({
+        [fieldKey]: {
+          facilityId: null,
+        },
+      });
+    }
+  };
+
   const filteredRatingLabels = Object.entries(ratingLabels).filter(
     ([key, value]) => key >= 5 && key <= 9
   );
-  const columns = [
+  const columns = (remove) => [
     {
       title: "Bữa",
       dataIndex: "mealTypeId",
       fixed: "left",
       width: 100,
-      render: (_, record) => (
+      render: (_, record, index) => (
         <Form.Item
           name={[record.name, "mealTypeId"]}
           rules={[{ required: true, message: "Please select a meal!" }]}
@@ -141,13 +185,21 @@ const DaySection = ({
           <Select
             placeholder="Chọn Bữa"
             className="!w-[100px]"
-            value={record.meal || mealTime}
+            value={
+              record.meal || mealTime || selectedMeals[record.key] || undefined
+            }
             disabled={!mealTime}
-            onChange={(value) => handleMealChange(record.key, value)}
+            onChange={(value) => handleMealTypeChange(value, record.key, index)}
           >
-            <Option value={0}>Sáng</Option>
-            <Option value={1}>Trưa</Option>
-            <Option value={2}>Tối</Option>
+            {[0, 1, 2].map((type) => (
+              <Option
+                key={type}
+                value={type}
+                disabled={selectedMealTypes.includes(type)}
+              >
+                {type === 0 ? "Sáng" : type === 1 ? "Trưa" : "Tối"}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
       ),
@@ -161,7 +213,11 @@ const DaySection = ({
           valuePropName="checked"
           style={{ margin: 0 }}
         >
-          <Checkbox />
+          <Checkbox
+            onChange={(e) =>
+              handleSelfServeChange(record.key, e.target.checked)
+            }
+          />
         </Form.Item>
       ),
     },
@@ -179,6 +235,7 @@ const DaySection = ({
             placeholder="Chọn hạng quán ăn"
             className="!w-[200px]"
             onChange={(value) => setRatingId(value)}
+            disabled={selfServeStates[record.key]}
           >
             {filteredRatingLabels.map(([key, label]) => (
               <Option key={key} value={key}>
@@ -206,6 +263,7 @@ const DaySection = ({
               form.setFieldValue([record.name, "facilityId"], value);
               handleFacilityChange(record.key, value);
             }}
+            disabled={selfServeStates[record.key]}
           >
             {facilities.map((facility) => {
               const facilityInfo = `${facility.name} - ${facility.address}, ${facility.communce.name}, ${facility.communce.district.name}, ${facility.communce.district.province.name}`;
@@ -234,16 +292,72 @@ const DaySection = ({
           <Select
             placeholder="Chọn loại bàn ăn"
             className="!w-[200px]"
+            disabled={selfServeStates[record.key]}
             onChange={(value) => {
               form.setFieldValue([record.name, "servingQuantity"], value);
               handleServingQuantityChange(record.key, value);
             }}
           >
-            <Option value={1}>Bàn lẻ người</Option>
+            <Option value={1}>Bàn lẻ 1 người</Option>
             <Option value={10}>Bàn 10 người</Option>
           </Select>
         </Form.Item>
       ),
+    },
+    {
+      title: "Khoảng giá",
+      dataIndex: "priceRange",
+      width: 400,
+      render: (_, record) => {
+        const prices = priceRanges[record.key] || [];
+        const isLoading = !prices.length;
+        const servingQuantity = servingQuantities[record.key];
+        if (!selfServeStates[record.key]) {
+          if (isLoading) {
+            return <div>Loading...</div>;
+          }
+        }
+        const filteredPrices = prices.filter(
+          (price) => price.servingQuantity === servingQuantity
+        );
+        return (
+          <div className="w-[150px]">
+            {!selfServeStates[record.key] && filteredPrices.length > 0
+              ? filteredPrices.map((price) => (
+                  <div key={price.serviceTypeId}>
+                    {price.servingQuantity === 1
+                      ? "Bàn lẻ 1 người: "
+                      : "Bàn 10 người: "}
+                    {price.minPrice.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                    ~{" "}
+                    {price.maxPrice.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </div>
+                ))
+              : prices.map((price) => (
+                  <div key={price.serviceTypeId}>
+                    {price.servingQuantity === 1
+                      ? "Bàn lẻ 1 người: "
+                      : "Bàn 10 người: "}
+                    {price.minPrice.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                    ~{" "}
+                    {price.maxPrice.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </div>
+                ))}
+          </div>
+        );
+      },
     },
 
     {
@@ -256,10 +370,13 @@ const DaySection = ({
             placeholder="Select menu"
             className="!w-[200px]"
             mode="multiple"
+            disabled={selfServeStates[record.key]}
           >
             {(menuStates[record.key] || menus)
               .filter(
-                (menu) => menu.menu.mealTypeId === selectedMeals[record.key]
+                (menu) =>
+                  menu.menu &&
+                  menu.menu.mealTypeId === selectedMeals[record.key]
               )
               .map((menu) => {
                 const MenuInfo = `${menu.menu.name} - ${menu.menu.facilityService.name}`;
@@ -283,10 +400,13 @@ const DaySection = ({
             placeholder="Select menu"
             className="!w-[200px]"
             mode="multiple"
+            disabled={selfServeStates[record.key]}
           >
             {(menuStates[record.key] || menus)
               .filter(
-                (menu) => menu.menu.mealTypeId === selectedMeals[record.key]
+                (menu) =>
+                  menu.menu &&
+                  menu.menu.mealTypeId === selectedMeals[record.key]
               )
               .map((menu) => {
                 const MenuInfo = `${menu.menu.name} - ${menu.menu.facilityService.name}`;
@@ -309,11 +429,14 @@ const DaySection = ({
           <Select
             placeholder="Select menu"
             className="!w-[200px]"
+            disabled={selfServeStates[record.key]}
             mode="multiple"
           >
             {(menuStates[record.key] || menus)
               .filter(
-                (menu) => menu.menu.mealTypeId === selectedMeals[record.key]
+                (menu) =>
+                  menu.menu &&
+                  menu.menu.mealTypeId === selectedMeals[record.key]
               )
               .map((menu) => {
                 const MenuInfo = `${menu.menu.name} - ${menu.menu.facilityService.name}`;
@@ -327,41 +450,18 @@ const DaySection = ({
         </Form.Item>
       ),
     },
-    {
-      title: "Khoảng giá",
-      dataIndex: "priceRange",
-      width: 300,
-      render: (_, record) => {
-        const prices = priceRanges[record.key] || [];
-        console.log("prices", prices);
-        return (
-          <div>
-            {prices.map((price) => (
-              <div key={price.serviceTypeId}>
-                {price.minPrice.toLocaleString("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                })}
-                ~{" "}
-                {price.maxPrice.toLocaleString("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                })}
-              </div>
-            ))}
-          </div>
-        );
-      },
-    },
+
     {
       title: "Xoá",
       dataIndex: "actions",
       render: (_, record) => (
         <Button
           type="link"
-          onClick={() => remove(record.name)}
+          onClick={() => {
+            handleRemove(record, remove);
+          }}
           icon={<DeleteOutlined />}
-        ></Button>
+        />
       ),
     },
   ];
@@ -372,31 +472,61 @@ const DaySection = ({
         <>
           <div className="overflow-x-auto rounded-xl max-w-[1100px]">
             <Table
-              dataSource={fields.map((field) => ({ ...field, key: field.key }))}
-              columns={columns}
+              dataSource={fields.map((field, index) => ({
+                ...field,
+                key: field.key,
+                index,
+              }))}
               pagination={false}
               components={{ body: { cell: EditableCell } }}
+              columns={columns(remove)}
             />
           </div>
-          <Button
-            onClick={() =>
-              add({
-                key: uuidv4(),
-                meal: "",
-                selfServe: false,
-                name: "",
-                tableType: "",
-                economyMenu: "",
-                basicMenu: "",
-                advancedMenu: "",
-              })
-            }
-            icon={<PlusOutlined />}
-            type="dashed"
-            style={{ width: "100%", marginTop: 16 }}
-          >
-            Thêm bữa ăn
-          </Button>
+          {fields.length < 3 && (
+            <Button
+              onClick={() => {
+                const newKey = uuidv4();
+                add({
+                  key: newKey,
+                  meal: null,
+                  selfServe: false,
+                  tableType: null,
+                  economyMenu: [],
+                  basicMenu: [],
+                  advancedMenu: [],
+                  priceRange: "",
+                  facilityId: null,
+                });
+                setSelectedMealTypes([...selectedMealTypes, undefined]);
+                form.setFieldsValue({ [newKey]: {} });
+                setMenuStates((prevStates) => ({
+                  ...prevStates,
+                  [newKey]: [],
+                }));
+                setSelectedMeals((prevStates) => ({
+                  ...prevStates,
+                  [newKey]: null,
+                }));
+                setPriceRanges((prevStates) => ({
+                  ...prevStates,
+                  [newKey]: [],
+                }));
+                setSelectedFacilities((prevStates) => ({
+                  ...prevStates,
+                  [newKey]: null,
+                }));
+                setServingQuantities((prevStates) => ({
+                  ...prevStates,
+                  [newKey]: null,
+                }));
+              }}
+              icon={<PlusOutlined />}
+              type="dashed"
+              style={{ width: "100%", marginTop: 16 }}
+            >
+              Thêm bữa ăn
+            </Button>
+          )}
         </>
       )}
     </Form.List>
@@ -497,7 +627,6 @@ const RestaurantSection = ({
                   </Form.Item>
                   <DaySection
                     form={form}
-                    remove={remove}
                     name={[field.name, "days"]}
                     mealTime={mealTime}
                     ratingId={RatingId}
@@ -507,6 +636,7 @@ const RestaurantSection = ({
                     menus={menus}
                     districtId={selectedDistrict}
                     request={request}
+                    basePath={basePath}
                   />
                 </div>
                 <DeleteOutlined
