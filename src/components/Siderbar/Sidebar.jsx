@@ -143,7 +143,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="">
+    <div className="h-full">
       <div className="drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
         <div className="drawer-side z-10 shadow-lg rounded-4xl">

@@ -47,6 +47,7 @@ const MenuTable = ({
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
 
   const handleSelectRestaurant = (item) => {
+    console.log(item);
     setSelectedRestaurant(
       selectedRestaurant &&
         item.sellPriceHistory?.id === selectedRestaurant.sellPriceHistory?.id
@@ -99,7 +100,7 @@ const MenuTable = ({
   ];
 
   const data = listMenu.map((item, index) => ({
-    key: index,
+    key: item.sellPriceHistory?.id,
     index: index + 1,
     name: item.facilityServices?.facility?.name,
     address: `${item.facilityServices?.facility?.address}, ${item.facilityServices?.facility?.communce?.name}, ${item.facilityServices?.facility?.communce?.district?.name}, ${item.facilityServices?.facility?.communce?.district.province?.name}`,

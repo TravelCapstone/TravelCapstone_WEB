@@ -5,9 +5,7 @@ const { Option } = Select;
 const LocalVehicleAssignment = () => {
   return (
     <Form layout="vertical">
-      <Form.Item label="1">
-        <Input disabled />
-      </Form.Item>
+      <Form.Item label="1"></Form.Item>
       <Form.Item label="Khu vực">
         <span>Hà Giang - TP Hà Giang</span>
       </Form.Item>

@@ -49,6 +49,7 @@ function FoodModal({
       <Modal
         title="Chọn nhà hàng"
         visible={visible}
+        width={1400}
         onCancel={() => setVisible(false)}
         footer={[
           <Button key="close" onClick={() => setVisible(false)}>

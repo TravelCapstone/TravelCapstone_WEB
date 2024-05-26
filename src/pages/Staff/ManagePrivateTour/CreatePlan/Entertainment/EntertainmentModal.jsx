@@ -43,23 +43,26 @@ const EntertainmentModal = ({
     ratingId,
   ]);
 
-  const handleSelectHotel = (item) => {
+  const handleSelectEntertainment = (item) => {
     const index = selectedEntertainment.findIndex(
       (selectedItem) =>
         selectedItem.sellPriceHistory?.id === item.sellPriceHistory?.id
     );
     if (index === -1) {
-      setSelectedEntertainment([...selectedEntertainment, item]);
+      setSelectedEntertainment((prev) => [...prev, item]);
     } else {
-      const updatedSelection = [...selectedEntertainment];
-      updatedSelection.splice(index, 1);
-      setSelectedEntertainment(updatedSelection);
+      setSelectedEntertainment((prev) =>
+        prev.filter(
+          (selectedItem) =>
+            selectedItem.sellPriceHistory?.id !== item.sellPriceHistory?.id
+        )
+      );
     }
   };
 
   useEffect(() => {
     log(selectedEntertainment);
-  }, [selectedEntertainment]);
+  }, [selectedEntertainment, log]);
 
   const columns = [
     {
@@ -108,6 +111,7 @@ const EntertainmentModal = ({
         title="Chọn địa điểm vui chơi"
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
+        width={1400}
         footer={[
           <Button key="clear" onClick={() => setSelectedEntertainment([])}>
             Clear
@@ -131,7 +135,7 @@ const EntertainmentModal = ({
               : ""
           }
           onRow={(record) => ({
-            onClick: () => handleSelectHotel(record),
+            onClick: () => handleSelectEntertainment(record),
           })}
         />
       </Modal>
