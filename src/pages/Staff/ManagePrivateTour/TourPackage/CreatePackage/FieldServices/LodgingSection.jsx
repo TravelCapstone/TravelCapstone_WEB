@@ -22,6 +22,7 @@ import {
 import { getMinMaxPriceOfHotel } from "../../../../../../api/SellPriceHistoryApi";
 import { getAllFacility } from "../../../../../../api/FacilityApi";
 import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -52,6 +53,7 @@ const LodgingSection = ({
   });
 
   const [priceData, setPriceData] = useState({});
+  const [disableOptions, setDisableOptions] = useState(true);
 
   console.log(
     "request.privateTourResponse?.roomDetails",
@@ -67,7 +69,7 @@ const LodgingSection = ({
   const districtId = selectedDistrict;
 
   const fetchFacilities = async () => {
-    const allFacilities = await getAllFacility(1, 1000); // Giả sử bạn lấy 100 cơ sở lưu trú
+    const allFacilities = await getAllFacility(1, 10000); // Giả sử bạn lấy 100 cơ sở lưu trú
     setFacilities(allFacilities.result.items);
   };
 
@@ -107,7 +109,6 @@ const LodgingSection = ({
         10, // pageSize
         numOfDays
       );
-      debugger;
 
       setPriceData((prev) => ({
         ...prev,
@@ -130,6 +131,7 @@ const LodgingSection = ({
       const numOfDays = Math.ceil(hours / 24); // Rounds up to the nearest whole day
       setNumOfDaysLoging(numOfDays);
       // Set the number of days in the form
+      setDisableOptions(false);
       fetchPriceData(districtId, privatetourRequestId, ratingId, numOfDays);
       form.setFieldsValue({
         [basePath.join(".")]: {
@@ -140,6 +142,8 @@ const LodgingSection = ({
           },
         },
       });
+    } else {
+      setDisableOptions(true); // Disable options when stayDatesLoging is not selected
     }
   };
 
@@ -167,6 +171,35 @@ const LodgingSection = ({
       );
     }
   }, [request]);
+
+  useEffect(() => {
+    Object.values(selectedOptions).forEach((option) => {
+      if (option) {
+        fetchPriceData(option);
+      }
+    });
+  }, [selectedOptions]);
+
+  const disabledDate = (current) => {
+    // Lấy giá trị tourDate từ form
+    const tourDate = form.getFieldValue("tourDate");
+    if (!tourDate || tourDate.length < 2) {
+      return false;
+    }
+    const startDate = tourDate[0];
+    const endDate = tourDate[1];
+    return current && (current < startDate || current > endDate);
+  };
+
+  // Lấy giá trị defaultPickerValue từ tourDate
+  const getDefaultPickerValue = () => {
+    const tourDate = form.getFieldValue("tourDate");
+    if (!tourDate || tourDate.length < 2) {
+      return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
+    }
+    debugger;
+    return tourDate[0]; // Sử dụng ngày bắt đầu của tourDate
+  };
 
   return (
     <Form.List name={[...basePath, "hotels"]}>
@@ -204,6 +237,8 @@ const LodgingSection = ({
                         onChange={(dates, dateStrings) =>
                           onDateRangeChange(dates, dateStrings, field.name)
                         }
+                        disabledDate={disabledDate}
+                        defaultPickerValue={[getDefaultPickerValue()]}
                       />
                     </Form.Item>
                     <Form.Item
@@ -243,6 +278,7 @@ const LodgingSection = ({
                             onChange={(value) =>
                               onOptionChange(value, "hotelOptionRatingOption1")
                             }
+                            disabled={disableOptions}
                           >
                             {filteredFacilities.map((facility) => (
                               <Option key={facility.id} value={facility.id}>
@@ -275,6 +311,7 @@ const LodgingSection = ({
                             onChange={(value) =>
                               onOptionChange(value, "hotelOptionRatingOption2")
                             }
+                            disabled={disableOptions}
                           >
                             {filteredFacilities.map((facility) => (
                               <Option key={facility.id} value={facility.id}>
@@ -307,6 +344,7 @@ const LodgingSection = ({
                             onChange={(value) =>
                               onOptionChange(value, "hotelOptionRatingOption3")
                             }
+                            disabled={disableOptions}
                           >
                             {filteredFacilities.map((facility) => (
                               <Option key={facility.id} value={facility.id}>
@@ -439,7 +477,7 @@ const LodgingSection = ({
                 </div>
                 <DeleteOutlined
                   onClick={() => remove(field.name)}
-                  className="self-start mt-2"
+                  className="self-start mt-2 ml-4"
                 />
               </div>
             </Space>
@@ -448,9 +486,18 @@ const LodgingSection = ({
             <Button
               className="bg-teal-600 font-semibold text-white"
               type="dashed"
-              onClick={() => add()}
               block
               icon={<PlusOutlined />}
+              onClick={() =>
+                add({
+                  key: uuidv4(), // Add a unique key for each new item
+                  stayDatesLoging: null,
+                  // numOfDays: 0,
+                  hotelOptionRatingOption1: null,
+                  hotelOptionRatingOption2: null,
+                  hotelOptionRatingOption3: null,
+                })
+              }
             >
               Thêm khách sạn
             </Button>
