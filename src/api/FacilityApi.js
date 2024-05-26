@@ -48,9 +48,9 @@ const getAllFacility = async (pageNumber,pageSize)=>{
 
 const getAllFacilityRating  = async (id)=>{
   try {
-    const response = await api.get(`/facility-type/get-all-facility-rating-by-facilityId/${id}
+    const response = await api.get(`/facility-type/get-all-facility-rating-by-facilityTypeId/${id}
     `);
-    return response.data;
+    return response.data.result.items;
   } catch (error) {
     console.error('Error fetching provinces:', error);
     return []; 

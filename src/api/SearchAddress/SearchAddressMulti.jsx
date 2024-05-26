@@ -6,6 +6,7 @@ const AddressSearchMultiple = ({ onChange }) => {
   const [options, setOptions] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [debounceTimeout, setDebounceTimeout] = useState(null);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     return () => {
@@ -14,6 +15,7 @@ const AddressSearchMultiple = ({ onChange }) => {
   }, [debounceTimeout]);
 
   const handleSearch = async (searchText) => {
+    setSearchText(searchText);
     clearTimeout(debounceTimeout); // Xóa timeout hiện tại
 
     // Nếu không có văn bản tìm kiếm, đặt options về mảng rỗng và trả về
@@ -68,6 +70,7 @@ const AddressSearchMultiple = ({ onChange }) => {
       setSelectedItems(newSelectedItems);
       onChange(newSelectedItems); // Pass complete data to parent
     }
+    setSearchText("");
   };
 
   const handleClose = (removedItem) => {
@@ -91,6 +94,7 @@ const AddressSearchMultiple = ({ onChange }) => {
         </Tag>
       ))}
       <AutoComplete
+        value={searchText}
         options={options}
         onSelect={handleSelect}
         onSearch={handleSearch}
