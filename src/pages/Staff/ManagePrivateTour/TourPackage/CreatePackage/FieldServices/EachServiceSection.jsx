@@ -197,6 +197,7 @@ const EachServiceSection = ({
                                   </h3>
                                   <RestaurantSection
                                     selectedDistrict={selectedDistrict}
+                                    selectedProvince={selectedProvince}
                                     request={request}
                                     basePath={[field.name]}
                                     form={form}

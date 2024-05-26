@@ -9,15 +9,21 @@ const getAllFacilityByFilter = async (data,pageNumber,pageSize) => {
       return []; 
     }
   };
-  const getAllFacilityByLocationAndRatingId = async (ratingId,data,pageNumber,pageSize) => {
+
+
+const getAllFacilityByLocationAndRatingId = async (ratingId, data, pageNumber, pageSize) => {
     try {
-      const response = await api.post(`/facility/get-all-facility-by-location-and-ratingId/${id}?pageNumber=${pageNumber}&pageSize=${pageSize}`,data);
-      return response.data;
+        const response = await api.post(
+            `/facility/get-all-facility-by-location-and-ratingId/${ratingId}?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+            data
+        );
+        return response.data;
     } catch (error) {
-      console.error('Error fetching provinces:', error);
-      return []; 
+        console.error('Error fetching facilities:', error);
+        return [];
     }
-  };
+};
+  
 const getServiceByFacilityId = async (facilityId,pageNumber,pageSize)=>{
   try {
     const response = await api.get(`/facility-service/get-service-by-facilityId/${facilityId}?pageNumber=${pageNumber}&pageSize=${pageSize}
