@@ -45,7 +45,6 @@ function TourRequestForm() {
   const [startCommuneId, setStartCommuneId] = useState("");
   const [mainLocation, setMainLocation] = useState("");
   const [mainDestinationId, setMainDestinationId] = useState("");
-  const [totalRooms, setTotalRooms] = useState(0);
 
   console.log("days", days);
   console.log("nights", nights);
