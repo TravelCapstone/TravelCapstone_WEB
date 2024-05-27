@@ -1,24 +1,19 @@
 import React, { useState } from "react";
-import {
-  Select,
-  Button,
-  Space,
-  DatePicker,
-  Input,
-  Card,
-  Typography,
-} from "antd";
+import { Select, Button, Space, DatePicker, Card, Typography } from "antd";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
 
 const { Title } = Typography;
+const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 function TourguideAssignment({ provinceList }) {
-  const [tourGuides, setTourGuides] = useState([]);
+  const [record, setRecord] = useState([]);
+  const [data, setData] = useState({}); // Store fetched data by province ID
 
   const addTourGuide = (provinceId) => {
-    setTourGuides((prevTourGuides) => [
+    setRecord((prevTourGuides) => [
       ...prevTourGuides,
       {
         provinceId,
@@ -30,13 +25,13 @@ function TourguideAssignment({ provinceList }) {
   };
 
   const removeTourGuide = (id) => {
-    setTourGuides((prevTourGuides) =>
+    setRecord((prevTourGuides) =>
       prevTourGuides.filter((guide) => guide.id !== id)
     );
   };
 
   const handleChangeTourGuideInfo = async (id, field, value) => {
-    setTourGuides((prevTourGuides) =>
+    setRecord((prevTourGuides) =>
       prevTourGuides.map((guide) =>
         guide.id === id ? { ...guide, [field]: value } : guide
       )
@@ -45,20 +40,30 @@ function TourguideAssignment({ provinceList }) {
     if (field === "dateRange") {
       const [startDate, endDate] = value;
       if (startDate && endDate) {
+        const provinceId = record.find((guide) => guide.id === id).provinceId;
         const response = await fetchAvailableTourGuides(
           startDate.toISOString(),
-          endDate.toISOString()
+          endDate.toISOString(),
+          provinceId
         );
-        console.log("Guide:", guide);
-        console.log("Response:", response);
+
+        if (response) {
+          setData((prevData) => ({
+            ...prevData,
+            [provinceId]: response.result.items,
+          }));
+        }
       }
     }
   };
-
-  const fetchAvailableTourGuides = async (startDate, endDate) => {
+  const logData = () => {
+    console.log("Current records:", record);
+  };
+  const fetchAvailableTourGuides = async (startDate, endDate, provinceId) => {
     try {
       const response = await axios.get(
-        `https://travel-be.azurewebsites.net/tour-guide-assignment/get-available-tour-guide/3f09967f-7a83-4084-9e21-ca0ac723b603?pageNumber=1&pageSize=10&startDate=${startDate}&endDate=${endDate}`
+        `https://travel-be.azurewebsites.net/tour-guide-assignment/get-available-tour-guide/5CDE5BFC-B286-459B-8CD1-1E560F87936A
+        ?pageNumber=1&pageSize=10&startDate=${startDate}&endDate=${endDate}`
       );
       return response.data;
     } catch (error) {
@@ -76,7 +81,7 @@ function TourguideAssignment({ provinceList }) {
         {provinceList.map((province) => (
           <Card
             key={province.provinceId}
-            className="m-4 w-full "
+            className="m-4 w-full"
             title={province.provinceName}
             extra={
               <Button
@@ -89,27 +94,45 @@ function TourguideAssignment({ provinceList }) {
             }
           >
             {(
-              tourGuides.filter(
+              record.filter(
                 (guide) => guide.provinceId === province.provinceId
               ) || []
             ).map((guide) => (
-              <div key={guide.id} className="mb-4 flex justify-between">
-                <DatePicker.RangePicker
-                  placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
-                  value={guide.dateRange}
-                  onChange={(dates) =>
-                    handleChangeTourGuideInfo(guide.id, "dateRange", dates)
-                  }
-                />
-                <Select
-                  placeholder="Chọn hướng dẫn viên"
-                  value={guide.selectedGuide}
-                  onChange={(value) =>
-                    handleChangeTourGuideInfo(guide.id, "selectedGuide", value)
-                  }
-                >
-                  {/* Options for selecting guides */}
-                </Select>
+              <div
+                key={guide.id}
+                className="mb-4 grid grid-cols-1 md:grid-cols-3"
+              >
+                <div className="md:px-10">
+                  <strong>Thời gian: </strong>
+                  <RangePicker
+                    placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
+                    value={guide.dateRange}
+                    onChange={(dates) =>
+                      handleChangeTourGuideInfo(guide.id, "dateRange", dates)
+                    }
+                  />
+                </div>
+                <div>
+                  <strong>Hướng dẫn viên: </strong>
+                  <Select
+                    placeholder="Chọn hướng dẫn viên"
+                    value={guide.selectedGuide}
+                    onChange={(value) =>
+                      handleChangeTourGuideInfo(
+                        guide.id,
+                        "selectedGuide",
+                        value
+                      )
+                    }
+                  >
+                    {(data[province.provinceId] || []).length > 0 &&
+                      data[province.provinceId].map((item, index) => (
+                        <Option key={index} value={item.id}>
+                          {`${item.firstName} ${item.lastName} - Tiền lương: 300.000đ/ngày`}
+                        </Option>
+                      ))}
+                  </Select>
+                </div>
                 <Button
                   danger
                   icon={<CloseOutlined />}
@@ -121,7 +144,7 @@ function TourguideAssignment({ provinceList }) {
         ))}
       </div>
       <Space className="mt-4">
-        <Button>Log dữ liệu</Button>
+        <Button onClick={logData}>Log dữ liệu</Button>
       </Space>
     </div>
   );

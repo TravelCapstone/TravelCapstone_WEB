@@ -18,7 +18,14 @@ const FoodAndBevarageAssignment = ({
     if (!updatedSelectedRestaurants[index]) {
       updatedSelectedRestaurants[index] = [];
     }
-    updatedSelectedRestaurants[index][restaurantIndex] = restaurant;
+    if (updatedSelectedRestaurants[index][restaurantIndex]) {
+      delete updatedSelectedRestaurants[index][restaurantIndex];
+      updatedSelectedRestaurants[index] = updatedSelectedRestaurants[
+        index
+      ].filter((item) => item !== undefined);
+    } else {
+      updatedSelectedRestaurants[index][restaurantIndex] = restaurant;
+    }
     setSelectedRestaurent(updatedSelectedRestaurants);
   };
 

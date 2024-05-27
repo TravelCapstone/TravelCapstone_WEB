@@ -12,13 +12,35 @@ const RestingAssignment = ({ data, privateTourResponse, setRestingData }) => {
   const [selectedHotels, setSelectedHotels] = useState([[]]);
 
   const log = (hotel, dataIndex, hotelIndex) => {
+    console.log("hotel", hotel);
+
+    // Clone the selectedHotels array to avoid direct state mutation
     const updatedSelectedHotels = [...selectedHotels];
+
+    // Ensure the dataIndex array exists
     if (!updatedSelectedHotels[dataIndex]) {
       updatedSelectedHotels[dataIndex] = [];
     }
-    updatedSelectedHotels[dataIndex][hotelIndex] = hotel;
+
+    // Check if the specific hotel entry already exists
+    if (updatedSelectedHotels[dataIndex][hotelIndex]) {
+      // Remove the hotel if it already exists
+      delete updatedSelectedHotels[dataIndex][hotelIndex];
+
+      // Optionally, clean up the array to remove any undefined entries
+      // This step ensures the array stays compact without gaps
+      updatedSelectedHotels[dataIndex] = updatedSelectedHotels[
+        dataIndex
+      ].filter((item) => item !== undefined);
+    } else {
+      // Assign the hotel if it does not already exist
+      updatedSelectedHotels[dataIndex][hotelIndex] = hotel;
+    }
+
+    // Update the state with the new array
     setSelectedHotels(updatedSelectedHotels);
   };
+
   console.log(selectedHotels);
   const convertData = (data) => {
     const provinces = {};

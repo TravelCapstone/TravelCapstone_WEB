@@ -143,7 +143,7 @@ const CreatePlanForm = ({
   }));
   console.log("provinceList", provinceList);
   return (
-    <div className="  p-4  bg-white">
+    <div className="  p-4  bg-white max-h-[680px]  overflow-y-auto">
       <h3 className="font-bold text-mainColor text-xl text-center">
         TẠO KẾ HOẠCH TOUR CHI TIẾT
       </h3>
@@ -152,7 +152,6 @@ const CreatePlanForm = ({
         name="createPlan"
         initialValues={{ remember: true }}
         onFinish={onFinish}
-        className="max-h-dvh  overflow-y-auto "
       >
         <Form.Item label="Phân loại">
           {optionQuotation && (
