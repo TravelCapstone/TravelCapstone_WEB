@@ -29,6 +29,7 @@ import {
 } from "../../../api/LocationApi";
 import AddressSearchMultiple from "../../../api/SearchAddress/SearchAddressMulti";
 import RoomTypeSection from "../RoomTypeSection";
+import { getAllFacilityRating } from "../../../api/FacilityApi";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -47,8 +48,11 @@ function TourRequestForm() {
   const [mainDestinationId, setMainDestinationId] = useState("");
   const [totalRooms, setTotalRooms] = useState(0);
 
-  console.log("days", days);
-  console.log("nights", nights);
+  const [hotelRatings, setHotelRatings] = useState([]);
+  const [restaurantRatings, setRestaurantRatings] = useState([]);
+
+  console.log("hotelRatings", hotelRatings);
+  console.log("restaurantRatings", restaurantRatings);
 
   useEffect(() => {
     if (selectedLocations.length === 1) {
@@ -57,6 +61,110 @@ function TourRequestForm() {
       setMainLocation(null);
     }
   }, [selectedLocations]);
+
+  const transformRatings = (ratings) => {
+    const hotelRatings = [];
+    const restaurantRatings = [];
+    const ratingMap = {};
+
+    ratings.forEach((rating) => {
+      let name = "";
+      switch (rating.ratingId) {
+        case 0:
+          name = "Nhà Nghỉ";
+          break;
+        case 1:
+          name = "Khách sạn 2 sao";
+          break;
+        case 2:
+          name = "Khách sạn 3 sao";
+          break;
+        case 3:
+          name = "Khách sạn 4 sao";
+          break;
+        case 4:
+          name = "Khách sạn 5 sao";
+          break;
+        case 5:
+          name = "Nhà hàng gia đình";
+          restaurantRatings.push({
+            value: rating.id,
+            label: name,
+            key: `${rating.ratingId}-${rating.id}`,
+          });
+          break;
+        case 6:
+          name = "Nhà hàng 2 sao";
+          restaurantRatings.push({
+            value: rating.id,
+            label: name,
+            key: `${rating.ratingId}-${rating.id}`,
+          });
+          break;
+        case 7:
+          name = "Nhà hàng 3 sao";
+          restaurantRatings.push({
+            value: rating.id,
+            label: name,
+            key: `${rating.ratingId}-${rating.id}`,
+          });
+          break;
+        case 8:
+          name = "Nhà hàng 4 sao";
+          restaurantRatings.push({
+            value: rating.id,
+            label: name,
+            key: `${rating.ratingId}-${rating.id}`,
+          });
+          break;
+        case 9:
+          name = "Nhà hàng 5 sao";
+          restaurantRatings.push({
+            value: rating.id,
+            label: name,
+            key: `${rating.ratingId}-${rating.id}`,
+          });
+          break;
+
+        default:
+          name = rating.rating.name;
+      }
+
+      // Check if the ratingId already exists in the map
+      if (!ratingMap[rating.ratingId]) {
+        ratingMap[rating.ratingId] = true;
+        if (![5, 6, 7, 8, 9].includes(rating.ratingId)) {
+          hotelRatings.push({
+            value: rating.id,
+            label: name,
+            key: `${rating.ratingId}-${rating.id}`,
+          });
+        }
+      }
+    });
+
+    return { hotelRatings, restaurantRatings };
+  };
+
+  useEffect(() => {
+    const fetchRatings = async () => {
+      const idHotel = 0; // Hotel
+      const idRestaurant = 1; // Restaurant
+
+      let hotelData = await getAllFacilityRating(idHotel);
+      let restaurantData = await getAllFacilityRating(idRestaurant);
+
+      const { hotelRatings, restaurantRatings } = transformRatings([
+        ...hotelData,
+        ...restaurantData,
+      ]);
+
+      setHotelRatings(hotelRatings);
+      setRestaurantRatings(restaurantRatings);
+    };
+
+    fetchRatings();
+  }, []);
 
   const calculateTotalRooms = () => {
     const values = form.getFieldsValue();
@@ -180,6 +288,8 @@ function TourRequestForm() {
       recommnendedTourUrl: formValues["recommnendedTourUrl"],
       note: formValues["note"],
       isEnterprise: formValues["isEnterprise"],
+      minimumHotelRatingId: formValues["minimumHotelRatingId"],
+      minimumRestaurantRatingId: formValues["minimumRestaurantRatingId"],
       roomQuantityDetailRequest: formValues["roomTypes"].map((loc) => ({
         quantityPerRoom: loc.RoomType,
         totalRoom: loc.totalRoom,
@@ -601,6 +711,66 @@ function TourRequestForm() {
             >
               <InputNumber min={0} onChange={calculateTotalRooms} />
             </Form.Item>
+          </div>
+          <div className="flex flex-wrap justify-between my-2">
+            <div>
+              {/* <p className="font-semibold text-lg mb-4">
+                Hạng thấp nhất của nơi lưu trú mong muốn:
+              </p> */}
+
+              <Form.Item
+                name="minimumHotelRatingId"
+                className="font-semibold"
+                label="Hạng thấp nhất của nơi lưu trú mong muốn:"
+                rules={[
+                  {
+                    required: true,
+                    message: "Chọn hạng thấp nhất của nơi lưu trú ",
+                  },
+                ]}
+              >
+                <Select
+                  placeholder="Chọn hạng thấp nhất của nơi lưu trú"
+                  showSearch
+                  style={{ width: "90%" }}
+                >
+                  {hotelRatings.map((rating) => (
+                    <Option key={rating.value} value={rating.value}>
+                      {rating.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <div>
+              {/* <p className="font-semibold text-lg mb-4">
+                Hạng thấp nhất của nơi ăn uống mong muốn:
+              </p> */}
+
+              <Form.Item
+                label="Hạng thấp nhất của nơi ăn uống mong muốn:"
+                name="minimumRestaurantRatingId"
+                className="font-semibold"
+                rules={[
+                  {
+                    required: true,
+                    message: "Chọn hạng thấp nhất của nơi ăn uống ",
+                  },
+                ]}
+              >
+                <Select
+                  placeholder="Chọn hạng thấp nhất của nơi ăn uống "
+                  showSearch
+                  style={{ width: "90%" }}
+                >
+                  {restaurantRatings.map((rating) => (
+                    <Option key={rating.value} value={rating.value}>
+                      {rating.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
           </div>
           <div>
             <p className="font-semibold text-lg mb-4">Loại phòng mong muốn:</p>

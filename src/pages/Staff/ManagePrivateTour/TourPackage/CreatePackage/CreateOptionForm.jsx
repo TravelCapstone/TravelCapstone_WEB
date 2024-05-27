@@ -467,13 +467,23 @@ function CreateOptionForm({ request }) {
   const parsedStartDate = startDate ? dayjs(startDate) : null;
   const parsedEndDate = endDate ? dayjs(endDate) : null;
 
+  const getDefaultPickerValue = () => {
+    if (!parsedStartDate || !parsedEndDate) {
+      return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
+    }
+    return parsedStartDate; // Sử dụng ngày bắt đầu của tourDate
+  };
+
   const handleStartDateChange = (dates) => {
     if (dates && dates[0]) {
       const start = dates[0];
       setStartDateChange(start);
       const numOfDays =
         request?.privateTourResponse?.numOfNight + (start.hour() >= 14 ? 1 : 0);
-      setEndDateChange(start.add(numOfDays, "day"));
+      setEndDateChange(start.clone().add(numOfDays, "day"));
+    } else {
+      setStartDateChange(null);
+      setEndDateChange(null);
     }
   };
 
@@ -595,6 +605,7 @@ function CreateOptionForm({ request }) {
                 className="!min-w-[300px] mr-10"
                 onCalendarChange={handleStartDateChange}
                 disabledDate={disableDates}
+                defaultPickerValue={getDefaultPickerValue()}
                 format={"DD/MM/YYYY"}
                 onOpenChange={(status) => {
                   // Additional handling if needed when picker opens/closes
@@ -622,11 +633,7 @@ function CreateOptionForm({ request }) {
                 priceInfo={priceInfo}
                 setPriceInfo={setPriceInfo}
                 form={form}
-                provinces={[
-                  request?.privateTourResponse?.startLocationCommune?.district
-                    ?.province,
-                  ...provinces,
-                ]}
+                provinces={provinces}
                 districts={districts}
                 onProvinceChange={handleProvinceChange}
                 setProvinces={setProvinces}
