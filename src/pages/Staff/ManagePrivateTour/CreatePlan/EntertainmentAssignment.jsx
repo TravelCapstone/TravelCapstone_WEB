@@ -1,15 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form } from "antd";
 import { formatPrice } from "../../../../utils/Util";
 import EntertainmentModal from "./Entertainment/EntertainmentModal";
 
-function EntertainmentAssignment({ data, privateTourResponse }) {
-  const [selectedEntertainment, setSelectedEntertainment] = useState([]);
+function EntertainmentAssignment({
+  data,
+  privateTourResponse,
+  setEntertainmentData,
+}) {
+  const [selectedEntertainment, setSelectedEntertainment] = useState([[]]);
 
-  const log = (selectedList) => {
-    setSelectedEntertainment(selectedList);
+  const log = (selectedList, index) => {
+    const updatedSelectedEntertainment = [...selectedEntertainment];
+    updatedSelectedEntertainment[index] = selectedList;
+    setSelectedEntertainment(updatedSelectedEntertainment);
   };
+  console.log(selectedEntertainment);
+  const convertData = (data) => {
+    const provinces = {};
 
+    data.flat().forEach((item) => {
+      const provinceId = item.province;
+
+      if (!provinces[provinceId]) {
+        provinces[provinceId] = {
+          provinceId: provinceId,
+          provinceName: item.provinceName, // Cần cập nhật tên tỉnh
+          services: [],
+        };
+      }
+
+      provinces[provinceId].services.push({
+        facilityService: {
+          id: item.facilityId,
+          name: item.facilityName,
+          address: item.address,
+        },
+      });
+    });
+
+    return Object.values(provinces);
+  };
+  const convertedData = convertData(selectedEntertainment);
+  console.log(JSON.stringify(convertedData, null, 2));
+  useEffect(() => {
+    setEntertainmentData(convertedData);
+  }, [selectedEntertainment]);
   return (
     <Form>
       <Form.List name="entertainments">
@@ -50,66 +86,32 @@ function EntertainmentAssignment({ data, privateTourResponse }) {
                           servingQuantity={item.servingQuantity}
                           serviceType={2}
                           ratingId={item.facilityRating?.id}
-                          log={log}
+                          log={(selectedList) => log(selectedList, index)}
                         />
                       </div>
-                      {selectedEntertainment.length > 0 &&
-                        selectedEntertainment.map((entertainment, entIndex) => (
-                          <div key={entIndex}>
-                            <div className="flex">
-                              <strong className="mr-2">Địa điểm: </strong>
-                              <p>
-                                {
-                                  entertainment?.sellPriceHistory
-                                    ?.facilityService?.facility.name
-                                }
-                              </p>
+                      {selectedEntertainment[index] &&
+                        selectedEntertainment[index].map(
+                          (entertainment, entIndex) => (
+                            <div key={entIndex}>
+                              <div className="flex">
+                                <strong className="mr-2">Địa điểm: </strong>
+                                <p>{entertainment?.facilityName}</p>
+                              </div>
+                              <div className="flex">
+                                <strong className="mr-2">Địa chỉ: </strong>
+                                <p>{entertainment?.address}</p>
+                              </div>
+                              <div className="flex">
+                                <strong className="mr-2">Tên dịch vụ: </strong>
+                                <p>{entertainment.serviceName}</p>
+                              </div>
+                              <div className="flex">
+                                <strong className="mr-2">Giá: </strong>
+                                <p>{entertainment.price}</p>
+                              </div>
                             </div>
-                            <div className="flex">
-                              <strong className="mr-2">Địa chỉ: </strong>
-                              <p>
-                                {
-                                  entertainment?.sellPriceHistory
-                                    ?.facilityService?.facility.address
-                                }
-                                ,{" "}
-                                {
-                                  entertainment?.sellPriceHistory
-                                    ?.facilityService?.facility.communce?.name
-                                }
-                                ,{" "}
-                                {
-                                  entertainment.sellPriceHistory
-                                    ?.facilityService?.facility.communce
-                                    ?.district?.name
-                                }
-                                ,{" "}
-                                {
-                                  entertainment?.sellPriceHistory
-                                    ?.facilityService?.facility.communce
-                                    ?.district.province?.name
-                                }
-                              </p>
-                            </div>
-                            <div className="flex">
-                              <strong className="mr-2">Tên dịch vụ: </strong>
-                              <p>
-                                {
-                                  entertainment.sellPriceHistory
-                                    ?.facilityService?.name
-                                }
-                              </p>
-                            </div>
-                            <div className="flex">
-                              <strong className="mr-2">Giá: </strong>
-                              <p>
-                                {formatPrice(
-                                  entertainment.sellPriceHistory?.price
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                     </div>
                   </div>
                 </div>

@@ -1,113 +1,127 @@
 import React, { useState } from "react";
-import { Select, Button, Space } from "antd";
+import {
+  Select,
+  Button,
+  Space,
+  DatePicker,
+  Input,
+  Card,
+  Typography,
+} from "antd";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
+import axios from "axios";
+import moment from "moment";
 
-function TourguideAssignment(props) {
-  const [tourGuides, setTourGuides] = useState([
-    {
-      id: 1,
-      name: "Nguyễn Văn A",
-      phone: "SĐT: ...",
-      cost: "500.000/ngày",
-      location: "Lâm Đồng",
-    },
-  ]);
+const { Title } = Typography;
 
-  const handleAddTourGuide = () => {
-    setTourGuides([
-      ...tourGuides,
+function TourguideAssignment({ provinceList }) {
+  const [tourGuides, setTourGuides] = useState([]);
+
+  const addTourGuide = (provinceId) => {
+    setTourGuides((prevTourGuides) => [
+      ...prevTourGuides,
       {
-        id: tourGuides.length + 1,
-        name: "",
-        phone: "",
-        cost: "",
-        location: "",
+        provinceId,
+        id: prevTourGuides.length + 1,
+        dateRange: [null, null],
+        selectedGuide: null,
       },
     ]);
   };
 
-  const handleRemoveTourGuide = (id) => {
+  const removeTourGuide = (id) => {
     setTourGuides((prevTourGuides) =>
       prevTourGuides.filter((guide) => guide.id !== id)
     );
   };
 
-  const handleChangeTourGuideInfo = (id, field, value) => {
-    setTourGuides(
-      tourGuides.map((guide) =>
+  const handleChangeTourGuideInfo = async (id, field, value) => {
+    setTourGuides((prevTourGuides) =>
+      prevTourGuides.map((guide) =>
         guide.id === id ? { ...guide, [field]: value } : guide
       )
     );
+
+    if (field === "dateRange") {
+      const [startDate, endDate] = value;
+      if (startDate && endDate) {
+        const response = await fetchAvailableTourGuides(
+          startDate.toISOString(),
+          endDate.toISOString()
+        );
+        console.log("Guide:", guide);
+        console.log("Response:", response);
+      }
+    }
   };
 
-  const handleGetData = () => {
-    console.log("Tour Guides:", tourGuides);
+  const fetchAvailableTourGuides = async (startDate, endDate) => {
+    try {
+      const response = await axios.get(
+        `https://travel-be.azurewebsites.net/tour-guide-assignment/get-available-tour-guide/3f09967f-7a83-4084-9e21-ca0ac723b603?pageNumber=1&pageSize=10&startDate=${startDate}&endDate=${endDate}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching available tour guides:", error);
+      return null;
+    }
   };
 
   return (
     <div className="my-16">
-      <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
+      <h3 className="text-mainColor font-bold text-xl border-b-2">
         THÔNG TIN HƯỚNG DẪN VIÊN
-      </h2>
-      <div className="flex flex-col justify-center items-center">
-        {tourGuides.map((guide) => (
-          <div
-            key={guide.id}
-            className="relative flex flex-col mb-4 w-full max-w-lg"
+      </h3>
+      <div className="flex flex-wrap justify-center">
+        {provinceList.map((province) => (
+          <Card
+            key={province.provinceId}
+            className="m-4 w-full "
+            title={province.provinceName}
+            extra={
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => addTourGuide(province.provinceId)}
+              >
+                Thêm hướng dẫn viên
+              </Button>
+            }
           >
-            <div className="flex flex-col justify-evenly items-center">
-              <div className="flex items-center justify-evenly w-full mb-2">
-                <span className="font-bold w-1/2 text-center">
-                  Tên hướng dẫn viên
-                </span>
-                <p className="font-bold w-1/2 text-center">
-                  Nơi hướng dẫn du lịch
-                </p>
-              </div>
-              <div className="flex items-center w-full">
+            {(
+              tourGuides.filter(
+                (guide) => guide.provinceId === province.provinceId
+              ) || []
+            ).map((guide) => (
+              <div key={guide.id} className="mb-4 flex justify-between">
+                <DatePicker.RangePicker
+                  placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
+                  value={guide.dateRange}
+                  onChange={(dates) =>
+                    handleChangeTourGuideInfo(guide.id, "dateRange", dates)
+                  }
+                />
                 <Select
-                  className="w-1/2"
-                  value={`${guide.name} ${guide.phone} Tiền công: ${guide.cost}`}
+                  placeholder="Chọn hướng dẫn viên"
+                  value={guide.selectedGuide}
                   onChange={(value) =>
-                    handleChangeTourGuideInfo(guide.id, "name", value)
+                    handleChangeTourGuideInfo(guide.id, "selectedGuide", value)
                   }
                 >
-                  <Select.Option
-                    value={`${guide.name} ${guide.phone} Tiền công: ${guide.cost}`}
-                  >
-                    {`${guide.name} ${guide.phone} Tiền công: ${guide.cost}`}
-                  </Select.Option>
+                  {/* Options for selecting guides */}
                 </Select>
-                <Select
-                  className="w-1/2 ml-4"
-                  value={guide.location}
-                  onChange={(value) =>
-                    handleChangeTourGuideInfo(guide.id, "location", value)
-                  }
-                >
-                  <Select.Option value={guide.location}>
-                    {guide.location}
-                  </Select.Option>
-                </Select>
+                <Button
+                  danger
+                  icon={<CloseOutlined />}
+                  onClick={() => removeTourGuide(guide.id)}
+                />
               </div>
-            </div>
-            <Button
-              className="absolute top-0 right-0 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full"
-              icon={<CloseOutlined />}
-              onClick={() => handleRemoveTourGuide(guide.id)}
-            />
-          </div>
+            ))}
+          </Card>
         ))}
       </div>
       <Space className="mt-4">
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAddTourGuide}
-        >
-          Thêm hướng dẫn viên
-        </Button>
-        <Button onClick={handleGetData}>Log dữ liệu</Button>
+        <Button>Log dữ liệu</Button>
       </Space>
     </div>
   );

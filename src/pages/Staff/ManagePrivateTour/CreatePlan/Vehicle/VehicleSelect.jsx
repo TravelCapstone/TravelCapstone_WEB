@@ -13,8 +13,9 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
   const [endDate, setEndDate] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [availableDrivers, setAvailableDrivers] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(false);
   const fetchData = async () => {
+    setIsLoading(true);
     const data = await getPriceForVehicle(1, 10, {
       firstLocation: {
         provinceId: startPoint,
@@ -39,6 +40,7 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
     if (driverData.isSuccess) {
       setAvailableDrivers(driverData.result?.items);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -76,6 +78,7 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
               className="w-9/12"
               onChange={(value) => setSelectedVehicle(value)}
               value={selectedVehicle}
+              loading={isLoading}
             >
               {Array.isArray(listVehiclePrice) &&
                 listVehiclePrice.length > 0 &&
@@ -114,7 +117,7 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
             </div> */}
             <div className="flex my-4">
               <Text className="w-3/12">Chọn tài xế</Text>
-              <Select className="w-9/12">
+              <Select className="w-9/12" loading={availableDrivers.length < 0}>
                 {availableDrivers &&
                   availableDrivers.length > 0 &&
                   availableDrivers.map((driver) => (

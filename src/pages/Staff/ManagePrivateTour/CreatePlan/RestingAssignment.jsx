@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Input, Button } from "antd";
 import HotelModal from "./HotelModal/HotelModal";
 import {
@@ -8,8 +8,9 @@ import {
 } from "../../../../utils/Util";
 import { ratingLabels } from "../../../../settings/globalStatus";
 
-const RestingAssignment = ({ data, privateTourResponse }) => {
+const RestingAssignment = ({ data, privateTourResponse, setRestingData }) => {
   const [selectedHotels, setSelectedHotels] = useState([[]]);
+
   const log = (hotel, dataIndex, hotelIndex) => {
     const updatedSelectedHotels = [...selectedHotels];
     if (!updatedSelectedHotels[dataIndex]) {
@@ -18,6 +19,37 @@ const RestingAssignment = ({ data, privateTourResponse }) => {
     updatedSelectedHotels[dataIndex][hotelIndex] = hotel;
     setSelectedHotels(updatedSelectedHotels);
   };
+  console.log(selectedHotels);
+  const convertData = (data) => {
+    const provinces = {};
+
+    data.flat().forEach((item) => {
+      const provinceId = item.province;
+
+      if (!provinces[provinceId]) {
+        provinces[provinceId] = {
+          provinceId: provinceId,
+          provinceName: item.provinceName, // Cần cập nhật tên tỉnh
+          services: [],
+        };
+      }
+
+      provinces[provinceId].services.push({
+        facilityService: {
+          id: item.facilityId,
+          name: item.facilityName,
+          address: item.address,
+        },
+      });
+    });
+
+    return Object.values(provinces);
+  };
+  const convertedData = convertData(selectedHotels);
+  console.log(JSON.stringify(convertedData, null, 2));
+  useEffect(() => {
+    setRestingData(convertedData);
+  }, [selectedHotels]);
   return (
     <Form>
       <Form.List name="hotels">
