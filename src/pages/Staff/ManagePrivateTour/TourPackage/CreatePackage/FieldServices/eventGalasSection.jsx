@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Form, InputNumber, Button, Space, Select, Modal, Table } from "antd";
+import {
+  Form,
+  InputNumber,
+  Button,
+  Space,
+  Select,
+  Modal,
+  Table,
+  DatePicker,
+} from "antd";
 import {
   DeleteOutlined,
   MinusCircleOutlined,
@@ -46,16 +55,33 @@ const EventGalasSection = ({
   useEffect(() => {
     fetchEvents();
   }, [quantity]);
+
   const handleSelectEvent = (event) => {
     form.setFieldsValue({
-      [selectedPackage]: event.id,
+      eventGala: {
+        eventId: event.event.id,
+      },
     });
     setModalVisible(false);
   };
+
   const handleSelectChange = (value) => {
     const event = events.find((e) => e.event.id === value);
     setSelectedEvent(event);
+    form.setFieldsValue({
+      eventGala: {
+        eventId: value,
+      },
+    });
     showModal(value);
+  };
+
+  const handleDateChange = (date) => {
+    form.setFieldsValue({
+      eventGala: {
+        date: date,
+      },
+    });
   };
 
   const columns = [
@@ -128,14 +154,15 @@ const EventGalasSection = ({
         className="flex justify-between"
         align="baseline"
       >
-        <div className="flex">
+        <div className="flex ">
           <div>
-            <div className="Options my-4">
-              <div className="Option2 my-4">
+            <div className="Options ">
+              <div className="Option2">
                 <div className="flex">
                   <Form.Item
                     className="font-semibold my-2"
                     label="Gói Event/Game:"
+                    name={["eventGala", "eventId"]}
                   >
                     <Select
                       placeholder="Gói Event/Game"
@@ -156,6 +183,16 @@ const EventGalasSection = ({
                   >
                     Xem chi tiết
                   </Button>
+                  <Form.Item
+                    name={["eventGala", "date"]}
+                    className="font-semibold ml-10 my-2"
+                    label="Ngày tổ chức:"
+                    rules={[
+                      { required: true, message: " Vui lòng chọn thời gian!" },
+                    ]}
+                  >
+                    <DatePicker showTime onChange={handleDateChange} />
+                  </Form.Item>
                 </div>
               </div>
             </div>

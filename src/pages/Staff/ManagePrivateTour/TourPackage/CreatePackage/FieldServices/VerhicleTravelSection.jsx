@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Form, InputNumber, Button, Select, Space, DatePicker } from "antd";
+import {
+  Form,
+  InputNumber,
+  Button,
+  Select,
+  Space,
+  DatePicker,
+  Input,
+} from "antd";
 import {
   DeleteOutlined,
   MinusCircleOutlined,
@@ -24,6 +32,58 @@ const VerhicleTravelSection = ({
 }) => {
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
+
+  const calculateNumOfVehicle = (vehicleType) => {
+    const totalPassengers =
+      request?.privateTourResponse?.numOfAdult +
+      request?.privateTourResponse?.numOfChildren;
+    let seats;
+
+    switch (vehicleType) {
+      case 0:
+        seats = 44;
+        break;
+      case 1:
+        seats = 29;
+        break;
+      case 2:
+        seats = 14;
+        break;
+      case 3:
+        seats = 6;
+        break;
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+      default:
+        return 0;
+    }
+
+    return Math.ceil(totalPassengers / seats);
+  };
+
+  const onVehicleTypeChange = (index, value, name) => {
+    const newTravelOptions = [...form.getFieldValue("travelOptions")];
+    newTravelOptions[index] = {
+      ...newTravelOptions[index],
+      vehicleType: value,
+      numOfVehicle: calculateNumOfVehicle(value),
+    };
+    // Update selected provinces
+    form.setFieldsValue({ travelOptions: newTravelOptions });
+    handleProvinceChange(index, value, name);
+    fetchVehiclePriceRange(index);
+  };
+
+  useEffect(() => {
+    form.setFieldsValue({
+      travelOptions: form.getFieldValue("travelOptions").map((option) => ({
+        ...option,
+        numOfVehicle: calculateNumOfVehicle(option.vehicleType),
+      })),
+    });
+  }, [form]);
 
   // get giá verhicle
   const fetchVehiclePriceRange = async (index) => {
@@ -170,34 +230,43 @@ const VerhicleTravelSection = ({
                         />
                       </Form.Item>
                     </div>
-                    <div className="flex flex-wrap">
-                      <Form.Item
-                        className=" font-semibold"
-                        label="Phương tiện du lịch:"
-                        name={[name, "vehicleType"]}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please select a vehicle",
-                          },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Chọn phương tiện"
-                          className="!w-[200px] mr-10"
-                          onChange={(value) =>
-                            handleProvinceChange(index, value, "vehicleType")
-                          }
+                    <div className="">
+                      <div className="flex flex-wrap">
+                        <Form.Item
+                          className=" font-semibold"
+                          label="Phương tiện du lịch:"
+                          name={[name, "vehicleType"]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select a vehicle",
+                            },
+                          ]}
                         >
-                          {Object.entries(servingVehiclesQuantity).map(
-                            ([key, label]) => (
-                              <Option key={key} value={parseInt(key, 10)}>
-                                {label}
-                              </Option>
-                            )
-                          )}
-                        </Select>
-                      </Form.Item>
+                          <Select
+                            placeholder="Chọn phương tiện"
+                            className="!w-[200px] mr-10"
+                            onChange={(value) =>
+                              onVehicleTypeChange(index, value, name)
+                            }
+                          >
+                            {Object.entries(servingVehiclesQuantity).map(
+                              ([key, label]) => (
+                                <Option key={key} value={parseInt(key, 10)}>
+                                  {label}
+                                </Option>
+                              )
+                            )}
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          className="font-semibold "
+                          label="Số lượng phương tiện:"
+                          name={[name, "numOfVehicle"]}
+                        >
+                          <Input readOnly disabled className="w-[100px]" />
+                        </Form.Item>
+                      </div>
                       {priceInfo[index] && (
                         <div className="flex font-semibold text-gray-500 mr-10">
                           <h3 className="text-lg mr-3">Khoảng giá: </h3>

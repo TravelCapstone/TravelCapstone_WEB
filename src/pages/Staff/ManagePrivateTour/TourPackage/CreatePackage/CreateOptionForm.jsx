@@ -38,6 +38,7 @@ const { Option } = Select;
 
 function CreateOptionForm({ request }) {
   const [form] = Form.useForm();
+  const [formValues, setFormValues] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
 
@@ -64,6 +65,14 @@ function CreateOptionForm({ request }) {
 
   console.log("salaryInfo", salaryInfo);
   console.log("numOfDaysLoging", numOfDaysLoging);
+
+  useEffect(() => {
+    form.setFieldsValue(formValues);
+  }, [formValues]);
+
+  const onValuesChange = (changedValues, allValues) => {
+    setFormValues(allValues);
+  };
 
   useEffect(() => {
     const fetchSalary = async () => {
@@ -112,8 +121,6 @@ function CreateOptionForm({ request }) {
 
   // get giá verhicle
   const fetchVehiclePriceRange = async (index) => {
-    // debugger;
-
     const quantity =
       request?.privateTourResponse?.numOfAdult +
       request?.privateTourResponse?.numOfChildren;
@@ -125,7 +132,6 @@ function CreateOptionForm({ request }) {
       !values.dateRange ||
       !quantity
     ) {
-      debugger;
       return;
     }
     const startDate = values.dateRange[0].toISOString();
@@ -243,33 +249,20 @@ function CreateOptionForm({ request }) {
       endPointDistrict: vehicle.endPointDistrict,
       startDate: vehicle.dateRange[0],
       endDate: vehicle.dateRange[1],
-      numOfVehicle: 1, // Assuming default of 1, adjust based on your logic
-      optionClass1: 0, // Default or derived value
-      optionClass2: 0, // Default or derived value
-      optionClass3: 0, // Default or derived value
+      numOfVehicle: vehicle.numOfVehicle,
     }));
 
     travelOptions.forEach((option) => {
-      let found = vehicles.find((v) => v.startPoint === option.provinceId);
-      if (found) {
-        // Update existing vehicle if found
-        found.endDate = option.dateRange[1]; // Adjust end date based on new info
-      } else {
-        // Add new vehicle if not found
-        vehicles.push({
-          vehicleType: option.vehicleType,
-          startPoint: option.provinceId,
-          startPointDistrict: "", // Assuming value to be filled or left blank
-          endPoint: "", // Assuming value to be filled or left blank
-          endPointDistrict: "", // Assuming value to be filled or left blank
-          startDate: option.dateRange[0],
-          endDate: option.dateRange[1],
-          numOfVehicle: 1,
-          optionClass1: 0,
-          optionClass2: 0,
-          optionClass3: 0,
-        });
-      }
+      vehicles.push({
+        vehicleType: option.vehicleType,
+        startPoint: option.provinceId,
+        startPointDistrict: "", // Assuming value to be filled or left blank
+        endPoint: "", // Assuming value to be filled or left blank
+        endPointDistrict: "", // Assuming value to be filled or left blank
+        startDate: option.dateRange[0],
+        endDate: option.dateRange[1],
+        numOfVehicle: option.numOfVehicle,
+      });
     });
 
     return vehicles;
@@ -282,105 +275,6 @@ function CreateOptionForm({ request }) {
       values.transportation,
       values.travelOptions
     );
-
-    const restaurantsApiPayload =
-      values.restaurants && Array.isArray(values.restaurants)
-        ? values.restaurants.map((restaurant) => {
-            const menuQuotations = restaurant.days.map((day) => ({
-              date: restaurant.date, // Ensure 'date' is formatted correctly or use a fallback
-              breakfastMenuOption1:
-                day.meal === "breakfast" ? day.economyMenu : undefined,
-              breakfastMenuOption2:
-                day.meal === "breakfast" ? day.basicMenu : undefined,
-              breakfastMenuOption3:
-                day.meal === "breakfast" ? day.advancedMenu : undefined,
-              lunchMenuOption1:
-                day.meal === "lunch" ? day.economyMenu : undefined,
-              lunchMenuOption2:
-                day.meal === "lunch" ? day.basicMenu : undefined,
-              lunchMenuOption3:
-                day.meal === "lunch" ? day.advancedMenu : undefined,
-              dinnerMenuOption1:
-                day.meal === "dinner" ? day.economyMenu : undefined,
-              dinnerMenuOption2:
-                day.meal === "dinner" ? day.basicMenu : undefined,
-              dinnerMenuOption3:
-                day.meal === "dinner" ? day.advancedMenu : undefined,
-            }));
-            return {
-              districtId: restaurant.districtId,
-              menuQuotations: menuQuotations.filter((quotation) =>
-                Object.values(quotation).some((v) => v !== undefined)
-              ),
-            };
-          })
-        : [];
-
-    const buildEntertainmentsPayload = (entertainments) => {
-      // First, check if the entertainments array is defined and is an array
-      if (!Array.isArray(entertainments)) {
-        console.warn(
-          "Invalid or undefined entertainments data:",
-          entertainments
-        );
-        return []; // Return an empty array or handle the error as appropriate
-      }
-
-      // Proceed to map over the entertainments array safely
-      return entertainments
-        .map((service) => {
-          // Check if all necessary properties are present in the service object
-          if (
-            service &&
-            service.districtId !== undefined &&
-            service.quantityLocationOption1 !== undefined &&
-            service.quantityLocationOption2 !== undefined &&
-            service.quantityLocationOption3 !== undefined
-          ) {
-            return {
-              districtId: service.districtId,
-              quantityLocationOption1: service.quantityLocationOption1,
-              quantityLocationOption2: service.quantityLocationOption2,
-              quantityLocationOption3: service.quantityLocationOption3,
-            };
-          } else {
-            console.warn("Missing data in service object:", service);
-            return undefined; // Or handle this case with a default object or error handling
-          }
-        })
-        .filter((item) => item !== undefined); // Filter out undefined items if any were returned
-    };
-
-    const buildEventGalasPayload = (galas) => {
-      // Check if galas is defined and an array
-      if (!Array.isArray(galas)) {
-        console.warn("Invalid or undefined galas data:", galas);
-        return [];
-      }
-
-      return galas
-        .map((service) => {
-          // Ensure that all required properties are present
-          if (
-            !service.option1EventId ||
-            !service.option2EventId ||
-            !service.option3EventId
-          ) {
-            console.warn("Missing event IDs in gala data:", service);
-            return null; // Return null and filter out later, or handle this case differently
-          }
-
-          return {
-            date: service.galaDate, // Make sure galaDate is the correct property name
-            option1EventId: service.option1EventId,
-            option2EventId: service.option2EventId,
-            option3EventId: service.option3EventId,
-          };
-        })
-        .filter((item) => item !== null); // Remove any null items if properties were missing
-    };
-
-    const insuranceData = values.insurance[0];
 
     // Create a unified array for all tour guide costs
     const tourGuideCosts = [];
@@ -404,6 +298,16 @@ function CreateOptionForm({ request }) {
       });
     });
 
+    const filterNumOfSingleRoom =
+      request.privateTourResponse?.roomDetails.filter(
+        (room) => room.quantityPerRoom === 2
+      );
+
+    const filterNumOfDoubleRoom =
+      request.privateTourResponse?.roomDetails.filter(
+        (room) => room.quantityPerRoom === 4
+      );
+
     const apiPayload = {
       startDate: values.tourDate[0], //ok
       endDate: values.tourDate[1], //ok
@@ -412,29 +316,62 @@ function CreateOptionForm({ request }) {
         materialPriceHistoryId: material.materialId, //ok
         quantity: material.quantity, //ok
       })),
-      assurancePriceHistoryOption1Id: insuranceData.insurance0, // OK
-      assurancePriceHistoryOption2Id: insuranceData.insurance1, // OK
-      assurancePriceHistoryOption3Id: insuranceData.insurance2, // OK
+      assurancePriceHistoryOptionId: values.insurance, // OK
+
       organizationCost: values?.organizationCost || 0, // ok
-      contigencyFeePerPerson: values.contigencyFeePerPerson || 0, // ok
+      contingencyFee: values.contigencyFeePerPerson || 0, // ok
       escortFee: values.escortFee || 0, // ok
       operatingFee: values.operatingFee || 0, // ok
+      assurancePricePerPerson: values.assurancePricePerPerson || 0, // ok
       privateTourRequestId: request?.privateTourResponse?.id, // ok
+      eventGalas: [
+        {
+          date: values.eventGala.date,
+          eventId: values.eventGala.eventId,
+          customEvent: "string",
+        },
+      ],
       provinceServices: values.provinceServices.map((service) => ({
-        hotels: service.hotels.map((hotel) => ({
+        hotels: service?.hotels?.map((hotel) => ({
           districtId: service.districtId, //ok
           startDate: hotel.stayDatesLoging[0], //ok
           endDate: hotel.stayDatesLoging[1], //ok
-          servingQuantity: hotel.roomType, //ok
-          numOfRoom: hotel.numOfRoom, //ok
+          numOfDoubleRoom: filterNumOfDoubleRoom[0].totalRoom,
+          numOfSingleRoom: filterNumOfSingleRoom[0].totalRoom,
           hotelOptionRatingOption1: hotel.hotelOptionRatingOption1, //ok
           hotelOptionRatingOption2: hotel.hotelOptionRatingOption2, //ok
           hotelOptionRatingOption3: hotel.hotelOptionRatingOption3, //ok
         })),
 
-        restaurants: restaurantsApiPayload, //ok
-        entertainments: buildEntertainmentsPayload(values.entertainments),
-        eventGalas: buildEventGalasPayload(values.eventGalas),
+        restaurants: service?.restaurants?.map((restaurant) => {
+          const menuQuotations = restaurant.days.reduce((acc, day) => {
+            const date = restaurant.date;
+            ["economyMenu", "basicMenu", "advancedMenu"].forEach(
+              (menuType, index) => {
+                if (day[menuType] && day[menuType].length > 0) {
+                  acc.push({
+                    date,
+                    option: index,
+                    menuId: day[menuType],
+                  });
+                }
+              }
+            );
+            return acc;
+          }, []);
+
+          return {
+            districtId: service.districtId,
+            menuQuotations: menuQuotations,
+          };
+        }),
+
+        entertainments: service.entertainments.map((enter) => ({
+          districtId: service.districtId, //ok
+          quantityLocationOption1: enter.quantityLocation1, //ok
+          quantityLocationOption2: enter.quantityLocation2, //ok
+          quantityLocationOption3: enter.quantityLocation3, //ok
+        })),
       })),
       vehicles: vehicles, // ok
     };
@@ -630,6 +567,7 @@ function CreateOptionForm({ request }) {
                 Phương tiện di chuyển
               </h3>
               <TransportationSection
+                request={request}
                 priceInfo={priceInfo}
                 setPriceInfo={setPriceInfo}
                 form={form}
@@ -708,6 +646,33 @@ function CreateOptionForm({ request }) {
                 setProvinces={setProvinces}
               />
             </div>
+
+            <div>
+              <h3 className="font-bold text-lg my-6 text-mainColor">
+                Gói Bảo Hiểm
+              </h3>
+              <InsuranceSection
+                // basePath={[field.name]}
+                request={request}
+                form={form}
+                provinces={provinces}
+                districts={districts}
+                onProvinceChange={handleProvinceChange2}
+                setProvinces={setProvinces}
+              />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg my-6 text-mainColor">
+                Gói GALA/ TEAMBULDING
+              </h3>
+              <EventGalasSection
+                request={request}
+                form={form}
+                provinces={provinces}
+                districts={districts}
+                setProvinces={setProvinces}
+              />
+            </div>
             {/* MATERIAL COST */}
             <div>
               <h3 className="font-bold text-lg my-2 text-mainColor">
@@ -768,32 +733,7 @@ function CreateOptionForm({ request }) {
           </div>
 
           <hr />
-          <div>
-            <h3 className="font-bold text-lg my-6 text-mainColor">
-              Gói Bảo Hiểm
-            </h3>
-            <InsuranceSection
-              // basePath={[field.name]}
-              request={request}
-              form={form}
-              provinces={provinces}
-              districts={districts}
-              onProvinceChange={handleProvinceChange2}
-              setProvinces={setProvinces}
-            />
-          </div>
-          <div>
-            <h3 className="font-bold text-lg my-6 text-mainColor">
-              Gói GALA/ TEAMBULDING
-            </h3>
-            <EventGalasSection
-              request={request}
-              form={form}
-              provinces={provinces}
-              districts={districts}
-              setProvinces={setProvinces}
-            />
-          </div>
+
           <div className="my-12 ">
             <h3 className="font-bold text-2xl  ">GIÁ DỰ KIẾN CỦA GÓI</h3>
             <ExpectedPriceOption />

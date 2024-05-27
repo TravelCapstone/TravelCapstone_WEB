@@ -112,7 +112,7 @@ const LodgingSection = ({
 
       setPriceData((prev) => ({
         ...prev,
-        [ratingId]: priceInfo.result.items,
+        [filteredRatingID[0].facilityRating.ratingId]: priceInfo.result.items,
       }));
     } catch (error) {
       console.error("Error fetching hotel prices:", error);
@@ -174,8 +174,18 @@ const LodgingSection = ({
 
   useEffect(() => {
     Object.values(selectedOptions).forEach((option) => {
-      if (option) {
-        fetchPriceData(option);
+      const filteredFacilities = facilities.filter(
+        (facility) =>
+          facility.communce.districtId === selectedDistrict &&
+          facility.facilityRating.ratingId === option
+      );
+      if (filteredFacilities) {
+        fetchPriceData(
+          selectedDistrict,
+          privatetourRequestId,
+          filteredFacilities[0]?.id,
+          numOfDaysLoging
+        );
       }
     });
   }, [selectedOptions]);
@@ -197,7 +207,6 @@ const LodgingSection = ({
     if (!tourDate || tourDate.length < 2) {
       return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
     }
-    debugger;
     return tourDate[0]; // Sử dụng ngày bắt đầu của tourDate
   };
 
@@ -281,7 +290,10 @@ const LodgingSection = ({
                             disabled={disableOptions}
                           >
                             {filteredFacilities.map((facility) => (
-                              <Option key={facility.id} value={facility.id}>
+                              <Option
+                                key={facility.id}
+                                value={facility.facilityRating.ratingId}
+                              >
                                 {facility.name} - {facility.description}
                               </Option>
                             ))}
@@ -314,7 +326,10 @@ const LodgingSection = ({
                             disabled={disableOptions}
                           >
                             {filteredFacilities.map((facility) => (
-                              <Option key={facility.id} value={facility.id}>
+                              <Option
+                                key={facility.id}
+                                value={facility.facilityRating.ratingId}
+                              >
                                 {facility.name} - {facility.description}
                               </Option>
                             ))}
@@ -347,7 +362,10 @@ const LodgingSection = ({
                             disabled={disableOptions}
                           >
                             {filteredFacilities.map((facility) => (
-                              <Option key={facility.id} value={facility.id}>
+                              <Option
+                                key={facility.id}
+                                value={facility.facilityRating.ratingId}
+                              >
                                 {facility.name} - {facility.description}
                               </Option>
                             ))}

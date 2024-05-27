@@ -77,6 +77,7 @@ const DaySection = ({
 
   console.log("menuStates", menuStates);
   console.log("selectedMeals", selectedMeals);
+  console.log("selfServeStates", selfServeStates);
 
   const handleFacilityChange = async (fieldKey, facilityId) => {
     const fetchedMenus = await fetchMenus(facilityId);
@@ -151,6 +152,7 @@ const DaySection = ({
     setSelfServeStates((prevStates) => ({
       ...prevStates,
       [fieldKey]: value,
+      value,
     }));
 
     if (value) {
@@ -228,7 +230,11 @@ const DaySection = ({
       render: (_, record) => (
         <Form.Item
           name={[record.name, "RatingId"]}
-          rules={[{ required: true, message: "Please select a RatingId!" }]}
+          rules={
+            !selfServeStates.value
+              ? [{ required: true, message: "Please select a RatingId!" }]
+              : []
+          }
           style={{ margin: 0 }}
         >
           <Select
@@ -253,7 +259,11 @@ const DaySection = ({
       render: (_, record) => (
         <Form.Item
           name={[record.name, "facilityId"]}
-          rules={[{ required: true, message: "Please select a name!" }]}
+          rules={
+            !selfServeStates.value
+              ? [{ required: true, message: "Please select name!" }]
+              : []
+          }
           style={{ margin: 0 }}
         >
           <Select
@@ -284,9 +294,11 @@ const DaySection = ({
       render: (_, record) => (
         <Form.Item
           name={[record.name, "servingQuantity"]}
-          rules={[
-            { required: true, message: "Please select a serving quantity!" },
-          ]}
+          rules={
+            !selfServeStates.value
+              ? [{ required: true, message: "Please select servingQuantity!" }]
+              : []
+          }
           style={{ margin: 0 }}
         >
           <Select
