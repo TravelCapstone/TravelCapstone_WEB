@@ -34,7 +34,6 @@ const CustomSurchangeSection = ({ form, quantity }) => {
       >
         <InputNumber />
       </Form.Item>
-
       <Form.Item
         label="Phí dự phòng mỗi người"
         name="contigencyFeePerPerson"
@@ -49,7 +48,6 @@ const CustomSurchangeSection = ({ form, quantity }) => {
       >
         <InputNumber />
       </Form.Item>
-
       <Form.Item
         label="Phí khác"
         name="escortFee"
@@ -64,7 +62,6 @@ const CustomSurchangeSection = ({ form, quantity }) => {
       >
         <InputNumber />
       </Form.Item>
-
       <Form.Item
         label="Phí vận hành"
         name="operatingFee"
@@ -74,6 +71,20 @@ const CustomSurchangeSection = ({ form, quantity }) => {
             min: fees?.minOperatingFee,
             max: fees?.maxOperatingFee,
             message: `Phí vận hành phải nằm trong khoảng từ ${formatPrice(fees?.minOperatingFee)} đến ${formatPrice(fees?.maxOperatingFee)}`,
+          },
+        ]}
+      >
+        <InputNumber />
+      </Form.Item>
+      <Form.Item
+        label="Phí bảo hiểm trên đầu người"
+        name="assurancePricePerPerson"
+        rules={[
+          {
+            type: "number",
+            min: fees?.minAssurancePricePerPerson,
+            max: fees?.maxAssurancePricePerPerson,
+            message: `Phí vận hành phải nằm trong khoảng từ ${formatPrice(fees?.minAssurancePricePerPerson)} đến ${formatPrice(fees?.maxAssurancePricePerPerson)}`,
           },
         ]}
       >

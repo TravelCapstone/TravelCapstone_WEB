@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, InputNumber, Button, Space, Select, Modal } from "antd"; // Import Modal
+import { Form, InputNumber, Button, Space, Select, Modal, Input } from "antd"; // Import Modal
 import {
   DeleteOutlined,
   MinusCircleOutlined,
@@ -22,6 +22,7 @@ const InsuranceSection = ({
 }) => {
   const [insurances, setInsurances] = useState({});
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [insuranceId, setInsuranceId] = useState(null);
   const numOfDays = request?.privateTourResponse?.numOfDay;
 
   console.log("insurances", insurances);
@@ -42,6 +43,8 @@ const InsuranceSection = ({
       console.log("response", response);
       if (response.isSuccess) {
         setInsurances(response.result); // Flatten the array if nested
+        setInsuranceId(response.result.assuranceId);
+        form.setFieldsValue({ insurance: response.result.assuranceId });
       }
     };
 
@@ -63,11 +66,12 @@ const InsuranceSection = ({
   return (
     <>
       <Form.Item
-        className=" font-semibold my-2 !w-full"
-        name={"insurance"}
+        className="font-semibold my-2 !w-full"
+        name="insurance"
         label="Gói Bảo Hiểm:"
       >
-        <span onClick={showModal} className="text-lg cursor-pointer ">
+        <Input value={insuranceId} hidden />
+        <span onClick={showModal} className="text-lg cursor-pointer">
           {insurances.assurance?.name}.... Xem chi tiết
         </span>
       </Form.Item>
