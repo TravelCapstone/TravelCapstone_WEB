@@ -103,13 +103,17 @@ const MenuTable = ({
     key: item.sellPriceHistory?.id,
     index: index + 1,
     name: item.facilityServices?.facility?.name,
+    facilityId: item.facilityServices?.facility?.id,
     address: `${item.facilityServices?.facility?.address}, ${item.facilityServices?.facility?.communce?.name}, ${item.facilityServices?.facility?.communce?.district?.name}, ${item.facilityServices?.facility?.communce?.district.province?.name}`,
     menu: item.menuDishes,
     mealType: item.sellPriceHistory?.menu.mealTypeId,
     servingQuantity: item.facilityServices?.servingQuantity,
     price: item.sellPriceHistory?.price,
+    province: item.facilityServices?.facility?.communce?.district.province?.id,
+    provinceName:
+      item.facilityServices?.facility?.communce?.district.province?.name,
   }));
-
+  console.log(listMenu);
   return (
     <>
       <Spin spinning={isLoading}>

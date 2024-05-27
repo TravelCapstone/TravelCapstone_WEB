@@ -6,15 +6,18 @@ import { getAvailableDriver } from "../../../../../api/HumanResourceSalaryApi";
 
 const { Option } = Select;
 const { Text } = Typography;
+const { RangePicker } = DatePicker;
 
 const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
   const [listVehiclePrice, setListVehiclePrice] = useState([]);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [dateRange, setDateRange] = useState([null, null]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [availableDrivers, setAvailableDrivers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchData = async () => {
+    setIsLoading(true);
+    const [startDate, endDate] = dateRange;
     const data = await getPriceForVehicle(1, 10, {
       firstLocation: {
         provinceId: startPoint,
@@ -39,14 +42,14 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
     if (driverData.isSuccess) {
       setAvailableDrivers(driverData.result?.items);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
-    if (startDate && endDate) {
+    if (dateRange[0] && dateRange[1]) {
       fetchData();
     }
-  }, [startPoint, endPoint, vehicleType, startDate, endDate]);
-  console.log("a", availableDrivers);
+  }, [startPoint, endPoint, vehicleType, dateRange]);
 
   return (
     <>
@@ -54,12 +57,11 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
         <div>
           <div className="flex flex-col">
             <div className="flex mb-4">
-              <Text className="mr-32">Ngày bắt đầu</Text>
-              <DatePicker onChange={(date) => setStartDate(date)} />
-            </div>
-            <div className="flex mb-4">
-              <Text className="mr-32">Ngày kết thúc</Text>
-              <DatePicker onChange={(date) => setEndDate(date)} />
+              <Text className="mr-32">Ngày bắt đầu và kết thúc</Text>
+              <RangePicker
+                onChange={(dates) => setDateRange(dates)}
+                value={dateRange}
+              />
             </div>
           </div>
           <div className="flex my-4">
@@ -76,6 +78,7 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
               className="w-9/12"
               onChange={(value) => setSelectedVehicle(value)}
               value={selectedVehicle}
+              loading={isLoading}
             >
               {Array.isArray(listVehiclePrice) &&
                 listVehiclePrice.length > 0 &&
@@ -100,31 +103,24 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
           <div className="flex my-4">
             <Text className="w-3/12">Ngày di chuyển</Text>
             <Space>
-              <DatePicker onChange={(date) => setStartDate(date)} />
-
-              <DatePicker onChange={(date) => setEndDate(date)} />
+              <RangePicker
+                onChange={(dates) => setDateRange(dates)}
+                value={dateRange}
+              />
             </Space>
           </div>
-          <div>
-            {/* <div className="flex my-4">
-              <Text className="w-3/12">Nhà cung cấp xe</Text>
-              <Select className="w-9/12">
-                <Option value="">Mon</Option>
-              </Select>
-            </div> */}
-            <div className="flex my-4">
-              <Text className="w-3/12">Chọn tài xế</Text>
-              <Select className="w-9/12">
-                {availableDrivers &&
-                  availableDrivers.length > 0 &&
-                  availableDrivers.map((driver) => (
-                    <Option key={driver.id} value={driver.id}>
-                      {driver.name} - SĐT: {driver.phoneNumber} - Tiền công:{" "}
-                      {formatPrice(driver.fixDriverSalary)}/ngày
-                    </Option>
-                  ))}
-              </Select>
-            </div>
+          <div className="flex my-4">
+            <Text className="w-3/12">Chọn tài xế</Text>
+            <Select className="w-9/12" loading={availableDrivers.length < 0}>
+              {availableDrivers &&
+                availableDrivers.length > 0 &&
+                availableDrivers.map((driver) => (
+                  <Option key={driver.id} value={driver.id}>
+                    {driver.name} - SĐT: {driver.phoneNumber} - Tiền công:{" "}
+                    {formatPrice(driver.fixDriverSalary)}/ngày
+                  </Option>
+                ))}
+            </Select>
           </div>
         </>
       )}

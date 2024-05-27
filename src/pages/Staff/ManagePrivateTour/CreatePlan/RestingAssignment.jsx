@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Input, Button } from "antd";
 import HotelModal from "./HotelModal/HotelModal";
 import {
@@ -8,16 +8,70 @@ import {
 } from "../../../../utils/Util";
 import { ratingLabels } from "../../../../settings/globalStatus";
 
-const RestingAssignment = ({ data, privateTourResponse }) => {
+const RestingAssignment = ({ data, privateTourResponse, setRestingData }) => {
   const [selectedHotels, setSelectedHotels] = useState([[]]);
+
   const log = (hotel, dataIndex, hotelIndex) => {
+    console.log("hotel", hotel);
+
+    // Clone the selectedHotels array to avoid direct state mutation
     const updatedSelectedHotels = [...selectedHotels];
+
+    // Ensure the dataIndex array exists
     if (!updatedSelectedHotels[dataIndex]) {
       updatedSelectedHotels[dataIndex] = [];
     }
-    updatedSelectedHotels[dataIndex][hotelIndex] = hotel;
+
+    // Check if the specific hotel entry already exists
+    if (updatedSelectedHotels[dataIndex][hotelIndex]) {
+      // Remove the hotel if it already exists
+      delete updatedSelectedHotels[dataIndex][hotelIndex];
+
+      // Optionally, clean up the array to remove any undefined entries
+      // This step ensures the array stays compact without gaps
+      updatedSelectedHotels[dataIndex] = updatedSelectedHotels[
+        dataIndex
+      ].filter((item) => item !== undefined);
+    } else {
+      // Assign the hotel if it does not already exist
+      updatedSelectedHotels[dataIndex][hotelIndex] = hotel;
+    }
+
+    // Update the state with the new array
     setSelectedHotels(updatedSelectedHotels);
   };
+
+  console.log(selectedHotels);
+  const convertData = (data) => {
+    const provinces = {};
+
+    data.flat().forEach((item) => {
+      const provinceId = item.province;
+
+      if (!provinces[provinceId]) {
+        provinces[provinceId] = {
+          provinceId: provinceId,
+          provinceName: item.provinceName, // Cần cập nhật tên tỉnh
+          services: [],
+        };
+      }
+
+      provinces[provinceId].services.push({
+        facilityService: {
+          id: item.facilityId,
+          name: item.facilityName,
+          address: item.address,
+        },
+      });
+    });
+
+    return Object.values(provinces);
+  };
+  const convertedData = convertData(selectedHotels);
+  console.log(JSON.stringify(convertedData, null, 2));
+  useEffect(() => {
+    setRestingData(convertedData);
+  }, [selectedHotels]);
   return (
     <Form>
       <Form.List name="hotels">

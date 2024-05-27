@@ -5,7 +5,6 @@ import { formatPrice } from "../../../../../utils/Util";
 import { Button, Modal, Table, Typography } from "antd";
 
 const { Text } = Typography;
-
 const EntertainmentModal = ({
   districtId,
   privateTourRequestId,
@@ -45,63 +44,67 @@ const EntertainmentModal = ({
 
   const handleSelectEntertainment = (item) => {
     const index = selectedEntertainment.findIndex(
-      (selectedItem) =>
-        selectedItem.sellPriceHistory?.id === item.sellPriceHistory?.id
+      (selectedItem) => selectedItem.key === item.key
     );
     if (index === -1) {
       setSelectedEntertainment((prev) => [...prev, item]);
     } else {
       setSelectedEntertainment((prev) =>
-        prev.filter(
-          (selectedItem) =>
-            selectedItem.sellPriceHistory?.id !== item.sellPriceHistory?.id
-        )
+        prev.filter((selectedItem) => selectedItem.key !== item.key)
       );
     }
   };
 
+  console.log(selectedEntertainment);
   useEffect(() => {
     log(selectedEntertainment);
-  }, [selectedEntertainment, log]);
+  }, [selectedEntertainment]);
 
   const columns = [
     {
       title: "STT",
       dataIndex: "index",
       key: "index",
-      render: (_, __, index) => index + 1,
     },
     {
       title: "Địa điểm",
-      dataIndex: ["sellPriceHistory", "facilityService", "facility", "name"],
+      dataIndex: "facilityName",
       key: "facilityName",
     },
     {
       title: "Địa chỉ",
       key: "address",
-      render: (text, record) => {
-        const facility = record.sellPriceHistory?.facilityService?.facility;
-        return `${facility?.address}, ${facility?.communce?.name}, ${facility?.communce?.district?.name}, ${facility?.communce?.district?.province?.name}`;
-      },
+      dataIndex: "address",
     },
     {
       title: "Dịch vụ",
-      dataIndex: ["sellPriceHistory", "facilityService", "name"],
+      dataIndex: "serviceName",
       key: "serviceName",
     },
     {
       title: "Đơn vị",
+      dataIndex: "unit",
       key: "unit",
-      render: (text, record) =>
-        unitLabels[record.sellPriceHistory?.facilityService?.unitId],
     },
     {
       title: "Giá",
       key: "price",
-      render: (text, record) => formatPrice(record.sellPriceHistory?.price),
+      dataIndex: "price",
     },
   ];
-
+  const data = listEntertainment.map((item, index) => ({
+    key: item.sellPriceHistory?.id,
+    index: index + 1,
+    facilityName: item.facilityServices?.facility?.name,
+    facilityId: item.facilityServices?.facility?.id,
+    address: `${item.facilityServices?.facility?.address}, ${item.facilityServices?.facility?.communce?.name}, ${item.facilityServices?.facility?.communce?.district?.name}, ${item.facilityServices?.facility?.communce?.district.province?.name}`,
+    province: item.facilityServices?.facility?.communce?.district.province?.id,
+    provinceName:
+      item.facilityServices?.facility?.communce?.district.province?.name,
+    serviceName: item.sellPriceHistory?.facilityService?.name,
+    unit: unitLabels[item.sellPriceHistory?.facilityService?.unitId],
+    price: formatPrice(item.sellPriceHistory?.price),
+  }));
   return (
     <>
       <Button type="primary" onClick={() => setIsModalVisible(true)}>
@@ -122,18 +125,9 @@ const EntertainmentModal = ({
         ]}
       >
         <Table
-          dataSource={listEntertainment}
+          dataSource={data}
           columns={columns}
-          rowKey={(record) => record.sellPriceHistory?.id}
-          rowClassName={(record) =>
-            selectedEntertainment.some(
-              (selectedItem) =>
-                selectedItem.sellPriceHistory?.id ===
-                record.sellPriceHistory?.id
-            )
-              ? "bg-yellow-100 text-black"
-              : ""
-          }
+          rowKey={(record) => record.index}
           onRow={(record) => ({
             onClick: () => handleSelectEntertainment(record),
           })}

@@ -74,10 +74,17 @@ const HotelModal = ({
     key: item.sellPriceHistory?.id,
     index: index + 1,
     facilityName: item.sellPriceHistory?.facilityService?.facility.name,
+    facilityId: item.sellPriceHistory?.facilityService?.facility.id,
     address: `${item.sellPriceHistory?.facilityService?.facility.address}, ${item.sellPriceHistory?.facilityService?.facility.communce?.name}, ${item.sellPriceHistory?.facilityService?.facility.communce?.district?.name}, ${item.sellPriceHistory?.facilityService?.facility.communce?.district.province?.name}`,
     sellPriceHistory: item.sellPriceHistory?.facilityService?.name,
     unit: item.sellPriceHistory?.facilityService?.unitId,
     price: item.sellPriceHistory?.price,
+    province:
+      item.sellPriceHistory?.facilityService?.facility.communce?.district
+        .province?.id,
+    provinceName:
+      item.sellPriceHistory?.facilityService?.facility.communce?.district
+        .province?.name,
   }));
 
   const showModal = () => {

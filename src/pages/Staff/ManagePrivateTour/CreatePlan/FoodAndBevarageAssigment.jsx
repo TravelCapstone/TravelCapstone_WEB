@@ -2,11 +2,15 @@ import { Input, Typography, Collapse } from "antd";
 import { formatPrice, formatDate, getTimePeriod } from "../../../../utils/Util";
 import { ratingLabels } from "../../../../settings/globalStatus";
 import FoodModal from "./FoodModal/FoodModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 const { Text } = Typography;
 const { Panel } = Collapse;
 
-const FoodAndBevarageAssignment = ({ data, privateTourResponse }) => {
+const FoodAndBevarageAssignment = ({
+  data,
+  privateTourResponse,
+  setFoodData,
+}) => {
   const [selectedRestaurent, setSelectedRestaurent] = useState([[]]);
   const log = (restaurant, index, restaurantIndex) => {
     console.log(index, restaurantIndex);
@@ -14,11 +18,47 @@ const FoodAndBevarageAssignment = ({ data, privateTourResponse }) => {
     if (!updatedSelectedRestaurants[index]) {
       updatedSelectedRestaurants[index] = [];
     }
-    updatedSelectedRestaurants[index][restaurantIndex] = restaurant;
+    if (updatedSelectedRestaurants[index][restaurantIndex]) {
+      delete updatedSelectedRestaurants[index][restaurantIndex];
+      updatedSelectedRestaurants[index] = updatedSelectedRestaurants[
+        index
+      ].filter((item) => item !== undefined);
+    } else {
+      updatedSelectedRestaurants[index][restaurantIndex] = restaurant;
+    }
     setSelectedRestaurent(updatedSelectedRestaurants);
   };
 
-  console.log("a", selectedRestaurent);
+  const convertData = (data) => {
+    const provinces = {};
+
+    data.flat().forEach((item) => {
+      const provinceId = item.province;
+
+      if (!provinces[provinceId]) {
+        provinces[provinceId] = {
+          provinceId: provinceId,
+          provinceName: item.provinceName, // Cần cập nhật tên tỉnh
+          services: [],
+        };
+      }
+      console.log(item);
+      provinces[provinceId].services.push({
+        facilityService: {
+          id: item.facilityId,
+          name: item.name,
+          address: item.address,
+        },
+      });
+    });
+
+    return Object.values(provinces);
+  };
+  const convertedData = convertData(selectedRestaurent);
+  console.log(JSON.stringify(convertedData, null, 2));
+  useEffect(() => {
+    setFoodData(convertedData);
+  }, [selectedRestaurent]);
   return (
     <Collapse defaultActiveKey={data.map((_, index) => index)} bordered={false}>
       {data.map((item, index) => (
@@ -29,7 +69,7 @@ const FoodAndBevarageAssignment = ({ data, privateTourResponse }) => {
                 <Text strong className="mr-2">
                   {index + 1}.
                 </Text>
-                <Text>
+                <Text className="font-bold">
                   {item.district?.name} - {item.district?.province?.name}
                 </Text>
               </div>
@@ -39,6 +79,7 @@ const FoodAndBevarageAssignment = ({ data, privateTourResponse }) => {
             </div>
           }
           key={index}
+          className="bg-white"
         >
           <div className="mb-2">
             <Text strong>Loại hình ăn uống:</Text>
