@@ -30,6 +30,7 @@ import {
 import AddressSearchMultiple from "../../../api/SearchAddress/SearchAddressMulti";
 import RoomTypeSection from "../RoomTypeSection";
 import { getAllFacilityRating } from "../../../api/FacilityApi";
+import moment from "moment";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -40,6 +41,7 @@ function TourRequestForm() {
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [valueFoodType, setValueFoodType] = useState();
   const [days, setDays] = useState(1);
+  const [maxDays, setMaxDays] = useState(1);
   const [nights, setNights] = useState(0);
   const [form] = Form.useForm();
   const [isChecked, setIsChecked] = useState(false);
@@ -50,6 +52,10 @@ function TourRequestForm() {
 
   const [hotelRatings, setHotelRatings] = useState([]);
   const [restaurantRatings, setRestaurantRatings] = useState([]);
+
+  const [startDate, setStartDate] = useState(null);
+
+  const [endDate, setEndDate] = useState(null);
 
   console.log("hotelRatings", hotelRatings);
   console.log("restaurantRatings", restaurantRatings);
@@ -165,6 +171,26 @@ function TourRequestForm() {
 
     fetchRatings();
   }, []);
+
+  const disabledStartDate = (current) => {
+    // Disable dates before today + 10 days
+    return current && current < moment().add(10, "days").endOf("day");
+  };
+
+  const disabledEndDate = (current) => {
+    return (
+      current && startDate && current < startDate.add(2, "days").endOf("day")
+    );
+  };
+
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+    setEndDate(null); // Reset end date when start date changes
+  };
+
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+  };
 
   const calculateTotalRooms = () => {
     const values = form.getFieldsValue();
@@ -367,6 +393,24 @@ function TourRequestForm() {
   };
 
   const prefixSelector = <span style={{ paddingRight: 5 }}>+84</span>;
+
+  const getDefaultPickerValueEndDate = () => {
+    if (!startDate) {
+      return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
+    }
+    return startDate; // Sử dụng ngày bắt đầu của tourDate
+  };
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      const timeDiff = Math.abs(new Date(endDate) - new Date(startDate));
+      const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1; // +1 để bao gồm cả ngày bắt đầu
+      setMaxDays(dayDiff);
+    }
+  }, [startDate, endDate]);
+
+  console.log("maxDays", maxDays);
+
   return (
     <div className="mt-32 container">
       <div className="text-3xl text-center font-bold uppercase my-6">
@@ -597,22 +641,47 @@ function TourRequestForm() {
             >
               <Form.Item
                 name="startDate"
-                label="Từ ngày:"
+                label={
+                  <span>
+                    Từ ngày: &nbsp;
+                    <Tooltip title="Bạn được chọn trong khoảng từ 10 ngày sau ngày hiện tại trở đi để chúng tôi sắp xếp tour cho bạn tốt nhất!">
+                      <QuestionCircleOutlined />
+                    </Tooltip>
+                  </span>
+                }
                 rules={[
                   { required: true, message: " Vui lòng chọn thời gian!" },
                 ]}
               >
-                <DatePicker showTime />
+                <DatePicker
+                  showTime
+                  disabledDate={disabledStartDate}
+                  onChange={handleStartDateChange}
+                  // defaultPickerValue={getDefaultPickerValueStartDate()}
+                />
               </Form.Item>
 
               <Form.Item
                 name="endDate"
-                label="Đến ngày:"
+                label={
+                  <span>
+                    Đến ngày: &nbsp;
+                    <Tooltip title="Ngày kết thúc ít nhất sau 2 ngày bắt đầu">
+                      <QuestionCircleOutlined />
+                    </Tooltip>
+                  </span>
+                }
                 rules={[
                   { required: true, message: " Vui lòng chọn thời gian!" },
                 ]}
               >
-                <DatePicker showTime />
+                <DatePicker
+                  showTime
+                  disabledDate={disabledEndDate}
+                  disabled={!startDate}
+                  onChange={handleEndDateChange}
+                  defaultPickerValue={getDefaultPickerValueEndDate()}
+                />
               </Form.Item>
             </div>
           </Form.Item>
@@ -640,7 +709,8 @@ function TourRequestForm() {
                 <InputNumber
                   className="text-right"
                   min={1}
-                  value={days}
+                  max={maxDays}
+                  // value={days}
                   onChange={handleDaysChange}
                 />
               </Form.Item>
@@ -651,10 +721,10 @@ function TourRequestForm() {
                 style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
               >
                 <InputNumber
-                  readOnly
-                  min={1}
                   value={nights}
                   placeholder={nights}
+                  min={nights}
+                  max={nights + 1}
                   className="text-right"
                 />
               </Form.Item>
