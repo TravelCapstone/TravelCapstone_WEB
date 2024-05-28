@@ -216,6 +216,8 @@ const EachServiceSection = ({
                                     districts={districts}
                                     onProvinceChange={onProvinceChange}
                                     setProvinces={setProvinces}
+                                    selectedDistrict={selectedDistrict}
+                                    request={request}
                                   />
                                 </div>
 

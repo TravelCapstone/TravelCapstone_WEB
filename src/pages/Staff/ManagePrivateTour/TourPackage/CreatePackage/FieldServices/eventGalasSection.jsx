@@ -15,6 +15,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { fetchEventListWithQuantity } from "../../../../../../api/EventApi";
+import { usePrice } from "../../../../../../context/PriceContext";
 
 const { Option } = Select;
 
@@ -33,9 +34,41 @@ const EventGalasSection = ({
   const [loading, setLoading] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
+  console.log("selectedEvent", selectedEvent);
+
+  const { updateCommonPrice, commonPrices } = usePrice();
+
   const quantity =
     request?.privateTourResponse?.numOfAdult +
     request?.privateTourResponse?.numOfChildren;
+
+  useEffect(() => {
+    if (
+      selectedEvent &&
+      typeof selectedEvent === "object" &&
+      !Array.isArray(selectedEvent)
+    ) {
+      debugger;
+      const perInsurance = selectedEvent.total / quantity;
+      const commonService = {
+        item: "Bảo hiểm du lịch",
+        price: perInsurance,
+        quantity: 1,
+        total: selectedEvent.total,
+      };
+      // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
+      const existingServiceIndex = commonPrices.findIndex(
+        (service) => service.item === commonService.item
+      );
+      if (existingServiceIndex !== -1) {
+        // Cập nhật giá trị dịch vụ
+        commonPrices[existingServiceIndex] = commonService;
+      } else {
+        // Thêm dịch vụ mới vào danh sách
+        updateCommonPrice(commonService);
+      }
+    }
+  }, [selectedEvent, updateCommonPrice]);
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -115,6 +148,24 @@ const EventGalasSection = ({
           </div>
         )),
     },
+    {
+      title: "Tổng giá dịch vụ event",
+      dataIndex: "totalPriceEvent",
+      width: 200,
+      key: "totalPriceEvent",
+      render: (text, record) => (
+        <p className="font-semibold text-lg ">
+          <span>
+            {" "}
+            {selectedEvent.total.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}{" "}
+          </span>
+          / Tour
+        </p>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -157,8 +208,8 @@ const EventGalasSection = ({
         <div className="flex ">
           <div>
             <div className="Options ">
-              <div className="Option2">
-                <div className="flex">
+              <div className="Option2 flex flex-wrap items-center">
+                <div className="flex ">
                   <Form.Item
                     className="font-semibold my-2"
                     label="Gói Event/Game:"
@@ -194,6 +245,21 @@ const EventGalasSection = ({
                     <DatePicker showTime onChange={handleDateChange} />
                   </Form.Item>
                 </div>
+                {selectedEvent && (
+                  <div className=" text-gray-500 ml-10 ">
+                    <p className="font-semibold text-lg ">
+                      Giá dịch vụ:{" "}
+                      <span>
+                        {" "}
+                        {selectedEvent.total.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}{" "}
+                      </span>
+                      / Tour
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

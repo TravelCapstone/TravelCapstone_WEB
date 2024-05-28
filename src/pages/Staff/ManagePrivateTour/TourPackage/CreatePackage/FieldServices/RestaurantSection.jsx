@@ -16,6 +16,7 @@ import {
 } from "antd";
 import {
   DeleteOutlined,
+  EyeOutlined,
   MinusCircleOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
@@ -464,16 +465,20 @@ const DaySection = ({
     },
 
     {
-      title: "Xoá",
+      title: "Hành Động",
       dataIndex: "actions",
       render: (_, record) => (
-        <Button
-          type="link"
-          onClick={() => {
-            handleRemove(record, remove);
-          }}
-          icon={<DeleteOutlined />}
-        />
+        <div className="flex justify-around">
+          <Button
+            type="link"
+            onClick={() => {
+              handleRemove(record, remove);
+            }}
+            icon={<DeleteOutlined />}
+          />
+
+          <Button type="link" icon={<EyeOutlined />} />
+        </div>
       ),
     },
   ];

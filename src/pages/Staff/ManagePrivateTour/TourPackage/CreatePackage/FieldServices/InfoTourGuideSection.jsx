@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { servingVehiclesQuantity } from "../../../../../../settings/globalStatus";
 import { postHumanResourceSalaryWithIsForTourguide } from "../../../../../../api/HumanResourceSalaryApi";
+import { usePrice } from "../../../../../../context/PriceContext";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -25,6 +26,46 @@ const InfoTourGuideSection = ({
   const [selectedProvinces, setSelectedProvinces] = useState([]);
   const [availableProvinces, setAvailableProvinces] = useState([]);
   console.log("availableProvinces", availableProvinces);
+
+  const { updateCommonPrice, commonPrices } = usePrice();
+
+  useEffect(() => {
+    // debugger;
+    const tourGuideCosts = form.getFieldValue("tourGuideCosts");
+    if (
+      salaryInfo &&
+      typeof salaryInfo === "object" &&
+      !Array.isArray(salaryInfo) &&
+      Array.isArray(tourGuideCosts)
+    ) {
+      tourGuideCosts.forEach((_, index) => {
+        if (salaryInfo[index]) {
+          const quantity =
+            request?.privateTourResponse?.numOfAdult +
+            request?.privateTourResponse?.numOfChildren;
+          const perPrice = salaryInfo[index].result / quantity;
+          const commonService = {
+            item: `Phí hướng dẫn viên cho tour ${index + 1}`,
+            price: perPrice,
+            quantity: 1,
+            total: salaryInfo[index].result,
+          };
+
+          // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
+          const existingServiceIndex = commonPrices.findIndex(
+            (service) => service.item === commonService.item
+          );
+          if (existingServiceIndex !== -1) {
+            // Cập nhật giá trị dịch vụ
+            commonPrices[existingServiceIndex] = commonService;
+          } else {
+            // Thêm dịch vụ mới vào danh sách
+            updateCommonPrice(commonService);
+          }
+        }
+      });
+    }
+  }, [salaryInfo, form, request, commonPrices, updateCommonPrice]);
 
   const handleQuantityChange = (index, value) => {
     form.setFieldsValue({
@@ -142,7 +183,7 @@ const InfoTourGuideSection = ({
 
   return (
     <>
-      <Form.List name="tourGuideCosts" initialValue={[{}]}>
+      <Form.List name="tourGuideCosts">
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name }, index) => (

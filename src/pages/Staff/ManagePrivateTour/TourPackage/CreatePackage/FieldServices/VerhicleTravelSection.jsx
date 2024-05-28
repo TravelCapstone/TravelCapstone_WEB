@@ -18,6 +18,7 @@ import {
   getVehiclePriceRange,
   getVehiclePriceRangeNoEndPoint,
 } from "../../../../../../api/SellPriceHistoryApi";
+import { usePrice } from "../../../../../../context/PriceContext";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -32,6 +33,44 @@ const VerhicleTravelSection = ({
 }) => {
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
+
+  const { updateCommonPrice, commonPrices } = usePrice();
+
+  useEffect(() => {
+    if (
+      priceInfo &&
+      typeof priceInfo === "object" &&
+      !Array.isArray(priceInfo)
+    ) {
+      const travelOptionsFields = form.getFieldValue("travelOptions");
+      travelOptionsFields.forEach((_, index) => {
+        if (priceInfo[index]) {
+          const quantity =
+            request?.privateTourResponse?.numOfAdult +
+            request?.privateTourResponse?.numOfChildren;
+          // debugger;
+          const totalPrice = priceInfo[index].maxCostperPerson * quantity;
+          const commonService = {
+            item: `Phương tiện du lịch tỉnh ${index + 1} `,
+            price: priceInfo[index].maxCostperPerson,
+            quantity: 1,
+            total: totalPrice,
+          };
+          // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
+          const existingServiceIndex = commonPrices.findIndex(
+            (service) => service.item === commonService.item
+          );
+          if (existingServiceIndex !== -1) {
+            // Cập nhật giá trị dịch vụ
+            commonPrices[existingServiceIndex] = commonService;
+          } else {
+            // Thêm dịch vụ mới vào danh sách
+            updateCommonPrice(commonService);
+          }
+        }
+      });
+    }
+  }, [priceInfo, form, request, commonPrices, updateCommonPrice]);
 
   const calculateNumOfVehicle = (vehicleType) => {
     const totalPassengers =
