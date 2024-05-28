@@ -88,7 +88,7 @@ function CreateOptionForm({ request }) {
         updateCommonPrice(commonService);
       }
     }
-  }, [salaryInfo, updateCommonPrice]);
+  }, [salaryInfo, updateCommonPrice, commonPrices]);
 
   console.log("salaryInfo", salaryInfo);
   console.log("numOfDaysLoging", numOfDaysLoging);
@@ -739,11 +739,10 @@ function CreateOptionForm({ request }) {
           <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
             DỊCH VỤ RIÊNG TỪNG GÓI
           </h2>
-          <div className="mt-10">
+          {/* <div className="mt-10">
             <h3>Form Data:</h3>
             <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
-          </div>
-          {/* BẢO HIỂM */}
+          </div> */}
 
           <div className=" mx-4">
             <EachServiceSection

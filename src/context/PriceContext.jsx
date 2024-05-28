@@ -1,4 +1,11 @@
-import React, { createContext, useState, useContext, useCallback } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useRef,
+  useCallback,
+  useEffect,
+} from "react";
 
 const PriceContext = createContext();
 
@@ -10,6 +17,17 @@ export const PriceProvider = ({ children }) => {
     premium: [],
   });
 
+  // const commonPricesRef = useRef(commonPrices);
+  // const packagePricesRef = useRef(packagePrices);
+
+  // useEffect(() => {
+  //   commonPricesRef.current = commonPrices;
+  // }, [commonPrices]);
+
+  // useEffect(() => {
+  //   packagePricesRef.current = packagePrices;
+  // }, [packagePrices]);
+
   const updateCommonPrice = useCallback((service) => {
     setCommonPrices((prevPrices) => [...prevPrices, service]);
   }, []);
@@ -20,6 +38,26 @@ export const PriceProvider = ({ children }) => {
       [packageType]: [...prevPrices[packageType], service],
     }));
   }, []);
+
+  //  setPackagePrices((prevPrices) => {
+  //     const existingServiceIndex = prevPrices[packageType].findIndex(
+  //       (s) => s.item === service.item
+  //     );
+  //     if (existingServiceIndex !== -1) {
+  //       const updatedPrices = [...prevPrices[packageType]];
+  //       updatedPrices[existingServiceIndex] = service;
+  //       return {
+  //         ...prevPrices,
+  //         [packageType]: updatedPrices,
+  //       };
+  //     } else {
+  //       return {
+  //         ...prevPrices,
+  //         [packageType]: [...prevPrices[packageType], service],
+  //       };
+  //     }
+  //   });
+  // }, []);
 
   const calculateTotalCost = (services) => {
     return services.reduce((sum, record) => sum + record.total, 0);
@@ -47,6 +85,7 @@ export const PriceProvider = ({ children }) => {
         updateCommonPrice,
         updatePackagePrice,
         getTotalCost,
+        setPackagePrices,
       }}
     >
       {children}

@@ -38,7 +38,7 @@ const CustomSurchangeSection = ({ form, quantity, request }) => {
         updateCommonPrice(commonService);
       }
     }
-  }, [totalCost, updateCommonPrice]);
+  }, [totalCost, updateCommonPrice, commonPrices]);
 
   const fetchData = async () => {
     const data = await getOperationFees(quantity);

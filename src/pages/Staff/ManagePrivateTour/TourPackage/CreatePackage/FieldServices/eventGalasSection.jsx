@@ -48,7 +48,7 @@ const EventGalasSection = ({
       typeof selectedEvent === "object" &&
       !Array.isArray(selectedEvent)
     ) {
-      debugger;
+      // debugger;
       const perInsurance = selectedEvent.total / quantity;
       const commonService = {
         item: "Bảo hiểm du lịch",
@@ -68,7 +68,7 @@ const EventGalasSection = ({
         updateCommonPrice(commonService);
       }
     }
-  }, [selectedEvent, updateCommonPrice]);
+  }, [selectedEvent, updateCommonPrice, commonPrices]);
 
   const fetchEvents = async () => {
     setLoading(true);

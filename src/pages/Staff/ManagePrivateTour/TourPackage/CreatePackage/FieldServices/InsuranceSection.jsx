@@ -38,7 +38,7 @@ const InsuranceSection = ({
       const quantity =
         request?.privateTourResponse?.numOfAdult +
         request?.privateTourResponse?.numOfChildren;
-      debugger;
+      // debugger;
       const totalInsurance = insurances.price * quantity;
       const commonService = {
         item: "Bảo hiểm du lịch",
@@ -58,7 +58,7 @@ const InsuranceSection = ({
         updateCommonPrice(commonService);
       }
     }
-  }, [insurances, updateCommonPrice]);
+  }, [insurances, updateCommonPrice, commonPrices]);
 
   console.log("insurances", insurances);
   console.log("numOfDays", numOfDays);

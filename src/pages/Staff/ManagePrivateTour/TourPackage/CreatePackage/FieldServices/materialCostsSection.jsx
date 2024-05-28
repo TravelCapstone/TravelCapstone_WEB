@@ -49,7 +49,7 @@ const MaterialCostsSection = ({
         updateCommonPrice(commonService);
       }
     }
-  }, [totalCost, updateCommonPrice]);
+  }, [totalCost, updateCommonPrice, commonPrices]);
 
   const quantity =
     (request?.privateTourResponse?.numOfAdult || 0) +

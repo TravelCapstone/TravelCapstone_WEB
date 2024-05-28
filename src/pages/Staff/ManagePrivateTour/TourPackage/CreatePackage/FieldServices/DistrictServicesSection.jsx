@@ -122,10 +122,10 @@ const DistrictServicesSection = ({
         )}
       </Form.List>
       {/* Debugging Block */}
-      <div className="mt-10">
+      {/* <div className="mt-10">
         <h3>Form Data:</h3>
         <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
-      </div>
+      </div> */}
     </>
   );
 };
