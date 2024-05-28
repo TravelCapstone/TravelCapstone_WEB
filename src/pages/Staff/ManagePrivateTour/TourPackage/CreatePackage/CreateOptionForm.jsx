@@ -256,9 +256,9 @@ function CreateOptionForm({ request }) {
       vehicles.push({
         vehicleType: option.vehicleType,
         startPoint: option.provinceId,
-        startPointDistrict: "", // Assuming value to be filled or left blank
-        endPoint: "", // Assuming value to be filled or left blank
-        endPointDistrict: "", // Assuming value to be filled or left blank
+        startPointDistrict: null, // Assuming value to be filled or left blank
+        endPoint: null, // Assuming value to be filled or left blank
+        endPointDistrict: null, // Assuming value to be filled or left blank
         startDate: option.dateRange[0],
         endDate: option.dateRange[1],
         numOfVehicle: option.numOfVehicle,
@@ -352,7 +352,7 @@ function CreateOptionForm({ request }) {
                   acc.push({
                     date,
                     option: index,
-                    menuId: day[menuType],
+                    menuIds: day[menuType],
                   });
                 }
               }
@@ -366,15 +366,17 @@ function CreateOptionForm({ request }) {
           };
         }),
 
-        entertainments: service.entertainments.map((enter) => ({
+        entertainments: service?.entertainments?.map((enter) => ({
           districtId: service.districtId, //ok
-          quantityLocationOption1: enter.quantityLocation1, //ok
-          quantityLocationOption2: enter.quantityLocation2, //ok
-          quantityLocationOption3: enter.quantityLocation3, //ok
+          quantityLocationOption1: enter?.quantityLocation1, //ok
+          quantityLocationOption2: enter?.quantityLocation2, //ok
+          quantityLocationOption3: enter?.quantityLocation3, //ok
         })),
       })),
       vehicles: vehicles, // ok
     };
+
+    console.log("API PAYLOAD", apiPayload);
 
     return apiPayload;
   };

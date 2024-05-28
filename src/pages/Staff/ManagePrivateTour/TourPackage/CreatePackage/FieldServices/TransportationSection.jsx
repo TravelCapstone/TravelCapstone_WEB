@@ -72,7 +72,6 @@ const TransportationSection = ({
     };
     form.setFieldsValue({ transportation: newTransportation });
     onProvinceChange(index, value, name);
-    debugger;
     fetchVehiclePriceRange(index);
   };
 
@@ -95,17 +94,48 @@ const TransportationSection = ({
       );
     }
   }, [request]);
-  const getSuggestPath = async () => {
-    const result = provinces.map((item) => item.id);
 
+  const startProvinceId =
+    request?.privateTourResponse?.startLocationCommune?.district?.provinceId;
+  const startProvinceName = request?.privateTourResponse?.startLocation;
+
+  // Thêm startProvince vào danh sách provinces
+  let updatedProvinces = [
+    { id: startProvinceId, name: startProvinceName },
+    ...provinces.filter((province) => province.id !== startProvinceId),
+  ];
+
+  // Loại bỏ các phần tử trùng lặp
+  updatedProvinces = updatedProvinces.reduce((acc, current) => {
+    const x = acc.find((item) => item.id === current.id);
+    if (!x) {
+      return acc.concat([current]);
+    } else {
+      return acc;
+    }
+  }, []);
+
+  console.log("updatedProvinces", updatedProvinces);
+  console.log("provinces", provinces);
+
+  const getSuggestPath = async () => {
+    const result = updatedProvinces.map((item) => item.id);
+
+    // Thêm startProvinceId vào đầu mảng result
+    // result.unshift(updatedProvinces);
+
+    console.log("resultgetSuggestPath", result);
     const data = await getOptimalPath(result[0], result);
     if (data.isSuccess) {
       setOptimalPath(data.result);
     }
   };
+
   useEffect(() => {
-    getSuggestPath();
-  }, [provinces]);
+    if (updatedProvinces.length > 0) {
+      getSuggestPath();
+    }
+  }, [updatedProvinces]);
 
   const handleSelectForSwap = (index) => {
     const newSelection = [...selectedForSwap, index];
@@ -161,6 +191,8 @@ const TransportationSection = ({
       });
     }
   };
+  console.log("optimalPath", optimalPath);
+
   const getRouteInfo = (from, to) => {
     const fromProvince = optimalPath[from];
     const toProvince = optimalPath[to];
@@ -181,6 +213,7 @@ const TransportationSection = ({
       duration,
     };
   };
+
   return (
     <>
       <div className="p-6 bg-white rounded-lg shadow-lg">
@@ -191,6 +224,20 @@ const TransportationSection = ({
           <div className="grid gap-4">
             {optimalPath.map((item, index) => {
               const routeInfo = getRouteInfo(index, index + 1);
+
+              console.log("routeInfo", routeInfo);
+
+              const calculateFlightTime = (distance) => {
+                const metersToKilometers1 = (meters) => {
+                  return meters / 1000;
+                };
+                const distanceInKm = metersToKilometers1(distance); // Chuyển đổi khoảng cách từ mét sang km
+                const averageSpeed = 850; // tốc độ trung bình km/h
+                const flightTimeInHours = distanceInKm / averageSpeed; // thời gian bay tính bằng giờ
+                const flightTimeInSeconds = flightTimeInHours * 3600; // chuyển đổi giờ sang giây
+                return secondsToHours(flightTimeInSeconds); // sử dụng hàm secondsToHours
+              };
+
               return (
                 <div
                   key={index}
@@ -207,10 +254,20 @@ const TransportationSection = ({
                       <span className="font-bold">Khoảng cách:</span>{" "}
                       {metersToKilometers(routeInfo.distance)}
                     </p>
-                    <p>
-                      <span className="font-bold">Thời gian:</span>{" "}
-                      {secondsToHours(routeInfo.duration)}
-                    </p>
+                    <div>
+                      <p>
+                        <span className="font-bold">Thời gian:</span>{" "}
+                        {secondsToHours(routeInfo.duration)} giờ đi bằng xe
+                        khách hoặc ô tô
+                      </p>
+                      <p>
+                        <span className="font-bold">
+                          Thời gian bay ước tính:
+                        </span>{" "}
+                        {calculateFlightTime(routeInfo.distance)} giờ đi bằng
+                        máy bay
+                      </p>
+                    </div>
                   </div>
                 </div>
               );
@@ -244,7 +301,7 @@ const TransportationSection = ({
                         }
                         className="!w-[200px] mr-10"
                       >
-                        {provinces.map((province) => (
+                        {updatedProvinces.map((province) => (
                           <Option key={province.id} value={province.id}>
                             {province.name}
                           </Option>
@@ -286,7 +343,7 @@ const TransportationSection = ({
                         }
                         className="!w-[200px] mr-10"
                       >
-                        {provinces.map((province) => (
+                        {updatedProvinces.map((province) => (
                           <Option key={province.id} value={province.id}>
                             {province.name}
                           </Option>
