@@ -171,7 +171,7 @@ const getAttractionSellPriceRange = async (
 ) => {
   try {
     const response = await api.get(
-      `/sell-price/get-attraction-sell-price-range/${districtId}/${privateTourRequestId}/${numOfPlace}?pageNumber=${pageNumber}&pageSize=${pageSize}`
+      `/sell-price/get-attraction-sell-price-range/${districtId}/${privateTourRequestId}/${numOfPlace}/${pageNumber}/${pageSize}`
     );
     return response.data;
   } catch (error) {

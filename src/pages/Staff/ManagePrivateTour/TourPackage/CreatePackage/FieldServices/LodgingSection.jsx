@@ -104,7 +104,7 @@ const LodgingSection = ({
       const priceInfo = await getMinMaxPriceOfHotel(
         districtId,
         privatetourRequestId,
-        filteredRatingID[0].facilityRating.id,
+        filteredRatingID[0]?.facilityRating?.id,
         1, // pageNumber
         10, // pageSize
         numOfDays
@@ -112,7 +112,8 @@ const LodgingSection = ({
 
       setPriceData((prev) => ({
         ...prev,
-        [filteredRatingID[0].facilityRating.ratingId]: priceInfo.result.items,
+        [filteredRatingID[0]?.facilityRating?.ratingId]:
+          priceInfo?.result?.items,
       }));
     } catch (error) {
       console.error("Error fetching hotel prices:", error);

@@ -32,6 +32,8 @@ import ExpectedPriceOption from "./FieldServices/ExpectedPriceOption";
 import dayjs from "dayjs";
 import CustomSurchangeSection from "./FieldServices/CustomSurchangeSection";
 import EventGalasSection from "./FieldServices/eventGalasSection";
+import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
+import { usePrice } from "../../../../../context/PriceContext";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -62,6 +64,31 @@ function CreateOptionForm({ request }) {
 
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
+
+  const { updateCommonPrice, commonPrices } = usePrice();
+
+  useEffect(() => {
+    if (salaryInfo) {
+      const priceATourGuide = salaryInfo.result / quantityTourGuide;
+      const commonService = {
+        item: "Hướng dẫn viên cả tour",
+        price: priceATourGuide,
+        quantity: quantityTourGuide,
+        total: salaryInfo.result,
+      };
+      // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
+      const existingServiceIndex = commonPrices.findIndex(
+        (service) => service.item === commonService.item
+      );
+      if (existingServiceIndex !== -1) {
+        // Cập nhật giá trị dịch vụ
+        commonPrices[existingServiceIndex] = commonService;
+      } else {
+        // Thêm dịch vụ mới vào danh sách
+        updateCommonPrice(commonService);
+      }
+    }
+  }, [salaryInfo, updateCommonPrice]);
 
   console.log("salaryInfo", salaryInfo);
   console.log("numOfDaysLoging", numOfDaysLoging);
@@ -94,6 +121,7 @@ function CreateOptionForm({ request }) {
           );
           if (response && response.data) {
             setSalaryInfo(response.data);
+            updatePrice(response.data.result);
           } else {
             throw new Error("No data received");
           }
@@ -446,6 +474,7 @@ function CreateOptionForm({ request }) {
 
   return (
     <div className="p-4 shadow-xl rounded-xl w-full max-h-lvh overflow-y-auto">
+      {/* <LoadingOverlay isLoading={loading} /> */}
       <Form form={form} onFinish={onFinish}>
         <h3 className="font-bold text-mainColor text-xl text-center">
           TẠO GÓI TOUR
@@ -580,6 +609,7 @@ function CreateOptionForm({ request }) {
                 fetchVehiclePriceRange={fetchVehiclePriceRange}
                 handleFieldChange={handleFieldChange}
                 startProvince={request?.privateTourResponse?.startLocation}
+                selectedProvince={selectedProvince}
               />
             </div>
 
@@ -642,6 +672,7 @@ function CreateOptionForm({ request }) {
                 Thông tin hướng dẫn viên trong tỉnh
               </h3>
               <InfoTourGuideSection
+                request={request}
                 form={form}
                 provinces={provinces}
                 onProvinceChange={handleProvinceChange2}
@@ -693,6 +724,8 @@ function CreateOptionForm({ request }) {
                 Phụ phí tuỳ chỉnh
               </h3>
               <CustomSurchangeSection
+                request={request}
+                form={form}
                 quantity={
                   request?.privateTourResponse.numOfAdult +
                   request?.privateTourResponse.numOfChildren
@@ -738,7 +771,7 @@ function CreateOptionForm({ request }) {
 
           <div className="my-12 ">
             <h3 className="font-bold text-2xl  ">GIÁ DỰ KIẾN CỦA GÓI</h3>
-            <ExpectedPriceOption />
+            <ExpectedPriceOption request={request} />
           </div>
           <div className="flex justify-center my-4">
             <Form.Item>
