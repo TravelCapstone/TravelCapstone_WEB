@@ -40,11 +40,11 @@ const InsuranceSection = ({
 
     const fetchInsurances = async () => {
       const response = await getAvailableAssurancesWithNumOfDays(numOfDays);
-      console.log("response", response);
+      console.log("responseinsurances", response);
       if (response.isSuccess) {
         setInsurances(response.result); // Flatten the array if nested
-        setInsuranceId(response.result.assuranceId);
-        form.setFieldsValue({ insurance: response.result.assuranceId });
+        setInsuranceId(response.result.id);
+        form.setFieldsValue({ insurance: response.result.id });
       }
     };
 

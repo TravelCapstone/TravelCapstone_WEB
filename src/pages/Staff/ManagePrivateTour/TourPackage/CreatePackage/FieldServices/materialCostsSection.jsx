@@ -43,7 +43,7 @@ const MaterialCostsSection = ({
     const materialCosts = form.getFieldValue("materialCosts") || [];
     if (checked) {
       materialCosts[index] = {
-        materialId: materials[index].material.id,
+        materialId: materials[index].id,
         quantity: totalQuantity,
       };
     } else {
