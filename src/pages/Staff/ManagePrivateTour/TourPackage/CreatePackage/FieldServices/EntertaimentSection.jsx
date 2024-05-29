@@ -65,7 +65,7 @@ const EntertainmentSection = ({
   };
 
   return (
-    <Form.List name={[...basePath, "entertainments"]}>
+    <Form.List name={[...basePath, "entertainments"]} initialValue={[{}]}>
       {(fields, { add, remove }) => (
         <>
           {fields.map((field, index) => (
@@ -75,7 +75,7 @@ const EntertainmentSection = ({
               className="flex justify-between"
               align="baseline"
             >
-              <div className="flex">
+              <div className="flex justify-between">
                 <div>
                   <div className="Options my-4">
                     {[
@@ -128,6 +128,10 @@ const EntertainmentSection = ({
                     ))}
                   </div>
                 </div>
+                <DeleteOutlined
+                  onClick={() => remove(field.name)}
+                  className="self-start ml-4"
+                />
               </div>
             </Space>
           ))}

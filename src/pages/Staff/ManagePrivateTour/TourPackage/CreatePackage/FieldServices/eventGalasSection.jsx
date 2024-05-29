@@ -16,6 +16,7 @@ import {
 } from "@ant-design/icons";
 import { fetchEventListWithQuantity } from "../../../../../../api/EventApi";
 import { usePrice } from "../../../../../../context/PriceContext";
+import moment from "moment";
 
 const { Option } = Select;
 
@@ -179,6 +180,26 @@ const EventGalasSection = ({
     }
   }, [request]);
 
+  const disabledDate = (current) => {
+    // Lấy giá trị tourDate từ form
+    const tourDate = form.getFieldValue("tourDate");
+    if (!tourDate || tourDate.length < 2) {
+      return false;
+    }
+    const startDate = tourDate[0];
+    const endDate = tourDate[1];
+    return current && (current < startDate || current > endDate);
+  };
+
+  // Lấy giá trị defaultPickerValue từ tourDate
+  const getDefaultPickerValue = () => {
+    const tourDate = form.getFieldValue("tourDate");
+    if (!tourDate || tourDate.length < 2) {
+      return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
+    }
+    return tourDate[0]; // Sử dụng ngày bắt đầu của tourDate
+  };
+
   return (
     <>
       <Modal
@@ -242,7 +263,12 @@ const EventGalasSection = ({
                       { required: true, message: " Vui lòng chọn thời gian!" },
                     ]}
                   >
-                    <DatePicker showTime onChange={handleDateChange} />
+                    <DatePicker
+                      disabledDate={disabledDate}
+                      defaultPickerValue={[getDefaultPickerValue()]}
+                      showTime
+                      onChange={handleDateChange}
+                    />
                   </Form.Item>
                 </div>
                 {selectedEvent && (

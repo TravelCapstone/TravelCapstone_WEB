@@ -29,6 +29,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getAllFacilityByLocationAndRatingId } from "../../../../../../api/FacilityApi";
 import { getMenuByFacilityId } from "../../../../../../api/MenuApi";
 import { getPriceOfMeal } from "../../../../../../api/SellPriceHistoryApi";
+import moment from "moment";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -311,7 +312,7 @@ const DaySection = ({
               handleServingQuantityChange(record.key, value);
             }}
           >
-            <Option value={1}>Bàn lẻ 1 người</Option>
+            <Option value={1}>Bàn 5 người</Option>
             <Option value={10}>Bàn 10 người</Option>
           </Select>
         </Form.Item>
@@ -339,7 +340,7 @@ const DaySection = ({
               ? filteredPrices.map((price) => (
                   <div key={price.serviceTypeId}>
                     {price.servingQuantity === 1
-                      ? "Bàn lẻ 1 người: "
+                      ? "Bàn 5 người: "
                       : "Bàn 10 người: "}
                     {price.minPrice.toLocaleString("vi-VN", {
                       style: "currency",
@@ -355,7 +356,7 @@ const DaySection = ({
               : prices.map((price) => (
                   <div key={price.serviceTypeId}>
                     {price.servingQuantity === 1
-                      ? "Bàn lẻ 1 người: "
+                      ? "Bàn 5 người: "
                       : "Bàn 10 người: "}
                     {price.minPrice.toLocaleString("vi-VN", {
                       style: "currency",
@@ -614,6 +615,26 @@ const RestaurantSection = ({
     return String.fromCharCode(97 + index);
   };
 
+  const disabledDate = (current) => {
+    // Lấy giá trị tourDate từ form
+    const tourDate = form.getFieldValue("tourDate");
+    if (!tourDate || tourDate.length < 2) {
+      return false;
+    }
+    const startDate = tourDate[0];
+    const endDate = tourDate[1];
+    return current && (current < startDate || current > endDate);
+  };
+
+  // Lấy giá trị defaultPickerValue từ tourDate
+  const getDefaultPickerValue = () => {
+    const tourDate = form.getFieldValue("tourDate");
+    if (!tourDate || tourDate.length < 2) {
+      return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
+    }
+    return tourDate[0]; // Sử dụng ngày bắt đầu của tourDate
+  };
+
   return (
     <Form.List name={[...basePath, "restaurants"]}>
       {(fields, { add, remove }) => (
@@ -637,6 +658,8 @@ const RestaurantSection = ({
                     ]}
                   >
                     <DatePicker
+                      disabledDate={disabledDate}
+                      defaultPickerValue={[getDefaultPickerValue()]}
                       showTime
                       className="!min-w-[300px]"
                       onChange={handleDateChange}

@@ -71,7 +71,7 @@ const EachServiceSection = ({
         const response = await getAllDistrictsByProvinceId(selectedProvince);
         setDistricts(response);
       } catch (error) {
-        message.error("Failed to fetch districts");
+        log.error("Failed to fetch districts");
       } finally {
         setLoadingDistricts(false);
       }

@@ -148,6 +148,22 @@ function TourRequestSection({ request }) {
                 )}
               </span>
             </div>
+            <div className="flex">
+              <div className="mb-3">
+                <span className="font-bold ">Khoảng thời gian:</span>
+                <span className="font-normal  ml-3">
+                  {request?.privateTourResponse?.numOfDay} ngày{" "}
+                  {request?.privateTourResponse?.numOfNight} đêm
+                </span>
+              </div>
+              <div className="ml-10">
+                <span className="font-bold ">Thời gian rảnh dự kiến:</span>
+                <span className="font-normal  ml-3">
+                  {formatDate(request?.privateTourResponse?.startDate)} -{" "}
+                  {formatDate(request?.privateTourResponse?.endDate)}
+                </span>
+              </div>
+            </div>
             {/* Các thông tin khác */}
           </div>
         </div>
