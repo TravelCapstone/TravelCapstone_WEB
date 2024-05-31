@@ -34,6 +34,7 @@ import CustomSurchangeSection from "./FieldServices/CustomSurchangeSection";
 import EventGalasSection from "./FieldServices/eventGalasSection";
 import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
 import { usePrice } from "../../../../../context/PriceContext";
+import { alertFail, alertSuccess } from "../../../../../hook/useNotification";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -58,6 +59,8 @@ function CreateOptionForm({ request }) {
 
   const [startDateChange, setStartDateChange] = useState(null);
   const [endDateChange, setEndDateChange] = useState(null);
+  const [jsonCustomEventJsonString, setJsonCustomEventJsonString] =
+    useState(null);
 
   console.log("endDateChange", endDateChange);
   console.log("startDateChange", startDateChange);
@@ -198,7 +201,6 @@ function CreateOptionForm({ request }) {
   };
 
   console.log("request", request);
-  console.log("selectedProvince", selectedProvince);
 
   const renderOtherLocations = (locations) => {
     return locations?.map((location) => (
@@ -318,7 +320,7 @@ function CreateOptionForm({ request }) {
     }
 
     // Add other tour guide costs from formData
-    values.tourGuideCosts.forEach((guide) => {
+    values?.tourGuideCosts?.forEach((guide) => {
       tourGuideCosts.push({
         quantity: guide.quantity,
         numOfDay: guide.numOfDay,
@@ -356,7 +358,7 @@ function CreateOptionForm({ request }) {
         {
           date: values.eventGala.date,
           eventId: values.eventGala.eventId,
-          customEvent: "string",
+          customEvent: jsonCustomEventJsonString,
         },
       ],
       provinceServices: values.provinceServices.map((service) => ({
@@ -421,10 +423,19 @@ function CreateOptionForm({ request }) {
     try {
       const response = await createOptionsPrivateTour(payload);
       console.log("response", response);
-      message.success("Tour plan created successfully!");
-      form.resetFields();
+
+      if (response?.data?.isSuccess) {
+        alertSuccess("Tạo Gói Tour Thành Công!");
+        form.resetFields(); // Reset all fields in the form
+      } else {
+        for (const message in response.messages) {
+          alertFail(message);
+        }
+      }
     } catch (error) {
-      message.error(error.message || "Failed to create tour plan!");
+      alertFail(
+        "An error occurred while creating the tour. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
@@ -700,6 +711,8 @@ function CreateOptionForm({ request }) {
               </h3>
               <EventGalasSection
                 request={request}
+                jsonCustomEventJsonString={jsonCustomEventJsonString}
+                setJsonCustomEventJsonString={setJsonCustomEventJsonString}
                 form={form}
                 provinces={provinces}
                 districts={districts}
@@ -739,10 +752,10 @@ function CreateOptionForm({ request }) {
           <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
             DỊCH VỤ RIÊNG TỪNG GÓI
           </h2>
-          {/* <div className="mt-10">
+          <div className="mt-10">
             <h3>Form Data:</h3>
             <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
-          </div> */}
+          </div>
 
           <div className=" mx-4">
             <EachServiceSection

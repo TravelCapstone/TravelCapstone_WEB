@@ -148,7 +148,7 @@ function TourRequestSection({ request }) {
                 )}
               </span>
             </div>
-            <div className="flex">
+            <div className="flex text-sm">
               <div className="mb-3">
                 <span className="font-bold ">Khoảng thời gian:</span>
                 <span className="font-normal  ml-3">

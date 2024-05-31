@@ -12,4 +12,17 @@ const fetchEventListWithQuantity = async (quantity) => {
   }
 };
 
-export { fetchEventListWithQuantity };
+const updateEventDetails = async (eventId, eventDetails) => {
+  try {
+    const response = await api.post(`/event/create-custom-event-string`, {
+      eventId,
+      eventDetailPriceHistoryRequests: eventDetails
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating event details:", error);
+  }
+};
+
+
+export { fetchEventListWithQuantity, updateEventDetails};
