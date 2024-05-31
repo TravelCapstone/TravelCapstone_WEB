@@ -28,9 +28,9 @@ import {
   getProvinceByName,
 } from "../../../api/LocationApi";
 import AddressSearchMultiple from "../../../api/SearchAddress/SearchAddressMulti";
-import RoomTypeSection from "../RoomTypeSection";
 import { getAllFacilityRating } from "../../../api/FacilityApi";
 import moment from "moment";
+import DetailFamilySection from "../Sections/DetailFamilySection";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -56,9 +56,55 @@ function TourRequestForm() {
   const [startDate, setStartDate] = useState(null);
 
   const [endDate, setEndDate] = useState(null);
+  const [numOfFamily, setNumOfFamily] = useState(0);
 
   console.log("hotelRatings", hotelRatings);
   console.log("restaurantRatings", restaurantRatings);
+
+  //Giới hạn tổng số người lớn và trẻ em cho từng Gia đình
+  const [adultLimit, setAdultLimit] = useState(0);
+  const [childrenLimit, setChildrenLimit] = useState(0);
+
+  //  Theo dõi tổng số người để giới hạn giới tính
+  const [adultCount, setAdultCount] = useState(0);
+  const [childrenCount, setChildrenCount] = useState(0);
+  const [singleMaleCount, setSingleMaleCount] = useState(0);
+  const [singleFemaleCount, setSingleFemaleCount] = useState(0);
+
+  const [totalLimitFamily, setTotalLimitFamily] = useState(0);
+
+  useEffect(() => {
+    let calculatedLimit;
+    if (adultLimit > childrenLimit) {
+      calculatedLimit = Math.floor((adultLimit + childrenLimit) / 2);
+    } else {
+      calculatedLimit = adultLimit;
+    }
+    setTotalLimitFamily(calculatedLimit);
+  }, [adultLimit, childrenLimit]); // Update when limits change
+
+  const handleAdultChange = (value) => {
+    setAdultLimit(value);
+    setAdultCount(value);
+    calculateFemaleCount(value, childrenCount, singleMaleCount);
+  };
+
+  const handleChildrenChange = (value) => {
+    setChildrenLimit(value);
+    setChildrenCount(value);
+    calculateFemaleCount(adultCount, value, singleMaleCount);
+  };
+
+  const handleMaleChange = (value) => {
+    setSingleMaleCount(value);
+    calculateFemaleCount(adultCount, childrenCount, value);
+  };
+
+  const calculateFemaleCount = (adults, children, males) => {
+    const totalParticipants = adults + children;
+    const females = totalParticipants - males;
+    setSingleFemaleCount(females >= 0 ? females : 0);
+  };
 
   useEffect(() => {
     if (selectedLocations.length === 1) {
@@ -306,6 +352,9 @@ function TourRequestForm() {
       description: formValues["description"],
       numOfAdult: formValues["adult"],
       numOfChildren: formValues["children"],
+      numOfFamily: formValues["numOfFamily"],
+      numOfSingleMale: formValues["numOfSingleMale"],
+      numOfSingleFemale: formValues["numOfSingleFemale"],
       numOfDay: days,
       numOfNight: nights,
       startLocation: formValues["startLocation"],
@@ -316,10 +365,18 @@ function TourRequestForm() {
       isEnterprise: formValues["isEnterprise"],
       minimumHotelRatingId: formValues["minimumHotelRatingId"],
       minimumRestaurantRatingId: formValues["minimumRestaurantRatingId"],
-      roomQuantityDetailRequest: formValues["roomTypes"].map((loc) => ({
-        quantityPerRoom: loc.RoomType,
-        totalRoom: loc.totalRoom,
-      })),
+      // roomQuantityDetailRequest: formValues["roomTypes"].map((loc) => ({
+      //   quantityPerRoom: loc.RoomType,
+      //   totalRoom: loc.totalRoom,
+      // })),
+      familyDetails: [
+        {
+          numOfChildren: 0,
+          numOfAdult: 0,
+          totalFamily: 0,
+        },
+      ],
+
       otherLocation: selectedLocations.map((loc) => ({
         address: loc.location,
         provinceId: loc.provinceId,
@@ -411,13 +468,35 @@ function TourRequestForm() {
 
   console.log("maxDays", maxDays);
 
+  const handleValuesChange = (changedValues, allValues) => {
+    if ("numOfFamily" in changedValues) {
+      const numOfFamily = changedValues.numOfFamily || 0;
+      const currentItems = form.getFieldValue("familyDetails") || [];
+      setNumOfFamily(changedValues.numOfFamily);
+      if (numOfFamily !== currentItems.length) {
+        const newItems = Array(numOfFamily)
+          .fill()
+          .map((_, index) => currentItems[index] || {});
+        form.setFieldsValue({ familyDetails: newItems });
+      }
+    }
+  };
+  const TotalLimit = adultLimit + childrenLimit;
+  // const TotalLimitFamily = Math.floor((adultLimit + childrenLimit) / 2);
+
   return (
     <div className="mt-32 container">
       <div className="text-3xl text-center font-bold uppercase my-6">
         Đặt tour theo yêu cầu
       </div>
       <div className="max-w-[800px] mx-auto mb-12">
-        <Form form={form} onFinish={onFinish} className="" layout="vertical">
+        <Form
+          form={form}
+          onFinish={onFinish}
+          className=""
+          layout="vertical"
+          onValuesChange={handleValuesChange}
+        >
           <Form.Item
             label="Họ tên người đại diện:"
             name="username"
@@ -637,7 +716,7 @@ function TourRequestForm() {
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
-              className="ml-3"
+              className="ml-3 flex-wrap"
             >
               <Form.Item
                 name="startDate"
@@ -689,7 +768,7 @@ function TourRequestForm() {
           <Form.Item
             name="daysTour"
             label="Số ngày diễn ra tour:"
-            className="flex font-semibold"
+            className="flex flex-wrap font-semibold items-center"
             rules={[{ required: true, message: "Vui lòng nhập số ngày!" }]}
           >
             <div
@@ -698,17 +777,17 @@ function TourRequestForm() {
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
-              className="ml-3"
+              className="ml-3 flex flex-wrap "
             >
               <Form.Item
                 name="days"
                 label="Số ngày:"
-                className="font-normal "
-                style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
+                className="font-normal mr-20 "
+                // style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
               >
                 <InputNumber
                   className="text-right"
-                  min={1}
+                  min={2}
                   max={maxDays}
                   // value={days}
                   onChange={handleDaysChange}
@@ -731,7 +810,7 @@ function TourRequestForm() {
             </div>
           </Form.Item>
 
-          <div className="flex justify-around">
+          <div className="flex flex-wrap justify-around">
             <Form.Item
               name="adult"
               label={
@@ -754,7 +833,7 @@ function TourRequestForm() {
                 },
               ]}
             >
-              <InputNumber min={1} onChange={calculateTotalRooms} />
+              <InputNumber min={1} onChange={handleAdultChange} />
             </Form.Item>
 
             <Form.Item
@@ -779,15 +858,77 @@ function TourRequestForm() {
                 },
               ]}
             >
-              <InputNumber min={0} onChange={calculateTotalRooms} />
+              <InputNumber min={0} onChange={handleChildrenChange} />
             </Form.Item>
           </div>
+
+          <div className="flex flex-wrap justify-around">
+            <Form.Item
+              name="numOfSingleMale"
+              label={<span>Số lượng giới nam: &nbsp;</span>}
+              className="font-semibold w-1/2"
+            >
+              <InputNumber
+                max={TotalLimit}
+                min={0}
+                onChange={handleMaleChange}
+              />
+            </Form.Item>
+            <Form.Item
+              name="numOfSingleFemale"
+              label={<span>Số lượng giới nữ: &nbsp;</span>}
+              className="font-semibold w-1/2"
+            >
+              <InputNumber
+                min={0}
+                placeholder={singleFemaleCount.toString()}
+                value={singleFemaleCount}
+                disabled
+              />
+            </Form.Item>
+          </div>
+
+          <Form.Item
+            name="numOfFamily"
+            label={
+              <span>
+                Số gia đình: &nbsp;
+                <Tooltip title="Chúng tôi sẽ xếp gia đình 1 phòng lưu trú, Nếu không có gia đình hoặc không mong muốn xếp chung phòng thì điền 0.">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+            className="w-1/2 font-semibold"
+            rules={[
+              {
+                required: true,
+                message: (
+                  <div>
+                    <WarningFilled /> Vui lòng nhập số gia đình đúng !
+                  </div>
+                ),
+              },
+            ]}
+          >
+            <InputNumber max={totalLimitFamily} min={0} />
+          </Form.Item>
+          {numOfFamily > 0 && (
+            <div className="flex ">
+              <div>
+                <p className="font-semibold text-lg mb-4">
+                  Chi tiết trong gia đình:
+                </p>
+                <DetailFamilySection
+                  form={form}
+                  adultLimit={adultLimit}
+                  childrenLimit={childrenLimit}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-wrap justify-between my-2">
             <div>
-              {/* <p className="font-semibold text-lg mb-4">
-                Hạng thấp nhất của nơi lưu trú mong muốn:
-              </p> */}
-
               <Form.Item
                 name="minimumHotelRatingId"
                 className="font-semibold"
@@ -813,10 +954,6 @@ function TourRequestForm() {
               </Form.Item>
             </div>
             <div>
-              {/* <p className="font-semibold text-lg mb-4">
-                Hạng thấp nhất của nơi ăn uống mong muốn:
-              </p> */}
-
               <Form.Item
                 label="Hạng thấp nhất của nơi ăn uống mong muốn:"
                 name="minimumRestaurantRatingId"
@@ -842,13 +979,13 @@ function TourRequestForm() {
               </Form.Item>
             </div>
           </div>
-          <div>
+          {/* <div>
             <p className="font-semibold text-lg mb-4">Loại phòng mong muốn:</p>
             <RoomTypeSection
               form={form}
               onRoomTypeChange={calculateTotalRooms}
             />
-          </div>
+          </div> */}
 
           <Form.Item
             label={
