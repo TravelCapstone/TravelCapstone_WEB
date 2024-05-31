@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Form, Select, DatePicker, Space, message, Input } from "antd";
 import { DeleteOutlined, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import {
@@ -140,43 +140,50 @@ const TransportationSection = ({
     request?.privateTourResponse?.startLocationCommune?.district?.provinceId;
   const startProvinceName = request?.privateTourResponse?.startLocation;
 
-  // Thêm startProvince vào danh sách provinces
-  let updatedProvinces = [
-    { id: startProvinceId, name: startProvinceName },
-    ...provinces.filter((province) => province.id !== startProvinceId),
-  ];
+  // // Thêm startProvince vào danh sách provinces
+  // let updatedProvinces = [
+  //   { id: startProvinceId, name: startProvinceName },
+  //   ...provinces.filter((province) => province.id !== startProvinceId),
+  // ];
 
-  // Loại bỏ các phần tử trùng lặp
-  updatedProvinces = updatedProvinces.reduce((acc, current) => {
-    const x = acc.find((item) => item.id === current.id);
-    if (!x) {
-      return acc.concat([current]);
-    } else {
-      return acc;
-    }
-  }, []);
+  // // Loại bỏ các phần tử trùng lặp
+  // updatedProvinces = updatedProvinces.reduce((acc, current) => {
+  //   const x = acc.find((item) => item.id === current.id);
+  //   if (!x) {
+  //     return acc.concat([current]);
+  //   } else {
+  //     return acc;
+  //   }
+  // }, []);
+
+  const updatedProvinces = useMemo(() => {
+    // Thêm startProvince vào đầu mảng provinces và loại bỏ trùng lặp
+    let provincesWithStart = [
+      { id: startProvinceId, name: startProvinceName },
+      ...provinces,
+    ];
+    return provincesWithStart.filter(
+      (v, i, a) => a.findIndex((t) => t.id === v.id) === i
+    );
+  }, [startProvinceId, startProvinceName, provinces]);
 
   console.log("updatedProvinces", updatedProvinces);
   console.log("provinces", provinces);
 
-  const getSuggestPath = async () => {
+  const getSuggestPath = useCallback(async () => {
     const result = updatedProvinces.map((item) => item.id);
-
-    // Thêm startProvinceId vào đầu mảng result
-    // result.unshift(updatedProvinces);
-
     console.log("resultgetSuggestPath", result);
     const data = await getOptimalPath(result[0], result);
     if (data.isSuccess) {
       setOptimalPath(data.result);
     }
-  };
+  }, [updatedProvinces]); // Khai báo dependencies cho useCallback
 
   useEffect(() => {
     if (updatedProvinces.length > 0) {
       getSuggestPath();
     }
-  }, [updatedProvinces]);
+  }, [updatedProvinces, getSuggestPath]);
 
   const handleSelectForSwap = (index) => {
     const newSelection = [...selectedForSwap, index];

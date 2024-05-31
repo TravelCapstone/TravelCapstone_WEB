@@ -51,3 +51,10 @@ body {
 :where(.css-dev-only-do-not-override-11xg00t).ant-list .ant-list-items{
   display: flex;
 }
+
+:where(.css-dev-only-do-not-override-11xg00t).ant-modal .ant-modal-title {
+  font-weight: 650 !important;
+  font-size: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
