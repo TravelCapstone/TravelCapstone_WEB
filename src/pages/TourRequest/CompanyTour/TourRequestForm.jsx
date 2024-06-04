@@ -35,12 +35,15 @@ import DetailFamilySection from "../Sections/DetailFamilySection";
 
 import "../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
+import LoadingOverlay from "../../../components/Loading/LoadingOverlay";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 const { Option } = Select;
 
 function TourRequestForm() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [value, setValue] = useState();
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [valueFoodType, setValueFoodType] = useState();
@@ -57,10 +60,14 @@ function TourRequestForm() {
   const [hotelRatings, setHotelRatings] = useState([]);
   const [restaurantRatings, setRestaurantRatings] = useState([]);
 
+  const [totalAdults, setTotalAdults] = useState(0);
+  const [totalChildren, setTotalChildren] = useState(0);
+
   const [startDate, setStartDate] = useState(null);
 
   const [endDate, setEndDate] = useState(null);
-  const [numOfFamily, setNumOfFamily] = useState(0);
+  const [numOfAdultsTour, setNumOfAdultsTour] = useState(0);
+  const [numOfChildrenTour, setNumOfChildrenTour] = useState(0);
 
   console.log("hotelRatings", hotelRatings);
   console.log("restaurantRatings", restaurantRatings);
@@ -74,6 +81,9 @@ function TourRequestForm() {
   const [childrenCount, setChildrenCount] = useState(0);
   const [singleMaleCount, setSingleMaleCount] = useState(0);
   const [singleFemaleCount, setSingleFemaleCount] = useState(0);
+
+  const [numOfSingleMale, setNumOfSingleMale] = useState(0);
+  const [numOfSingleFemale, setNumOfSingleFemale] = useState(0);
 
   const [totalLimitFamily, setTotalLimitFamily] = useState(0);
 
@@ -99,11 +109,6 @@ function TourRequestForm() {
     setChildrenLimit(value);
     setChildrenCount(value);
     calculateFemaleCount(adultCount, value, singleMaleCount);
-  };
-
-  const handleMaleChange = (value) => {
-    setSingleMaleCount(value);
-    calculateFemaleCount(adultCount, childrenCount, value);
   };
 
   const calculateFemaleCount = (adults, children, males) => {
@@ -357,8 +362,8 @@ function TourRequestForm() {
       startDate,
       endDate,
       description: formValues["description"],
-      numOfAdult: formValues["adult"],
-      numOfChildren: formValues["children"],
+      numOfAdult: totalAdults + totalSingleGuests,
+      numOfChildren: totalChildren,
       numOfFamily: formValues["numOfFamily"],
       numOfSingleMale: formValues["numOfSingleMale"],
       numOfSingleFemale: formValues["numOfSingleFemale"],
@@ -387,6 +392,7 @@ function TourRequestForm() {
       wishPrice: formValues["budget"],
     };
     console.log("tourData", tourData);
+    setIsLoading(true);
     try {
       const response = await createPrivateTour(tourData);
 
@@ -406,6 +412,8 @@ function TourRequestForm() {
       alertFail(
         "An error occurred while creating the tour. Please try again later."
       );
+    } finally {
+      setIsLoading(false); // Set loading to false after the form submission is complete
     }
   };
 
@@ -495,397 +503,511 @@ function TourRequestForm() {
   const handleEndDateBlur = () => {
     form.validateFields(["endDate"]);
   };
+
+  const handleMaleChange = (value) => {
+    setNumOfSingleMale(value || 0); // nếu value là undefined hoặc null, đặt thành 0
+  };
+
+  const handleFemaleChange = (value) => {
+    setNumOfSingleFemale(value || 0); // nếu value là undefined hoặc null, đặt thành 0
+  };
+
+  const totalSingleGuests = numOfSingleMale + numOfSingleFemale;
   return (
-    <div className="mt-32 container">
-      <div className="text-3xl text-center font-bold uppercase my-6">
-        Đặt tour theo yêu cầu
-      </div>
-      <div className="max-w-[800px] mx-auto mb-12">
-        <Form form={form} onFinish={onFinish} className="" layout="vertical">
-          <Form.Item
-            label="Họ tên người đại diện:"
-            name="username"
-            className="font-semibold"
-            rules={[
-              {
-                required: true,
-                message: (
-                  <div>
-                    <WarningFilled /> Vui lòng nhập họ và tên!
-                  </div>
-                ),
-              },
-              {
-                max: 50,
-                message: (
-                  <div>
-                    <WarningFilled /> Độ dài vượt quá 50 kí tự!
-                  </div>
-                ),
-              },
-            ]}
-          >
-            <Input className="h-10" />
-          </Form.Item>
-          <Form.Item
-            label="Số điện thoại liên hệ:"
-            name="phone"
-            className="font-semibold"
-            rules={[
-              {
-                required: true,
-                message: (
-                  <div>
-                    <WarningFilled /> Vui lòng nhập số điện thoại!
-                  </div>
-                ),
-              },
-              {
-                min: 9,
-                message: (
-                  <div>
-                    <WarningFilled /> Số điện thoại bao gồm ít nhất 9 số!
-                  </div>
-                ),
-              },
-              {
-                max: 10,
-                message: (
-                  <div>
-                    <WarningFilled /> Số điện thoại vượt quá 10 số!
-                  </div>
-                ),
-              },
-            ]}
-          >
-            <Input addonBefore={prefixSelector} style={{ width: "100%" }} />
-          </Form.Item>
-          <div className="font-semibold border-b-2 mt-8 mb-4 text-xl">
-            <h4 className="pb-2 uppercase">Thông tin tour yêu cầu</h4>
-          </div>
-          <Form.Item
-            label="Phân loại tour:"
-            name="isEnterprise"
-            className="font-semibold"
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-          >
-            <Radio.Group onChange={onChange} defaultValue={value}>
-              <Radio className="font-normal" value={true}>
-                Tour gia đình
-              </Radio>
-              <Radio className="font-normal" value={false}>
-                Tour đoàn thể (doanh nghiệp)
-              </Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          <Form.Item
-            label="Hình thức ăn:"
-            name="foodType"
-            className="font-semibold"
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-          >
-            <Radio.Group onChange={onChangeFoodType} defaultValue={value}>
-              <Radio className="font-normal" value={0}>
-                Ăn chay
-              </Radio>
-              <Radio className="font-normal" value={1}>
-                Ăn mặn
-              </Radio>
-              <Radio className="font-normal" value={2}>
-                Có người ăn chay, có người ăn mặn
-              </Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          <Flex vertical gap={32}>
+    <>
+      <LoadingOverlay isLoading={isLoading} />
+      <div className="mt-32 container">
+        <div className="text-3xl text-center font-bold uppercase my-6">
+          Đặt tour theo yêu cầu
+        </div>
+        <div className="max-w-[800px] mx-auto mb-12">
+          <Form form={form} onFinish={onFinish} className="" layout="vertical">
             <Form.Item
-              label="Mô tả yêu cầu:"
+              label="Họ tên người đại diện:"
+              name="username"
               className="font-semibold"
-              name="description"
-            >
-              <TextArea
-                rows={6}
-                showCount
-                maxLength={225}
-                className="h-10"
-                placeholder="Nhập mô tả yêu cầu (VD: 10 người ăn chay, dị ứng món gì, .... )"
-                style={{
-                  height: 120,
-                  //   resize: 'none',
-                }}
-              />
-            </Form.Item>
-          </Flex>
-
-          <Form.Item
-            name="locations"
-            label={
-              <span>
-                Địa điểm mong muốn: &nbsp;
-                <Tooltip title="Bạn có thể chọn nhiều địa điểm trên thanh tìm kiếm!">
-                  <QuestionCircleOutlined />
-                </Tooltip>
-              </span>
-            }
-            className="font-semibold"
-            rules={[
-              {
-                required: true,
-                message: "Chọn ít nhất 1 địa điểm mà bạn muốn thăm",
-              },
-            ]}
-          >
-            <AddressSearchMultiple onChange={handleLocationsChange} />
-          </Form.Item>
-          {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
-          {selectedLocations.length > 1 && (
-            <Form.Item
-              name="mainLocation"
-              label="Địa điểm mong muốn chính (địa điểm quan trọng nhất):"
-              className="font-semibold"
-              rules={[
-                { required: true, message: "Chọn một địa điểm quan trọng" },
-              ]}
-            >
-              <Select
-                placeholder="Chọn địa điểm chính"
-                showSearch
-                style={{ width: "100%" }}
-                value={mainLocation}
-                onChange={handleMainLocationChange}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-              >
-                {selectedLocations.map((location) => (
-                  <Option key={location.location} value={location.provinceName}>
-                    {location.description}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          )}
-          <Form.Item
-            name="startLocation"
-            label={
-              <span>
-                Địa chỉ xuất phát hoặc tập trung: &nbsp;
-                <Tooltip
-                  title="Nếu điền địa chỉ xuất phát hoặc tập trung thì chúng tôi sẽ chuẩn bị cho bạn phương tiện đưa đón phù hợp 
-                  tới điểm bắt đầu chuyến tour!"
-                >
-                  <QuestionCircleOutlined />
-                </Tooltip>
-              </span>
-            }
-            className="font-semibold"
-          >
-            <AddressSearch onChange={handleAddressSelect} />
-          </Form.Item>
-
-          <Form.Item
-            name="range-picker"
-            label={
-              <span>
-                Khoảng thời gian rảnh để diễn ra tour: &nbsp;
-                <Tooltip title="Nên cho chúng tôi khoảng thời gian rảnh của bạn để diễn ra tour để chúng tôi sắp xếp tour tốt nhất cho bạn.">
-                  <QuestionCircleOutlined />
-                </Tooltip>
-              </span>
-            }
-            className="font-semibold"
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-              className="ml-3 flex-wrap"
-            >
-              <ConfigProvider locale={viVN}>
-                <Form.Item
-                  name="startDate"
-                  label={
-                    <span>
-                      Từ ngày: &nbsp;
-                      <Tooltip title="Bạn được chọn trong khoảng từ 10 ngày sau ngày hiện tại trở đi để chúng tôi sắp xếp tour cho bạn tốt nhất!">
-                        <QuestionCircleOutlined />
-                      </Tooltip>
-                    </span>
-                  }
-                  // rules={[
-                  //   { required: true, message: " Vui lòng chọn thời gian!" },
-                  // ]}
-                >
-                  <DatePicker
-                    showTime
-                    disabledDate={disabledStartDate}
-                    onChange={handleStartDateChange}
-                    onBlur={handleStartDateBlur}
-                    format="DD-MM-YYYY HH:mm:ss"
-                  />
-                </Form.Item>
-              </ConfigProvider>
-
-              <ConfigProvider locale={viVN}>
-                <Form.Item
-                  name="endDate"
-                  label={
-                    <span>
-                      Đến ngày: &nbsp;
-                      <Tooltip title="Ngày kết thúc ít nhất sau 2 ngày bắt đầu">
-                        <QuestionCircleOutlined />
-                      </Tooltip>
-                    </span>
-                  }
-                  // rules={[
-                  //   { required: true, message: " Vui lòng chọn thời gian!" },
-                  // ]}
-                >
-                  <DatePicker
-                    showTime
-                    disabledDate={disabledEndDate}
-                    disabled={!startDate}
-                    onChange={handleEndDateChange}
-                    defaultPickerValue={getDefaultPickerValueEndDate()}
-                    onBlur={handleEndDateBlur}
-                    format="DD-MM-YYYY HH:mm:ss"
-                  />
-                </Form.Item>
-              </ConfigProvider>
-            </div>
-          </Form.Item>
-
-          <Form.Item
-            name="daysTour"
-            label="Số ngày diễn ra tour:"
-            className="flex flex-wrap font-semibold items-center"
-            rules={[{ required: true, message: "Vui lòng nhập số ngày!" }]}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-              className="ml-3 flex flex-wrap "
-            >
-              <Form.Item
-                name="days"
-                label="Số ngày:"
-                className="font-normal mr-20 "
-                // style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
-              >
-                <InputNumber
-                  className="text-right"
-                  min={2}
-                  max={maxDays}
-                  // value={days}
-                  onChange={handleDaysChange}
-                />
-              </Form.Item>
-              <Form.Item
-                name="nights"
-                label="Số đêm:"
-                className="font-normal"
-                style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
-              >
-                <InputNumber
-                  value={nights}
-                  placeholder={nights}
-                  min={nights}
-                  max={nights + 1}
-                  className="text-right"
-                />
-              </Form.Item>
-            </div>
-          </Form.Item>
-          <p className="text-sm font-semibold">
-            Số lượng hành khách: &nbsp;
-            <Tooltip title="Điền chi tiết số lượng hành khách để chúng tôi xếp phòng lưu trú phù hợp nhất cho bạn!">
-              <QuestionCircleOutlined />
-            </Tooltip>
-          </p>
-          <div className="mt-5 flex flex-wrap ">
-            <p className="text-sm font-bold mr-6 ml-4">
-              1. Khách lẻ: &nbsp;
-              <Tooltip title="Khách lẻ đảm bảo tất cả đều là Người lớn tính từ 1m4 trở lên và 16 tuổi trở lên">
-                <QuestionCircleOutlined />
-              </Tooltip>
-            </p>
-            {/* <div className="flex flex-wrap justify-around"> */}
-            <Form.Item
-              name="numOfSingleMale"
-              label={<span>Số lượng giới nam: &nbsp;</span>}
-              className="font-semibold "
-            >
-              <InputNumber max={100} min={0} onChange={handleMaleChange} />
-            </Form.Item>
-            <Form.Item
-              name="numOfSingleFemale"
-              label={<span>Số lượng giới nữ: &nbsp;</span>}
-              className="font-semibold "
-            >
-              <InputNumber max={100} min={0} />
-            </Form.Item>
-            {/* </div> */}
-          </div>
-
-          <div className="flex ">
-            <div>
-              <p className="text-sm font-bold mr-6 ml-4 my-4">
-                2. Khách có gia đình:
-              </p>
-              <DetailFamilySection
-                totalLimitFamily={totalLimitFamily}
-                form={form}
-                adultLimit={adultLimit}
-                childrenLimit={childrenLimit}
-              />
-            </div>
-          </div>
-          <div className="flex flex-wrap justify-around">
-            <Form.Item
-              name="adult"
-              label={
-                <span>
-                  Số người lớn: &nbsp;
-                  <Tooltip title="Người lớn tính từ 1m4 trở lên và 16 tuổi trở lên">
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </span>
-              }
-              className="w-1/2 font-semibold"
               rules={[
                 {
                   required: true,
                   message: (
                     <div>
-                      <WarningFilled /> Vui lòng nhập số lượng!
+                      <WarningFilled /> Vui lòng nhập họ và tên!
+                    </div>
+                  ),
+                },
+                {
+                  max: 50,
+                  message: (
+                    <div>
+                      <WarningFilled /> Độ dài vượt quá 50 kí tự!
                     </div>
                   ),
                 },
               ]}
             >
-              <InputNumber min={1} onChange={handleAdultChange} />
+              <Input className="h-10" />
+            </Form.Item>
+            <Form.Item
+              label="Số điện thoại liên hệ:"
+              name="phone"
+              className="font-semibold"
+              rules={[
+                {
+                  required: true,
+                  message: (
+                    <div>
+                      <WarningFilled /> Vui lòng nhập số điện thoại!
+                    </div>
+                  ),
+                },
+                {
+                  min: 9,
+                  message: (
+                    <div>
+                      <WarningFilled /> Số điện thoại bao gồm ít nhất 9 số!
+                    </div>
+                  ),
+                },
+                {
+                  max: 10,
+                  message: (
+                    <div>
+                      <WarningFilled /> Số điện thoại vượt quá 10 số!
+                    </div>
+                  ),
+                },
+              ]}
+            >
+              <Input addonBefore={prefixSelector} style={{ width: "100%" }} />
+            </Form.Item>
+            <div className="font-semibold border-b-2 mt-8 mb-4 text-xl">
+              <h4 className="pb-2 uppercase">Thông tin tour yêu cầu</h4>
+            </div>
+            <Form.Item
+              label="Phân loại tour:"
+              name="isEnterprise"
+              className="font-semibold"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Radio.Group onChange={onChange} defaultValue={value}>
+                <Radio className="font-normal" value={true}>
+                  Tour gia đình
+                </Radio>
+                <Radio className="font-normal" value={false}>
+                  Tour đoàn thể (doanh nghiệp)
+                </Radio>
+              </Radio.Group>
             </Form.Item>
 
             <Form.Item
-              name="children"
+              label="Hình thức ăn:"
+              name="foodType"
+              className="font-semibold"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Radio.Group onChange={onChangeFoodType} defaultValue={value}>
+                <Radio className="font-normal" value={0}>
+                  Ăn chay
+                </Radio>
+                <Radio className="font-normal" value={1}>
+                  Ăn mặn
+                </Radio>
+                <Radio className="font-normal" value={2}>
+                  Có người ăn chay, có người ăn mặn
+                </Radio>
+              </Radio.Group>
+            </Form.Item>
+
+            <Flex vertical gap={32}>
+              <Form.Item
+                label="Mô tả yêu cầu:"
+                className="font-semibold"
+                name="description"
+              >
+                <TextArea
+                  rows={6}
+                  showCount
+                  maxLength={225}
+                  className="h-10"
+                  placeholder="Nhập mô tả yêu cầu (VD: 10 người ăn chay, dị ứng món gì, .... )"
+                  style={{
+                    height: 120,
+                    //   resize: 'none',
+                  }}
+                />
+              </Form.Item>
+            </Flex>
+
+            <Form.Item
+              name="locations"
               label={
                 <span>
-                  Số trẻ em: &nbsp;
-                  <Tooltip title="Trẻ em tính từ 1m4 trở xuống và 16 tuổi trở xuống">
+                  Địa điểm mong muốn: &nbsp;
+                  <Tooltip title="Bạn có thể chọn nhiều địa điểm trên thanh tìm kiếm!">
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
+              className="font-semibold"
+              rules={[
+                {
+                  required: true,
+                  message: "Chọn ít nhất 1 địa điểm mà bạn muốn thăm",
+                },
+              ]}
+            >
+              <AddressSearchMultiple onChange={handleLocationsChange} />
+            </Form.Item>
+            {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
+            {selectedLocations.length > 1 && (
+              <Form.Item
+                name="mainLocation"
+                label="Địa điểm mong muốn chính (địa điểm quan trọng nhất):"
+                className="font-semibold"
+                rules={[
+                  { required: true, message: "Chọn một địa điểm quan trọng" },
+                ]}
+              >
+                <Select
+                  placeholder="Chọn địa điểm chính"
+                  showSearch
+                  style={{ width: "100%" }}
+                  value={mainLocation}
+                  onChange={handleMainLocationChange}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {selectedLocations.map((location) => (
+                    <Option
+                      key={location.location}
+                      value={location.provinceName}
+                    >
+                      {location.description}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            )}
+            <Form.Item
+              name="startLocation"
+              label={
+                <span>
+                  Địa chỉ xuất phát hoặc tập trung: &nbsp;
+                  <Tooltip
+                    title="Nếu điền địa chỉ xuất phát hoặc tập trung thì chúng tôi sẽ chuẩn bị cho bạn phương tiện đưa đón phù hợp 
+                  tới điểm bắt đầu chuyến tour!"
+                  >
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
+              className="font-semibold"
+            >
+              <AddressSearch onChange={handleAddressSelect} />
+            </Form.Item>
+
+            <Form.Item
+              name="range-picker"
+              label={
+                <span>
+                  Khoảng thời gian rảnh để diễn ra tour: &nbsp;
+                  <Tooltip title="Nên cho chúng tôi khoảng thời gian rảnh của bạn để diễn ra tour để chúng tôi sắp xếp tour tốt nhất cho bạn.">
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
+              className="font-semibold"
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+                className="ml-3 flex-wrap"
+              >
+                <ConfigProvider locale={viVN}>
+                  <Form.Item
+                    name="startDate"
+                    label={
+                      <span>
+                        Từ ngày: &nbsp;
+                        <Tooltip title="Bạn được chọn trong khoảng từ 10 ngày sau ngày hiện tại trở đi để chúng tôi sắp xếp tour cho bạn tốt nhất!">
+                          <QuestionCircleOutlined />
+                        </Tooltip>
+                      </span>
+                    }
+                    // rules={[
+                    //   { required: true, message: " Vui lòng chọn thời gian!" },
+                    // ]}
+                  >
+                    <DatePicker
+                      showTime
+                      disabledDate={disabledStartDate}
+                      onChange={handleStartDateChange}
+                      onBlur={handleStartDateBlur}
+                      format="DD-MM-YYYY HH:mm:ss"
+                    />
+                  </Form.Item>
+                </ConfigProvider>
+
+                <ConfigProvider locale={viVN}>
+                  <Form.Item
+                    name="endDate"
+                    label={
+                      <span>
+                        Đến ngày: &nbsp;
+                        <Tooltip title="Ngày kết thúc ít nhất sau 2 ngày bắt đầu">
+                          <QuestionCircleOutlined />
+                        </Tooltip>
+                      </span>
+                    }
+                    // rules={[
+                    //   { required: true, message: " Vui lòng chọn thời gian!" },
+                    // ]}
+                  >
+                    <DatePicker
+                      showTime
+                      disabledDate={disabledEndDate}
+                      disabled={!startDate}
+                      onChange={handleEndDateChange}
+                      defaultPickerValue={getDefaultPickerValueEndDate()}
+                      onBlur={handleEndDateBlur}
+                      format="DD-MM-YYYY HH:mm:ss"
+                    />
+                  </Form.Item>
+                </ConfigProvider>
+              </div>
+            </Form.Item>
+
+            <Form.Item
+              name="daysTour"
+              label="Số ngày diễn ra tour:"
+              className="flex flex-wrap font-semibold items-center"
+              rules={[{ required: true, message: "Vui lòng nhập số ngày!" }]}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+                className="ml-3 flex flex-wrap "
+              >
+                <Form.Item
+                  name="days"
+                  label="Số ngày:"
+                  className="font-normal mr-20 "
+                  // style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
+                >
+                  <InputNumber
+                    className="text-right"
+                    min={2}
+                    max={maxDays}
+                    // value={days}
+                    onChange={handleDaysChange}
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="nights"
+                  label="Số đêm:"
+                  className="font-normal"
+                  style={{ flex: "1", marginRight: "50px" }} // Adjust the margin as needed
+                >
+                  <InputNumber
+                    value={nights}
+                    placeholder={nights}
+                    min={nights}
+                    max={nights + 1}
+                    className="text-right"
+                  />
+                </Form.Item>
+              </div>
+            </Form.Item>
+            <p className="text-sm font-semibold">
+              Số lượng hành khách: &nbsp;
+              <Tooltip title="Điền chi tiết số lượng hành khách để chúng tôi xếp phòng lưu trú phù hợp nhất cho bạn!">
+                <QuestionCircleOutlined />
+              </Tooltip>
+            </p>
+            <div className="mt-5 flex flex-wrap ">
+              <p className="text-sm font-bold mr-6 ml-4">
+                1. Khách lẻ: &nbsp;
+                <Tooltip title="Khách lẻ đảm bảo tất cả đều là Người lớn tính từ 1m4 trở lên và 16 tuổi trở lên">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </p>
+              {/* <div className="flex flex-wrap justify-around"> */}
+              <Form.Item
+                name="numOfSingleMale"
+                label={<span>Số lượng giới nam: &nbsp;</span>}
+                className="font-semibold "
+              >
+                <InputNumber max={100} min={0} onChange={handleMaleChange} />
+              </Form.Item>
+              <Form.Item
+                name="numOfSingleFemale"
+                label={<span>Số lượng giới nữ: &nbsp;</span>}
+                className="font-semibold "
+              >
+                <InputNumber max={100} min={0} onChange={handleFemaleChange} />
+              </Form.Item>
+              {totalSingleGuests && (
+                <p className="self-center text-sm font-semibold text-right text-mainColor">
+                  Tổng số lượng khách lẻ: {totalSingleGuests} người lớn
+                </p>
+              )}
+              {/* </div> */}
+            </div>
+
+            <div className="flex ">
+              <div>
+                <p className="text-sm font-bold mr-6 ml-4 my-4">
+                  2. Khách có gia đình:
+                </p>
+                <DetailFamilySection
+                  totalLimitFamily={totalLimitFamily}
+                  totalAdults={totalAdults}
+                  totalChildren={totalChildren}
+                  setTotalAdults={setTotalAdults}
+                  setTotalChildren={setTotalChildren}
+                  form={form}
+                  adultLimit={adultLimit}
+                  childrenLimit={childrenLimit}
+                />
+              </div>
+            </div>
+            <div className="flex flex-wrap  mt-4">
+              <div className="flex">
+                <Form.Item
+                  name="adult"
+                  label="Tổng số người lớn:"
+                  className=" font-semibold"
+                >
+                  <p className="hidden">
+                    <InputNumber
+                      min={1}
+                      value={totalAdults + totalSingleGuests}
+                      onChange={handleAdultChange}
+                    />
+                  </p>
+                </Form.Item>
+                <p className="font-semibold text-mainColor">
+                  {" "}
+                  {totalAdults + totalSingleGuests} người
+                </p>
+              </div>
+              <div className="flex ml-10">
+                <Form.Item
+                  name="children"
+                  label="Tổng số trẻ em:"
+                  className="font-semibold"
+                >
+                  <p className="hidden">
+                    <InputNumber
+                      min={0}
+                      value={totalChildren}
+                      onChange={handleChildrenChange}
+                    />
+                  </p>
+                </Form.Item>
+                <p className="font-semibold text-mainColor">
+                  {" "}
+                  {totalChildren} người
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap justify-between mb-2">
+              <div>
+                <Form.Item
+                  name="minimumHotelRatingId"
+                  className="font-semibold"
+                  label="Hạng thấp nhất của nơi lưu trú mong muốn:"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Chọn hạng thấp nhất của nơi lưu trú ",
+                    },
+                  ]}
+                >
+                  <Select
+                    placeholder="Chọn hạng thấp nhất của nơi lưu trú"
+                    showSearch
+                    style={{ width: "90%" }}
+                  >
+                    {hotelRatings.map((rating) => (
+                      <Option key={rating.value} value={rating.value}>
+                        {rating.label}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </div>
+              <div>
+                <Form.Item
+                  label="Hạng thấp nhất của nơi ăn uống mong muốn:"
+                  name="minimumRestaurantRatingId"
+                  className="font-semibold"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Chọn hạng thấp nhất của nơi ăn uống ",
+                    },
+                  ]}
+                >
+                  <Select
+                    placeholder="Chọn hạng thấp nhất của nơi ăn uống "
+                    showSearch
+                    style={{ width: "90%" }}
+                  >
+                    {restaurantRatings.map((rating) => (
+                      <Option key={rating.value} value={rating.value}>
+                        {rating.label}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </div>
+            </div>
+            {/* <div>
+            <p className="font-semibold text-lg mb-4">Loại phòng mong muốn:</p>
+            <RoomTypeSection
+              form={form}
+              onRoomTypeChange={calculateTotalRooms}
+            />
+          </div> */}
+
+            <Form.Item
+              label={
+                <span>
+                  URL tour đề xuất (nếu có): &nbsp;
+                  <Tooltip title="URL tour đề xuất bởi Cóc Travel hoặc nguồn khác">
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
+              name="recommnendedTourUrl"
+              className="font-semibold "
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              name="budget"
+              label={
+                <span>
+                  Ngân sách: &nbsp;
+                  <Tooltip title="Ngân sách của bạn cho tour yêu cầu tính trên đầu người (người lớn).">
                     <QuestionCircleOutlined />
                   </Tooltip>
                 </span>
@@ -896,171 +1018,73 @@ function TourRequestForm() {
                   required: true,
                   message: (
                     <div>
-                      <WarningFilled /> Vui lòng nhập số lượng!
+                      <WarningFilled /> Vui lòng nhập ngân sách của bạn!
                     </div>
                   ),
                 },
               ]}
             >
-              <InputNumber min={0} onChange={handleChildrenChange} />
+              <div className="flex align-items-center">
+                <InputNumber min={0} className="w-[40%]" />
+                <span className="ml-2">VND / Người</span>
+              </div>
             </Form.Item>
-          </div>
 
-          <div className="flex flex-wrap justify-between my-2">
-            <div>
+            <Flex vertical gap={32}>
               <Form.Item
-                name="minimumHotelRatingId"
+                label="Yêu cầu khác:"
                 className="font-semibold"
-                label="Hạng thấp nhất của nơi lưu trú mong muốn:"
-                rules={[
-                  {
-                    required: true,
-                    message: "Chọn hạng thấp nhất của nơi lưu trú ",
-                  },
-                ]}
+                name="note"
               >
-                <Select
-                  placeholder="Chọn hạng thấp nhất của nơi lưu trú"
-                  showSearch
-                  style={{ width: "90%" }}
-                >
-                  {hotelRatings.map((rating) => (
-                    <Option key={rating.value} value={rating.value}>
-                      {rating.label}
-                    </Option>
-                  ))}
-                </Select>
+                <TextArea
+                  rows={6}
+                  showCount
+                  maxLength={225}
+                  className="h-10"
+                  placeholder="Nhập yêu cầu khác (VD: Vé máy bay di chuyển khứ hồi, Phương tiện di chuyển trong tour, phòng mấy người, loại phòng lưu trú, ...)"
+                  style={{
+                    height: 120,
+                    //   resize: 'none',
+                  }}
+                />
               </Form.Item>
-            </div>
-            <div>
-              <Form.Item
-                label="Hạng thấp nhất của nơi ăn uống mong muốn:"
-                name="minimumRestaurantRatingId"
-                className="font-semibold"
-                rules={[
-                  {
-                    required: true,
-                    message: "Chọn hạng thấp nhất của nơi ăn uống ",
-                  },
-                ]}
-              >
-                <Select
-                  placeholder="Chọn hạng thấp nhất của nơi ăn uống "
-                  showSearch
-                  style={{ width: "90%" }}
-                >
-                  {restaurantRatings.map((rating) => (
-                    <Option key={rating.value} value={rating.value}>
-                      {rating.label}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </div>
-          </div>
-          {/* <div>
-            <p className="font-semibold text-lg mb-4">Loại phòng mong muốn:</p>
-            <RoomTypeSection
-              form={form}
-              onRoomTypeChange={calculateTotalRooms}
-            />
-          </div> */}
-
-          <Form.Item
-            label={
-              <span>
-                URL tour đề xuất (nếu có): &nbsp;
-                <Tooltip title="URL tour đề xuất bởi Cóc Travel hoặc nguồn khác">
-                  <QuestionCircleOutlined />
-                </Tooltip>
-              </span>
-            }
-            name="recommnendedTourUrl"
-            className="font-semibold "
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="budget"
-            label={
-              <span>
-                Ngân sách: &nbsp;
-                <Tooltip title="Ngân sách của bạn cho tour yêu cầu tính trên đầu người (người lớn).">
-                  <QuestionCircleOutlined />
-                </Tooltip>
-              </span>
-            }
-            className="font-semibold w-1/2"
-            rules={[
-              {
-                required: true,
-                message: (
-                  <div>
-                    <WarningFilled /> Vui lòng nhập ngân sách của bạn!
-                  </div>
-                ),
-              },
-            ]}
-          >
-            <div className="flex align-items-center">
-              <InputNumber min={0} className="w-[40%]" />
-              <span className="ml-2">VND / Người</span>
-            </div>
-          </Form.Item>
-
-          <Flex vertical gap={32}>
+            </Flex>
             <Form.Item
-              label="Yêu cầu khác:"
-              className="font-semibold"
-              name="note"
+              name="agreement"
+              valuePropName="checked"
+              rules={[
+                {
+                  validator: (_, value) =>
+                    value
+                      ? Promise.resolve()
+                      : Promise.reject(
+                          new Error(
+                            "You must agree to the terms and conditions"
+                          )
+                        ),
+                },
+              ]}
             >
-              <TextArea
-                rows={6}
-                showCount
-                maxLength={225}
-                className="h-10"
-                placeholder="Nhập yêu cầu khác (VD: Vé máy bay di chuyển khứ hồi, Phương tiện di chuyển trong tour, phòng mấy người, loại phòng lưu trú, ...)"
-                style={{
-                  height: 120,
-                  //   resize: 'none',
-                }}
-              />
+              <Checkbox onChange={onCheckboxChange}>
+                Tôi đã đọc và đồng ý với các điều khoản, chính sách liên quan
+                tới Tour riêng tư.
+              </Checkbox>
             </Form.Item>
-          </Flex>
-          <Form.Item
-            name="agreement"
-            valuePropName="checked"
-            rules={[
-              {
-                validator: (_, value) =>
-                  value
-                    ? Promise.resolve()
-                    : Promise.reject(
-                        new Error("You must agree to the terms and conditions")
-                      ),
-              },
-            ]}
-          >
-            <Checkbox onChange={onCheckboxChange}>
-              Tôi đã đọc và đồng ý với các điều khoản, chính sách liên quan tới
-              Tour riêng tư.
-            </Checkbox>
-          </Form.Item>
 
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="w-full mt-2"
-              disabled={!isChecked}
-            >
-              Gửi yêu cầu
-            </Button>
-          </Form.Item>
-        </Form>
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="w-full mt-2"
+                disabled={!isChecked}
+              >
+                Gửi yêu cầu
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
