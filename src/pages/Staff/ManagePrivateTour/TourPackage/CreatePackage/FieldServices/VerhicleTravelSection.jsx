@@ -23,6 +23,7 @@ import { usePrice } from "../../../../../../context/PriceContext";
 import moment from "moment";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
+import { getAvailableVehicleType } from "../../../../../../api/VehicleApi";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -34,10 +35,16 @@ const VerhicleTravelSection = ({
   districts,
   provinces,
   onProvinceChange,
+  startDateTourChange,
+  endDateChange,
 }) => {
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
-
+  const [availableVehicleTypes, setAvailableVehicleTypes] = useState([]);
+  const [selectedProvinces, setSelectedProvinces] = useState([]);
+  const [availableProvinces, setAvailableProvinces] = useState([]);
+  console.log("availableVehicleTypes", availableVehicleTypes);
+  const [loadingVehicle, setLoadingVehicle] = useState(false);
   const { updateCommonPrice, commonPrices } = usePrice();
 
   useEffect(() => {
@@ -75,6 +82,47 @@ const VerhicleTravelSection = ({
       });
     }
   }, [priceInfo, form, request, commonPrices, updateCommonPrice]);
+
+  useEffect(() => {
+    const fetchAvailableVehicleTypes = async () => {
+      const travelOptions = form.getFieldValue("travelOptions");
+      if (travelOptions && travelOptions.length > 0) {
+        const results = await Promise.all(
+          travelOptions.map(async (item) => {
+            const { provinceId } = item;
+            setLoadingVehicle(true);
+            try {
+              const response = await getAvailableVehicleType(
+                provinceId,
+                provinceId
+              );
+              // debugger;
+              return response.result;
+            } catch (error) {
+              log.error("Failed to fetch districts");
+            } finally {
+              setLoadingVehicle(true);
+            }
+          })
+        );
+        if (selectedProvinces) {
+          setLoadingVehicle();
+        } else {
+          setAvailableVehicleTypes([]);
+        }
+        setAvailableVehicleTypes(results);
+      }
+    };
+
+    fetchAvailableVehicleTypes();
+  }, [form]);
+
+  const handleRemove = (index) => {
+    const currentValues = form.getFieldValue("travelOptions");
+    const newValues = currentValues.filter((_, idx) => idx !== index);
+    form.setFieldsValue({ tourGuideCosts: newValues });
+    setSelectedProvinces(newValues.map((item) => item.provinceId));
+  };
 
   const calculateNumOfVehicle = (vehicleType) => {
     const totalPassengers =
@@ -178,8 +226,13 @@ const VerhicleTravelSection = ({
   // Get giá verhicle change
   const handleProvinceChange = (index, value, name) => {
     // Update selected provinces
+    const currentValues = form.getFieldValue("travelOptions");
+    const newValues = currentValues.map((item, idx) =>
+      idx === index ? { ...item, provinceId: value } : item
+    );
     const newSelectedProvinces = form.getFieldValue("provinces") || [];
     newSelectedProvinces[name] = value;
+    setSelectedProvinces(newValues.map((item) => item.provinceId));
     fetchVehiclePriceRange(index);
   };
 
@@ -195,13 +248,17 @@ const VerhicleTravelSection = ({
   }, [request]);
 
   const disabledDate = (current) => {
-    // Lấy giá trị tourDate từ form
-    const tourDate = form.getFieldValue("tourDate");
-    if (!tourDate || tourDate.length < 2) {
+    if (!startDateTourChange && !endDateChange) {
       return false;
     }
-    const startDate = tourDate[0];
-    const endDate = tourDate[1];
+    const startDateTourChange2 = moment(
+      startDateTourChange,
+      "DD-MM-YYYY HH:mm:ss"
+    );
+    const endDateChange2 = moment(endDateChange, "DD-MM-YYYY HH:mm:ss");
+    const startDate = startDateTourChange2;
+    const endDate = endDateChange2;
+
     return current && (current < startDate || current > endDate);
   };
 
@@ -213,6 +270,16 @@ const VerhicleTravelSection = ({
     }
     return tourDate[0]; // Sử dụng ngày bắt đầu của tourDate
   };
+
+  useEffect(() => {
+    setAvailableProvinces(provinces);
+  }, [provinces]);
+
+  useEffect(() => {
+    setAvailableProvinces(
+      provinces.filter((province) => !selectedProvinces.includes(province.id))
+    );
+  }, [selectedProvinces]);
 
   return (
     <>
@@ -244,7 +311,7 @@ const VerhicleTravelSection = ({
                           }
                           className="!w-[200px] mr-10"
                         >
-                          {provinces.map((province) => (
+                          {availableProvinces?.map((province) => (
                             <Option key={province.id} value={province.id}>
                               {province.name}
                             </Option>
@@ -293,7 +360,7 @@ const VerhicleTravelSection = ({
                             className="!w-[350px] mr-10"
                             format="DD-MM-YYYY HH:mm:ss"
                             disabledDate={disabledDate}
-                            defaultPickerValue={[getDefaultPickerValue()]}
+                            // defaultPickerValue={[getDefaultPickerValue()]}
                           />
                         </Form.Item>
                       </ConfigProvider>
@@ -314,17 +381,20 @@ const VerhicleTravelSection = ({
                           <Select
                             placeholder="Chọn phương tiện"
                             className="!w-[200px] mr-10"
+                            loading={loadingVehicle}
+                            disabled={loadingVehicle || !selectedProvinces}
                             onChange={(value) =>
                               onVehicleTypeChange(index, value, name)
                             }
                           >
-                            {Object.entries(servingVehiclesQuantity).map(
-                              ([key, label]) => (
+                            {availableVehicleTypes[index]?.map((key) => {
+                              const label = servingVehiclesQuantity[key];
+                              return (
                                 <Option key={key} value={parseInt(key, 10)}>
                                   {label}
                                 </Option>
-                              )
-                            )}
+                              );
+                            })}
                           </Select>
                         </Form.Item>
                         <Form.Item
@@ -387,17 +457,19 @@ const VerhicleTravelSection = ({
                 </div>
               </Space>
             ))}
-            <Form.Item className="w-1/3 ">
-              <Button
-                className="bg-teal-600 font-semibold text-white"
-                type="dashed"
-                onClick={() => add()}
-                block
-                icon={<PlusOutlined />}
-              >
-                Thêm phương tiện du lịch
-              </Button>
-            </Form.Item>
+            {availableVehicleTypes.length === fields.length && (
+              <Form.Item className="w-1/3 ">
+                <Button
+                  className="bg-teal-600 font-semibold text-white"
+                  type="dashed"
+                  onClick={() => add()}
+                  block
+                  icon={<PlusOutlined />}
+                >
+                  Thêm phương tiện du lịch
+                </Button>
+              </Form.Item>
+            )}
           </>
         )}
       </Form.List>

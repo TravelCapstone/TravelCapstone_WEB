@@ -50,13 +50,14 @@ const TransportationSection = ({
   const [selectedProvinces, setSelectedProvinces] = useState({});
   const [transportationCount, setTransportationCount] = useState(0);
   const [availableVehicleTypes, setAvailableVehicleTypes] = useState([]);
-  console.log("availableVehicleTypes", availableVehicleTypes);
+  console.log("selectedProvinces", selectedProvinces);
 
   const [selectedForSwap, setSelectedForSwap] = useState([]);
   const [routes, setRoutes] = useState([
     { id: 1, from: "", to: "", transport: "", dateRange: [], cost: 0 },
   ]);
   const [optimalPath, setOptimalPath] = useState([]);
+  const [loadingVehicle, setLoadingVehicle] = useState(false);
 
   const { updateCommonPrice, commonPrices } = usePrice();
 
@@ -150,18 +151,19 @@ const TransportationSection = ({
 
   useEffect(() => {
     const hasInitialized = localStorage.getItem("hasInitializedTransportation");
-    if (!hasInitialized) {
-      form.setFieldsValue({ transportation: initialTransportationValues });
-      setTransportationCount(initialTransportationValues.length);
 
-      initialTransportationValues.forEach((data, index) => {
-        handleProvinceChange(data.startPoint, index, "startPoint");
-        handleProvinceChange(data.endPoint, index, "endPoint");
-      });
+    form.setFieldsValue({ transportation: initialTransportationValues });
+    setTransportationCount(initialTransportationValues.length);
 
-      localStorage.setItem("hasInitializedTransportation", true);
-    }
-  }, [form, initialTransportationValues, handleProvinceChange]);
+    // if (!hasInitialized) {
+    initialTransportationValues.forEach((data, index) => {
+      handleProvinceChange(data.startPoint, index, "startPoint");
+      handleProvinceChange(data.endPoint, index, "endPoint");
+    });
+
+    localStorage.setItem("hasInitializedTransportation", true);
+    // }
+  }, [form, initialTransportationValues]);
   // Define state variable for available vehicle types
 
   // Fetch available vehicle types when startPoint and endPoint change
@@ -172,30 +174,45 @@ const TransportationSection = ({
         const results = await Promise.all(
           transportation.map(async (item) => {
             const { startPoint, endPoint } = item;
-            const response = await getAvailableVehicleType(
-              startPoint,
-              endPoint
-            );
-            debugger;
-            return response.result;
+            setLoadingVehicle(true);
+            try {
+              const response = await getAvailableVehicleType(
+                startPoint,
+                endPoint
+              );
+              return response.result;
+            } catch (error) {
+              log.error("Failed to fetch districts");
+            } finally {
+              setLoadingVehicle(true);
+            }
+
+            // debugger;
           })
         );
+        if (selectedProvinces) {
+          setLoadingVehicle();
+        } else {
+          setAvailableVehicleTypes([]);
+        }
         setAvailableVehicleTypes(results);
       }
     };
 
     fetchAvailableVehicleTypes();
-  }, [form]);
+  }, [form, selectedProvinces]);
 
   console.log("initialTransportationValues", initialTransportationValues);
 
   useEffect(() => {
+    const transportationFields = form.getFieldValue("transportation");
     if (
       priceInfo &&
       typeof priceInfo === "object" &&
-      !Array.isArray(priceInfo)
+      !Array.isArray(priceInfo) &&
+      transportationFields
     ) {
-      const transportationFields = form.getFieldValue("transportation");
+      // debugger;
       transportationFields.forEach((_, index) => {
         if (priceInfo[index]) {
           const quantity =
@@ -256,11 +273,6 @@ const TransportationSection = ({
   };
 
   const onVehicleTypeChange = (index, value, name) => {
-    const { startPoint, endPoint } = form.getFieldValue([
-      name,
-      "transportation",
-    ])[index];
-
     const newTransportation = [...form.getFieldValue("transportation")];
     newTransportation[index] = {
       ...newTransportation[index],
@@ -274,7 +286,7 @@ const TransportationSection = ({
 
   useEffect(() => {
     form.setFieldsValue({
-      transportation: form.getFieldValue("transportation").map((option) => ({
+      transportation: form.getFieldValue("transportation")?.map((option) => ({
         ...option,
         numOfVehicle: calculateNumOfVehicle(option.vehicleType),
       })),
@@ -347,9 +359,54 @@ const TransportationSection = ({
     );
     const startDate = startDateTourChange2;
     const endDate = endDateChange2;
+    // return current && (current < startDate || current > endDate);
+    // Disable giờ ngoài khung
+    if (current.isSame(startDateTourChange2, "day")) {
+      const numOfDays = request?.privateTourResponse?.numOfDay || 0;
+      const numOfNight = request?.privateTourResponse?.numOfNight || 0;
+      if (numOfDays === numOfNight) {
+        return current.hour() < 6 || current.hour() > 12;
+      } else if (numOfDays === numOfNight + 1) {
+        return current.hour() < 12 || current.hour() > 18;
+      }
+    }
 
-    return current && (current < startDate || current > endDate);
+    if (current.isSame(endDateChange2, "day")) {
+      return current.hour() < 12 || current.hour() > 21;
+    }
+    // Disable toàn bộ ngày ngoài khung
+    if (current && (current < startDate || current > endDate)) {
+      return true;
+    }
+    return false;
   };
+
+  const hasDuplicates = (provinces) => {
+    // Use a Set to efficiently store unique values and check for duplicates
+    const uniqueProvinces = new Set();
+    const modifiedProvinces = []; // Array to store the modified provinces (without duplicates)
+
+    for (const province of provinces) {
+      // Check if the current province's ID already exists in the Set
+      if (uniqueProvinces.has(province.id)) {
+        // Duplicate found, skip adding to modifiedProvinces
+        continue; // Move to the next iteration
+      }
+      uniqueProvinces.add(province.id); // Add the province's ID to the Set
+      modifiedProvinces.push(province); // Add the province to the modified array
+    }
+    // debugger;
+    // If duplicates were found, update the provinces state
+    if (modifiedProvinces.length !== provinces.length) {
+      setProvinces(modifiedProvinces);
+    }
+
+    return modifiedProvinces.length !== provinces.length; // Return true if duplicates were removed
+  };
+
+  // Example usage
+  const hasDuplicatesResult = hasDuplicates(provinces);
+  console.log("Provinces have duplicates:", hasDuplicatesResult); // Output: Provinces have duplicates: true (assuming duplicates exist)
 
   // Lấy giá trị defaultPickerValue từ tourDate
   const getDefaultPickerValue = () => {
@@ -428,53 +485,57 @@ const TransportationSection = ({
           <div className="grid gap-4">
             {optimalPath.map((item, index) => {
               const routeInfo = getRouteInfo(index, index + 1);
+              if (routeInfo.distance > 0) {
+                console.log("routeInfo", routeInfo);
 
-              console.log("routeInfo", routeInfo);
-
-              const calculateFlightTime = (distance) => {
-                const metersToKilometers1 = (meters) => {
-                  return meters / 1000;
+                const calculateFlightTime = (distance) => {
+                  const metersToKilometers1 = (meters) => {
+                    return meters / 1000;
+                  };
+                  const distanceInKm = metersToKilometers1(distance); // Chuyển đổi khoảng cách từ mét sang km
+                  const averageSpeed = 850; // tốc độ trung bình km/h
+                  const flightTimeInHours = distanceInKm / averageSpeed; // thời gian bay tính bằng giờ
+                  const flightTimeInSeconds = flightTimeInHours * 3600; // chuyển đổi giờ sang giây
+                  return secondsToHours(flightTimeInSeconds); // sử dụng hàm secondsToHours
                 };
-                const distanceInKm = metersToKilometers1(distance); // Chuyển đổi khoảng cách từ mét sang km
-                const averageSpeed = 850; // tốc độ trung bình km/h
-                const flightTimeInHours = distanceInKm / averageSpeed; // thời gian bay tính bằng giờ
-                const flightTimeInSeconds = flightTimeInHours * 3600; // chuyển đổi giờ sang giây
-                return secondsToHours(flightTimeInSeconds); // sử dụng hàm secondsToHours
-              };
 
-              return (
-                <div
-                  key={index}
-                  className="bg-gray-100 p-4 rounded-lg flex flex-col justify-between"
-                >
-                  <div>
-                    <p className="text-lg font-bold text-gray-800">
-                      {routeInfo.fromProvince} -{" "}
-                      {routeInfo.toProvince ? ` ${routeInfo.toProvince}` : ""}
-                    </p>
-                  </div>
-                  <div className="mt-2 flex justify-between text-gray-600">
-                    <p>
-                      <span className="font-bold">Khoảng cách:</span>{" "}
-                      {metersToKilometers(routeInfo.distance)}
-                    </p>
+                return (
+                  <div
+                    key={index}
+                    className="bg-gray-100 p-4 rounded-lg flex flex-col justify-between"
+                  >
                     <div>
-                      <p>
-                        <span className="font-bold">Thời gian:</span>{" "}
-                        {secondsToHours(routeInfo.duration)} giờ đi bằng xe
-                        khách hoặc ô tô
+                      <p className="text-lg font-bold text-gray-800">
+                        {routeInfo.fromProvince} -{" "}
+                        {routeInfo.toProvince ? ` ${routeInfo.toProvince}` : ""}
                       </p>
+                    </div>
+                    <div className="mt-2 flex justify-between text-gray-600">
                       <p>
+                        <span className="font-bold">Khoảng cách:</span>{" "}
+                        {metersToKilometers(routeInfo.distance)}
+                      </p>
+                      <div>
+                        <p>
+                          <span className="font-bold">Thời gian:</span>{" "}
+                          {secondsToHours(routeInfo.duration)} giờ đi bằng xe
+                          khách hoặc ô tô
+                        </p>
+                        {/* <p>
                         <span className="font-bold">
                           Thời gian bay ước tính:
                         </span>{" "}
                         {calculateFlightTime(routeInfo.distance)} giờ đi bằng
                         máy bay
-                      </p>
+                      </p> */}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
+                );
+              } else {
+                // Optional handling for routeInfo with distance = 0 (e.g., a message)
+                return null; // Or display a message like "No route information available"
+              }
             })}
           </div>
         )}
@@ -645,11 +706,13 @@ const TransportationSection = ({
                         ]}
                       >
                         <Select
-                          placeholder="Select transport"
+                          placeholder="Chọn phương tiện"
                           className="!w-[250px] mr-10"
                           onChange={(value) =>
                             onVehicleTypeChange(index, value, name)
                           }
+                          loading={loadingVehicle}
+                          disabled={loadingVehicle || !selectedProvinces}
                         >
                           {availableVehicleTypes[index]?.map((key) => {
                             const label = servingVehiclesQuantity[key];
@@ -730,7 +793,7 @@ const TransportationSection = ({
               </Form.Item>
             )}
             {transportationCount !== 6 && (
-              <Form.Item className="w-1/3">
+              <Form.Item className="w-1/3 my-4">
                 <Button
                   className="bg-teal-600 font-semibold text-white"
                   type="dashed"

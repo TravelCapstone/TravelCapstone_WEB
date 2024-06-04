@@ -6,6 +6,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { getAttractionSellPriceRange } from "../../../../../../api/SellPriceHistoryApi";
+import { v4 as uuidv4 } from "uuid";
 
 const { Option } = Select;
 
@@ -65,7 +66,7 @@ const EntertainmentSection = ({
   };
 
   return (
-    <Form.List name={[...basePath, "entertainments"]} initialValue={[{}]}>
+    <Form.List name={[...basePath, "entertainments"]}>
       {(fields, { add, remove }) => (
         <>
           {fields.map((field, index) => (
@@ -93,7 +94,8 @@ const EntertainmentSection = ({
                         <div className=" flex flex-wrap">
                           <Form.Item
                             className=" font-semibold my-2"
-                            name={[...basePath, quantityField]}
+                            {...field}
+                            name={[field.name, quantityField]}
                             label="Số lượng địa điểm du lịch:"
                           >
                             <InputNumber
@@ -135,17 +137,23 @@ const EntertainmentSection = ({
               </div>
             </Space>
           ))}
-          <Form.Item>
-            <Button
-              onClick={() => add()}
-              className="bg-teal-600 font-semibold text-white"
-              type="dashed"
-              style={{ marginTop: 16 }}
-              icon={<PlusOutlined />}
-            >
-              Tạo Gói dịch vụ giải trí
-            </Button>
-          </Form.Item>
+          {fields.length < 1 && (
+            <Form.Item>
+              <Button
+                onClick={() =>
+                  add({
+                    key: uuidv4(),
+                  })
+                }
+                className="bg-teal-600 font-semibold text-white"
+                type="dashed"
+                style={{ marginTop: 16 }}
+                icon={<PlusOutlined />}
+              >
+                Tạo Gói dịch vụ giải trí
+              </Button>
+            </Form.Item>
+          )}
         </>
       )}
     </Form.List>

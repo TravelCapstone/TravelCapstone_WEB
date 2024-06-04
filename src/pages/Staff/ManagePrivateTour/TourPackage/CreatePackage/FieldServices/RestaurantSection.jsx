@@ -700,6 +700,8 @@ const RestaurantSection = ({
   selectedDistrict,
   selectedProvince,
   request,
+  startDateTourChange,
+  endDateChange,
 }) => {
   const [mealTime, setMealTime] = useState(null);
   const [facilities, setFacilities] = useState([]);
@@ -759,13 +761,17 @@ const RestaurantSection = ({
   };
 
   const disabledDate = (current) => {
-    // Lấy giá trị tourDate từ form
-    const tourDate = form.getFieldValue("tourDate");
-    if (!tourDate || tourDate.length < 2) {
+    if (!startDateTourChange && !endDateChange) {
       return false;
     }
-    const startDate = tourDate[0];
-    const endDate = tourDate[1];
+    const startDateTourChange2 = moment(
+      startDateTourChange,
+      "DD-MM-YYYY HH:mm:ss"
+    );
+    const endDateChange2 = moment(endDateChange, "DD-MM-YYYY HH:mm:ss");
+    const startDate = startDateTourChange2;
+    const endDate = endDateChange2;
+
     return current && (current < startDate || current > endDate);
   };
 
@@ -803,8 +809,7 @@ const RestaurantSection = ({
                     >
                       <DatePicker
                         disabledDate={disabledDate}
-                        defaultPickerValue={[getDefaultPickerValue()]}
-                        showTime
+                        // defaultPickerValue={[getDefaultPickerValue()]}
                         className="!min-w-[300px]"
                         format="DD-MM-YYYY HH:mm:ss"
                         onChange={handleDateChange}

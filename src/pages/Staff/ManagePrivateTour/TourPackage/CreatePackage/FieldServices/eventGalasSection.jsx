@@ -29,6 +29,7 @@ import {
 } from "../../../../../../hook/useNotification";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
+import LoadingOverlay from "../../../../../../components/Loading/LoadingOverlay";
 
 const { Option } = Select;
 
@@ -42,6 +43,8 @@ const EventGalasSection = ({
   basePath,
   jsonCustomEventJsonString,
   setJsonCustomEventJsonString,
+  startDateTourChange,
+  endDateChange,
 }) => {
   const [events, setEvents] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -295,6 +298,9 @@ const EventGalasSection = ({
       name: detail.name,
       price: detail.price,
     }));
+    setEditModalVisible(false);
+    setLoading(true);
+
     try {
       const response = await updateEventDetails(
         editingEvent.event.id,
@@ -318,6 +324,8 @@ const EventGalasSection = ({
     } catch (error) {
       console.error("Error updating event details:", error);
       alertFail("An error occurred while updating the tour.", "Error");
+    } finally {
+      setLoading(false); // Set loading to false after the form submission is complete
     }
     setEditModalVisible(false);
     updateEventDetailsWithCustomData();
@@ -335,13 +343,17 @@ const EventGalasSection = ({
   }, [request]);
 
   const disabledDate = (current) => {
-    // Lấy giá trị tourDate từ form
-    const tourDate = form.getFieldValue("tourDate");
-    if (!tourDate || tourDate.length < 2) {
+    if (!startDateTourChange && !endDateChange) {
       return false;
     }
-    const startDate = tourDate[0];
-    const endDate = tourDate[1];
+    const startDateTourChange2 = moment(
+      startDateTourChange,
+      "DD-MM-YYYY HH:mm:ss"
+    );
+    const endDateChange2 = moment(endDateChange, "DD-MM-YYYY HH:mm:ss");
+    const startDate = startDateTourChange2;
+    const endDate = endDateChange2;
+
     return current && (current < startDate || current > endDate);
   };
 
@@ -360,50 +372,52 @@ const EventGalasSection = ({
 
   return (
     <>
-      <Modal
-        title="Chọn gói Event"
-        className="!max-w-[1200px] !w-full"
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-      >
-        {selectedEvent && (
-          <div>
-            <Modal
-              title="Chỉnh sửa Event/Gala Details"
-              classNames="text-xl"
-              visible={editModalVisible}
-              onCancel={() => setEditModalVisible(false)}
-              fetchEvents={fetchEvents}
-              footer={[
-                <Button onClick={handleSaveChanges} disabled={!isChanged()}>
-                  Lưu
-                </Button>,
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEditModalVisible(false);
-                  }}
-                >
-                  Huỷ
-                </Button>,
-              ]}
-              className=" !w-[800px]"
-            >
-              {editingEvent && (
-                <Form layout="vertical">
-                  {currentDetails.map((detail, index) => (
-                    <Form.Item
-                      // label={` ${index + 1}.`}
-                      className="font-semibold"
-                    >
-                      <div className="flex ">
-                        <p className="text-lg self-end">{index + 1}.</p>
-                        <div className="mx-4">
-                          <p className="font-semibold text-sm my-2">
-                            Tên hoạt động:
-                          </p>
-                          {/* <Input
+      <LoadingOverlay isLoading={loading} />
+      <div>
+        <Modal
+          title="Chọn gói Event"
+          className="!max-w-[1200px] !w-full"
+          visible={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          footer={null}
+        >
+          {selectedEvent && (
+            <div>
+              <Modal
+                title="Chỉnh sửa Event/Gala Details"
+                classNames="text-xl"
+                visible={editModalVisible}
+                onCancel={() => setEditModalVisible(false)}
+                fetchEvents={fetchEvents}
+                footer={[
+                  <Button onClick={handleSaveChanges} disabled={!isChanged()}>
+                    Lưu
+                  </Button>,
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditModalVisible(false);
+                    }}
+                  >
+                    Huỷ
+                  </Button>,
+                ]}
+                className=" !w-[800px]"
+              >
+                {editingEvent && (
+                  <Form layout="vertical">
+                    {currentDetails.map((detail, index) => (
+                      <Form.Item
+                        // label={` ${index + 1}.`}
+                        className="font-semibold"
+                      >
+                        <div className="flex ">
+                          <p className="text-lg self-end">{index + 1}.</p>
+                          <div className="mx-4">
+                            <p className="font-semibold text-sm my-2">
+                              Tên hoạt động:
+                            </p>
+                            {/* <Input
                             className="!w-[400px]"
                             defaultValue={detail.name}
                             onChange={(e) =>
@@ -411,54 +425,54 @@ const EventGalasSection = ({
                             }
                             disabled
                           /> */}
-                          <p className="!w-[400px] text-lg ">{detail.name}</p>
-                        </div>
-                        <div className="mx-4">
-                          <p className="font-semibold text-sm my-2">
-                            Số lượng:
-                          </p>
+                            <p className="!w-[400px] text-lg ">{detail.name}</p>
+                          </div>
+                          <div className="mx-4">
+                            <p className="font-semibold text-sm my-2">
+                              Số lượng:
+                            </p>
 
-                          <InputNumber
-                            defaultValue={detail.quantity}
-                            onChange={(value) =>
-                              handleQuantityChange(index, value)
-                            }
-                            disabled={!detail.perPerson}
-                          />
-                        </div>
-                        <div className="mx-4">
-                          <p className="font-semibold text-sm my-2">Giá:</p>
+                            <InputNumber
+                              defaultValue={detail.quantity}
+                              onChange={(value) =>
+                                handleQuantityChange(index, value)
+                              }
+                              disabled={!detail.perPerson}
+                            />
+                          </div>
+                          <div className="mx-4">
+                            <p className="font-semibold text-sm my-2">Giá:</p>
 
-                          {/* <InputNumber
+                            {/* <InputNumber
                             defaultValue={detail.price}
                             onChange={(value) =>
                               handlePriceChange(index, value)
                             }
                             disabled
                           /> */}
-                          <p className="!w-[400px] text-lg ">
-                            {detail.price.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            })}{" "}
-                          </p>
+                            <p className="!w-[400px] text-lg ">
+                              {detail.price.toLocaleString("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              })}{" "}
+                            </p>
+                          </div>
                         </div>
-                      </div>
+                      </Form.Item>
+                    ))}
+                    <Form.Item>
+                      <p className="text-xl font-bold">
+                        Tổng giá:{" "}
+                        {totalPrice.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </p>
                     </Form.Item>
-                  ))}
-                  <Form.Item>
-                    <p className="text-xl font-bold">
-                      Tổng giá:{" "}
-                      {totalPrice.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
-                    </p>
-                  </Form.Item>
-                </Form>
-              )}
-            </Modal>
-            {/* {jsonCustormEvent ? (
+                  </Form>
+                )}
+              </Modal>
+              {/* {jsonCustormEvent ? (
               <Table
                 columns={columns}
                 dataSource={[jsonCustormEvent]}
@@ -467,95 +481,99 @@ const EventGalasSection = ({
                 scroll={{ y: 500 }}
               />
             ) : ( */}
-            <Table
-              columns={columns}
-              dataSource={[selectedEvent]}
-              rowKey="id"
-              loading={loading}
-              scroll={{ y: 500 }}
-            />
-            {/* )} */}
-          </div>
-        )}
-      </Modal>
+              <Table
+                columns={columns}
+                dataSource={[selectedEvent]}
+                rowKey="id"
+                loading={loading}
+                scroll={{ y: 500 }}
+              />
+              {/* )} */}
+            </div>
+          )}
+        </Modal>
 
-      <Space
-        direction="vertical"
-        size="large"
-        className="flex justify-between"
-        align="baseline"
-      >
-        <div className="flex ">
-          <div>
-            <div className="Options ">
-              <div className="Option2 flex flex-wrap items-center">
-                <div className="flex flex-wrap">
-                  <Form.Item
-                    className="font-semibold my-2"
-                    label="Gói Event/Game:"
-                    name={["eventGala", "eventId"]}
-                  >
-                    <Select
-                      placeholder="Gói Event/Game"
-                      className="!w-[200px] mr-10"
-                      onChange={handleSelectChange}
-                    >
-                      {events.length > 0 &&
-                        events.map((event) => (
-                          <Option key={event.event?.id} value={event.event?.id}>
-                            {event?.event?.name}
-                          </Option>
-                        ))}
-                    </Select>
-                  </Form.Item>
-                  <Button
-                    className="bg-mainColor text-white mt-2"
-                    onClick={showModal}
-                  >
-                    Xem chi tiết
-                  </Button>
-                  <ConfigProvider locale={viVN}>
+        <Space
+          direction="vertical"
+          size="large"
+          className="flex justify-between"
+          align="baseline"
+        >
+          <div className="flex ">
+            <div>
+              <div className="Options ">
+                <div className="Option2 flex flex-wrap items-center">
+                  <div className="flex flex-wrap">
                     <Form.Item
-                      name={["eventGala", "date"]}
-                      className="font-semibold ml-10 my-2"
-                      label="Ngày tổ chức:"
-                      rules={[
-                        {
-                          required: true,
-                          message: " Vui lòng chọn thời gian!",
-                        },
-                      ]}
+                      className="font-semibold my-2"
+                      label="Gói Event/Game:"
+                      name={["eventGala", "eventId"]}
                     >
-                      <DatePicker
-                        disabledDate={disabledDate}
-                        defaultPickerValue={[getDefaultPickerValue()]}
-                        showTime
-                        onChange={handleDateChange}
-                        format="DD-MM-YYYY HH:mm:ss"
-                      />
+                      <Select
+                        placeholder="Gói Event/Game"
+                        className="!w-[200px] mr-10"
+                        onChange={handleSelectChange}
+                      >
+                        {events.length > 0 &&
+                          events.map((event) => (
+                            <Option
+                              key={event.event?.id}
+                              value={event.event?.id}
+                            >
+                              {event?.event?.name}
+                            </Option>
+                          ))}
+                      </Select>
                     </Form.Item>
-                  </ConfigProvider>
-                </div>
-                {selectedEvent && (
-                  <div className=" text-gray-500 ml-10 ">
-                    <p className="font-semibold text-lg ">
-                      Giá dịch vụ:{" "}
-                      <span>
-                        {" "}
-                        {selectedEvent.total.toLocaleString("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        })}{" "}
-                      </span>
-                      / Tour
-                    </p>
+                    <Button
+                      className="bg-mainColor text-white mt-2"
+                      onClick={showModal}
+                    >
+                      Xem chi tiết
+                    </Button>
+                    <ConfigProvider locale={viVN}>
+                      <Form.Item
+                        name={["eventGala", "date"]}
+                        className="font-semibold ml-10 my-2"
+                        label="Ngày tổ chức:"
+                        rules={[
+                          {
+                            required: true,
+                            message: " Vui lòng chọn thời gian!",
+                          },
+                        ]}
+                      >
+                        <DatePicker
+                          disabledDate={disabledDate}
+                          // defaultPickerValue={[getDefaultPickerValue()]}
+                          showTime
+                          onChange={handleDateChange}
+                          format="DD-MM-YYYY HH:mm:ss"
+                        />
+                      </Form.Item>
+                    </ConfigProvider>
                   </div>
-                )}
+                  {selectedEvent && (
+                    <div className=" text-gray-500 ml-10 ">
+                      <p className="font-semibold text-lg ">
+                        Giá dịch vụ:{" "}
+                        <span>
+                          {" "}
+                          {selectedEvent.total.toLocaleString("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          })}{" "}
+                        </span>
+                        / Tour
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </Space>
+        </Space>
+      </div>
     </>
   );
 };

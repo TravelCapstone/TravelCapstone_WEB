@@ -39,6 +39,7 @@ import { alertFail, alertSuccess } from "../../../../../hook/useNotification";
 import "../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import moment from "moment";
+import { getRoomSuggestion } from "../../../../../api/privateTourRequestApi";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -72,13 +73,66 @@ function CreateOptionForm({ request }) {
   const [jsonCustomEventJsonString, setJsonCustomEventJsonString] =
     useState(null);
 
-  console.log("endDateChange", endDateChange);
   console.log("startDateTourChange", startDateTourChange);
 
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
 
   const { updateCommonPrice, commonPrices } = usePrice();
+  const [numOfRoom, setNumOfRoom] = useState([]);
+
+  console.log("numOfRoom", numOfRoom);
+
+  const fetchGetRoomSuggestion = async (data) => {
+    const response = await getRoomSuggestion(data);
+    setNumOfRoom(response.data.result);
+  };
+
+  useEffect(() => {
+    const data = {
+      numOfSingleMale: request?.privateTourResponse?.numOfSingleMale,
+      numOfSingleFemale: request?.privateTourResponse?.numOfSingleFemale,
+      familyDetails: request?.privateTourResponse?.roomDetails?.map(
+        (family) => ({
+          numOfAdult: family.numOfAdult,
+          numOfChildren: family.numOfChildren,
+          totalFamily: family.totalFamily,
+        })
+      ),
+    };
+    fetchGetRoomSuggestion(data);
+  }, [
+    request?.privateTourResponse?.numOfSingleMale,
+    request?.privateTourResponse?.numOfSingleFemale,
+    request?.privateTourResponse?.roomDetails,
+  ]);
+
+  const hasDuplicates = (provinces) => {
+    // Use a Set to efficiently store unique values and check for duplicates
+    const uniqueProvinces = new Set();
+    const modifiedProvinces = []; // Array to store the modified provinces (without duplicates)
+
+    for (const province of provinces) {
+      // Check if the current province's ID already exists in the Set
+      if (uniqueProvinces.has(province.id)) {
+        // Duplicate found, skip adding to modifiedProvinces
+        continue; // Move to the next iteration
+      }
+      uniqueProvinces.add(province.id); // Add the province's ID to the Set
+      modifiedProvinces.push(province); // Add the province to the modified array
+    }
+    // debugger;
+    // If duplicates were found, update the provinces state
+    if (modifiedProvinces.length !== provinces.length) {
+      setProvinces(modifiedProvinces);
+    }
+
+    return modifiedProvinces.length !== provinces.length; // Return true if duplicates were removed
+  };
+
+  // Example usage
+  const hasDuplicatesResult = hasDuplicates(provinces);
+  console.log("Provinces have duplicates:", hasDuplicatesResult); // Output: Provinces have duplicates: true (assuming duplicates exist)
 
   const startDateTour = form.getFieldValue("startDateTour");
 
@@ -88,16 +142,48 @@ function CreateOptionForm({ request }) {
 
   useEffect(() => {
     const numOfDays = request?.privateTourResponse?.numOfDay || 0;
+    const numOfNight = request?.privateTourResponse?.numOfNight || 0;
     const newStartDate = startDateTour
       ? startDateTour.format("DD-MM-YYYY HH:mm:ss")
-      : moment(startDate).add(1, "days").format("DD-MM-YYYY HH:mm:ss");
+      : moment(startDate).format("DD-MM-YYYY HH:mm:ss");
 
-    setStartDateTourChange(newStartDate);
-    const newEndDate = startDateTour
-      ? startDateTour.add(numOfDays, "days").format("DD-MM-YYYY HH:mm:ss")
-      : moment(startDate).add(numOfDays, "days").format("DD-MM-YYYY HH:mm:ss");
+    let adjustedStartDate = moment(newStartDate, "DD-MM-YYYY HH:mm:ss");
+    let adjustedEndDate = moment(newStartDate, "DD-MM-YYYY HH:mm:ss").add(
+      numOfDays,
+      "days"
+    );
 
-    setEndDateChange(newEndDate);
+    if (numOfDays === numOfNight) {
+      // Ngày bắt đầu từ 6hAM - 12h PM
+      if (adjustedStartDate.hour() < 6) {
+        adjustedStartDate.hour(6).minute(0).second(0);
+      } else if (adjustedStartDate.hour() > 12) {
+        adjustedStartDate.hour(12).minute(0).second(0);
+      }
+      // Ngày kết thúc từ 12hPM - 21hPM
+      if (adjustedEndDate.hour() < 12) {
+        adjustedEndDate.hour(12).minute(0).second(0);
+      } else if (adjustedEndDate.hour() > 21) {
+        adjustedEndDate.hour(21).minute(0).second(0);
+      }
+    } else if (numOfDays === numOfNight + 1) {
+      // debugger;
+      // Ngày bắt đầu từ 12hPM - 18hPM
+      if (adjustedStartDate.hour() < 12) {
+        adjustedStartDate.hour(12).minute(0).second(0);
+      } else if (adjustedStartDate.hour() > 18) {
+        adjustedStartDate.hour(18).minute(0).second(0);
+      }
+      // Ngày kết thúc từ 12hPM - 21hPM
+      if (adjustedEndDate.hour() < 12) {
+        adjustedEndDate.hour(12).minute(0).second(0);
+      } else if (adjustedEndDate.hour() > 21) {
+        adjustedEndDate.hour(21).minute(0).second(0);
+      }
+    }
+
+    setStartDateTourChange(adjustedStartDate.format("DD-MM-YYYY HH:mm:ss"));
+    setEndDateChange(adjustedEndDate.format("DD-MM-YYYY HH:mm:ss"));
   }, [startDateTour, startDate, request]);
 
   useEffect(() => {
@@ -569,13 +655,13 @@ function CreateOptionForm({ request }) {
                   Yêu cầu lưu trú:
                 </span>
                 <List
-                  dataSource={request.privateTourResponse?.roomDetails}
+                  dataSource={numOfRoom}
                   renderItem={(item) => (
                     <List.Item>
                       <Card className="mr-4 bg-teal-100">
                         <Card.Meta
-                          title={`Phòng ${item.quantityPerRoom === 4 ? "đôi" : "đơn"} `}
-                          description={`Tổng số phòng: ${item.totalRoom}`}
+                          title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
+                          description={`Tổng số phòng: ${item.numOfRoom}`}
                         />
                       </Card>
                     </List.Item>
@@ -688,6 +774,8 @@ function CreateOptionForm({ request }) {
                 Phương tiện du lịch trong tỉnh
               </h3>
               <VerhicleTravelSection
+                startDateTourChange={startDateTourChange}
+                endDateChange={endDateChange}
                 request={request}
                 form={form}
                 provinces={provinces}
@@ -775,6 +863,8 @@ function CreateOptionForm({ request }) {
                 provinces={provinces}
                 districts={districts}
                 setProvinces={setProvinces}
+                startDateTourChange={startDateTourChange}
+                endDateChange={endDateChange}
               />
             </div>
             {/* MATERIAL COST */}
@@ -810,10 +900,10 @@ function CreateOptionForm({ request }) {
           <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
             DỊCH VỤ RIÊNG TỪNG GÓI
           </h2>
-          <div className="mt-10">
+          {/* <div className="mt-10">
             <h3>Form Data:</h3>
             <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
-          </div>
+          </div> */}
 
           <div className=" mx-4">
             <EachServiceSection
@@ -834,6 +924,9 @@ function CreateOptionForm({ request }) {
               setDistricts={setDistricts}
               numOfDaysLoging={numOfDaysLoging}
               setNumOfDaysLoging={setNumOfDaysLoging}
+              numOfRoom={numOfRoom}
+              startDateTourChange={startDateTourChange}
+              endDateChange={endDateChange}
             />
           </div>
 
