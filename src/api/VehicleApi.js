@@ -23,4 +23,16 @@ const getOptimalPath = async (startDestinationId, data) => {
     return [];
   }
 };
-export { getPriceForVehicle, getOptimalPath };
+
+const getAvailableVehicleType = async (provinceStartPointId, provinceEndPointId) => {
+  try {
+    const response = await api.get(
+      `/vehicle/get-available-vehicle-type/${provinceStartPointId}/${provinceEndPointId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sell price:", error);
+    return [];
+  }
+};
+export { getPriceForVehicle, getOptimalPath, getAvailableVehicleType };

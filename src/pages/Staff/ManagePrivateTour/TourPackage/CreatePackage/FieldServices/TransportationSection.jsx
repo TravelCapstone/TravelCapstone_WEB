@@ -14,7 +14,10 @@ import {
   ratingLabels,
   servingVehiclesQuantity,
 } from "../../../../../../settings/globalStatus";
-import { getOptimalPath } from "../../../../../../api/VehicleApi";
+import {
+  getAvailableVehicleType,
+  getOptimalPath,
+} from "../../../../../../api/VehicleApi";
 import {
   metersToKilometers,
   secondsToHours,
@@ -23,6 +26,7 @@ import { usePrice } from "../../../../../../context/PriceContext";
 import moment from "moment";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
+import { getAllDistrictsByProvinceId } from "../../../../../../api/LocationApi";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -34,22 +38,156 @@ const TransportationSection = ({
   priceInfo,
   setPriceInfo,
   request,
-  setProvinces,
-  districts,
-  provinces,
-  onProvinceChange,
+
   fetchVehiclePriceRange,
   handleFieldChange,
   startProvince,
-  selectedProvince,
+  // selectedProvince,
 }) => {
+  const [provinces, setProvinces] = useState([]);
+
+  const [districts, setDistricts] = useState([]);
+  const [selectedProvinces, setSelectedProvinces] = useState({});
+  const [transportationCount, setTransportationCount] = useState(0);
+  const [availableVehicleTypes, setAvailableVehicleTypes] = useState([]);
+  console.log("availableVehicleTypes", availableVehicleTypes);
+
   const [selectedForSwap, setSelectedForSwap] = useState([]);
   const [routes, setRoutes] = useState([
     { id: 1, from: "", to: "", transport: "", dateRange: [], cost: 0 },
   ]);
-  const [optimalPath, setOptimalPath] = useState({});
+  const [optimalPath, setOptimalPath] = useState([]);
 
   const { updateCommonPrice, commonPrices } = usePrice();
+
+  const handleProvinceChange = useCallback(
+    async (value, index, field) => {
+      // debugger;
+      setSelectedProvinces((prev) => ({
+        ...prev,
+        [`${index}_${field}`]: value,
+      }));
+      if (value) {
+        const districtsData = await getAllDistrictsByProvinceId(value);
+        setDistricts((prev) => ({
+          ...prev,
+          [`${index}_${field}`]: districtsData,
+        }));
+        fetchVehiclePriceRange(index, value); // Assuming this function needs index and province ID
+      } else {
+        setDistricts((prev) => ({
+          ...prev,
+          [`${index}_${field}`]: [],
+        }));
+      }
+    },
+    [fetchVehiclePriceRange]
+  );
+
+  const handleDistrictChange = useCallback(
+    (value, index, field) => {
+      const newTransportationValues = [...form.getFieldValue("transportation")];
+      newTransportationValues[index] = {
+        ...newTransportationValues[index],
+        [field]: value,
+      };
+      if (
+        field === "endPointDistrict" &&
+        index < newTransportationValues.length - 1
+      ) {
+        newTransportationValues[index + 1].startPointDistrict = value;
+      }
+
+      form.setFieldsValue({ transportation: newTransportationValues });
+    },
+    [form]
+  );
+
+  const getRouteInfo = (from, to) => {
+    const fromProvince = optimalPath[from];
+    const toProvince = optimalPath[to];
+
+    const distanceToNextDestination =
+      fromProvince.distanceToNextDestination +
+      (toProvince ? toProvince.distanceToNextDestination : 0);
+
+    const duration =
+      fromProvince.duration + (toProvince ? toProvince.duration : 0);
+
+    return {
+      fromProvince: fromProvince.provinceName,
+      toProvince: toProvince
+        ? toProvince.provinceName
+        : optimalPath[0].provinceName,
+      distance: distanceToNextDestination,
+      duration,
+    };
+  };
+
+  const initialTransportationValues = useMemo(() => {
+    return optimalPath
+      .map((path, index) => {
+        if (index < optimalPath.length - 1) {
+          const nextPath = optimalPath[index + 1];
+
+          const startDate = moment(startDateTourChange, "DD-MM-YYYY HH:mm:ss")
+            .subtract(1, "days")
+            .add(index, "days");
+          const endDate = moment(startDate).clone().endOf("day"); // Clone the start date before modifying
+
+          return {
+            startPoint: path.provinceId,
+            endPoint: nextPath.provinceId,
+            // startPointDistrict: "defaultDistrictId",
+            // endPointDistrict: "defaultDistrictId",
+            dateRange: [startDate, endDate],
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }, [optimalPath, startDateTourChange]);
+
+  useEffect(() => {
+    const hasInitialized = localStorage.getItem("hasInitializedTransportation");
+    if (!hasInitialized) {
+      form.setFieldsValue({ transportation: initialTransportationValues });
+      setTransportationCount(initialTransportationValues.length);
+
+      initialTransportationValues.forEach((data, index) => {
+        handleProvinceChange(data.startPoint, index, "startPoint");
+        handleProvinceChange(data.endPoint, index, "endPoint");
+      });
+
+      localStorage.setItem("hasInitializedTransportation", true);
+    }
+  }, [form, initialTransportationValues, handleProvinceChange]);
+  // Define state variable for available vehicle types
+
+  // Fetch available vehicle types when startPoint and endPoint change
+  useEffect(() => {
+    const fetchAvailableVehicleTypes = async () => {
+      const transportation = form.getFieldValue("transportation");
+      if (transportation && transportation.length > 0) {
+        const results = await Promise.all(
+          transportation.map(async (item) => {
+            const { startPoint, endPoint } = item;
+            const response = await getAvailableVehicleType(
+              startPoint,
+              endPoint
+            );
+            debugger;
+            return response.result;
+          })
+        );
+        setAvailableVehicleTypes(results);
+      }
+    };
+
+    fetchAvailableVehicleTypes();
+  }, [form]);
+
+  console.log("initialTransportationValues", initialTransportationValues);
 
   useEffect(() => {
     if (
@@ -118,6 +256,11 @@ const TransportationSection = ({
   };
 
   const onVehicleTypeChange = (index, value, name) => {
+    const { startPoint, endPoint } = form.getFieldValue([
+      name,
+      "transportation",
+    ])[index];
+
     const newTransportation = [...form.getFieldValue("transportation")];
     newTransportation[index] = {
       ...newTransportation[index],
@@ -125,7 +268,7 @@ const TransportationSection = ({
       numOfVehicle: calculateNumOfVehicle(value),
     };
     form.setFieldsValue({ transportation: newTransportation });
-    onProvinceChange(index, value, name);
+    handleProvinceChange(index, value, name);
     fetchVehiclePriceRange(index);
   };
 
@@ -153,22 +296,6 @@ const TransportationSection = ({
     request?.privateTourResponse?.startLocationCommune?.district?.provinceId;
   const startProvinceName = request?.privateTourResponse?.startLocation;
 
-  // // Thêm startProvince vào danh sách provinces
-  // let updatedProvinces = [
-  //   { id: startProvinceId, name: startProvinceName },
-  //   ...provinces.filter((province) => province.id !== startProvinceId),
-  // ];
-
-  // // Loại bỏ các phần tử trùng lặp
-  // updatedProvinces = updatedProvinces.reduce((acc, current) => {
-  //   const x = acc.find((item) => item.id === current.id);
-  //   if (!x) {
-  //     return acc.concat([current]);
-  //   } else {
-  //     return acc;
-  //   }
-  // }, []);
-
   const updatedProvinces = useMemo(() => {
     // Thêm startProvince vào đầu mảng provinces và loại bỏ trùng lặp
     let provincesWithStart = [
@@ -188,7 +315,7 @@ const TransportationSection = ({
     console.log("resultgetSuggestPath", result);
     const data = await getOptimalPath(result[0], result);
     if (data.isSuccess) {
-      setOptimalPath(data.result);
+      setOptimalPath(Array.isArray(data.result) ? data.result : []);
     }
   }, [updatedProvinces]); // Khai báo dependencies cho useCallback
 
@@ -220,7 +347,6 @@ const TransportationSection = ({
     );
     const startDate = startDateTourChange2;
     const endDate = endDateChange2;
-    console.log("startDateTourChange2", startDate);
 
     return current && (current < startDate || current > endDate);
   };
@@ -282,25 +408,14 @@ const TransportationSection = ({
   };
   console.log("optimalPath", optimalPath);
 
-  const getRouteInfo = (from, to) => {
-    const fromProvince = optimalPath[from];
-    const toProvince = optimalPath[to];
+  const handleRemove = (remove, name) => {
+    remove(name);
+    setTransportationCount((prevCount) => prevCount - 1); // Decrease the count when an item is removed
+  };
 
-    const distanceToNextDestination =
-      fromProvince.distanceToNextDestination +
-      (toProvince ? toProvince.distanceToNextDestination : 0);
-
-    const duration =
-      fromProvince.duration + (toProvince ? toProvince.duration : 0);
-
-    return {
-      fromProvince: fromProvince.provinceName,
-      toProvince: toProvince
-        ? toProvince.provinceName
-        : optimalPath[0].provinceName,
-      distance: distanceToNextDestination,
-      duration,
-    };
+  const handleAdd = (add) => {
+    add();
+    setTransportationCount((prevCount) => prevCount + 1); // Increase the count when an item is added
   };
 
   return (
@@ -365,10 +480,10 @@ const TransportationSection = ({
         )}
       </div>
 
-      <Form.List name="transportation" initialValue={[{}]}>
+      <Form.List name="transportation">
         {(fields, { add, remove }) => (
           <>
-            {fields.map(({ key, name }, index) => (
+            {fields.map(({ key, name, ...restField }, index) => (
               <Space
                 key={key}
                 align="baseline"
@@ -378,19 +493,23 @@ const TransportationSection = ({
                 <div className="flex flex-wrap flex-grow w-full">
                   <div className="flex flex-wrap ">
                     <Form.Item
+                      {...restField}
                       label="Di chuyển từ:"
                       name={[name, "startPoint"]}
                       className="flex font-semibold"
                       rules={[{ required: true, message: "Missing province" }]}
                     >
                       <Select
-                        placeholder="Tỉnh"
+                        placeholder="Chọn tỉnh"
                         onChange={(value) =>
-                          onProvinceChange(index, value, "startPoint")
+                          handleProvinceChange(value, index, "startPoint")
                         }
                         className="!w-[200px] mr-10"
                       >
-                        {updatedProvinces.map((province) => (
+                        {(index === 0
+                          ? [{ id: startProvinceId, name: startProvinceName }]
+                          : provinces
+                        ).map((province) => (
                           <Option key={province.id} value={province.id}>
                             {province.name}
                           </Option>
@@ -398,6 +517,7 @@ const TransportationSection = ({
                       </Select>
                     </Form.Item>
                     <Form.Item
+                      {...restField}
                       name={[name, "startPointDistrict"]}
                       className="flex font-semibold"
                       placeholder="Huyện/TP"
@@ -409,30 +529,45 @@ const TransportationSection = ({
                       <Select
                         placeholder="Huyện/TP"
                         className="!w-[200px] mr-10"
+                        onChange={(value) =>
+                          handleDistrictChange(
+                            value,
+                            index,
+                            "startPointDistrict"
+                          )
+                        }
+                        disabled={!selectedProvinces[`${index}_startPoint`]}
                       >
-                        {districts.map((district) => (
-                          <Option key={district.id} value={district.id}>
-                            {district.name}
-                          </Option>
-                        ))}
+                        {(districts[`${index}_startPoint`] || []).map(
+                          (district) => (
+                            <Option key={district.id} value={district.id}>
+                              {district.name}
+                            </Option>
+                          )
+                        )}
                       </Select>
                     </Form.Item>
                   </div>
                   <div className="flex flex-wrap ">
                     <Form.Item
+                      {...restField}
                       label="Đến:"
                       name={[name, "endPoint"]}
+                      placeholder="Chọn tỉnh"
                       className="flex font-semibold"
                       rules={[{ required: true, message: "Missing province" }]}
                     >
                       <Select
-                        placeholder="Tỉnh"
+                        placeholder="Chọn tỉnh"
                         onChange={(value) =>
-                          onProvinceChange(index, value, "endPoint")
+                          handleProvinceChange(value, index, "endPoint")
                         }
                         className="!w-[200px] mr-10"
                       >
-                        {updatedProvinces.map((province) => (
+                        {(index === fields.length - 1
+                          ? [{ id: startProvinceId, name: startProvinceName }]
+                          : provinces
+                        ).map((province) => (
                           <Option key={province.id} value={province.id}>
                             {province.name}
                           </Option>
@@ -440,6 +575,7 @@ const TransportationSection = ({
                       </Select>
                     </Form.Item>
                     <Form.Item
+                      {...restField}
                       name={[name, "endPointDistrict"]}
                       className="flex font-semibold"
                       placeholder="Huyện/TP"
@@ -451,18 +587,25 @@ const TransportationSection = ({
                       <Select
                         placeholder="Huyện/TP"
                         className="!w-[200px] mr-10"
+                        onChange={(value) =>
+                          handleDistrictChange(value, index, "endPointDistrict")
+                        }
+                        disabled={!selectedProvinces[`${index}_endPoint`]}
                       >
-                        {districts.map((district) => (
-                          <Option key={district.id} value={district.id}>
-                            {district.name}
-                          </Option>
-                        ))}
+                        {(districts[`${index}_endPoint`] || []).map(
+                          (district) => (
+                            <Option key={district.id} value={district.id}>
+                              {district.name}
+                            </Option>
+                          )
+                        )}
                       </Select>
                     </Form.Item>
                   </div>
 
                   <ConfigProvider locale={viVN}>
                     <Form.Item
+                      {...restField}
                       name={[name, "dateRange"]}
                       label="Ngày đi:"
                       className="flex font-semibold"
@@ -490,8 +633,9 @@ const TransportationSection = ({
                   <div>
                     <div className="flex flex-wrap  ">
                       <Form.Item
+                        {...restField}
                         name={[name, "vehicleType"]}
-                        label="Phương tiện di chuyển:"
+                        label="Phương tiện:"
                         className="flex font-semibold"
                         rules={[
                           {
@@ -507,16 +651,18 @@ const TransportationSection = ({
                             onVehicleTypeChange(index, value, name)
                           }
                         >
-                          {Object.entries(servingVehiclesQuantity).map(
-                            ([key, label]) => (
-                              <Option key={key} value={parseInt(key, 10)}>
+                          {availableVehicleTypes[index]?.map((key) => {
+                            const label = servingVehiclesQuantity[key];
+                            return (
+                              <Option key={key} value={key}>
                                 {label}
                               </Option>
-                            )
-                          )}
+                            );
+                          })}
                         </Select>
                       </Form.Item>
                       <Form.Item
+                        {...restField}
                         className="font-semibold "
                         label="Số lượng phương tiện:"
                         name={[name, "numOfVehicle"]}
@@ -565,7 +711,10 @@ const TransportationSection = ({
                       selectedForSwap.includes(index) ? "primary" : "default"
                     }
                   />
-                  <DeleteOutlined onClick={() => remove(name)} />
+                  <Button
+                    onClick={() => handleRemove(remove, name)}
+                    icon={<DeleteOutlined />}
+                  />
                 </div>
               </Space>
             ))}
@@ -580,17 +729,19 @@ const TransportationSection = ({
                 </Button>
               </Form.Item>
             )}
-            <Form.Item className="w-1/3 ">
-              <Button
-                className="bg-teal-600 font-semibold text-white"
-                type="dashed"
-                onClick={() => addRoute(add)}
-                block
-                icon={<PlusOutlined />}
-              >
-                Thêm phương tiện di chuyển
-              </Button>
-            </Form.Item>
+            {transportationCount !== 6 && (
+              <Form.Item className="w-1/3">
+                <Button
+                  className="bg-teal-600 font-semibold text-white"
+                  type="dashed"
+                  onClick={() => handleAdd(add)}
+                  block
+                  icon={<PlusOutlined />}
+                >
+                  Thêm phương tiện di chuyển
+                </Button>
+              </Form.Item>
+            )}
           </>
         )}
       </Form.List>

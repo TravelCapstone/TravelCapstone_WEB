@@ -24,25 +24,36 @@ const DetailFamilySection = ({
   adultLimit,
   childrenLimit,
   totalLimitFamily,
+  totalAdults,
+  totalChildren,
+  setTotalAdults,
+  setTotalChildren,
 }) => {
   const [totalAllFamilies, setTotalAllFamilies] = useState(0);
   const [alertInfo, setAlertInfo] = useState({ visible: false, message: "" });
 
-  // Function to update totalFamily when numOfAdultInFamily or numOfChildrenInFamily changes
-  const updateTotalFamily = (fieldIndex) => {
-    const numOfAdults =
-      form.getFieldValue(["familyDetails", fieldIndex, "numOfAdultInFamily"]) ||
-      0;
-    const numOfChildren =
-      form.getFieldValue([
-        "familyDetails",
-        fieldIndex,
-        "numOfChildrenInFamily",
-      ]) || 0;
-    const totalFamily =
-      form.getFieldValue(["familyDetails", fieldIndex, "totalFamily"]) || 1;
+  console.log("totalAdults", totalAdults);
+  console.log("totalChildren", totalChildren);
 
-    const totalAllFamilies = (numOfAdults + numOfChildren) * totalFamily;
+  const updateTotalFamily = () => {
+    const familyDetails = form.getFieldValue("familyDetails") || [];
+
+    let adults = 0;
+    let children = 0;
+    let totalAllFamilies = 0;
+
+    familyDetails.forEach((family, index) => {
+      const numOfAdults = family.numOfAdultInFamily || 0;
+      const numOfChildren = family.numOfChildrenInFamily || 0;
+      const totalFamily = family.totalFamily || 1;
+
+      adults += numOfAdults * totalFamily;
+      children += numOfChildren * totalFamily;
+      totalAllFamilies += (numOfAdults + numOfChildren) * totalFamily;
+    });
+
+    setTotalAdults(adults);
+    setTotalChildren(children);
     setTotalAllFamilies(totalAllFamilies);
   };
 
@@ -167,9 +178,11 @@ const DetailFamilySection = ({
           </>
         )}
       </Form.List>
-      <div className="my-4 text-sm font-semibold text-right text-mainColor">
-        Tổng số người trong tất cả các gia đình: {totalAllFamilies} người
-      </div>
+      {totalAllFamilies && (
+        <div className="my-4 text-sm font-semibold text-right text-mainColor">
+          Tổng số người trong tất cả các gia đình: {totalAllFamilies} người
+        </div>
+      )}
     </>
   );
 };
