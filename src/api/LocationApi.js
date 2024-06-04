@@ -13,7 +13,7 @@ const getAllProvince = async () => {
 
 const getProvinceByName = async (provinceName) => {
   try {
-      const response = await api.get(`/location/get-province-by-name/${encodeURIComponent(provinceName)}`);
+      const response = await api.get(`/location/get-province-by-name/${provinceName}`);
       if (response.data.isSuccess) {
           return response.data; 
       } else {

@@ -1,7 +1,10 @@
-import { Input, Select, DatePicker, Typography } from "antd";
+import { Input, Select, DatePicker, Typography, ConfigProvider } from "antd";
 import { formatPrice } from "../../../../utils/Util";
 import { vehicleTypeLabels } from "../../../../settings/globalStatus";
 import VehicleSelect from "../CreatePlan/Vehicle/VehicleSelect";
+import "../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
+
 const { Option } = Select;
 const { Text } = Typography;
 
@@ -19,12 +22,14 @@ const VehicleAssignment = ({ data }) => {
                 {item.startPoint?.name} - {item.endPoint?.name}
               </strong>
             </div>
-            <div className="flex items-center mb-2">
-              <Text strong className="mr-2">
-                Ngày đi:
-              </Text>
-              <DatePicker />
-            </div>
+            <ConfigProvider locale={viVN}>
+              <div className="flex items-center mb-2">
+                <Text strong className="mr-2">
+                  Ngày đi:
+                </Text>
+                <DatePicker />
+              </div>
+            </ConfigProvider>
             <div className="flex items-center mb-2">
               <Text strong className="mr-2">
                 Phương tiện di chuyển từ{" "}

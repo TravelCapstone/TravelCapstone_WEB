@@ -7,6 +7,7 @@ import {
   Space,
   DatePicker,
   Input,
+  ConfigProvider,
 } from "antd";
 import {
   DeleteOutlined,
@@ -20,6 +21,8 @@ import {
 } from "../../../../../../api/SellPriceHistoryApi";
 import { usePrice } from "../../../../../../context/PriceContext";
 import moment from "moment";
+import "../../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -272,25 +275,28 @@ const VerhicleTravelSection = ({
                         </Select>
                       </Form.Item> */}
 
-                      <Form.Item
-                        name={[name, "dateRange"]}
-                        label="Ngày đi:"
-                        className="flex font-semibold"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn ngày đi!",
-                          },
-                        ]}
-                      >
-                        <RangePicker
-                          onChange={() => fetchVehiclePriceRange(index)}
-                          showTime
-                          className="!w-[350px] mr-10"
-                          disabledDate={disabledDate}
-                          defaultPickerValue={[getDefaultPickerValue()]}
-                        />
-                      </Form.Item>
+                      <ConfigProvider locale={viVN}>
+                        <Form.Item
+                          name={[name, "dateRange"]}
+                          label="Ngày đi:"
+                          className="flex font-semibold"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn ngày đi!",
+                            },
+                          ]}
+                        >
+                          <RangePicker
+                            onChange={() => fetchVehiclePriceRange(index)}
+                            showTime
+                            className="!w-[350px] mr-10"
+                            format="DD-MM-YYYY HH:mm:ss"
+                            disabledDate={disabledDate}
+                            defaultPickerValue={[getDefaultPickerValue()]}
+                          />
+                        </Form.Item>
+                      </ConfigProvider>
                     </div>
                     <div className="">
                       <div className="flex flex-wrap">

@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
 import { getPriceForVehicle } from "../../../../../api/VehicleApi";
 import { formatPrice } from "../../../../../utils/Util";
-import { DatePicker, Select, Typography, Space, Input } from "antd";
+import {
+  DatePicker,
+  Select,
+  Typography,
+  Space,
+  Input,
+  ConfigProvider,
+} from "antd";
 import { getAvailableDriver } from "../../../../../api/HumanResourceSalaryApi";
+import "../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -58,10 +67,12 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
           <div className="flex flex-col">
             <div className="flex mb-4">
               <Text className="mr-32">Ngày bắt đầu và kết thúc</Text>
-              <RangePicker
-                onChange={(dates) => setDateRange(dates)}
-                value={dateRange}
-              />
+              <ConfigProvider locale={viVN}>
+                <RangePicker
+                  onChange={(dates) => setDateRange(dates)}
+                  value={dateRange}
+                />
+              </ConfigProvider>
             </div>
           </div>
           <div className="flex my-4">
@@ -103,10 +114,12 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
           <div className="flex my-4">
             <Text className="w-3/12">Ngày di chuyển</Text>
             <Space>
-              <RangePicker
-                onChange={(dates) => setDateRange(dates)}
-                value={dateRange}
-              />
+              <ConfigProvider locale={viVN}>
+                <RangePicker
+                  onChange={(dates) => setDateRange(dates)}
+                  value={dateRange}
+                />
+              </ConfigProvider>
             </Space>
           </div>
           <div className="flex my-4">

@@ -1,4 +1,6 @@
-import { Form, Input, Select, DatePicker, Button } from "antd";
+import { Form, Input, Select, DatePicker, Button, ConfigProvider } from "antd";
+import "../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { Option } = Select;
 
@@ -12,9 +14,11 @@ const LocalVehicleAssignment = () => {
       <Form.Item label="Số lượng xe">
         <span>1</span>
       </Form.Item>
-      <Form.Item label="Ngày di chuyển">
-        <DatePicker.RangePicker />
-      </Form.Item>
+      <ConfigProvider locale={viVN}>
+        <Form.Item label="Ngày di chuyển">
+          <DatePicker.RangePicker />
+        </Form.Item>
+      </ConfigProvider>
       <Form.Item label="Nhà cung cấp xe">
         <Select style={{ width: "100%" }}>
           <Option value="">Mon</Option>

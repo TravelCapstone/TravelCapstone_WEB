@@ -14,6 +14,7 @@ import {
   Typography,
   Tooltip,
   Modal,
+  ConfigProvider,
 } from "antd";
 import {
   DeleteOutlined,
@@ -31,6 +32,8 @@ import { getAllFacilityByLocationAndRatingId } from "../../../../../../api/Facil
 import { getMenuByFacilityId } from "../../../../../../api/MenuApi";
 import { getPriceOfMeal } from "../../../../../../api/SellPriceHistoryApi";
 import moment from "moment";
+import "../../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -786,25 +789,28 @@ const RestaurantSection = ({
                   {indexToAlpha(index)}.
                 </div>
                 <div>
-                  <Form.Item
-                    name={[field.name, "date"]}
-                    className=" font-semibold"
-                    label="Ngày"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please choose the stay dates!",
-                      },
-                    ]}
-                  >
-                    <DatePicker
-                      disabledDate={disabledDate}
-                      defaultPickerValue={[getDefaultPickerValue()]}
-                      showTime
-                      className="!min-w-[300px]"
-                      onChange={handleDateChange}
-                    />
-                  </Form.Item>
+                  <ConfigProvider locale={viVN}>
+                    <Form.Item
+                      name={[field.name, "date"]}
+                      className=" font-semibold"
+                      label="Ngày"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please choose the stay dates!",
+                        },
+                      ]}
+                    >
+                      <DatePicker
+                        disabledDate={disabledDate}
+                        defaultPickerValue={[getDefaultPickerValue()]}
+                        showTime
+                        className="!min-w-[300px]"
+                        format="DD-MM-YYYY HH:mm:ss"
+                        onChange={handleDateChange}
+                      />
+                    </Form.Item>
+                  </ConfigProvider>
                   <DaySection
                     form={form}
                     name={[field.name, "days"]}

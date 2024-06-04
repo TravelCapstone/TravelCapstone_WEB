@@ -12,6 +12,7 @@ import {
   InputNumber,
   List,
   Card,
+  ConfigProvider,
 } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
@@ -23,6 +24,8 @@ import { getMinMaxPriceOfHotel } from "../../../../../../api/SellPriceHistoryApi
 import { getAllFacility } from "../../../../../../api/FacilityApi";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
+import "../../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -229,28 +232,31 @@ const LodgingSection = ({
                 </div>
                 <div className="flex flex-col flex-grow w-full">
                   <div className="flex flex-wrap ">
-                    <Form.Item
-                      label="Ngày lưu trú:"
-                      className=" font-semibold"
-                      {...field}
-                      name={[field.name, "stayDatesLoging"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please choose the stay dates!",
-                        },
-                      ]}
-                    >
-                      <RangePicker
-                        showTime
-                        className="!min-w-[300px] mr-10"
-                        onChange={(dates, dateStrings) =>
-                          onDateRangeChange(dates, dateStrings, field.name)
-                        }
-                        disabledDate={disabledDate}
-                        defaultPickerValue={[getDefaultPickerValue()]}
-                      />
-                    </Form.Item>
+                    <ConfigProvider locale={viVN}>
+                      <Form.Item
+                        label="Ngày lưu trú:"
+                        className=" font-semibold"
+                        {...field}
+                        name={[field.name, "stayDatesLoging"]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please choose the stay dates!",
+                          },
+                        ]}
+                      >
+                        <RangePicker
+                          showTime
+                          className="!min-w-[300px] mr-10"
+                          format="DD-MM-YYYY HH:mm:ss"
+                          onChange={(dates, dateStrings) =>
+                            onDateRangeChange(dates, dateStrings, field.name)
+                          }
+                          disabledDate={disabledDate}
+                          defaultPickerValue={[getDefaultPickerValue()]}
+                        />
+                      </Form.Item>
+                    </ConfigProvider>
                     <Form.Item
                       className=" font-semibold"
                       {...field}

@@ -8,17 +8,24 @@ import {
   Modal,
   Table,
   Alert,
+  Tooltip,
 } from "antd";
 import {
   DeleteOutlined,
   MinusCircleOutlined,
   PlusOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 
 const { Option } = Select;
 
-const DetailFamilySection = ({ form, adultLimit, childrenLimit }) => {
-  const [totalFamilyCounts, setTotalFamilyCounts] = useState({});
+const DetailFamilySection = ({
+  form,
+  adultLimit,
+  childrenLimit,
+  totalLimitFamily,
+}) => {
+  const [totalAllFamilies, setTotalAllFamilies] = useState(0);
   const [alertInfo, setAlertInfo] = useState({ visible: false, message: "" });
 
   // Function to update totalFamily when numOfAdultInFamily or numOfChildrenInFamily changes
@@ -32,63 +39,11 @@ const DetailFamilySection = ({ form, adultLimit, childrenLimit }) => {
         fieldIndex,
         "numOfChildrenInFamily",
       ]) || 0;
+    const totalFamily =
+      form.getFieldValue(["familyDetails", fieldIndex, "totalFamily"]) || 1;
 
-    // Calculate total number of adults and children already entered in all other sections
-    const otherTotals = form.getFieldValue("familyDetails").reduce(
-      (acc, curr, idx) => {
-        if (idx !== fieldIndex) {
-          acc.adults += curr.numOfAdultInFamily || 0;
-          acc.children += curr.numOfChildrenInFamily || 0;
-        }
-        return acc;
-      },
-      { adults: 0, children: 0 }
-    );
-
-    // Check if the new totals exceed the limits
-    if (numOfAdults + otherTotals.adults > adultLimit) {
-      setAlertInfo({
-        visible: true,
-        message: `Tổng số người lớn không quá ${adultLimit} người. Vui lòng điều chỉnh lại số lượng người lớn!`,
-      });
-      form.setFieldsValue({
-        ["familyDetails"]: {
-          [fieldIndex]: {
-            numOfAdultInFamily: 0, // Clearing or resetting the input
-          },
-        },
-      });
-      return; // Prevent the update for adults
-    }
-
-    if (numOfChildren + otherTotals.children > childrenLimit) {
-      setAlertInfo({
-        visible: true,
-        message: `Tổng số trẻ em không quá ${childrenLimit} người. Vui lòng điều chỉnh lại số lượng trẻ em!`,
-      });
-      form.setFieldsValue({
-        ["familyDetails"]: {
-          [fieldIndex]: {
-            numOfChildrenInFamily: 0, // Clearing or resetting the input
-          },
-        },
-      });
-      return; // Prevent the update for children
-    }
-
-    const totalFamily = numOfAdults + numOfChildren;
-    setTotalFamilyCounts((prev) => ({
-      ...prev,
-      [fieldIndex]: totalFamily,
-    }));
-
-    form.setFieldsValue({
-      ["familyDetails"]: {
-        [fieldIndex]: {
-          totalFamily: totalFamily,
-        },
-      },
-    });
+    const totalAllFamilies = (numOfAdults + numOfChildren) * totalFamily;
+    setTotalAllFamilies(totalAllFamilies);
   };
 
   // Function to get Vietnamese ordinal number
@@ -108,25 +63,8 @@ const DetailFamilySection = ({ form, adultLimit, childrenLimit }) => {
     return ordinals[index - 1] || `${index + 1}`; // Fallback to numeric if index exceeds predefined ordinals
   };
 
-  // Calculate the grand total of all family members
-  const totalAllFamilies = Object.values(totalFamilyCounts).reduce(
-    (acc, current) => acc + current,
-    0
-  );
-
   return (
     <>
-      {alertInfo.visible && (
-        <Alert
-          message="Lưu ý:"
-          description={alertInfo.message}
-          type="error"
-          closable
-          onClose={() => setAlertInfo({ visible: false, message: "" })}
-          showIcon
-          className="my-4"
-        />
-      )}
       <Form.List name="familyDetails" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
@@ -139,68 +77,97 @@ const DetailFamilySection = ({ form, adultLimit, childrenLimit }) => {
                 align="baseline"
               >
                 <div className="flex">
-                  <li className="list-disc font-semibold mx-5 text-lg">
-                    Gia đình thứ {getVietnameseOrdinal(index + 1)}:
+                  <li className="list-disc font-semibold mx-5 text-sm">
+                    Kiểu gia đình thứ {getVietnameseOrdinal(index + 1)}:
                   </li>
                   <div className="flex flex-wrap">
                     <div className="flex flex-wrap ml-2">
                       <Form.Item
                         className=" font-semibold ml-2 items-center"
                         name={[field.name, "numOfAdultInFamily"]}
-                        label="Số người lớn: "
+                        label={
+                          <span>
+                            Số người lớn: &nbsp;
+                            <Tooltip title="Người lớn tính từ 1m4 trở lên và 16 tuổi trở lên">
+                              <QuestionCircleOutlined />
+                            </Tooltip>
+                          </span>
+                        }
                       >
                         <InputNumber
                           min={1}
-                          className="!w-[150px] mr-4"
+                          className="!w-[150px] mr-6"
                           max={100}
-                          disabled={!adultLimit}
+                          // disabled={!adultLimit}
                           placeholder="Tổng số người lớn"
                           onChange={() => updateTotalFamily(index)}
                         />
                       </Form.Item>
                       <Form.Item
-                        className=" font-semibold ml-5 items-center"
+                        className=" font-semibold items-center"
                         name={[field.name, "numOfChildrenInFamily"]}
-                        label="Số trẻ em: "
+                        label={
+                          <span>
+                            Số trẻ em: &nbsp;
+                            <Tooltip title="Trẻ em tính từ 1m4 trở xuống và 16 tuổi trở xuống">
+                              <QuestionCircleOutlined />
+                            </Tooltip>
+                          </span>
+                        }
                       >
                         <InputNumber
                           min={0}
-                          className="!w-[150px] mr-10"
+                          className="!w-[150px] mr-6"
                           max={100}
                           placeholder="Tổng số trẻ em"
                           onChange={() => updateTotalFamily(index)}
-                          disabled={!childrenLimit}
+                          // disabled={!childrenLimit}
                         />
                       </Form.Item>
-                      {totalFamilyCounts[index] && (
-                        <Form.Item
-                          className="font-semibold ml-5 items-center"
-                          name={[field.name, "totalFamily"]}
-                          label="Tổng:"
-                        >
-                          <div className="flex">
-                            <p className="hidden">
-                              <InputNumber
-                                value={totalFamilyCounts[index]}
-                                disabled={true} // This field is now automatically calculated and not manually editable
-                              />
-                            </p>
-                            <p>
-                              {totalFamilyCounts[index]} người / Gia đình thứ{" "}
-                              {getVietnameseOrdinal(index + 1)}
-                            </p>
-                          </div>
-                        </Form.Item>
-                      )}
+                      <Form.Item
+                        className="font-semibold  items-center"
+                        name={[field.name, "totalFamily"]}
+                        label={
+                          <span>
+                            Tổng gia đình: &nbsp;
+                            <Tooltip title="Tổng số gia đình có số người lớn và trẻ em như bạn đã điền">
+                              <QuestionCircleOutlined />
+                            </Tooltip>
+                          </span>
+                        }
+                      >
+                        <InputNumber
+                          className="!w-[150px] mr-2 "
+                          onChange={() => updateTotalFamily(index)}
+                          min={0}
+                          // disabled={!TotalLimit}
+                          placeholder="Tổng gia đình"
+                        />
+                      </Form.Item>
                     </div>
                   </div>
+                  <DeleteOutlined
+                    onClick={() => remove(field.name)}
+                    className="self-center mt-2"
+                  />
                 </div>
               </Space>
             ))}
+
+            <Form.Item className="w-1/3">
+              <Button
+                className="bg-teal-600 font-semibold text-white"
+                onClick={() => add()}
+                block
+                icon={<PlusOutlined />}
+              >
+                Thêm Kiểu Gia Đình
+              </Button>
+            </Form.Item>
           </>
         )}
       </Form.List>
-      <div className="my-4 text-lg font-semibold text-right text-mainColor">
+      <div className="my-4 text-sm font-semibold text-right text-mainColor">
         Tổng số người trong tất cả các gia đình: {totalAllFamilies} người
       </div>
     </>

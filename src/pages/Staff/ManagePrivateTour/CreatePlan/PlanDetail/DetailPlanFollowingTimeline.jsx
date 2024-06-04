@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, DatePicker } from "antd";
+import { Form, Input, Button, DatePicker, ConfigProvider } from "antd";
 import moment from "moment";
+import "../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 function DetailPlanFollowingTimeline(props) {
   const [milestones, setMilestones] = useState([]);
@@ -21,14 +23,16 @@ function DetailPlanFollowingTimeline(props) {
           <>
             {fields.map(({ key, name, fieldKey, ...restField }) => (
               <div key={key} className="flex justify-between mt-2">
-                <Form.Item
-                  {...restField}
-                  name={[name, "date"]}
-                  fieldKey={[fieldKey, "date"]}
-                  rules={[{ required: true, message: "Vui lòng chọn ngày" }]}
-                >
-                  <DatePicker />
-                </Form.Item>
+                <ConfigProvider locale={viVN}>
+                  <Form.Item
+                    {...restField}
+                    name={[name, "date"]}
+                    fieldKey={[fieldKey, "date"]}
+                    rules={[{ required: true, message: "Vui lòng chọn ngày" }]}
+                  >
+                    <DatePicker />
+                  </Form.Item>
+                </ConfigProvider>
                 <Form.Item
                   {...restField}
                   name={[name, "content"]}
@@ -69,26 +73,36 @@ function DetailPlanFollowingTimeline(props) {
                     onClick={() => remove(name)}
                   />
                 </div>
-                <Form.Item
-                  {...restField}
-                  name={[name, "fromDate"]}
-                  fieldKey={[fieldKey, "fromDate"]}
-                  rules={[
-                    { required: true, message: "Vui lòng chọn ngày bắt đầu" },
-                  ]}
-                >
-                  <DatePicker className="w-full mt-1" placeholder="Từ ngày" />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, "toDate"]}
-                  fieldKey={[fieldKey, "toDate"]}
-                  rules={[
-                    { required: true, message: "Vui lòng chọn ngày kết thúc" },
-                  ]}
-                >
-                  <DatePicker className="w-full mt-1" placeholder="Đến ngày" />
-                </Form.Item>
+                <ConfigProvider locale={viVN}>
+                  <Form.Item
+                    {...restField}
+                    name={[name, "fromDate"]}
+                    fieldKey={[fieldKey, "fromDate"]}
+                    rules={[
+                      { required: true, message: "Vui lòng chọn ngày bắt đầu" },
+                    ]}
+                  >
+                    <DatePicker className="w-full mt-1" placeholder="Từ ngày" />
+                  </Form.Item>
+                </ConfigProvider>
+                <ConfigProvider locale={viVN}>
+                  <Form.Item
+                    {...restField}
+                    name={[name, "toDate"]}
+                    fieldKey={[fieldKey, "toDate"]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn ngày kết thúc",
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      className="w-full mt-1"
+                      placeholder="Đến ngày"
+                    />
+                  </Form.Item>
+                </ConfigProvider>
                 <Form.Item
                   {...restField}
                   name={[name, "title"]}
@@ -115,19 +129,21 @@ function DetailPlanFollowingTimeline(props) {
                             key={milestoneKey}
                             className="flex justify-between mt-2"
                           >
-                            <Form.Item
-                              {...restMilestoneField}
-                              name={[milestoneName, "date"]}
-                              fieldKey={[milestoneFieldKey, "date"]}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Vui lòng chọn ngày",
-                                },
-                              ]}
-                            >
-                              <DatePicker />
-                            </Form.Item>
+                            <ConfigProvider locale={viVN}>
+                              <Form.Item
+                                {...restMilestoneField}
+                                name={[milestoneName, "date"]}
+                                fieldKey={[milestoneFieldKey, "date"]}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Vui lòng chọn ngày",
+                                  },
+                                ]}
+                              >
+                                <DatePicker />
+                              </Form.Item>
+                            </ConfigProvider>
                             <Form.Item
                               {...restMilestoneField}
                               name={[milestoneName, "content"]}

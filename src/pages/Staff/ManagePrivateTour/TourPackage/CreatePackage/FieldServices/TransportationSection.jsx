@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Form, Select, DatePicker, Space, message, Input } from "antd";
+import {
+  Button,
+  Form,
+  Select,
+  DatePicker,
+  Space,
+  message,
+  Input,
+  ConfigProvider,
+} from "antd";
 import { DeleteOutlined, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import {
   ratingLabels,
@@ -12,11 +21,15 @@ import {
 } from "../../../../../../utils/Util";
 import { usePrice } from "../../../../../../context/PriceContext";
 import moment from "moment";
+import "../../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const TransportationSection = ({
+  startDateTourChange,
+  endDateChange,
   form,
   priceInfo,
   setPriceInfo,
@@ -50,7 +63,7 @@ const TransportationSection = ({
           const quantity =
             request?.privateTourResponse?.numOfAdult +
             request?.privateTourResponse?.numOfChildren;
-          debugger;
+          // debugger;
           const totalPrice = priceInfo[index].maxCostperPerson * quantity;
           const commonService = {
             item: `Phương tiện di chuyển từ tỉnh ${index} đến tỉnh ${index + 1}`,
@@ -194,24 +207,31 @@ const TransportationSection = ({
   };
 
   const disabledDate = (current) => {
-    debugger;
-    // Lấy giá trị tourDate từ form
-    const tourDate = form.getFieldValue("tourDate");
-    if (!tourDate || tourDate.length < 2) {
+    if (!startDateTourChange && !endDateChange) {
       return false;
     }
-    const startDate = tourDate[0];
-    const endDate = tourDate[1];
+    const startDateTourChange2 = moment(
+      startDateTourChange,
+      "DD-MM-YYYY HH:mm:ss"
+    ).subtract(2, "days");
+    const endDateChange2 = moment(endDateChange, "DD-MM-YYYY HH:mm:ss").add(
+      1,
+      "days"
+    );
+    const startDate = startDateTourChange2;
+    const endDate = endDateChange2;
+    console.log("startDateTourChange2", startDate);
+
     return current && (current < startDate || current > endDate);
   };
 
   // Lấy giá trị defaultPickerValue từ tourDate
   const getDefaultPickerValue = () => {
-    const tourDate = form.getFieldValue("tourDate");
-    if (!tourDate || tourDate.length < 2) {
-      return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
-    }
-    return tourDate[0]; // Sử dụng ngày bắt đầu của tourDate
+    const startDateTourChange2 = moment(
+      startDateTourChange,
+      "DD-MM-YYYY HH:mm:ss"
+    ).subtract(2, "days");
+    return startDateTourChange2.format("DD-MM-YYYY HH:mm:ss");
   };
 
   const executeSwap = () => {
@@ -441,29 +461,32 @@ const TransportationSection = ({
                     </Form.Item>
                   </div>
 
-                  <Form.Item
-                    name={[name, "dateRange"]}
-                    label="Ngày đi:"
-                    className="flex font-semibold"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn ngày đi!",
-                      },
-                    ]}
-                  >
-                    <RangePicker
-                      onChange={() => {
-                        fetchVehiclePriceRange(index);
-                        updateNextRoute(index);
-                      }}
-                      showTime
-                      className="!w-[350px] mr-10"
-                      format={"DD/MM/YYYY"}
-                      disabledDate={disabledDate}
-                      defaultPickerValue={[getDefaultPickerValue()]}
-                    />
-                  </Form.Item>
+                  <ConfigProvider locale={viVN}>
+                    <Form.Item
+                      name={[name, "dateRange"]}
+                      label="Ngày đi:"
+                      className="flex font-semibold"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn ngày đi!",
+                        },
+                      ]}
+                    >
+                      <RangePicker
+                        onChange={() => {
+                          fetchVehiclePriceRange(index);
+                          updateNextRoute(index);
+                        }}
+                        showTime
+                        className="!w-[350px] mr-10"
+                        format="DD-MM-YYYY HH:mm:ss"
+                        disabledDate={disabledDate}
+                        // defaultPickerValue={getDefaultPickerValue()}
+                      />
+                    </Form.Item>
+                  </ConfigProvider>
+
                   <div>
                     <div className="flex flex-wrap  ">
                       <Form.Item
