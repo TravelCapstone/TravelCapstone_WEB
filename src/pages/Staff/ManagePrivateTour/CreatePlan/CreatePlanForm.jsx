@@ -8,6 +8,7 @@ import {
   Input,
   DatePicker,
   TimePicker,
+  ConfigProvider,
 } from "antd";
 import RestingAssignment from "./RestingAssignment";
 import FoodAndBevarageAssignment from "./FoodAndBevarageAssigment";
@@ -19,6 +20,8 @@ import MaterialAssignment from "./PlanDetail/MaterialAssignment";
 import TourguideAssignment from "./PlanDetail/TourguideAssignment";
 import LocalVehicleAssignment from "./LocalVehicleAssignment";
 import { optionClassLabels } from "../../../../settings/globalStatus";
+import "../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const CreatePlanForm = ({
   privateTourResponse,
@@ -223,8 +226,13 @@ const CreatePlanForm = ({
                             Thời gian:{" "}
                           </p>
                           <div>
-                            <DatePicker className="ml-2" format="DD/MM/YYYY" />
-                            <TimePicker className="ml-2" format="HH:mm" />
+                            <ConfigProvider locale={viVN}>
+                              <DatePicker
+                                className="ml-2"
+                                format="DD/MM/YYYY"
+                              />
+                              <TimePicker className="ml-2" format="HH:mm" />
+                            </ConfigProvider>
                           </div>
                         </div>
                         <div>

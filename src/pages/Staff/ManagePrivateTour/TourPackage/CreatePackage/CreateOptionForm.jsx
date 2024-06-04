@@ -12,6 +12,7 @@ import {
   notification,
   List,
   Card,
+  ConfigProvider,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { createOptionsPrivateTour } from "../../../../../api/OptionsApi";
@@ -35,6 +36,9 @@ import EventGalasSection from "./FieldServices/eventGalasSection";
 import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
 import { usePrice } from "../../../../../context/PriceContext";
 import { alertFail, alertSuccess } from "../../../../../hook/useNotification";
+import "../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
+import moment from "moment";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -57,18 +61,44 @@ function CreateOptionForm({ request }) {
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
   const [numOfDaysLoging, setNumOfDaysLoging] = useState(0);
 
-  const [startDateChange, setStartDateChange] = useState(null);
-  const [endDateChange, setEndDateChange] = useState(null);
+  const [endDateChange, setEndDateChange] = useState(null); // tourDate
+  const [startDateTourChange, setStartDateTourChange] = useState(null); // tourDate
+
+  const startDate = request?.privateTourResponse?.startDate;
+
+  const [endDateTour, setEndDateTour] = useState(
+    moment(startDate).add(request?.privateTourResponse?.numOfDay + 1, "days")
+  );
   const [jsonCustomEventJsonString, setJsonCustomEventJsonString] =
     useState(null);
 
   console.log("endDateChange", endDateChange);
-  console.log("startDateChange", startDateChange);
+  console.log("startDateTourChange", startDateTourChange);
 
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
 
   const { updateCommonPrice, commonPrices } = usePrice();
+
+  const startDateTour = form.getFieldValue("startDateTour");
+
+  const endDate = request?.privateTourResponse?.endDate;
+  const parsedStartDate = startDate ? dayjs(startDate) : null;
+  const parsedEndDate = endDate ? dayjs(endDate) : null;
+
+  useEffect(() => {
+    const numOfDays = request?.privateTourResponse?.numOfDay || 0;
+    const newStartDate = startDateTour
+      ? startDateTour.format("DD-MM-YYYY HH:mm:ss")
+      : moment(startDate).add(1, "days").format("DD-MM-YYYY HH:mm:ss");
+
+    setStartDateTourChange(newStartDate);
+    const newEndDate = startDateTour
+      ? startDateTour.add(numOfDays, "days").format("DD-MM-YYYY HH:mm:ss")
+      : moment(startDate).add(numOfDays, "days").format("DD-MM-YYYY HH:mm:ss");
+
+    setEndDateChange(newEndDate);
+  }, [startDateTour, startDate, request]);
 
   useEffect(() => {
     if (salaryInfo) {
@@ -155,7 +185,7 @@ function CreateOptionForm({ request }) {
     const quantity =
       request?.privateTourResponse?.numOfAdult +
       request?.privateTourResponse?.numOfChildren;
-    const values = form.getFieldValue("transportation")[index];
+    const values = form?.getFieldValue("transportation")[index];
     if (
       !values.startPoint ||
       !values.endPoint ||
@@ -339,8 +369,8 @@ function CreateOptionForm({ request }) {
       );
 
     const apiPayload = {
-      startDate: values.tourDate[0], //ok
-      endDate: values.tourDate[1], //ok
+      startDate: startDateTourChange, //ok
+      endDate: endDateChange, //ok
       tourGuideCosts: tourGuideCosts, //ok
       materialCosts: values.materialCosts.map((material) => ({
         materialPriceHistoryId: material.materialId, //ok
@@ -440,47 +470,50 @@ function CreateOptionForm({ request }) {
       setLoading(false);
     }
   };
-  const startDate = request?.privateTourResponse?.startDate;
-  const endDate = request?.privateTourResponse?.endDate;
-  const parsedStartDate = startDate ? dayjs(startDate) : null;
-  const parsedEndDate = endDate ? dayjs(endDate) : null;
 
+  const handleStartDateChange = (date) => {
+    if (date) {
+      const calculatedEndDate = date.add(
+        request?.privateTourResponse?.numOfDay,
+        "days"
+      );
+      setEndDateTour(calculatedEndDate);
+    } else {
+      setEndDateTour(null);
+    }
+  };
+  const disableStartDates = (current) => {
+    if (!parsedStartDate || !parsedEndDate) {
+      return false;
+    }
+    return (
+      current &&
+      (current < parsedStartDate || current > parsedEndDate.subtract(4, "days"))
+    );
+  };
+
+  const disableEndDates = (current) => {
+    if (!startDateTour && !parsedEndDate) {
+      return false;
+    }
+    return (
+      current &&
+      (current <
+        moment(startDateTour).add(
+          request?.privateTourResponse?.numOfDay,
+          "days"
+        ) ||
+        current > parsedEndDate)
+    );
+  };
+
+  // Lấy giá trị defaultPickerValue từ tourDate
   const getDefaultPickerValue = () => {
     if (!parsedStartDate || !parsedEndDate) {
       return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
     }
+    console.log("parsedStartDate,getDefaultPickerValue", parsedStartDate);
     return parsedStartDate; // Sử dụng ngày bắt đầu của tourDate
-  };
-
-  const handleStartDateChange = (dates) => {
-    if (dates && dates[0]) {
-      const start = dates[0];
-      setStartDateChange(start);
-      const numOfDays =
-        request?.privateTourResponse?.numOfNight + (start.hour() >= 14 ? 1 : 0);
-      setEndDateChange(start.clone().add(numOfDays, "day"));
-    } else {
-      setStartDateChange(null);
-      setEndDateChange(null);
-    }
-  };
-
-  const disableDates = (current) => {
-    if (!parsedStartDate || !parsedEndDate) {
-      return false;
-    } else {
-      if (!startDateChange) {
-        return (
-          current && (current < parsedStartDate || current > parsedEndDate)
-        );
-      } else {
-        if (endDateChange < parsedEndDate)
-          return (
-            current && (current < startDateChange || current > endDateChange)
-          );
-      }
-      return current && (current < startDateChange || current > parsedEndDate);
-    }
   };
 
   return (
@@ -568,33 +601,56 @@ function CreateOptionForm({ request }) {
               </div>
             </div>
 
-            <Form.Item
-              label="Chọn ngày diễn ra tour:  "
-              className=" font-bold"
-              name="tourDate"
-              rules={[
-                {
-                  required: true,
-                  message: "Please choose the stay dates!",
-                },
-              ]}
-            >
-              <RangePicker
-                showTime
-                className="!min-w-[300px] mr-10"
-                onCalendarChange={handleStartDateChange}
-                disabledDate={disableDates}
-                defaultPickerValue={getDefaultPickerValue()}
-                format={"DD/MM/YYYY"}
-                onOpenChange={(status) => {
-                  // Additional handling if needed when picker opens/closes
-                  if (!status) {
-                    // status false when picker closes
-                    handleStartDateChange(null); // Reset on picker close if needed
-                  }
-                }}
-              />
-            </Form.Item>
+            <p className="font-bold my-4">Chọn ngày diễn ra tour: </p>
+            <ConfigProvider locale={viVN}>
+              <div className="flex flex-wrap">
+                <Form.Item
+                  label="Từ ngày "
+                  className=" font-bold"
+                  name="startDateTour"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please choose the stay dates!",
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    showTime
+                    className="!min-w-[300px] mr-10"
+                    onCalendarChange={handleStartDateChange}
+                    disabledDate={disableStartDates}
+                    defaultPickerValue={getDefaultPickerValue()}
+                    format="DD-MM-YYYY HH:mm:ss"
+                    defaultValue={moment(startDate).add(1, "days")} // Maintain existing behavior
+                    onOpenChange={(status) => {
+                      // Additional handling if needed when picker opens/closes
+                      if (!status) {
+                        // Reset on picker close if needed
+                        handleStartDateChange(null);
+                      }
+                    }}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label="Đến ngày "
+                  className=" font-bold"
+                  name="endDateTour"
+                >
+                  <p className="hidden">
+                    <DatePicker
+                      showTime
+                      className="!min-w-[300px] mr-10"
+                      disabledDate={disableEndDates}
+                      defaultPickerValue={getDefaultPickerValue()}
+                      format="DD-MM-YYYY HH:mm:ss"
+                      value={endDateTour}
+                    />
+                  </p>
+                  <span>{endDateChange}</span>
+                </Form.Item>
+              </div>
+            </ConfigProvider>
           </div>
         </div>
         {/* DỊCH VỤ CHUNG */}
@@ -609,6 +665,8 @@ function CreateOptionForm({ request }) {
                 Phương tiện di chuyển
               </h3>
               <TransportationSection
+                startDateTourChange={startDateTourChange}
+                endDateChange={endDateChange}
                 request={request}
                 priceInfo={priceInfo}
                 setPriceInfo={setPriceInfo}

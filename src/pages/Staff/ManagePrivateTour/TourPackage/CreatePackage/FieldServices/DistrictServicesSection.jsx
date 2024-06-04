@@ -18,6 +18,8 @@ import {
   servingHotelsQuantity,
 } from "../../../../../../settings/globalStatus";
 import { getMinMaxPriceOfHotel } from "../../../../../../api/SellPriceHistoryApi";
+import "../../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;

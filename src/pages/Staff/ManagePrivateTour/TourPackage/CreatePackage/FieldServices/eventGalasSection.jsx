@@ -9,6 +9,7 @@ import {
   Table,
   DatePicker,
   Input,
+  ConfigProvider,
 } from "antd";
 import {
   DeleteOutlined,
@@ -26,6 +27,8 @@ import {
   alertFail,
   alertSuccess,
 } from "../../../../../../hook/useNotification";
+import "../../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { Option } = Select;
 
@@ -300,7 +303,7 @@ const EventGalasSection = ({
       if (response.isSuccess) {
         // Check if your API sends a 'success' flag or similar indicator
         alertSuccess("Tour created successfully!");
-        debugger;
+        // debugger;
         const resultObject = response.result;
         setJsonCustomEventJsonString(resultObject);
 
@@ -511,21 +514,27 @@ const EventGalasSection = ({
                   >
                     Xem chi tiết
                   </Button>
-                  <Form.Item
-                    name={["eventGala", "date"]}
-                    className="font-semibold ml-10 my-2"
-                    label="Ngày tổ chức:"
-                    rules={[
-                      { required: true, message: " Vui lòng chọn thời gian!" },
-                    ]}
-                  >
-                    <DatePicker
-                      disabledDate={disabledDate}
-                      defaultPickerValue={[getDefaultPickerValue()]}
-                      showTime
-                      onChange={handleDateChange}
-                    />
-                  </Form.Item>
+                  <ConfigProvider locale={viVN}>
+                    <Form.Item
+                      name={["eventGala", "date"]}
+                      className="font-semibold ml-10 my-2"
+                      label="Ngày tổ chức:"
+                      rules={[
+                        {
+                          required: true,
+                          message: " Vui lòng chọn thời gian!",
+                        },
+                      ]}
+                    >
+                      <DatePicker
+                        disabledDate={disabledDate}
+                        defaultPickerValue={[getDefaultPickerValue()]}
+                        showTime
+                        onChange={handleDateChange}
+                        format="DD-MM-YYYY HH:mm:ss"
+                      />
+                    </Form.Item>
+                  </ConfigProvider>
                 </div>
                 {selectedEvent && (
                   <div className=" text-gray-500 ml-10 ">

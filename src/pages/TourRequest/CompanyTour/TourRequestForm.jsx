@@ -12,6 +12,7 @@ import {
   Modal,
   Tooltip,
   Checkbox,
+  ConfigProvider,
 } from "antd";
 import {
   WarningFilled,
@@ -31,6 +32,9 @@ import AddressSearchMultiple from "../../../api/SearchAddress/SearchAddressMulti
 import { getAllFacilityRating } from "../../../api/FacilityApi";
 import moment from "moment";
 import DetailFamilySection from "../Sections/DetailFamilySection";
+
+import "../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -72,6 +76,8 @@ function TourRequestForm() {
   const [singleFemaleCount, setSingleFemaleCount] = useState(0);
 
   const [totalLimitFamily, setTotalLimitFamily] = useState(0);
+
+  console.log("totalLimitFamily", totalLimitFamily);
 
   useEffect(() => {
     let calculatedLimit;
@@ -335,14 +341,15 @@ function TourRequestForm() {
     }
 
     // Ensuring the date values exist and are correctly formatted
-    const startDate = formValues.startDate
-      ? formValues.startDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
-      : null;
-    const endDate = formValues.endDate
-      ? formValues.endDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
-      : null;
+    // const startDate = formValues.startDate
+    //   ? formValues.startDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+    //   : null;
+    // const endDate = formValues.endDate
+    //   ? formValues.endDate.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+    //   : null;
 
     if (!startDate || !endDate) {
+      debugger;
       alertFail("Start date and end date must be provided.");
       return;
     }
@@ -365,18 +372,11 @@ function TourRequestForm() {
       isEnterprise: formValues["isEnterprise"],
       minimumHotelRatingId: formValues["minimumHotelRatingId"],
       minimumRestaurantRatingId: formValues["minimumRestaurantRatingId"],
-      // roomQuantityDetailRequest: formValues["roomTypes"].map((loc) => ({
-      //   quantityPerRoom: loc.RoomType,
-      //   totalRoom: loc.totalRoom,
-      // })),
-      familyDetails: [
-        {
-          numOfChildren: 0,
-          numOfAdult: 0,
-          totalFamily: 0,
-        },
-      ],
-
+      familyDetails: formValues["familyDetails"].map((family) => ({
+        numOfChildren: family.numOfChildrenInFamily,
+        numOfAdult: family.numOfAdultInFamily,
+        totalFamily: family.totalFamily,
+      })),
       otherLocation: selectedLocations.map((loc) => ({
         address: loc.location,
         provinceId: loc.provinceId,
@@ -398,7 +398,7 @@ function TourRequestForm() {
         setIsChecked(false); // Uncheck the terms and conditions box
       } else {
         for (const message in response.messages) {
-          alertFail(message);
+          // alertFail(message);
         }
       }
     } catch (error) {
@@ -468,35 +468,40 @@ function TourRequestForm() {
 
   console.log("maxDays", maxDays);
 
-  const handleValuesChange = (changedValues, allValues) => {
-    if ("numOfFamily" in changedValues) {
-      const numOfFamily = changedValues.numOfFamily || 0;
-      const currentItems = form.getFieldValue("familyDetails") || [];
-      setNumOfFamily(changedValues.numOfFamily);
-      if (numOfFamily !== currentItems.length) {
-        const newItems = Array(numOfFamily)
-          .fill()
-          .map((_, index) => currentItems[index] || {});
-        form.setFieldsValue({ familyDetails: newItems });
-      }
-    }
-  };
+  // const handleValuesChange = (changedValues, allValues) => {
+  //   if ("numOfFamily" in changedValues) {
+  //     const numOfFamily = changedValues.numOfFamily || 0;
+  //     const currentItems = form.getFieldValue("familyDetails") || [];
+  //     setNumOfFamily(changedValues.numOfFamily);
+  //     if (numOfFamily !== currentItems.length) {
+  //       const newItems = Array(numOfFamily)
+  //         .fill()
+  //         .map((_, index) => currentItems[index] || {});
+  //       form.setFieldsValue({ familyDetails: newItems });
+  //     }
+  //   }
+  // };
   const TotalLimit = adultLimit + childrenLimit;
   // const TotalLimitFamily = Math.floor((adultLimit + childrenLimit) / 2);
 
+  const handleStartDateBlur = () => {
+    form.validateFields(["startDate"]);
+    if (!startDate) {
+      setEndDate(null); // Reset end date if start date is cleared
+      form.resetFields(["endDate"]); // Reset end date field
+    }
+  };
+
+  const handleEndDateBlur = () => {
+    form.validateFields(["endDate"]);
+  };
   return (
     <div className="mt-32 container">
       <div className="text-3xl text-center font-bold uppercase my-6">
         Đặt tour theo yêu cầu
       </div>
       <div className="max-w-[800px] mx-auto mb-12">
-        <Form
-          form={form}
-          onFinish={onFinish}
-          className=""
-          layout="vertical"
-          onValuesChange={handleValuesChange}
-        >
+        <Form form={form} onFinish={onFinish} className="" layout="vertical">
           <Form.Item
             label="Họ tên người đại diện:"
             name="username"
@@ -683,17 +688,6 @@ function TourRequestForm() {
               </span>
             }
             className="font-semibold"
-            // rules={[
-            //   {
-            //     required: true,
-            //     message: (
-            //       <div>
-            //         <WarningFilled /> Vui lòng chọn địa chỉ xuất phát hoặc tập
-            //         trung!
-            //       </div>
-            //     ),
-            //   },
-            // ]}
           >
             <AddressSearch onChange={handleAddressSelect} />
           </Form.Item>
@@ -718,50 +712,57 @@ function TourRequestForm() {
               }}
               className="ml-3 flex-wrap"
             >
-              <Form.Item
-                name="startDate"
-                label={
-                  <span>
-                    Từ ngày: &nbsp;
-                    <Tooltip title="Bạn được chọn trong khoảng từ 10 ngày sau ngày hiện tại trở đi để chúng tôi sắp xếp tour cho bạn tốt nhất!">
-                      <QuestionCircleOutlined />
-                    </Tooltip>
-                  </span>
-                }
-                rules={[
-                  { required: true, message: " Vui lòng chọn thời gian!" },
-                ]}
-              >
-                <DatePicker
-                  showTime
-                  disabledDate={disabledStartDate}
-                  onChange={handleStartDateChange}
-                  // defaultPickerValue={getDefaultPickerValueStartDate()}
-                />
-              </Form.Item>
+              <ConfigProvider locale={viVN}>
+                <Form.Item
+                  name="startDate"
+                  label={
+                    <span>
+                      Từ ngày: &nbsp;
+                      <Tooltip title="Bạn được chọn trong khoảng từ 10 ngày sau ngày hiện tại trở đi để chúng tôi sắp xếp tour cho bạn tốt nhất!">
+                        <QuestionCircleOutlined />
+                      </Tooltip>
+                    </span>
+                  }
+                  // rules={[
+                  //   { required: true, message: " Vui lòng chọn thời gian!" },
+                  // ]}
+                >
+                  <DatePicker
+                    showTime
+                    disabledDate={disabledStartDate}
+                    onChange={handleStartDateChange}
+                    onBlur={handleStartDateBlur}
+                    format="DD-MM-YYYY HH:mm:ss"
+                  />
+                </Form.Item>
+              </ConfigProvider>
 
-              <Form.Item
-                name="endDate"
-                label={
-                  <span>
-                    Đến ngày: &nbsp;
-                    <Tooltip title="Ngày kết thúc ít nhất sau 2 ngày bắt đầu">
-                      <QuestionCircleOutlined />
-                    </Tooltip>
-                  </span>
-                }
-                rules={[
-                  { required: true, message: " Vui lòng chọn thời gian!" },
-                ]}
-              >
-                <DatePicker
-                  showTime
-                  disabledDate={disabledEndDate}
-                  disabled={!startDate}
-                  onChange={handleEndDateChange}
-                  defaultPickerValue={getDefaultPickerValueEndDate()}
-                />
-              </Form.Item>
+              <ConfigProvider locale={viVN}>
+                <Form.Item
+                  name="endDate"
+                  label={
+                    <span>
+                      Đến ngày: &nbsp;
+                      <Tooltip title="Ngày kết thúc ít nhất sau 2 ngày bắt đầu">
+                        <QuestionCircleOutlined />
+                      </Tooltip>
+                    </span>
+                  }
+                  // rules={[
+                  //   { required: true, message: " Vui lòng chọn thời gian!" },
+                  // ]}
+                >
+                  <DatePicker
+                    showTime
+                    disabledDate={disabledEndDate}
+                    disabled={!startDate}
+                    onChange={handleEndDateChange}
+                    defaultPickerValue={getDefaultPickerValueEndDate()}
+                    onBlur={handleEndDateBlur}
+                    format="DD-MM-YYYY HH:mm:ss"
+                  />
+                </Form.Item>
+              </ConfigProvider>
             </div>
           </Form.Item>
 
@@ -809,7 +810,50 @@ function TourRequestForm() {
               </Form.Item>
             </div>
           </Form.Item>
+          <p className="text-sm font-semibold">
+            Số lượng hành khách: &nbsp;
+            <Tooltip title="Điền chi tiết số lượng hành khách để chúng tôi xếp phòng lưu trú phù hợp nhất cho bạn!">
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </p>
+          <div className="mt-5 flex flex-wrap ">
+            <p className="text-sm font-bold mr-6 ml-4">
+              1. Khách lẻ: &nbsp;
+              <Tooltip title="Khách lẻ đảm bảo tất cả đều là Người lớn tính từ 1m4 trở lên và 16 tuổi trở lên">
+                <QuestionCircleOutlined />
+              </Tooltip>
+            </p>
+            {/* <div className="flex flex-wrap justify-around"> */}
+            <Form.Item
+              name="numOfSingleMale"
+              label={<span>Số lượng giới nam: &nbsp;</span>}
+              className="font-semibold "
+            >
+              <InputNumber max={100} min={0} onChange={handleMaleChange} />
+            </Form.Item>
+            <Form.Item
+              name="numOfSingleFemale"
+              label={<span>Số lượng giới nữ: &nbsp;</span>}
+              className="font-semibold "
+            >
+              <InputNumber max={100} min={0} />
+            </Form.Item>
+            {/* </div> */}
+          </div>
 
+          <div className="flex ">
+            <div>
+              <p className="text-sm font-bold mr-6 ml-4 my-4">
+                2. Khách có gia đình:
+              </p>
+              <DetailFamilySection
+                totalLimitFamily={totalLimitFamily}
+                form={form}
+                adultLimit={adultLimit}
+                childrenLimit={childrenLimit}
+              />
+            </div>
+          </div>
           <div className="flex flex-wrap justify-around">
             <Form.Item
               name="adult"
@@ -861,71 +905,6 @@ function TourRequestForm() {
               <InputNumber min={0} onChange={handleChildrenChange} />
             </Form.Item>
           </div>
-
-          <div className="flex flex-wrap justify-around">
-            <Form.Item
-              name="numOfSingleMale"
-              label={<span>Số lượng giới nam: &nbsp;</span>}
-              className="font-semibold w-1/2"
-            >
-              <InputNumber
-                max={TotalLimit}
-                min={0}
-                onChange={handleMaleChange}
-              />
-            </Form.Item>
-            <Form.Item
-              name="numOfSingleFemale"
-              label={<span>Số lượng giới nữ: &nbsp;</span>}
-              className="font-semibold w-1/2"
-            >
-              <InputNumber
-                min={0}
-                placeholder={singleFemaleCount.toString()}
-                value={singleFemaleCount}
-                disabled
-              />
-            </Form.Item>
-          </div>
-
-          <Form.Item
-            name="numOfFamily"
-            label={
-              <span>
-                Số gia đình: &nbsp;
-                <Tooltip title="Chúng tôi sẽ xếp gia đình 1 phòng lưu trú, Nếu không có gia đình hoặc không mong muốn xếp chung phòng thì điền 0.">
-                  <QuestionCircleOutlined />
-                </Tooltip>
-              </span>
-            }
-            className="w-1/2 font-semibold"
-            rules={[
-              {
-                required: true,
-                message: (
-                  <div>
-                    <WarningFilled /> Vui lòng nhập số gia đình đúng !
-                  </div>
-                ),
-              },
-            ]}
-          >
-            <InputNumber max={totalLimitFamily} min={0} />
-          </Form.Item>
-          {numOfFamily > 0 && (
-            <div className="flex ">
-              <div>
-                <p className="font-semibold text-lg mb-4">
-                  Chi tiết trong gia đình:
-                </p>
-                <DetailFamilySection
-                  form={form}
-                  adultLimit={adultLimit}
-                  childrenLimit={childrenLimit}
-                />
-              </div>
-            </div>
-          )}
 
           <div className="flex flex-wrap justify-between my-2">
             <div>

@@ -1,8 +1,18 @@
 import React, { useState } from "react";
-import { Select, Button, Space, DatePicker, Card, Typography } from "antd";
+import {
+  Select,
+  Button,
+  Space,
+  DatePicker,
+  Card,
+  Typography,
+  ConfigProvider,
+} from "antd";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
+import "../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -104,13 +114,15 @@ function TourguideAssignment({ provinceList }) {
               >
                 <div className="md:px-10">
                   <strong>Thời gian: </strong>
-                  <RangePicker
-                    placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
-                    value={guide.dateRange}
-                    onChange={(dates) =>
-                      handleChangeTourGuideInfo(guide.id, "dateRange", dates)
-                    }
-                  />
+                  <ConfigProvider locale={viVN}>
+                    <RangePicker
+                      placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
+                      value={guide.dateRange}
+                      onChange={(dates) =>
+                        handleChangeTourGuideInfo(guide.id, "dateRange", dates)
+                      }
+                    />
+                  </ConfigProvider>
                 </div>
                 <div>
                   <strong>Hướng dẫn viên: </strong>

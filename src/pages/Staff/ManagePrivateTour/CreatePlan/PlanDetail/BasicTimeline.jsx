@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Select, DatePicker } from "antd";
+import { Form, Input, Button, Select, DatePicker, ConfigProvider } from "antd";
 import moment from "moment";
+import "../../../../../settings/setupDayjs";
+import viVN from "antd/lib/locale/vi_VN";
 
 const { Option } = Select;
 
@@ -84,15 +86,19 @@ function BasicTimeline(props) {
                       <i className="fa-solid fa-minus"></i>
                     </div>
                   </div>
-                  <Form.Item
-                    name={[index, "date"]}
-                    rules={[{ required: true, message: "Vui lòng chọn ngày" }]}
-                  >
-                    <DatePicker
-                      value={item.date ? moment(item.date) : null}
-                      onChange={(date) => handleChangeDate(index, date)}
-                    />
-                  </Form.Item>
+                  <ConfigProvider locale={viVN}>
+                    <Form.Item
+                      name={[index, "date"]}
+                      rules={[
+                        { required: true, message: "Vui lòng chọn ngày" },
+                      ]}
+                    >
+                      <DatePicker
+                        value={item.date ? moment(item.date) : null}
+                        onChange={(date) => handleChangeDate(index, date)}
+                      />
+                    </Form.Item>
+                  </ConfigProvider>
                   <Button
                     type="primary"
                     danger

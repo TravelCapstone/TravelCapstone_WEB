@@ -29,7 +29,7 @@ const MaterialCostsSection = ({
       const quantity =
         request?.privateTourResponse?.numOfAdult +
         request?.privateTourResponse?.numOfChildren;
-      debugger;
+      // debugger;
       const perMaterials = totalCost / quantity;
       const commonService = {
         item: "Nước chai và vật liệu khác",
