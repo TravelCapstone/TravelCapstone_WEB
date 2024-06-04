@@ -11,5 +11,13 @@ const getMenuByFacilityId = async (facilityId, pageNumber, pageSize) => {
     return [];
   }
 };
-
-export {getMenuByFacilityId}
+const getDishListByMenuId = async (menuId) => {
+  try {
+    const response = await api.get(`/get-dish-list-by-menu-id/${menuId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching menus:", error);
+    return [];
+  }
+};
+export { getMenuByFacilityId, getDishListByMenuId };
