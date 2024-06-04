@@ -28,6 +28,8 @@ const DetailFamilySection = ({
   totalChildren,
   setTotalAdults,
   setTotalChildren,
+  setTotalAllFamily,
+  totalAllFamily,
 }) => {
   const [totalAllFamilies, setTotalAllFamilies] = useState(0);
   const [alertInfo, setAlertInfo] = useState({ visible: false, message: "" });
@@ -41,20 +43,23 @@ const DetailFamilySection = ({
     let adults = 0;
     let children = 0;
     let totalAllFamilies = 0;
+    let totalAllFamily = 0;
 
     familyDetails.forEach((family, index) => {
       const numOfAdults = family.numOfAdultInFamily || 0;
       const numOfChildren = family.numOfChildrenInFamily || 0;
-      const totalFamily = family.totalFamily || 1;
+      const totalFamily = family.totalFamily || 0;
 
       adults += numOfAdults * totalFamily;
       children += numOfChildren * totalFamily;
       totalAllFamilies += (numOfAdults + numOfChildren) * totalFamily;
+      totalAllFamily += totalFamily;
     });
 
     setTotalAdults(adults);
     setTotalChildren(children);
     setTotalAllFamilies(totalAllFamilies);
+    setTotalAllFamily(totalAllFamily);
   };
 
   // Function to get Vietnamese ordinal number
@@ -178,7 +183,7 @@ const DetailFamilySection = ({
           </>
         )}
       </Form.List>
-      {totalAllFamilies && (
+      {totalAllFamilies > 0 && (
         <div className="my-4 text-sm font-semibold text-right text-mainColor">
           Tổng số người trong tất cả các gia đình: {totalAllFamilies} người
         </div>

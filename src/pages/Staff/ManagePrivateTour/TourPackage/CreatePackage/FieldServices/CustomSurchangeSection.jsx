@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Form, InputNumber, Button, Space, Select } from "antd";
+import { Form, InputNumber, Button, Space, Select, Tooltip } from "antd";
 import {
   DeleteOutlined,
   MinusCircleOutlined,
   PlusOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { getOperationFees } from "../../../../../../api/FeeApi";
 import { formatPrice } from "../../../../../../utils/Util";
@@ -11,6 +12,7 @@ import { usePrice } from "../../../../../../context/PriceContext";
 const CustomSurchangeSection = ({ form, quantity, request }) => {
   const [fees, setFees] = useState({});
   const [totalCost, setTotalCost] = useState(0);
+  console.log("fees", fees);
 
   const { updateCommonPrice, commonPrices } = usePrice();
 
@@ -76,8 +78,17 @@ const CustomSurchangeSection = ({ form, quantity, request }) => {
   return (
     <>
       <Form.Item
-        label="Phí dịch vụ tổ chức"
         name="organizationCost"
+        label={
+          <span>
+            Phí dịch vụ tổ chức: &nbsp;
+            <Tooltip
+              title={`Phí dịch vụ tổ chức phải nằm trong khoảng từ ${formatPrice(fees?.minOrganizationCost)} đến ${formatPrice(fees?.maxOrganizationCost)}`}
+            >
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </span>
+        }
         rules={[
           {
             type: "number",
@@ -91,10 +102,21 @@ const CustomSurchangeSection = ({ form, quantity, request }) => {
           min={fees?.minOrganizationCost}
           max={fees?.maxOrganizationCost}
           onChange={() => calculateTotalCost()}
+          value={fees?.minOrganizationCost}
+          placeholder={fees?.minOrganizationCost}
         />
       </Form.Item>
       <Form.Item
-        label="Phí dự phòng mỗi người"
+        label={
+          <span>
+            Phí dự phòng mỗi người: &nbsp;
+            <Tooltip
+              title={`Phí dự phòng mỗi người phải nằm trong khoảng từ ${formatPrice(fees?.minContingencyFee)} đến ${formatPrice(fees?.maxContingencyFee)}`}
+            >
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </span>
+        }
         name="contigencyFeePerPerson"
         rules={[
           {
@@ -109,10 +131,21 @@ const CustomSurchangeSection = ({ form, quantity, request }) => {
           min={fees?.minContingencyFee}
           max={fees?.maxContingencyFee}
           onChange={() => calculateTotalCost()}
+          value={fees?.minContingencyFee}
+          placeholder={fees?.minContingencyFee}
         />
       </Form.Item>
       <Form.Item
-        label="Phí khác"
+        label={
+          <span>
+            Phí khác: &nbsp;
+            <Tooltip
+              title={`Phí khác phải nằm trong khoảng từ ${formatPrice(fees?.minEscortFee)} đến ${formatPrice(fees?.maxEscortFee)}`}
+            >
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </span>
+        }
         name="escortFee"
         rules={[
           {
@@ -127,10 +160,21 @@ const CustomSurchangeSection = ({ form, quantity, request }) => {
           min={fees?.minEscortFee}
           max={fees?.maxEscortFee}
           onChange={() => calculateTotalCost()}
+          value={fees?.minEscortFee}
+          placeholder={fees?.minEscortFee}
         />
       </Form.Item>
       <Form.Item
-        label="Phí vận hành"
+        label={
+          <span>
+            Phí vận hành: &nbsp;
+            <Tooltip
+              title={`Phí vận hành phải nằm trong khoảng từ ${formatPrice(fees?.minOperatingFee)} đến ${formatPrice(fees?.maxOperatingFee)}`}
+            >
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </span>
+        }
         name="operatingFee"
         rules={[
           {
@@ -145,10 +189,21 @@ const CustomSurchangeSection = ({ form, quantity, request }) => {
           min={fees?.minOperatingFee}
           max={fees?.maxOperatingFee}
           onChange={() => calculateTotalCost()}
+          value={fees?.minOperatingFee}
+          placeholder={fees?.minOperatingFee}
         />
       </Form.Item>
       <Form.Item
-        label="Phí bảo hiểm trên đầu người"
+        label={
+          <span>
+            Phí bảo hiểm trên đầu người: &nbsp;
+            <Tooltip
+              title={`Phí vận hành phải nằm trong khoảng từ ${formatPrice(fees?.minAssurancePricePerPerson)} đến ${formatPrice(fees?.maxAssurancePricePerPerson)}`}
+            >
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </span>
+        }
         name="assurancePricePerPerson"
         rules={[
           {
@@ -163,6 +218,8 @@ const CustomSurchangeSection = ({ form, quantity, request }) => {
           min={fees?.minAssurancePricePerPerson}
           max={fees?.maxAssurancePricePerPerson}
           onChange={() => calculateTotalCost()}
+          value={fees?.minAssurancePricePerPerson}
+          placeholder={fees?.minAssurancePricePerPerson}
         />
       </Form.Item>
       <div className="font-bold text-lg mt-4">

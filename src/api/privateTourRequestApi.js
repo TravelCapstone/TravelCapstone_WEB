@@ -43,5 +43,15 @@ const createPrivateTour = async (tourData) => {
   }
 };
 
-export { getAllProvince, getAllPrivateTour, getPrivateTourById, createPrivateTour };
+const getRoomSuggestion = async (data) => {
+  try {
+    const response = await api.post('/get-room-suggestion', data);
+    return response;
+  } catch (error) {
+    console.error('Error getting room suggestion:', error);
+    throw error;
+  }
+};
+
+export { getAllProvince, getAllPrivateTour, getPrivateTourById, createPrivateTour, getRoomSuggestion};
 

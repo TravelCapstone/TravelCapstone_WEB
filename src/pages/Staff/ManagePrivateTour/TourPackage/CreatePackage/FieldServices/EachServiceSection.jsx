@@ -46,6 +46,9 @@ const EachServiceSection = ({
   setDistricts,
   numOfDaysLoging,
   setNumOfDaysLoging,
+  numOfRoom,
+  startDateTourChange,
+  endDateChange,
 }) => {
   console.log("selectedProvinces: ", selectedProvinces);
   console.log("selectedProvince: ", selectedProvince);
@@ -177,6 +180,8 @@ const EachServiceSection = ({
                                     Nơi lưu trú:
                                   </h3>
                                   <LodgingSection
+                                    startDateTourChange={startDateTourChange}
+                                    endDateChange={endDateChange}
                                     basePath={[field.name]}
                                     form={form}
                                     provinces={provinces}
@@ -188,6 +193,7 @@ const EachServiceSection = ({
                                     request={request}
                                     numOfDaysLoging={numOfDaysLoging}
                                     setNumOfDaysLoging={setNumOfDaysLoging}
+                                    numOfRoom={numOfRoom}
                                   />
                                 </div>
                                 {/* DỊCH VỤ ĂN UỐNG */}
@@ -196,6 +202,8 @@ const EachServiceSection = ({
                                     Dịch vụ ăn uống:
                                   </h3>
                                   <RestaurantSection
+                                    startDateTourChange={startDateTourChange}
+                                    endDateChange={endDateChange}
                                     selectedDistrict={selectedDistrict}
                                     selectedProvince={selectedProvince}
                                     request={request}
@@ -210,6 +218,8 @@ const EachServiceSection = ({
                                     Gói dịch vụ giải trí:
                                   </h3>
                                   <EntertainmentSection
+                                    startDateTourChange={startDateTourChange}
+                                    endDateChange={endDateChange}
                                     basePath={[field.name]}
                                     form={form}
                                     provinces={provinces}
@@ -218,6 +228,7 @@ const EachServiceSection = ({
                                     setProvinces={setProvinces}
                                     selectedDistrict={selectedDistrict}
                                     request={request}
+                                    index={index}
                                   />
                                 </div>
 

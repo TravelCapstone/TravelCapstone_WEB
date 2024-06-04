@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   dietaryPreferenceLabels,
   statusPrivateTourLabels,
@@ -6,9 +6,38 @@ import {
 import { formatPrice, formatDate } from "../../../../../utils/Util";
 import { Button, Card, List } from "antd";
 import { useNavigate } from "react-router-dom";
+import { getRoomSuggestion } from "../../../../../api/privateTourRequestApi";
 
 function TourRequestSection({ request }) {
   const navigate = useNavigate();
+
+  const [numOfRoom, setNumOfRoom] = useState([]);
+
+  console.log("numOfRoom", numOfRoom);
+
+  const fetchGetRoomSuggestion = async (data) => {
+    const response = await getRoomSuggestion(data);
+    setNumOfRoom(response.data.result);
+  };
+
+  useEffect(() => {
+    const data = {
+      numOfSingleMale: request?.privateTourResponse?.numOfSingleMale,
+      numOfSingleFemale: request?.privateTourResponse?.numOfSingleFemale,
+      familyDetails: request?.privateTourResponse?.roomDetails?.map(
+        (family) => ({
+          numOfAdult: family.numOfAdult,
+          numOfChildren: family.numOfChildren,
+          totalFamily: family.totalFamily,
+        })
+      ),
+    };
+    fetchGetRoomSuggestion(data);
+  }, [
+    request?.privateTourResponse?.numOfSingleMale,
+    request?.privateTourResponse?.numOfSingleFemale,
+    request?.privateTourResponse?.roomDetails,
+  ]);
 
   const handleCreateTour = () => {
     const TourId = request?.privateTourResponse?.id;
@@ -103,13 +132,13 @@ function TourRequestSection({ request }) {
             <div className="mb-3">
               <span className="font-bold text-sm">Yêu cầu lưu trú:</span>
               <List
-                dataSource={request.privateTourResponse?.roomDetails}
+                dataSource={numOfRoom}
                 renderItem={(item) => (
                   <List.Item>
                     <Card className="mr-4 bg-teal-100">
                       <Card.Meta
-                        title={`Phòng ${item.quantityPerRoom === 4 ? "đôi" : "đơn"} `}
-                        description={`Tổng số phòng: ${item.totalRoom}`}
+                        title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
+                        description={`Tổng số phòng: ${item.numOfRoom}`}
                       />
                     </Card>
                   </List.Item>
@@ -127,11 +156,68 @@ function TourRequestSection({ request }) {
             <div className="mb-3">
               <span className="font-bold text-sm">Số người lớn:</span>
               <span className="font-normal text-sm ml-3">
-                {request?.privateTourResponse?.numOfAdult}
+                {request?.privateTourResponse?.numOfAdult} người
               </span>
               <span className="font-bold text-sm ml-5">Số trẻ em:</span>
               <span className="font-normal text-sm ml-3">
-                {request?.privateTourResponse?.numOfChildren}
+                {request?.privateTourResponse?.numOfChildren} người
+              </span>
+            </div>
+            <div className="mb-3 flex">
+              <p className="font-bold text-sm mr-5"> Khách đi lẻ:</p>
+              <span className="font-semibold text-sm">Số lượng người nam:</span>
+              <span className="font-normal text-sm ml-3">
+                {request?.privateTourResponse?.numOfSingleMale} người
+              </span>
+              <span className="font-semibold text-sm ml-5">
+                Số lượng người nữ:
+              </span>
+              <span className="font-normal text-sm ml-3">
+                {request?.privateTourResponse?.numOfSingleFemale} người
+              </span>
+            </div>
+            <div className="mb-3 flex">
+              <p className="font-bold text-sm mr-5"> Khách gia đình:</p>
+
+              <span className="font-semibold text-sm">Số gia đình:</span>
+              <span className="font-normal text-sm ml-3">
+                {request?.privateTourResponse?.numOfFamily} gia đình
+              </span>
+            </div>
+            <div className="ml-5">
+              <span className="font-semibold text-sm ">
+                Chi tiết từng gia đình:
+              </span>
+              <span className="font-normal text-sm ml-3">
+                {request?.privateTourResponse?.roomDetails.map(
+                  (item, index) => (
+                    <div className="flex flex-wrap my-2 ml-4">
+                      <li className="font-semibold list-disc mr-2">
+                        Kiểu gia đình thứ {index + 1}.
+                      </li>
+                      <div>
+                        <p>
+                          <span className="font-semibold mr-2">
+                            Số lượng người lớn:
+                          </span>{" "}
+                          {item.numOfAdult} người
+                        </p>
+                        <p>
+                          <span className="font-semibold mr-2">
+                            Số lượng trẻ em:
+                          </span>{" "}
+                          {item.numOfChildren} người
+                        </p>
+                        <p>
+                          <span className="font-semibold mr-2">
+                            Số gia đình:
+                          </span>{" "}
+                          {item.totalFamily} người
+                        </p>
+                      </div>
+                    </div>
+                  )
+                )}
               </span>
             </div>
             <div className="mb-3">

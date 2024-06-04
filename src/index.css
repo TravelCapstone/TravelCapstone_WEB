@@ -47,8 +47,7 @@ body {
 :where(.css-dev-only-do-not-override-11xg00t).ant-form-item .ant-form-item-label >label {
   font-size: 18px !important;
 }
-
-:where(.css-dev-only-do-not-override-11xg00t).ant-list .ant-list-items{
+:where(.css-dev-only-do-not-override-1l1oid0).ant-list .ant-list-items {
   display: flex;
 }
 

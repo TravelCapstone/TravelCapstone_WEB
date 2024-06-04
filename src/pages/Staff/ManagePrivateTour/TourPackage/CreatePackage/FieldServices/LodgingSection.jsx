@@ -42,6 +42,9 @@ const LodgingSection = ({
   basePath,
   setNumOfDaysLoging,
   numOfDaysLoging,
+  numOfRoom,
+  startDateTourChange,
+  endDateChange,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -195,13 +198,17 @@ const LodgingSection = ({
   }, [selectedOptions]);
 
   const disabledDate = (current) => {
-    // Lấy giá trị tourDate từ form
-    const tourDate = form.getFieldValue("tourDate");
-    if (!tourDate || tourDate.length < 2) {
+    if (!startDateTourChange && !endDateChange) {
       return false;
     }
-    const startDate = tourDate[0];
-    const endDate = tourDate[1];
+    const startDateTourChange2 = moment(
+      startDateTourChange,
+      "DD-MM-YYYY HH:mm:ss"
+    );
+    const endDateChange2 = moment(endDateChange, "DD-MM-YYYY HH:mm:ss");
+    const startDate = startDateTourChange2;
+    const endDate = endDateChange2;
+
     return current && (current < startDate || current > endDate);
   };
 
@@ -253,7 +260,7 @@ const LodgingSection = ({
                             onDateRangeChange(dates, dateStrings, field.name)
                           }
                           disabledDate={disabledDate}
-                          defaultPickerValue={[getDefaultPickerValue()]}
+                          // defaultPickerValue={[getDefaultPickerValue()]}
                         />
                       </Form.Item>
                     </ConfigProvider>
@@ -383,25 +390,23 @@ const LodgingSection = ({
                   </div>
 
                   <List
-                    dataSource={request.privateTourResponse?.roomDetails}
+                    // dataSource={request.privateTourResponse?.roomDetails}
+                    dataSource={numOfRoom}
                     renderItem={(roomDetail) => {
                       const minMaxPrice1 = priceData[
                         selectedOptions["hotelOptionRatingOption1"]
                       ]?.filter(
-                        (item) =>
-                          item.servingQuantity === roomDetail.quantityPerRoom
+                        (item) => item.servingQuantity === roomDetail.roomSize
                       );
                       const minMaxPrice2 = priceData[
                         selectedOptions["hotelOptionRatingOption2"]
                       ]?.filter(
-                        (item) =>
-                          item.servingQuantity === roomDetail.quantityPerRoom
+                        (item) => item.servingQuantity === roomDetail.roomSize
                       );
                       const minMaxPrice3 = priceData[
                         selectedOptions["hotelOptionRatingOption3"]
                       ]?.filter(
-                        (item) =>
-                          item.servingQuantity === roomDetail.quantityPerRoom
+                        (item) => item.servingQuantity === roomDetail.roomSize
                       );
                       console.log("minMaxPrice1", minMaxPrice1);
                       console.log("minMaxPrice2", minMaxPrice2);
@@ -417,11 +422,9 @@ const LodgingSection = ({
                               <Card className="mr-4 bg-teal-100">
                                 <Card.Meta
                                   title={`Phòng ${
-                                    roomDetail.quantityPerRoom === 4
-                                      ? "đôi"
-                                      : "đơn"
+                                    roomDetail.roomSize === 4 ? "đôi" : "đơn"
                                   } `}
-                                  description={`Tổng số phòng: ${roomDetail.totalRoom}`}
+                                  description={`Tổng số phòng: ${roomDetail.numOfRoom}`}
                                 />
                               </Card>
                             </div>

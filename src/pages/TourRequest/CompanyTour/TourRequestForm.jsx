@@ -62,6 +62,7 @@ function TourRequestForm() {
 
   const [totalAdults, setTotalAdults] = useState(0);
   const [totalChildren, setTotalChildren] = useState(0);
+  const [totalAllFamily, setTotalAllFamily] = useState(0);
 
   const [startDate, setStartDate] = useState(null);
 
@@ -354,7 +355,7 @@ function TourRequestForm() {
     //   : null;
 
     if (!startDate || !endDate) {
-      debugger;
+      // debugger;
       alertFail("Start date and end date must be provided.");
       return;
     }
@@ -364,7 +365,7 @@ function TourRequestForm() {
       description: formValues["description"],
       numOfAdult: totalAdults + totalSingleGuests,
       numOfChildren: totalChildren,
-      numOfFamily: formValues["numOfFamily"],
+      numOfFamily: totalAllFamily,
       numOfSingleMale: formValues["numOfSingleMale"],
       numOfSingleFemale: formValues["numOfSingleFemale"],
       numOfDay: days,
@@ -849,19 +850,19 @@ function TourRequestForm() {
               {/* <div className="flex flex-wrap justify-around"> */}
               <Form.Item
                 name="numOfSingleMale"
-                label={<span>Số lượng giới nam: &nbsp;</span>}
+                label={<span>Số lượng người nam: &nbsp;</span>}
                 className="font-semibold "
               >
                 <InputNumber max={100} min={0} onChange={handleMaleChange} />
               </Form.Item>
               <Form.Item
                 name="numOfSingleFemale"
-                label={<span>Số lượng giới nữ: &nbsp;</span>}
+                label={<span>Số lượng người nữ: &nbsp;</span>}
                 className="font-semibold "
               >
                 <InputNumber max={100} min={0} onChange={handleFemaleChange} />
               </Form.Item>
-              {totalSingleGuests && (
+              {totalSingleGuests > 0 && (
                 <p className="self-center text-sm font-semibold text-right text-mainColor">
                   Tổng số lượng khách lẻ: {totalSingleGuests} người lớn
                 </p>
@@ -883,6 +884,8 @@ function TourRequestForm() {
                   form={form}
                   adultLimit={adultLimit}
                   childrenLimit={childrenLimit}
+                  setTotalAllFamily={setTotalAllFamily}
+                  totalAllFamily={totalAllFamily}
                 />
               </div>
             </div>
