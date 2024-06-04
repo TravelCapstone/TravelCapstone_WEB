@@ -50,39 +50,48 @@ const ratingLabels = {
   11: "Khu du lịch",
 };
 
+const ratingEntertaimentAPI = [
+  {
+    id: "994CB1A9-6D4E-4D34-B904-91B229A12D5C",
+    ratingId: 11,
+    label: "Khu du lịch",
+  },
+];
 
-const ratingEntertaimentAPI = [{
-  id: "994CB1A9-6D4E-4D34-B904-91B229A12D5C",
-  ratingId: 11,
-  label: "Khu du lịch",
-},]
-
-const ratingRestaurantAPI = [{
-  id: "F48D19EE-36AE-49BD-88ED-A3D326B1B1D8",
-  ratingId: 5,
-  label: "Quán ăn bình dân",
-},
-{
-  id: "23C8E757-AC2D-4232-A569-D5461DEB9B05",
-  ratingId: 6,
-  label: "Nhà hàng 2 sao",
-},
-{
-  id: "A59BBB50-4FCC-473F-BBF4-B311F06B2ED8",
-  ratingId: 7,
-  label: "Nhà hàng 3 sao",
-},
-{
-  id: "FA63BF87-51A3-46B7-A6DF-AA29FB9B9057",
-  ratingId: 8,
-  label: "Nhà hàng 4 sao",
-},
-{
-  id: "4B3961FF-AA19-41FD-9A3E-1A6B37F99D09",
-  ratingId: 9,
-  label: "Nhà hàng 5 sao",
-},];
-
+const ratingRestaurantAPI = [
+  {
+    id: "F48D19EE-36AE-49BD-88ED-A3D326B1B1D8",
+    ratingId: 5,
+    label: "Quán ăn bình dân",
+  },
+  {
+    id: "23C8E757-AC2D-4232-A569-D5461DEB9B05",
+    ratingId: 6,
+    label: "Nhà hàng 2 sao",
+  },
+  {
+    id: "A59BBB50-4FCC-473F-BBF4-B311F06B2ED8",
+    ratingId: 7,
+    label: "Nhà hàng 3 sao",
+  },
+  {
+    id: "FA63BF87-51A3-46B7-A6DF-AA29FB9B9057",
+    ratingId: 8,
+    label: "Nhà hàng 4 sao",
+  },
+  {
+    id: "4B3961FF-AA19-41FD-9A3E-1A6B37F99D09",
+    ratingId: 9,
+    label: "Nhà hàng 5 sao",
+  },
+];
+const ratingRestaurant = {
+  5: "Quán ăn bình dân",
+  6: "Nhà hàng 2 sao",
+  7: "Nhà hàng 3 sao",
+  8: "Nhà hàng 4 sao",
+  9: "Nhà hàng 5 sao",
+};
 
 const optionClassLabels = {
   0: "Gói tiết kiệm",
@@ -118,7 +127,6 @@ const servingActor = {
   2: "Mọi đối tượng",
 };
 
-
 const vehicleTypeLabels = {
   0: "Xe buýt",
   1: "Xe khách",
@@ -146,8 +154,9 @@ export {
   ratingLabels,
   servingHotelsQuantity,
   servingFoodsQuantity,
-  servingVehiclesQuantity,  
+  servingVehiclesQuantity,
   servingActor,
   ratingEntertaimentAPI,
   ratingRestaurantAPI,
+  ratingRestaurant,
 };

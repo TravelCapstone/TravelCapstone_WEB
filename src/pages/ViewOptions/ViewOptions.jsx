@@ -1,6 +1,6 @@
 // ViewOptions.jsx
-import React, { useEffect, useState } from 'react';
-import ViewOptionsItems from './ViewOptionsItems';
+import React, { useEffect, useState } from "react";
+import ViewOptionsItems from "./ViewOptionsItems";
 import ViewOptionsWrapper, {
   ViewOptionHeader,
   Title,
@@ -8,11 +8,10 @@ import ViewOptionsWrapper, {
   ViewOptionTableArea,
   ButtonGroup,
   Button,
-} from './ViewOptions.style';
-import { getIdOptionsRequest } from '../../api/OptionsApi';
-
+} from "./ViewOptions.style";
+import { getIdOptionsRequest } from "../../api/OptionsApi";
+import LoadingOverlay from "../../components/Loading/LoadingOverlay";
 const ViewOptions = () => {
-
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,12 +20,14 @@ const ViewOptions = () => {
     const fetchOptions = async () => {
       setLoading(true);
       try {
-        const data = await getIdOptionsRequest("C8DE0D2A-D6EC-468A-993F-27A6F19F009D");
-        setOptions(data.result); 
+        const data = await getIdOptionsRequest(
+          "69c26b93-a798-43fa-b246-c3034c076ab3"
+        );
+        setOptions(data.result);
         setError(null);
       } catch (error) {
         setError(error.message || "Failed to fetch options");
-        console.error(error.data); 
+        console.error(error.data);
       } finally {
         setLoading(false);
       }
@@ -35,10 +36,10 @@ const ViewOptions = () => {
     fetchOptions();
   }, []);
 
-  if (loading) return <div className='text-center mt-20'>Loading...</div>;
+  if (loading) return <LoadingOverlay isLoading={true} />;
   if (error) return <div>Error: {error}</div>;
-  
-console.log('options', options);
+
+  console.log("options", options);
 
   return (
     <ViewOptionsWrapper>
