@@ -1,19 +1,33 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { NavLink, useLocation } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   FACILITY,
   LISTING_TOUR_REQUEST_STAFF,
   VIEW_REFERENCE_TRANSPORT_PRICE,
   VIEW_USER,
 } from "../../settings/constant";
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  UploadOutlined,
+  UserOutlined,
+  VideoCameraOutlined,
+} from "@ant-design/icons";
+import { Button, Layout, Menu, theme } from "antd";
+
+const { Header, Sider, Content } = Layout;
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const [roleName, setRoleName] = useState(null);
+  const [collapsed, setCollapsed] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState(null);
+  const [sidebarWidth, setSidebarWidth] = useState(200); // initial width
+  const sidebarRef = useRef(null);
 
+  console.log("collapsed", collapsed);
   const menuItems = {
     isAdmin: [
       {
@@ -95,10 +109,17 @@ const Sidebar = () => {
   };
 
   useEffect(() => {
-    // Trong đây, bạn có thể lấy giá trị roleName từ một nguồn dữ liệu khác (ví dụ: từ Redux store, localStorage, API, ...)
-    // Ví dụ, giả sử giá trị roleName là "isShop":
+    // Here you can get the roleName value from another data source (e.g., from Redux store, localStorage, API, etc.)
+    // For example, assuming the roleName value is "isShop":
     setRoleName("isStaff");
   }, []);
+
+  useEffect(() => {
+    // Ensure the sidebar is expanded when the location pathname changes
+    if (collapsed) {
+      setCollapsed(false);
+    }
+  }, [location.pathname]);
 
   const handleMenuClick = (index) => {
     if (expandedMenu === index) {
@@ -108,56 +129,126 @@ const Sidebar = () => {
     }
   };
 
-  const renderMenu = (items) => {
-    return items.map((item, index) => (
-      <>
-        <li key={index}>
-          <div
-            className={`flex items-center w-full cursor-pointer`}
-            onClick={() => handleMenuClick(index)}
-          >
-            {item.icon}
-            <span className="ml-2 text-md">{item.title}</span>
-          </div>
-          {item.submenu && expandedMenu === index && (
-            <ul className="p-2">{renderSubMenu(item.submenu)}</ul>
-          )}
-          {!item.submenu && (
-            <NavLink to={item.path}>
-              <div className="ml-4">{item.title}</div>
-            </NavLink>
-          )}
-        </li>
-      </>
-    ));
+  const findActiveMenuKey = (items) => {
+    for (const item of items) {
+      if (item.submenu) {
+        const activeSubMenuKey = findActiveMenuKey(item.submenu);
+        if (activeSubMenuKey) {
+          return { key: item.path, subKey: activeSubMenuKey.key };
+        }
+      } else if (item.path === location.pathname) {
+        return { key: item.path };
+      }
+    }
+    return null;
   };
 
-  const renderSubMenu = (subMenu) => {
-    return subMenu.map((item, index) => (
-      <li key={index}>
-        <NavLink to={item.path}>
-          <div className="rounded-md my-1 ml-4">{item.title}</div>
-        </NavLink>
-      </li>
-    ));
+  const activeMenuKeys = roleName
+    ? findActiveMenuKey(menuItems[roleName])
+    : null;
+
+  const renderMenu = (items, parentKey = null) => {
+    return items.map((item, index) => {
+      const key = parentKey ? `${parentKey}-${index}` : `${index}`;
+      const isActive =
+        activeMenuKeys &&
+        (activeMenuKeys.key === item.path ||
+          activeMenuKeys.subKey === item.path);
+
+      return item.submenu ? (
+        <Menu.SubMenu
+          key={item.path}
+          icon={item.icon}
+          title={item.title}
+          popupClassName={isActive ? "ant-menu-item-selected" : ""}
+        >
+          {renderMenu(item.submenu, key)}
+        </Menu.SubMenu>
+      ) : (
+        <Menu.Item
+          key={item.path}
+          icon={item.icon}
+          className={isActive ? "bg-blue-500 text-white" : ""}
+        >
+          <NavLink to={item.path}>{item.title}</NavLink>
+        </Menu.Item>
+      );
+    });
+  };
+
+  const handleMouseDown = (e) => {
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleMouseMove = (e) => {
+    const newWidth = e.clientX;
+    if (newWidth >= 200 && newWidth <= 600) {
+      // Minimum and maximum width
+      setSidebarWidth(newWidth);
+    }
+  };
+
+  const handleMouseUp = () => {
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
   };
 
   return (
-    <div className="h-full">
-      <div className="drawer lg:drawer-open">
-        <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-side z-10 shadow-lg rounded-4xl">
-          <label
-            htmlFor="my-drawer-2"
-            aria-label="close sidebar"
-            className="drawer-overlay"
-          ></label>
-          <ul className="menu p-4 w-60 min-h-full bg-white text-base-content">
-            {roleName && renderMenu(menuItems[roleName])}
-          </ul>
-        </div>
-      </div>
-    </div>
+    <Layout className="min-h-screen">
+      <Sider
+        ref={sidebarRef}
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        width={sidebarWidth}
+        className="bg-white shadow-lg"
+        style={{ borderRadius: "0 0.75rem 0.75rem 0" }}
+      >
+        {/* <div className="flex items-center justify-between px-4 py-2">
+          <span className="text-xl font-bold">Cóc Travel</span>
+        </div> */}
+        <Menu
+          theme="light"
+          mode="inline"
+          selectedKeys={
+            activeMenuKeys ? [activeMenuKeys.subKey || activeMenuKeys.key] : []
+          }
+          className="bg-white font-semibold"
+        >
+          {roleName && renderMenu(menuItems[roleName])}
+        </Menu>
+        <div
+          className="absolute right-0 top-0 h-full w-2 bg-gray-200 cursor-ew-resize"
+          onMouseDown={handleMouseDown}
+        />
+      </Sider>
+      <Layout>
+        <Header
+          className="flex items-center justify-between px-4"
+          style={{
+            background: theme.useToken().token.colorBgContainer,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+          }}
+        >
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-xl"
+          />
+        </Header>
+        <Content
+          className="m-6 p-6 bg-white rounded-lg shadow-md"
+          style={{
+            background: theme.useToken().token.colorBgContainer,
+            borderRadius: theme.useToken().token.borderRadiusLG,
+          }}
+        >
+          <Outlet />
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 

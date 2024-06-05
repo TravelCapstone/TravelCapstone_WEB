@@ -9,10 +9,6 @@ const ManagementLayOut = () => {
 
         <div className="flex flex-row flex-1">
           <Sidebar />
-
-          <div class="container p-4  my-10 ">
-            <Outlet />
-          </div>
         </div>
       </div>
     </>

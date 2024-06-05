@@ -153,17 +153,18 @@ const TransportationSection = ({
   useEffect(() => {
     const hasInitialized = localStorage.getItem("hasInitializedTransportation");
 
+    // if (!hasInitialized) {
+    debugger;
     form.setFieldsValue({ transportation: initialTransportationValues });
+    // }
     setTransportationCount(initialTransportationValues.length);
 
-    // if (!hasInitialized) {
     initialTransportationValues.forEach((data, index) => {
       handleProvinceChange(data.startPoint, index, "startPoint");
       handleProvinceChange(data.endPoint, index, "endPoint");
     });
 
     localStorage.setItem("hasInitializedTransportation", true);
-    // }
   }, [form, initialTransportationValues]);
   // Define state variable for available vehicle types
 
