@@ -108,12 +108,13 @@ const TransportationSection = ({
     const fromProvince = optimalPath[from];
     const toProvince = optimalPath[to];
 
-    const distanceToNextDestination =
-      fromProvince.distanceToNextDestination +
-      (toProvince ? toProvince.distanceToNextDestination : 0);
+    const distanceToNextDestination = fromProvince.distanceToNextDestination;
+    // +
+    // (toProvince ? toProvince.distanceToNextDestination : 0);
 
     const duration =
-      fromProvince.duration + (toProvince ? toProvince.duration : 0);
+      // fromProvince.duration + (toProvince ? toProvince.duration : 0);
+      fromProvince.duration;
 
     return {
       fromProvince: fromProvince.provinceName,
