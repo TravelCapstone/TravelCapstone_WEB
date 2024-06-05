@@ -5,6 +5,8 @@ import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
 import TourRequestSection from "../CreatePackage/TourRequestSection";
 import CreateOptionForm from "../CreatePackage/CreateOptionForm";
 import CreatePlanForm from "../../CreatePlan/CreatePlanForm";
+import BreadcrumbWithBackButton from "../../../../../components/BreadCrumb/BreadCrumb";
+import { LISTING_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
 
 function TourRequestPage() {
   const { id } = useParams();
@@ -73,9 +75,12 @@ function TourRequestPage() {
       content: <TourRequestSection request={request} />,
     },
     {
-      label: request.privateTourResponse?.status === 0 ? "Tạo gói tour" : null,
+      label:
+        request.privateTourResponse?.status === 0 && !request.option1
+          ? "Tạo gói tour"
+          : null,
       content:
-        request.privateTourResponse?.status === 0 ? (
+        request.privateTourResponse?.status === 0 && !request.option1 ? (
           <CreateOptionForm request={request} />
         ) : null,
     },
@@ -96,15 +101,29 @@ function TourRequestPage() {
     },
   ].filter((tab) => tab.content != null);
 
+  const breadcrumbItems = [
+    { name: "Lịch sử tour yêu cầu", url: LISTING_TOUR_REQUEST_STAFF },
+  ];
+
   return (
     <>
       <LoadingOverlay isLoading={isLoading} />
-      <div className="tabs">
-        <div className="tab-headers my-10">
+
+      {activeTab >= 0 && activeTab < tabs.length && (
+        <div className="mx-10 mb-10">
+          <BreadcrumbWithBackButton
+            breadcrumbItems={breadcrumbItems}
+            currentTab={tabs[activeTab].label}
+          />
+        </div>
+      )}
+
+      <div className="mx-10 tabs">
+        <div className="tab-headers mb-10">
           {tabs.map((tab, index) => (
             <button
               key={index}
-              className={`mx-2 tab-header ${activeTab === index ? "font-bold border-b-2" : ""}`}
+              className={`mx-2 tab-header ${activeTab === index ? "font-bold border-b-2" : "font-medium"}`}
               onClick={() => handleTabChange(index)}
             >
               {tab.label}

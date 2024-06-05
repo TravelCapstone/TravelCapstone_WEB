@@ -64,6 +64,7 @@ function CreateOptionForm({ request }) {
 
   const [endDateChange, setEndDateChange] = useState(null); // tourDate
   const [startDateTourChange, setStartDateTourChange] = useState(null); // tourDate
+  const [startDateChange, setStartDateChange] = useState(null); // theo dõi value thay đổi của thời gian tour
 
   const startDate = request?.privateTourResponse?.startDate;
 
@@ -72,8 +73,6 @@ function CreateOptionForm({ request }) {
   );
   const [jsonCustomEventJsonString, setJsonCustomEventJsonString] =
     useState(null);
-
-  console.log("startDateTourChange", startDateTourChange);
 
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
@@ -106,6 +105,14 @@ function CreateOptionForm({ request }) {
     request?.privateTourResponse?.numOfSingleFemale,
     request?.privateTourResponse?.roomDetails,
   ]);
+
+  useEffect(() => {
+    if (startDateChange === null) {
+      form.setFieldsValue({ startDateTour: moment(startDate).add(1, "days") });
+    } else {
+      form.setFieldsValue({ startDateTour: startDateChange });
+    }
+  }, [form, startDate, startDateChange]);
 
   const hasDuplicates = (provinces) => {
     // Use a Set to efficiently store unique values and check for duplicates
@@ -444,19 +451,28 @@ function CreateOptionForm({ request }) {
       });
     });
 
-    const filterNumOfSingleRoom =
-      request.privateTourResponse?.roomDetails.filter(
-        (room) => room.quantityPerRoom === 2
-      );
+    const filterNumOfSingleRoom = numOfRoom.filter(
+      (room) => room.roomSize === 2
+    );
 
-    const filterNumOfDoubleRoom =
-      request.privateTourResponse?.roomDetails.filter(
-        (room) => room.quantityPerRoom === 4
-      );
+    const filterNumOfDoubleRoom = numOfRoom.filter(
+      (room) => room.roomSize === 4
+    );
+
+    const convertDateFormat = (dateString) => {
+      const [datePart, timePart] = dateString.split(" ");
+      const [day, month, year] = datePart.split("-");
+
+      const isoDate = `${year}-${month}-${day}T${timePart}`;
+      return isoDate;
+    };
+
+    const startDate = convertDateFormat(startDateTourChange); // "2024-06-19T12:00:00"
+    const endDate = convertDateFormat(endDateChange); // "2024-06-20T18:00:00"
 
     const apiPayload = {
-      startDate: startDateTourChange, //ok
-      endDate: endDateChange, //ok
+      startDate: startDate, //ok
+      endDate: endDate, //ok
       tourGuideCosts: tourGuideCosts, //ok
       materialCosts: values.materialCosts.map((material) => ({
         materialPriceHistoryId: material.materialId, //ok
@@ -482,8 +498,8 @@ function CreateOptionForm({ request }) {
           districtId: service.districtId, //ok
           startDate: hotel.stayDatesLoging[0], //ok
           endDate: hotel.stayDatesLoging[1], //ok
-          numOfDoubleRoom: filterNumOfDoubleRoom[0].totalRoom,
-          numOfSingleRoom: filterNumOfSingleRoom[0].totalRoom,
+          numOfDoubleRoom: filterNumOfDoubleRoom[0].numOfRoom,
+          numOfSingleRoom: filterNumOfSingleRoom[0].numOfRoom,
           hotelOptionRatingOption1: hotel.hotelOptionRatingOption1, //ok
           hotelOptionRatingOption2: hotel.hotelOptionRatingOption2, //ok
           hotelOptionRatingOption3: hotel.hotelOptionRatingOption3, //ok
@@ -527,6 +543,14 @@ function CreateOptionForm({ request }) {
     return apiPayload;
   };
 
+  const onFinishFailed = (errorInfo) => {
+    message.error(
+      "Có lỗi xảy ra. Bạn vui lòng kiểm tra lại các trường thông tin đã điền đầy đủ chưa.",
+      3
+    ); // Hiển thị thông báo lỗi trong 3 giây
+    console.log("Failed:", errorInfo);
+  };
+
   const onFinish = async (values) => {
     console.log("Received values of form: ", values);
 
@@ -564,6 +588,7 @@ function CreateOptionForm({ request }) {
         "days"
       );
       setEndDateTour(calculatedEndDate);
+      setStartDateChange(date);
     } else {
       setEndDateTour(null);
     }
@@ -603,353 +628,355 @@ function CreateOptionForm({ request }) {
   };
 
   return (
-    <div className="p-4 shadow-xl rounded-xl w-full max-h-lvh overflow-y-auto">
-      {/* <LoadingOverlay isLoading={loading} /> */}
-      <Form form={form} onFinish={onFinish}>
-        <h3 className="font-bold text-mainColor text-xl text-center">
-          TẠO GÓI TOUR
-        </h3>
-        {/* THÔNG TIN YÊU CẦU CHUNG */}
-        <div className="text-lg px-20 my-10">
-          <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
-            THÔNG TIN YÊU CẦU CHUNG
-          </h2>
-          <div className="mx-4">
-            <div className="mb-3 flex">
-              <span className="font-bold ">Địa điểm xuất phát:</span>
-              <div className="font-normal  ml-3">
-                {request?.privateTourResponse?.startLocation}
+    <>
+      <LoadingOverlay isLoading={loading} />
+      <div className="p-4 shadow-xl rounded-xl w-full max-h-lvh overflow-y-auto">
+        <Form form={form} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+          <h3 className="font-bold text-mainColor text-xl text-center">
+            TẠO GÓI TOUR
+          </h3>
+          {/* THÔNG TIN YÊU CẦU CHUNG */}
+          <div className="text-lg px-20 my-10">
+            <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
+              THÔNG TIN YÊU CẦU CHUNG
+            </h2>
+            <div className="mx-4">
+              <div className="mb-3 flex">
+                <span className="font-bold ">Địa điểm xuất phát:</span>
+                <div className="font-normal  ml-3">
+                  {request?.privateTourResponse?.startLocation}
+                </div>
               </div>
-            </div>
-            <div className="flex ">
-              <div className="flex mb-3">
-                <span className="font-bold ">Địa điểm mong muốn:</span>
-                <span className="font-normal  ml-3">
-                  {renderOtherLocations(
-                    request?.privateTourResponse?.otherLocation
-                  )}
-                </span>
+              <div className="flex ">
+                <div className="flex mb-3">
+                  <span className="font-bold ">Địa điểm mong muốn:</span>
+                  <span className="font-normal  ml-3">
+                    {renderOtherLocations(
+                      request?.privateTourResponse?.otherLocation
+                    )}
+                  </span>
+                </div>
+                <div className="ml-4">
+                  <span className="font-bold ">Địa điểm mong muốn chính:</span>
+                  <span className="font-normal  ml-3">
+                    {request?.privateTourResponse?.mainDestination?.name}
+                  </span>
+                </div>
               </div>
-              <div className="ml-4">
-                <span className="font-bold ">Địa điểm mong muốn chính:</span>
-                <span className="font-normal  ml-3">
-                  {request?.privateTourResponse?.mainDestination?.name}
-                </span>
-              </div>
-            </div>
-            <div className="mb-3 flex flex-wrap items-center">
-              <p>
-                <span className="font-bold ">Số người lớn:</span>
-                <span className="font-normal ml-3">
-                  {request?.privateTourResponse?.numOfAdult}
-                </span>
-              </p>
-              <p>
-                <span className="font-bold ml-5">Số trẻ em:</span>
-                <span className="font-normal ml-3">
-                  {request?.privateTourResponse?.numOfChildren}
-                </span>
-              </p>
-              <div className="ml-10 flex items-center">
-                <span className="font-bold text-lg mr-4 ">
-                  Yêu cầu lưu trú:
-                </span>
-                <List
-                  dataSource={numOfRoom}
-                  renderItem={(item) => (
-                    <List.Item>
-                      <Card className="mr-4 bg-teal-100">
-                        <Card.Meta
-                          title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
-                          description={`Tổng số phòng: ${item.numOfRoom}`}
-                        />
-                      </Card>
-                    </List.Item>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="flex">
-              <div className="mb-3">
-                <span className="font-bold ">Khoảng thời gian:</span>
-                <span className="font-normal  ml-3">
-                  {request?.privateTourResponse?.numOfDay} ngày{" "}
-                  {request?.privateTourResponse?.numOfNight} đêm
-                </span>
-              </div>
-              <div className="ml-10">
-                <span className="font-bold ">Thời gian rảnh dự kiến:</span>
-                <span className="font-normal  ml-3">
-                  {formatDate(request?.privateTourResponse?.startDate)} -{" "}
-                  {formatDate(request?.privateTourResponse?.endDate)}
-                </span>
-              </div>
-            </div>
-
-            <p className="font-bold my-4">Chọn ngày diễn ra tour: </p>
-            <ConfigProvider locale={viVN}>
-              <div className="flex flex-wrap">
-                <Form.Item
-                  label="Từ ngày "
-                  className=" font-bold"
-                  name="startDateTour"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please choose the stay dates!",
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    showTime
-                    className="!min-w-[300px] mr-10"
-                    onCalendarChange={handleStartDateChange}
-                    disabledDate={disableStartDates}
-                    defaultPickerValue={getDefaultPickerValue()}
-                    format="DD-MM-YYYY HH:mm:ss"
-                    defaultValue={moment(startDate).add(1, "days")} // Maintain existing behavior
-                    onOpenChange={(status) => {
-                      // Additional handling if needed when picker opens/closes
-                      if (!status) {
-                        // Reset on picker close if needed
-                        handleStartDateChange(null);
-                      }
-                    }}
+              <div className="mb-3 flex flex-wrap items-center">
+                <p>
+                  <span className="font-bold ">Số người lớn:</span>
+                  <span className="font-normal ml-3">
+                    {request?.privateTourResponse?.numOfAdult}
+                  </span>
+                </p>
+                <p>
+                  <span className="font-bold ml-5">Số trẻ em:</span>
+                  <span className="font-normal ml-3">
+                    {request?.privateTourResponse?.numOfChildren}
+                  </span>
+                </p>
+                <div className="ml-10 flex items-center">
+                  <span className="font-bold text-lg mr-4 ">
+                    Yêu cầu lưu trú:
+                  </span>
+                  <List
+                    dataSource={numOfRoom}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <Card className="mr-4 bg-teal-100">
+                          <Card.Meta
+                            title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
+                            description={`Tổng số phòng: ${item.numOfRoom}`}
+                          />
+                        </Card>
+                      </List.Item>
+                    )}
                   />
-                </Form.Item>
-                <Form.Item
-                  label="Đến ngày "
-                  className=" font-bold"
-                  name="endDateTour"
-                >
-                  <p className="hidden">
+                </div>
+              </div>
+
+              <div className="flex">
+                <div className="mb-3">
+                  <span className="font-bold ">Khoảng thời gian:</span>
+                  <span className="font-normal  ml-3">
+                    {request?.privateTourResponse?.numOfDay} ngày{" "}
+                    {request?.privateTourResponse?.numOfNight} đêm
+                  </span>
+                </div>
+                <div className="ml-10">
+                  <span className="font-bold ">Thời gian rảnh dự kiến:</span>
+                  <span className="font-normal  ml-3">
+                    {formatDate(request?.privateTourResponse?.startDate)} -{" "}
+                    {formatDate(request?.privateTourResponse?.endDate)}
+                  </span>
+                </div>
+              </div>
+
+              <p className="font-bold my-4">Chọn ngày diễn ra tour: </p>
+              <ConfigProvider locale={viVN}>
+                <div className="flex flex-wrap">
+                  <Form.Item
+                    label="Từ ngày "
+                    className=" font-bold"
+                    name="startDateTour"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please choose the stay dates!",
+                      },
+                    ]}
+                  >
                     <DatePicker
                       showTime
                       className="!min-w-[300px] mr-10"
-                      disabledDate={disableEndDates}
+                      onCalendarChange={handleStartDateChange}
+                      disabledDate={disableStartDates}
                       defaultPickerValue={getDefaultPickerValue()}
                       format="DD-MM-YYYY HH:mm:ss"
-                      value={endDateTour}
+                      defaultValue={moment(startDate).add(1, "days")} // Maintain existing behavior
+                      onOpenChange={(status) => {
+                        // Additional handling if needed when picker opens/closes
+                        if (!status) {
+                          // Reset on picker close if needed
+                          handleStartDateChange(null);
+                        }
+                      }}
                     />
-                  </p>
-                  <span>{endDateChange}</span>
-                </Form.Item>
-              </div>
-            </ConfigProvider>
-          </div>
-        </div>
-        {/* DỊCH VỤ CHUNG */}
-        <div className="text-lg px-20 my-10">
-          <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
-            DỊCH VỤ CHUNG
-          </h2>
-          <div className=" mx-4">
-            {/* PHƯƠNG TIỆN DI CHUYỂN */}
-            <div>
-              <h3 className="font-bold text-lg my-2 text-mainColor">
-                Phương tiện di chuyển
-              </h3>
-              <TransportationSection
-                startDateTourChange={startDateTourChange}
-                endDateChange={endDateChange}
-                request={request}
-                priceInfo={priceInfo}
-                setPriceInfo={setPriceInfo}
-                form={form}
-                provinces={provinces}
-                districts={districts}
-                onProvinceChange={handleProvinceChange}
-                setProvinces={setProvinces}
-                fetchVehiclePriceRange={fetchVehiclePriceRange}
-                handleFieldChange={handleFieldChange}
-                startProvince={request?.privateTourResponse?.startLocation}
-                selectedProvince={selectedProvince}
-              />
-            </div>
-
-            {/* PHƯƠNG TIỆN DU LỊCH*/}
-            <div>
-              <h3 className="font-bold text-lg my-2 text-mainColor">
-                Phương tiện du lịch trong tỉnh
-              </h3>
-              <VerhicleTravelSection
-                startDateTourChange={startDateTourChange}
-                endDateChange={endDateChange}
-                request={request}
-                form={form}
-                provinces={provinces}
-                districts={districts}
-                onProvinceChange={handleProvinceChange}
-                setProvinces={setProvinces}
-              />
-            </div>
-
-            <div>
-              <h3 className="font-bold text-lg my-2 text-mainColor">
-                Thông tin hướng dẫn viên cả tour
-              </h3>
-              <div className="flex flex-wrap">
-                <Form.Item
-                  label="Số lượng hướng dẫn viên:"
-                  className=" font-semibold"
-                  name="quantityTourGuide"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng điền số lượng hướng dẫn viên",
-                    },
-                  ]}
-                >
-                  <InputNumber
-                    min={1}
-                    max={30}
-                    onChange={handleQuantityChange}
-                    placeholder="Số lượng hướng dẫn viên"
-                    className="!w-[200px] mr-10"
-                  />
-                </Form.Item>
-                <div className="flex font-semibold text-gray-500 ml-10">
-                  {salaryInfo && (
-                    <p>
-                      Phí hướng dẫn viên:{" "}
-                      {salaryInfo.result.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
+                  </Form.Item>
+                  <Form.Item
+                    label="Đến ngày "
+                    className=" font-bold"
+                    name="endDateTour"
+                  >
+                    <p className="hidden">
+                      <DatePicker
+                        showTime
+                        className="!min-w-[300px] mr-10"
+                        disabledDate={disableEndDates}
+                        defaultPickerValue={getDefaultPickerValue()}
+                        format="DD-MM-YYYY HH:mm:ss"
+                        value={endDateTour}
+                      />
                     </p>
-                  )}{" "}
-                  {/* Adjust based on actual response structure */}
+                    <span>{endDateChange}</span>
+                  </Form.Item>
+                </div>
+              </ConfigProvider>
+            </div>
+          </div>
+          {/* DỊCH VỤ CHUNG */}
+          <div className="text-lg px-20 my-10">
+            <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
+              DỊCH VỤ CHUNG
+            </h2>
+            <div className=" mx-4">
+              {/* PHƯƠNG TIỆN DI CHUYỂN */}
+              <div>
+                <h3 className="font-bold text-lg my-2 text-mainColor">
+                  Phương tiện di chuyển
+                </h3>
+                <TransportationSection
+                  startDateTourChange={startDateTourChange}
+                  endDateChange={endDateChange}
+                  request={request}
+                  priceInfo={priceInfo}
+                  setPriceInfo={setPriceInfo}
+                  form={form}
+                  provinces={provinces}
+                  districts={districts}
+                  onProvinceChange={handleProvinceChange}
+                  setProvinces={setProvinces}
+                  fetchVehiclePriceRange={fetchVehiclePriceRange}
+                  handleFieldChange={handleFieldChange}
+                  startProvince={request?.privateTourResponse?.startLocation}
+                  selectedProvince={selectedProvince}
+                />
+              </div>
+
+              {/* PHƯƠNG TIỆN DU LỊCH*/}
+              <div>
+                <h3 className="font-bold text-lg my-2 text-mainColor">
+                  Phương tiện du lịch trong tỉnh
+                </h3>
+                <VerhicleTravelSection
+                  startDateTourChange={startDateTourChange}
+                  endDateChange={endDateChange}
+                  request={request}
+                  form={form}
+                  provinces={provinces}
+                  districts={districts}
+                  onProvinceChange={handleProvinceChange}
+                  setProvinces={setProvinces}
+                />
+              </div>
+
+              <div>
+                <h3 className="font-bold text-lg my-2 text-mainColor">
+                  Thông tin hướng dẫn viên cả tour
+                </h3>
+                <div className="flex flex-wrap">
+                  <Form.Item
+                    label="Số lượng hướng dẫn viên:"
+                    className=" font-semibold"
+                    name="quantityTourGuide"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng điền số lượng hướng dẫn viên",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={1}
+                      max={30}
+                      onChange={handleQuantityChange}
+                      placeholder="Số lượng hướng dẫn viên"
+                      className="!w-[200px] mr-10"
+                    />
+                  </Form.Item>
+                  <div className="flex font-semibold text-gray-500 ml-10">
+                    {salaryInfo && (
+                      <p>
+                        Phí hướng dẫn viên:{" "}
+                        {salaryInfo.result.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </p>
+                    )}{" "}
+                    {/* Adjust based on actual response structure */}
+                  </div>
                 </div>
               </div>
+              {/* THÔNG TIN HƯỚNG DẪN VIÊN TRONG TỈNH */}
+              <div>
+                <h3 className="font-bold text-lg my-2 text-mainColor">
+                  Thông tin hướng dẫn viên trong tỉnh
+                </h3>
+                <InfoTourGuideSection
+                  request={request}
+                  form={form}
+                  provinces={provinces}
+                  onProvinceChange={handleProvinceChange2}
+                  setProvinces={setProvinces}
+                />
+              </div>
+
+              <div>
+                <h3 className="font-bold text-lg my-6 text-mainColor">
+                  Gói Bảo Hiểm
+                </h3>
+                <InsuranceSection
+                  // basePath={[field.name]}
+                  request={request}
+                  form={form}
+                  provinces={provinces}
+                  districts={districts}
+                  onProvinceChange={handleProvinceChange2}
+                  setProvinces={setProvinces}
+                />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg my-6 text-mainColor">
+                  Gói GALA/ TEAMBULDING
+                </h3>
+                <EventGalasSection
+                  request={request}
+                  jsonCustomEventJsonString={jsonCustomEventJsonString}
+                  setJsonCustomEventJsonString={setJsonCustomEventJsonString}
+                  form={form}
+                  provinces={provinces}
+                  districts={districts}
+                  setProvinces={setProvinces}
+                  startDateTourChange={startDateTourChange}
+                  endDateChange={endDateChange}
+                />
+              </div>
+              {/* MATERIAL COST */}
+              <div>
+                <h3 className="font-bold text-lg my-2 text-mainColor">
+                  Dịch vụ khác
+                </h3>
+                <MaterialCostsSection
+                  request={request}
+                  form={form}
+                  provinces={provinces}
+                  onProvinceChange={handleProvinceChange2}
+                  setProvinces={setProvinces}
+                />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg my-2 text-mainColor">
+                  Phụ phí tuỳ chỉnh
+                </h3>
+                <CustomSurchangeSection
+                  request={request}
+                  form={form}
+                  quantity={
+                    request?.privateTourResponse.numOfAdult +
+                    request?.privateTourResponse.numOfChildren
+                  }
+                />
+              </div>
             </div>
-            {/* THÔNG TIN HƯỚNG DẪN VIÊN TRONG TỈNH */}
-            <div>
-              <h3 className="font-bold text-lg my-2 text-mainColor">
-                Thông tin hướng dẫn viên trong tỉnh
-              </h3>
-              <InfoTourGuideSection
-                request={request}
-                form={form}
-                provinces={provinces}
-                onProvinceChange={handleProvinceChange2}
-                setProvinces={setProvinces}
-              />
+          </div>
+          {/* DỊCH VỤ RIÊNG TỪNG GÓI */}
+          <div className="px-20 my-10 ">
+            <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
+              DỊCH VỤ RIÊNG TỪNG GÓI
+            </h2>
+            <div className="mt-10">
+              <h3>Form Data:</h3>
+              <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
             </div>
 
-            <div>
-              <h3 className="font-bold text-lg my-6 text-mainColor">
-                Gói Bảo Hiểm
-              </h3>
-              <InsuranceSection
-                // basePath={[field.name]}
-                request={request}
+            <div className=" mx-4">
+              <EachServiceSection
                 form={form}
                 provinces={provinces}
-                districts={districts}
                 onProvinceChange={handleProvinceChange2}
                 setProvinces={setProvinces}
-              />
-            </div>
-            <div>
-              <h3 className="font-bold text-lg my-6 text-mainColor">
-                Gói GALA/ TEAMBULDING
-              </h3>
-              <EventGalasSection
                 request={request}
-                jsonCustomEventJsonString={jsonCustomEventJsonString}
-                setJsonCustomEventJsonString={setJsonCustomEventJsonString}
-                form={form}
-                provinces={provinces}
                 districts={districts}
-                setProvinces={setProvinces}
+                onDistrictChange={handleDistrictChange}
+                selectedProvinces={selectedProvinces}
+                selectedProvince={selectedProvince}
+                selectedDistricts={selectedDistricts}
+                selectedDistrict={selectedDistrict}
+                loadingDistricts={loadingDistricts}
+                getAllDistrictsByProvinceId={getAllDistrictsByProvinceId}
+                setLoadingDistricts={setLoadingDistricts}
+                setDistricts={setDistricts}
+                numOfDaysLoging={numOfDaysLoging}
+                setNumOfDaysLoging={setNumOfDaysLoging}
+                numOfRoom={numOfRoom}
                 startDateTourChange={startDateTourChange}
                 endDateChange={endDateChange}
               />
             </div>
-            {/* MATERIAL COST */}
-            <div>
-              <h3 className="font-bold text-lg my-2 text-mainColor">
-                Dịch vụ khác
-              </h3>
-              <MaterialCostsSection
-                request={request}
-                form={form}
-                provinces={provinces}
-                onProvinceChange={handleProvinceChange2}
-                setProvinces={setProvinces}
-              />
+
+            <hr />
+
+            <div className="my-12 ">
+              <h3 className="font-bold text-2xl  ">GIÁ DỰ KIẾN CỦA GÓI</h3>
+              <ExpectedPriceOption request={request} />
             </div>
-            <div>
-              <h3 className="font-bold text-lg my-2 text-mainColor">
-                Phụ phí tuỳ chỉnh
-              </h3>
-              <CustomSurchangeSection
-                request={request}
-                form={form}
-                quantity={
-                  request?.privateTourResponse.numOfAdult +
-                  request?.privateTourResponse.numOfChildren
-                }
-              />
+            <div className="flex justify-center my-4">
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className=" bg-teal-600 font-semibold text-white"
+                >
+                  TẠO GÓI TOUR
+                </Button>
+              </Form.Item>
             </div>
           </div>
-        </div>
-        {/* DỊCH VỤ RIÊNG TỪNG GÓI */}
-        <div className="px-20 my-10 ">
-          <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
-            DỊCH VỤ RIÊNG TỪNG GÓI
-          </h2>
-          {/* <div className="mt-10">
-            <h3>Form Data:</h3>
-            <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
-          </div> */}
-
-          <div className=" mx-4">
-            <EachServiceSection
-              form={form}
-              provinces={provinces}
-              onProvinceChange={handleProvinceChange2}
-              setProvinces={setProvinces}
-              request={request}
-              districts={districts}
-              onDistrictChange={handleDistrictChange}
-              selectedProvinces={selectedProvinces}
-              selectedProvince={selectedProvince}
-              selectedDistricts={selectedDistricts}
-              selectedDistrict={selectedDistrict}
-              loadingDistricts={loadingDistricts}
-              getAllDistrictsByProvinceId={getAllDistrictsByProvinceId}
-              setLoadingDistricts={setLoadingDistricts}
-              setDistricts={setDistricts}
-              numOfDaysLoging={numOfDaysLoging}
-              setNumOfDaysLoging={setNumOfDaysLoging}
-              numOfRoom={numOfRoom}
-              startDateTourChange={startDateTourChange}
-              endDateChange={endDateChange}
-            />
-          </div>
-
-          <hr />
-
-          <div className="my-12 ">
-            <h3 className="font-bold text-2xl  ">GIÁ DỰ KIẾN CỦA GÓI</h3>
-            <ExpectedPriceOption request={request} />
-          </div>
-          <div className="flex justify-center my-4">
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                className=" bg-teal-600 font-semibold text-white"
-              >
-                TẠO GÓI TOUR
-              </Button>
-            </Form.Item>
-          </div>
-        </div>
-      </Form>
-    </div>
+        </Form>
+      </div>
+    </>
   );
 }
 

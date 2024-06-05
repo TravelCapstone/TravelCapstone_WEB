@@ -115,7 +115,7 @@ const VerhicleTravelSection = ({
     };
 
     fetchAvailableVehicleTypes();
-  }, [form]);
+  }, [form, selectedProvinces]);
 
   const handleRemove = (index) => {
     const currentValues = form.getFieldValue("travelOptions");
