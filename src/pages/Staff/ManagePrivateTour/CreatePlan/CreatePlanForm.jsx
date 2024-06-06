@@ -23,6 +23,7 @@ import { optionClassLabels } from "../../../../settings/globalStatus";
 import "../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import moment from "moment";
+import { isEmptyObject } from "../../../../utils/Util";
 
 const CreatePlanForm = ({
   privateTourResponse,
@@ -47,38 +48,63 @@ const CreatePlanForm = ({
     console.log("location", buildLocation());
     console.log("vehilce", buildVehicle());
     console.log("buildRestarent", buildRestarent());
+    const location = [...buildLocation(), ...buildRestarent()];
+    console.log("merge", location);
   };
   const buildLocation = () => {
-    return form.getFieldValue("hotel");
+    const hotelValue = form.getFieldValue("hotel");
+    return Array.isArray(hotelValue) ? hotelValue.flat() : [hotelValue];
   };
   const buildRestarent = () => {
-    return restaurant.map((_, index) => ({
-      sellPriceHistoryId: form.getFieldsValue(
-        `restaurent-sellPriceHistoryId[${index}]`
+    return restaurant.map((item, index) => ({
+      sellPriceHistoryId: form.getFieldValue(
+        `restaurentSellPriceHistoryId[${index}]`
       ),
-      startDate: form.getFieldsValue(`restaurent-startDate[${index}]`),
-      endDate: form.getFieldsValue(`restaurent-endDate[${index}]`),
-      numOfServiceUse: form.getFieldsValue(
-        `restaurent-numOfServiceUse[${index}]`
+      startDate: form.getFieldValue(`restaurentStartDate[${index}]`),
+      endDate: form.getFieldValue(`restaurentEndDate[${index}]`),
+      numOfServiceUse: form.getFieldValue(
+        `restaurentNumOfServiceUse[${index}]`
       ),
     }));
   };
+
   const buildVehicle = () => {
     debugger;
-    return vehicleQuotationDetails.forEach((item, index) => ({
+    const test = form.getFieldsValue(`portStartPoint[${0}]`);
+    return vehicleQuotationDetails.map((item, index) => ({
       vehicleType: item.vehicleType,
       startPoint: item.startPointId,
       endPoint: item.endPointId,
-      portStartPoint: form.getFieldsValue(`portStartPoint[${index}]`) || null,
-      portEndPoint: form.getFieldsValue(`portEndPoint[${index}]`) || null,
-      startDate: form.getFieldsValue(`startDate[${index}]`),
-      endDate: form.getFieldsValue(`endDate[${index}]`),
-      driverId: form.getFieldsValue(`driverId[${index}]`),
-      sellPriceHistoryId:
-        form.getFieldsValue(`sellPriceHistoryId[${index}]`) || null,
-      referencePriceId:
-        form.getFieldsValue(`referencePriceId[${index}]`) || null,
-      numOfVehicle: form.getFieldsValue(`numOfVehicle[${index}]`) || null,
+      portStartPoint: isEmptyObject(
+        form.getFieldsValue(`portStartPoint[${index}]`)
+      )
+        ? form.getFieldsValue(`portStartPoint[${index}]`)
+        : null,
+      portEndPoint: isEmptyObject(form.getFieldsValue(`portEndPoint[${index}]`))
+        ? form.getFieldsValue(`portEndPoint[${index}]`)
+        : null,
+      startDate: isEmptyObject(form.getFieldsValue(`startDate[${index}]`))
+        ? form.getFieldsValue(`startDate[${index}]`)
+        : null,
+      endDate: isEmptyObject(form.getFieldsValue(`endDate[${index}]`))
+        ? form.getFieldsValue(`endDate[${index}]`)
+        : null,
+      driverId: isEmptyObject(form.getFieldsValue(`driverId[${index}]`))
+        ? form.getFieldsValue(`driverId[${index}]`)
+        : null,
+      sellPriceHistoryId: isEmptyObject(
+        form.getFieldsValue(`sellPriceHistoryId[${index}]`)
+      )
+        ? form.getFieldsValue(`sellPriceHistoryId[${index}]`)
+        : null,
+      referencePriceId: isEmptyObject(
+        form.getFieldsValue(`referencePriceId[${index}]`)
+      )
+        ? form.getFieldsValue(`referencePriceId[${index}]`)
+        : null,
+      numOfVehicle: isEmptyObject(form.getFieldsValue(`numOfVehicle[${index}]`))
+        ? form.getFieldsValue(`numOfVehicle[${index}]`)
+        : null,
     }));
   };
   const setFieldsValue = (values) => {

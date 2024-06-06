@@ -104,6 +104,11 @@ function getTimePeriod(dateTimeString) {
     return "";
   }
 }
+
+function isEmptyObject(obj) {
+  return Object.keys(obj).length === 0;
+}
+
 export {
   formatPrice,
   formatDateTime,
@@ -112,4 +117,5 @@ export {
   secondsToHours,
   metersToKilometers,
   getTimePeriod,
+  isEmptyObject,
 };

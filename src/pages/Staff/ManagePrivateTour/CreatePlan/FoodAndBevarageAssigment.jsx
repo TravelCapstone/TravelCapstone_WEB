@@ -39,48 +39,38 @@ const FoodAndBevarageAssignment = ({
       });
     });
   };
-  console.log(restaurent);
   useEffect(() => {
+    const fetchMenu = async () => {
+      data?.forEach(async (item, index) => {
+        const menuId = item.menuId;
+
+        const response = await getSellPriceByMenuId(menuId, item.quantity);
+        console.log("response", response);
+
+        setRestaurent((prevRestaurent) => {
+          const newRestaurent = [...prevRestaurent];
+          newRestaurent[index] = response.result;
+          return newRestaurent;
+        });
+
+        // Set form fields after updating restaurent state
+        form.setFieldsValue({
+          [`restaurentSellPriceHistoryId[${index}]`]:
+            response.result?.sellPriceHistory?.id,
+          [`restaurentStartDate[${index}]`]: data[index].startDate,
+          [`restaurentEndDate[${index}]`]: data[index].endDate,
+          [`restaurentNumOfServiceUse[${index}]`]: data[index].quantity,
+        });
+      });
+    };
+
     fetchMenu();
-    restaurent.forEach((item, index) => {
-      debugger;
-      setFieldsValue({
-        [`restaurent-sellPriceHistoryId[${index}]`]: item?.sellPriceHistory?.id,
-      });
-      setFieldsValue({
-        [`restaurent-startDate[${index}]`]: data[index].startDate,
-      });
-      setFieldsValue({ [`restaurent-endDate[${index}]`]: data[index].endDate });
-      setFieldsValue({
-        [`restaurent-numOfServiceUse[${index}]`]: data[index].quantity,
-      });
-    });
   }, [data]);
+
   return (
-    <Collapse
-      defaultActiveKey={data.map((_, dataIdx) => dataIdx)}
-      bordered={false}
-    >
+    <>
       {data.map((item, index) => (
-        <Panel
-          header={
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Text strong className="mr-2">
-                  {index + 1}.
-                </Text>
-                <Text className="font-bold">
-                  {item.district?.name} - {item.district?.province?.name}
-                </Text>
-              </div>
-              <Text>
-                {formatDate(item.startDate)} - {formatDate(item.endDate)}
-              </Text>
-            </div>
-          }
-          key={`panel-${index}`}
-          className="bg-white"
-        >
+        <>
           <div className="mb-2">
             <Text strong>Loại hình ăn uống:</Text>
             <div className="flex justify-start">
@@ -131,21 +121,21 @@ const FoodAndBevarageAssignment = ({
               )
             )}
           </p>
-          <Form.Item name={`restaurent-sellPriceHistoryId[${index}]`} hidden>
+          <Form.Item name={`restaurentSellPriceHistoryId[${index}]`}>
             <Input />
           </Form.Item>
-          <Form.Item name={`restaurent-startDate[${index}]`} hidden>
+          <Form.Item name={`restaurentStartDate[${index}]`}>
             <Input />
           </Form.Item>
-          <Form.Item name={`restaurent-endDate[${index}]`} hidden>
+          <Form.Item name={`restaurentEndDate[${index}]`}>
             <Input />
           </Form.Item>
-          <Form.Item name={`restaurent-numOfServiceUse[${index}]`} hidden>
+          <Form.Item name={`restaurentNumOfServiceUse[${index}]`}>
             <Input />
           </Form.Item>
-        </Panel>
+        </>
       ))}
-    </Collapse>
+    </>
   );
 };
 
