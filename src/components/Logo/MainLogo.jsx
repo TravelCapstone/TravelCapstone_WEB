@@ -41,7 +41,7 @@ function MainLogo() {
           </svg>
 
           <h3
-            className={`text-mainColor capitalize text-2xl font-bold ml-3 ${header ? "text-mainColor" : "text-white"}`}
+            className={`text-mainColor capitalize text-2xl font-bold ml-3 whitespace-nowrap ${header ? "text-mainColor" : "text-white"}`}
           >
             Cóc Travel
           </h3>

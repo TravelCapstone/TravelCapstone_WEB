@@ -19,9 +19,6 @@ export const AGENT_IMAGE_EDIT_PAGE = 'change-image';
 export const AGENT_PASSWORD_CHANGE_PAGE = 'change-password';
 export const AGENT_PROFILE_DELETE = '/delete';
 
-// Listing Tour
-export const LISTING_TOUR = '/view-list-tour-public';
-export const DETAIL_TOUR = '/detail-tour-public';
 
 //====================== STAFF ==============================
 export const STAFF_PAGE= '/staff';
@@ -36,7 +33,18 @@ export const CREATE_OPTIONS_TOUR_PRIVATE = 'create-options';
 
 //====================== CUSTORMER ==============================
 // Listing Single Page Section
+export const INFOMATION_ACC = '/view-information-acc';
+export const SECURITY_ACC = '/view-security-acc';
+export const TRANSACTIONS = '/view-transactions';
+export const VIEW_POLICY = '/policies/view-policy';
+export const HELP = '/policies/help';
+
+// Listing Tour
+export const LISTING_TOUR = '/view-list-tour-public';
+export const DETAIL_TOUR = '/detail-tour-public';
+export const LISTING_TOUR_PRIVATE = '/view-list-tour-private';
 export const VIEW_OPTIONS_TOUR_PRIVATE = '/view-options';
+
 
 // Form Request
 export const CREATE_TOUR_PRIVATE = '/dat-tour-theo-yeu-cau';

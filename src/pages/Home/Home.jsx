@@ -1,28 +1,28 @@
-import React from 'react';
+import React, { useEffect } from "react";
 
-import { Hero, Navbar } from '../../components';
+import { Hero, Navbar } from "../../components";
 
-import NatureVid from "../../assets/video/intro.mp4";
-import ListPage from './TopListTour/TopListTour';
+import NatureGif from "../../assets/video/intro.gif";
+import ListPage from "./TopListTour/TopListTour";
 
 function Home() {
-    return (
-        <>
-        <Navbar/>
-        <div className="h-[700px] relative">
-          <video
-            autoPlay
-            loop
-            muted
-            className="absolute right-0 top-0 h-[700px] w-full object-cover z-[-1]"
-          >
-            <source src={NatureVid} type="video/mp4" />
-          </video>
-          <Hero />
-        </div>
-        <ListPage />
-        </>
-    );
+  return (
+    <>
+      <Navbar />
+      <div
+        className="h-[700px] relative"
+        style={{
+          backgroundImage: `url(${NatureGif})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <Hero />
+      </div>
+      <ListPage />
+    </>
+  );
 }
 
 export default Home;
