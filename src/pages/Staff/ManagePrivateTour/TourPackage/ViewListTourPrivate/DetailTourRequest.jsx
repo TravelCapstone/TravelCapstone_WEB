@@ -75,12 +75,9 @@ function TourRequestPage() {
       content: <TourRequestSection request={request} />,
     },
     {
-      label:
-        request.privateTourResponse?.status === 0 && !request.option1
-          ? "Tạo gói tour"
-          : null,
+      label: request.privateTourResponse?.status === 0 ? "Tạo gói tour" : null,
       content:
-        request.privateTourResponse?.status === 0 && !request.option1 ? (
+        request.privateTourResponse?.status === 0 ? (
           <CreateOptionForm request={request} />
         ) : null,
     },

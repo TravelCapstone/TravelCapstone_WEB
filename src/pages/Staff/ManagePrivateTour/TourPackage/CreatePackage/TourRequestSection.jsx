@@ -79,9 +79,9 @@ function TourRequestSection({ request }) {
           THÔNG TIN YÊU CẦU TOUR
         </h1>
         <div className="   ">
-          <div className="flex flex-row mt-10 p-5 rounded-4xl ">
+          <div className="grid grid-cols-1 md:grid-cols-2  mt-10 p-5 rounded-4xl ">
             {/* Thông tin khách hàng */}
-            <div className="w-4/12 border-r border-solid border-gray-300">
+            <div className="md:border-r md:border-solid border-gray-300">
               <h2 className="text-start font-semibold text-mainColor text-lg mb-5">
                 Thông tin khách hàng
               </h2>
@@ -129,7 +129,7 @@ function TourRequestSection({ request }) {
             </div>
 
             {/* Chi tiết yêu cầu */}
-            <div className="w-8/12 px-2">
+            <div className=" px-2 border-t border-solid border-gray-300 md:border-hidden">
               <h2 className="text-start font-semibold text-mainColor text-lg mb-5">
                 Chi tiết yêu cầu
               </h2>
@@ -284,7 +284,7 @@ function TourRequestSection({ request }) {
 
           {/* Nút tạo tour */}
           <div className="text-right my-4 w-5/6">
-            {request.privateTourResponse?.status === 0 && !request.option1 && (
+            {request.privateTourResponse?.status === 0 && (
               <Button
                 className="bg-mainColor text-white font-semibold"
                 onClick={handleCreateTour}
