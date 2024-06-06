@@ -22,6 +22,7 @@ import LocalVehicleAssignment from "./LocalVehicleAssignment";
 import { optionClassLabels } from "../../../../settings/globalStatus";
 import "../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
+import moment from "moment";
 
 const CreatePlanForm = ({
   privateTourResponse,
@@ -38,160 +39,113 @@ const CreatePlanForm = ({
   const restaurant = quotationDetails?.filter(
     (item) => item?.facilityRating?.facilityTypeId === 1
   );
-  console.log(hotel);
+  const [form] = Form.useForm();
+
+  console.log("restaurant", restaurant);
   const onFinish = (values) => {
-    console.log("Form values:", values);
-    // Handle form submission here
+    console.log("values", values);
+    console.log("location", buildLocation());
+    console.log("vehilce", buildVehicle());
+    console.log("buildRestarent", buildRestarent());
   };
-  const [entertainmentData, setEntertainmentData] = useState(null);
-  const [foodData, setFoodData] = useState(null);
-  const [restingData, setRestingData] = useState(null);
-  const [mergeData, setMergeData] = useState(null);
-  const [provinceServices, setProvinceServices] = useState([]);
-
-  const mergeDataFunc = (entertainmentData, foodData, restingData) => {
-    const mergedData = [];
-
-    // Merge entertainment data
-    entertainmentData?.forEach((provinceEntertainments) => {
-      const provinceId = provinceEntertainments.provinceId;
-      const provinceName = provinceEntertainments.provinceName;
-      const entertainmentServices = provinceEntertainments.services.map(
-        (service) => ({
-          serviceType: "Entertainment",
-          provinceId: provinceId,
-          provinceName: provinceName,
-          facilityService: {
-            id: service.facilityService.id,
-            name: service.facilityService.name,
-            address: service.facilityService.address,
-          },
-        })
-      );
-      mergedData.push(...entertainmentServices);
-    });
-
-    // Merge food and beverage data
-    foodData?.forEach((provinceFoodData) => {
-      const provinceId = provinceFoodData.provinceId;
-      const provinceName = provinceFoodData.provinceName;
-      const foodServices = provinceFoodData.services.map((service) => ({
-        serviceType: "Food and Beverage",
-        provinceId: provinceId,
-        provinceName: provinceName,
-        facilityService: {
-          id: service.facilityService.id,
-          name: service.facilityService.name,
-          address: service.facilityService.address,
-        },
-      }));
-      mergedData.push(...foodServices);
-    });
-
-    // Merge resting data
-    restingData?.forEach((provinceRestingData) => {
-      const provinceId = provinceRestingData.provinceId;
-      const provinceName = provinceRestingData.provinceName;
-      const restingServices = provinceRestingData.services.map((service) => ({
-        serviceType: "Resting",
-        provinceId: provinceId,
-        provinceName: provinceName,
-        facilityService: {
-          id: service.facilityService.id,
-          name: service.facilityService.name,
-          address: service.facilityService.address,
-        },
-      }));
-      mergedData.push(...restingServices);
-    });
-
-    return mergedData;
+  const buildLocation = () => {
+    return form.getFieldValue("hotel");
   };
-
-  const createProvinceServiceList = (mergedData) => {
-    const provinceServiceList = {};
-    mergedData.forEach((item) => {
-      const { provinceId, provinceName, facilityService } = item;
-      if (!provinceServiceList[provinceId]) {
-        provinceServiceList[provinceId] = {
-          provinceId: provinceId,
-          provinceName: provinceName,
-          services: [facilityService],
-        };
-      } else {
-        provinceServiceList[provinceId].services?.push(facilityService);
-      }
-    });
-    return Object.values(provinceServiceList);
+  const buildRestarent = () => {
+    return restaurant.map((_, index) => ({
+      sellPriceHistoryId: form.getFieldsValue(
+        `restaurent-sellPriceHistoryId[${index}]`
+      ),
+      startDate: form.getFieldsValue(`restaurent-startDate[${index}]`),
+      endDate: form.getFieldsValue(`restaurent-endDate[${index}]`),
+      numOfServiceUse: form.getFieldsValue(
+        `restaurent-numOfServiceUse[${index}]`
+      ),
+    }));
   };
-
-  const updateProvinceServices = () => {
-    if (mergeData) {
-      const updatedProvinceServices = createProvinceServiceList(mergeData);
-      setProvinceServices(updatedProvinceServices);
-    }
+  const buildVehicle = () => {
+    debugger;
+    return vehicleQuotationDetails.forEach((item, index) => ({
+      vehicleType: item.vehicleType,
+      startPoint: item.startPointId,
+      endPoint: item.endPointId,
+      portStartPoint: form.getFieldsValue(`portStartPoint[${index}]`) || null,
+      portEndPoint: form.getFieldsValue(`portEndPoint[${index}]`) || null,
+      startDate: form.getFieldsValue(`startDate[${index}]`),
+      endDate: form.getFieldsValue(`endDate[${index}]`),
+      driverId: form.getFieldsValue(`driverId[${index}]`),
+      sellPriceHistoryId:
+        form.getFieldsValue(`sellPriceHistoryId[${index}]`) || null,
+      referencePriceId:
+        form.getFieldsValue(`referencePriceId[${index}]`) || null,
+      numOfVehicle: form.getFieldsValue(`numOfVehicle[${index}]`) || null,
+    }));
   };
-
-  useEffect(() => {
-    setMergeData(mergeDataFunc(entertainmentData, foodData, restingData));
-  }, [entertainmentData, foodData, restingData]);
-  useEffect(() => {
-    updateProvinceServices();
-  }, [mergeData]);
-
-  console.log("provinceServices", provinceServices);
-  const provinceList = provinceServices?.map((service) => ({
-    provinceId: service.provinceId,
-    provinceName: service.provinceName,
-  }));
-  console.log("provinceList", provinceList);
+  const setFieldsValue = (values) => {
+    form.setFieldsValue(values);
+  };
+  const getFieldValue = (values) => {
+    return form.getFieldValue(values);
+  };
   return (
     <div className="  p-4  bg-white max-h-[680px]  overflow-y-auto">
       <h3 className="font-bold text-mainColor text-xl text-center">
         TẠO KẾ HOẠCH TOUR CHI TIẾT
       </h3>
       <Divider />
+      <div className="mt-10">
+        <h3>Form Data:</h3>
+        <pre>{JSON.stringify(buildRestarent(), null, 2)}</pre>
+      </div>
       <Form
+        initialValues={{
+          remember: true,
+        }}
+        locale={viVN}
         name="createPlan"
-        initialValues={{ remember: true }}
         onFinish={onFinish}
+        form={form}
       >
-        <Form.Item label="Phân loại">
-          {optionQuotation && (
-            <span className="font-semibold text-xl">
-              {optionClassLabels[optionQuotation.optionClassId]}
-            </span>
-          )}
-        </Form.Item>
-        <Form.Item>
-          <h3 className="font-bold text-primary text-xl">Dịch vụ lưu trú</h3>
+        {optionQuotation && (
+          <span className="font-semibold text-xl">
+            {optionClassLabels[optionQuotation.optionClassId]}
+          </span>
+        )}
 
-          <RestingAssignment
-            data={hotel}
-            privateTourResponse={privateTourResponse}
-            setRestingData={setRestingData}
-          />
-        </Form.Item>
-        <Form.Item>
-          <h3 className="font-bold text-primary text-xl">Dịch vụ ăn uống</h3>
+        <h3 className="font-bold text-primary text-xl">Dịch vụ lưu trú</h3>
 
-          <FoodAndBevarageAssignment
-            data={restaurant}
-            privateTourResponse={privateTourResponse}
-            setFoodData={setFoodData}
-          />
-        </Form.Item>
+        <RestingAssignment
+          data={hotel}
+          privateTourResponse={privateTourResponse}
+          form={form}
+          setFieldsValue={setFieldsValue}
+          getFieldValue={getFieldValue}
+        />
+        <h3 className="font-bold text-primary text-xl">Dịch vụ ăn uống</h3>
+
+        <FoodAndBevarageAssignment
+          data={restaurant}
+          privateTourResponse={privateTourResponse}
+          form={form}
+          setFieldsValue={setFieldsValue}
+          getFieldValue={getFieldValue}
+        />
         <Form.Item>
           <h3 className="font-bold text-primary text-xl">
             Phương tiện di chuyển
           </h3>
 
-          <VehicleAssignment data={vehicleQuotationDetails} />
+          <VehicleAssignment
+            data={vehicleQuotationDetails}
+            form={form}
+            setFieldsValue={setFieldsValue}
+            getFieldValue={getFieldValue}
+          />
         </Form.Item>
-        <Form.Item>
-          {/* <LocalVehicleAssignment data={vehicleQuotationDetails} /> */}
-        </Form.Item>
-        <Form.Item>
+        {/* <Form.Item> */}
+        {/* <LocalVehicleAssignment data={vehicleQuotationDetails} /> */}
+        {/* </Form.Item> */}
+        {/* <Form.Item>
           <h3 className="font-bold text-primary text-xl">
             Dịch vụ vui chơi giải trí
           </h3>
@@ -201,7 +155,7 @@ const CreatePlanForm = ({
             privateTourResponse={privateTourResponse}
             setEntertainmentData={setEntertainmentData}
           />
-        </Form.Item>
+        </Form.Item> */}
         {/* TẠO KẾ HOẠCH CHI TIẾT CHO TOUR */}
         <div className="my-16">
           <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
@@ -209,9 +163,10 @@ const CreatePlanForm = ({
           </h2>
           {/* <BasicTimeline /> */}
         </div>
+
         {/* LỊCH TRÌNH TỪNG THỜI GIAN */}
         {/* <DetailPlanFollowingTimeline /> */}
-        {provinceServices.length > 0 &&
+        {/* {provinceServices.length > 0 &&
           provinceServices.map((province) => (
             <div key={province.provinceId} style={{ marginBottom: "20px" }}>
               <Card title={province.provinceName}>
@@ -253,16 +208,14 @@ const CreatePlanForm = ({
                 />
               </Card>
             </div>
-          ))}
+          ))} */}
 
         {/* THÔNG TIN HƯỚNG DẪN VIÊN */}
-        <TourguideAssignment provinceList={provinceList} />
-        <MaterialAssignment />
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Tạo kế hoạch tour
-          </Button>
-        </Form.Item>
+        {/* <TourguideAssignment provinceList={provinceList} /> */}
+        {/* <MaterialAssignment /> */}
+        <Button type="primary" htmlType="submit">
+          Tạo kế hoạch tour
+        </Button>
       </Form>
     </div>
   );

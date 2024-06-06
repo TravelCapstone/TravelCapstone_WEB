@@ -124,7 +124,7 @@ const VehicleSelect = ({ startPoint, endPoint, vehicleType }) => {
           </div>
           <div className="flex my-4">
             <Text className="w-3/12">Chọn tài xế</Text>
-            <Select className="w-9/12" loading={availableDrivers.length < 0}>
+            <Select className="w-9/12" loading={availableDrivers.length === 0}>
               {availableDrivers &&
                 availableDrivers.length > 0 &&
                 availableDrivers.map((driver) => (

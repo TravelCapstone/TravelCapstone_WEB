@@ -52,10 +52,10 @@ const getSellPriceByFacilityServiceId = async (facilityServiceId) => {
 };
 
 // Retrieve sell price by menu ID
-const getSellPriceByMenuId = async (menuId) => {
+const getSellPriceByMenuId = async (menuId, quantity) => {
   try {
     const response = await api.get(
-      `/sell-price/get-sell-price-by-menu-id/${menuId}`
+      `/sell-price/get-sell-price-by-menu-id/${menuId}/${quantity}`
     );
     return response.data;
   } catch (error) {
@@ -116,7 +116,14 @@ const getMinMaxPriceOfHotel = async (
 };
 
 // Retrieve price of meal
-const getPriceOfMeal = async (districtId, privatetourRequestId, ratingId, numOfMeal = 1, pageNumber = 1, pageSize = 10) => {
+const getPriceOfMeal = async (
+  districtId,
+  privatetourRequestId,
+  ratingId,
+  numOfMeal = 1,
+  pageNumber = 1,
+  pageSize = 10
+) => {
   // debugger;
   try {
     const response = await api.get(
@@ -200,16 +207,16 @@ const getVehiclePriceRange = async (
       startDate: startDate,
       endDate: endDate,
       pageNumber: pageNumber,
-      pageSize: pageSize
+      pageSize: pageSize,
     };
     // debugger;
     const response = await api.post(
-      '/sell-price/get-vehicle-price-range',
+      "/sell-price/get-vehicle-price-range",
       requestBody,
       {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       }
     );
     return response.data;
@@ -237,16 +244,16 @@ const getVehiclePriceRangeNoEndPoint = async (
       startDate: startDate,
       endDate: endDate,
       pageNumber: pageNumber,
-      pageSize: pageSize
+      pageSize: pageSize,
     };
     // debugger;
     const response = await api.post(
-      '/sell-price/get-vehicle-price-range',
+      "/sell-price/get-vehicle-price-range",
       requestBody,
       {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       }
     );
     return response.data;
@@ -255,7 +262,24 @@ const getVehiclePriceRangeNoEndPoint = async (
     return [];
   }
 };
-
+export const getLatestHotelPrice = async (
+  districtId,
+  ratingId,
+  servingQuantity,
+  numOfServiceUse,
+  pageNumber,
+  pageSize
+) => {
+  try {
+    const response = await api.get(
+      `/sell-price/get-latest-hotel-price/${districtId}/${ratingId}/${servingQuantity}/${numOfServiceUse}/${pageNumber}/${pageSize}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching hotel prices:", error);
+    return [];
+  }
+};
 
 export {
   getAveragePriceOfService,
