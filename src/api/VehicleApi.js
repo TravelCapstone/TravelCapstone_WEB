@@ -24,7 +24,10 @@ const getOptimalPath = async (startDestinationId, data) => {
   }
 };
 
-const getAvailableVehicleType = async (provinceStartPointId, provinceEndPointId) => {
+const getAvailableVehicleType = async (
+  provinceStartPointId,
+  provinceEndPointId
+) => {
   try {
     const response = await api.get(
       `/vehicle/get-available-vehicle-type/${provinceStartPointId}/${provinceEndPointId}`
@@ -35,4 +38,26 @@ const getAvailableVehicleType = async (provinceStartPointId, provinceEndPointId)
     return [];
   }
 };
-export { getPriceForVehicle, getOptimalPath, getAvailableVehicleType };
+const getAvailableVehicle = async (
+  startTime,
+  endTime,
+  pageNumber,
+  pageSize
+) => {
+  try {
+    const response = await api.get(
+      `/vehicle/get-available-vehicle?startTime=${startTime}&endTime=${endTime}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sell price:", error);
+    return [];
+  }
+};
+
+export {
+  getPriceForVehicle,
+  getOptimalPath,
+  getAvailableVehicleType,
+  getAvailableVehicle,
+};

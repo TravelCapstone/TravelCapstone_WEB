@@ -11,15 +11,28 @@ import { vehicleTypeLabels } from "../../../../settings/globalStatus";
 import VehicleSelect from "../CreatePlan/Vehicle/VehicleSelect";
 import "../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getAvailableVehicle } from "../../../../api/VehicleApi";
 
 const { Option } = Select;
 const { Text } = Typography;
 
 const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
+  const [vehicle, setVehicle] = useState(Array(data.length).fill([]));
+
   console.log("datavehicle", data);
   useEffect(() => {}, [data]);
 
+  const handleChange = async (index) => {
+    const dateRange = getFieldValue(`dateRange[${index}]`);
+    const date1 = new Date(dateRange[0]).toISOString();
+    const date2 = new Date(dateRange[1]).toISOString();
+    const data = await getAvailableVehicle(date1, date2, 1, 100);
+    if (data.isSuccess) {
+      setVehicle((vehicle[index] = data.result.items));
+    }
+  };
+  console.log("vehicle", vehicle);
   return (
     <div>
       {data &&
@@ -82,19 +95,18 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
               )}
               <div className="flex flex-wrap">
                 <Form.Item
-                  name={`startDate[${index}]`}
-                  label="Ngày bắt đầu"
-                  required
+                  name={`dateRange[${index}]`}
+                  label="Ngày bắt đầu và kết thúc"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn khoảng ngày",
+                    },
+                  ]}
                 >
-                  <DatePicker />
-                </Form.Item>
-                <Form.Item
-                  name={`endDate[${index}]`}
-                  label="Ngày kết thúc"
-                  className="mx-2"
-                  required
-                >
-                  <DatePicker />
+                  <DatePicker.RangePicker
+                    onChange={() => handleChange(index)}
+                  />
                 </Form.Item>
               </div>
 
@@ -109,7 +121,12 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                     name={`numOfVehicle[${index}]`}
                     label="Số lượng"
                     className="mx-2"
-                    required
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập số lượng",
+                      },
+                    ]}
                   >
                     <Input type="number" />
                   </Form.Item>
@@ -117,7 +134,12 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                     name={`sellPriceHistoryId[${index}]`}
                     label="Cơ sở thuê"
                     className="mx-2"
-                    required
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn cơ sở thuê",
+                      },
+                    ]}
                   >
                     <Select>
                       <Option value="1">Xe 1</Option>
@@ -127,16 +149,34 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                     name={`driverId[${index}]`}
                     label="Tài xế"
                     className="mx-2"
-                    required
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn tài xế",
+                      },
+                    ]}
                   >
                     <Select>
                       <Option value="1">Nguyễn Văn A</Option>
                     </Select>
                   </Form.Item>
-
-                  <Form.Item name={`$vehicleId[${index}]`} label="Phương tiện">
-                    <Select>
-                      <Select.Option value="1">Xe 1</Select.Option>
+                  <Form.Item
+                    name={`$vehicleId[${index}]`}
+                    label="Phương tiện"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn phương tiện",
+                      },
+                    ]}
+                  >
+                    <Select loading={vehicle[index].length === 0}>
+                      {vehicle[index].length > 0 &&
+                        vehicle[index].map((item) => (
+                          <Select.Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Select.Option>
+                        ))}
                     </Select>
                   </Form.Item>
                 </>

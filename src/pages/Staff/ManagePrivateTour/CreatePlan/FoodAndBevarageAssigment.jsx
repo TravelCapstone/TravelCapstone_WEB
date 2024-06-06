@@ -121,16 +121,16 @@ const FoodAndBevarageAssignment = ({
               )
             )}
           </p>
-          <Form.Item name={`restaurentSellPriceHistoryId[${index}]`}>
+          <Form.Item name={`restaurentSellPriceHistoryId[${index}]`} hidden>
             <Input />
           </Form.Item>
-          <Form.Item name={`restaurentStartDate[${index}]`}>
+          <Form.Item name={`restaurentStartDate[${index}]`} hidden>
             <Input />
           </Form.Item>
-          <Form.Item name={`restaurentEndDate[${index}]`}>
+          <Form.Item name={`restaurentEndDate[${index}]`} hidden>
             <Input />
           </Form.Item>
-          <Form.Item name={`restaurentNumOfServiceUse[${index}]`}>
+          <Form.Item name={`restaurentNumOfServiceUse[${index}]`} hidden>
             <Input />
           </Form.Item>
         </>

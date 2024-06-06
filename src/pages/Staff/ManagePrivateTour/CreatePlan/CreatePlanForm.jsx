@@ -42,16 +42,25 @@ const CreatePlanForm = ({
   );
   const [form] = Form.useForm();
 
-  console.log("restaurant", restaurant);
+  console.log("privateTourResponse", privateTourResponse);
   const onFinish = (values) => {
-    console.log("values", values);
-    console.log("location", buildLocation());
-    console.log("vehilce", buildVehicle());
-    console.log("buildRestarent", buildRestarent());
-    const location = [...buildLocation(), ...buildRestarent()];
-    console.log("merge", location);
+    console.log("merge", buildData());
   };
+  const buildData = () => {
+    return {
+      privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
+      startDate: privateTourResponse?.privateTourResponse?.startDate,
+      endDate: privateTourResponse?.privateTourResponse?.endDate,
+      location: [...buildLocation(), ...buildRestarent()],
+      vehicles: buildVehicle(),
+      tourguides: [],
+      material: {},
+      detailPlanRoutes: [],
+    };
+  };
+
   const buildLocation = () => {
+    debugger;
     const hotelValue = form.getFieldValue("hotel");
     return Array.isArray(hotelValue) ? hotelValue.flat() : [hotelValue];
   };
@@ -69,42 +78,20 @@ const CreatePlanForm = ({
   };
 
   const buildVehicle = () => {
-    debugger;
-    const test = form.getFieldsValue(`portStartPoint[${0}]`);
     return vehicleQuotationDetails.map((item, index) => ({
-      vehicleType: item.vehicleType,
-      startPoint: item.startPointId,
-      endPoint: item.endPointId,
-      portStartPoint: isEmptyObject(
-        form.getFieldsValue(`portStartPoint[${index}]`)
-      )
-        ? form.getFieldsValue(`portStartPoint[${index}]`)
-        : null,
-      portEndPoint: isEmptyObject(form.getFieldsValue(`portEndPoint[${index}]`))
-        ? form.getFieldsValue(`portEndPoint[${index}]`)
-        : null,
-      startDate: isEmptyObject(form.getFieldsValue(`startDate[${index}]`))
-        ? form.getFieldsValue(`startDate[${index}]`)
-        : null,
-      endDate: isEmptyObject(form.getFieldsValue(`endDate[${index}]`))
-        ? form.getFieldsValue(`endDate[${index}]`)
-        : null,
-      driverId: isEmptyObject(form.getFieldsValue(`driverId[${index}]`))
-        ? form.getFieldsValue(`driverId[${index}]`)
-        : null,
-      sellPriceHistoryId: isEmptyObject(
-        form.getFieldsValue(`sellPriceHistoryId[${index}]`)
-      )
-        ? form.getFieldsValue(`sellPriceHistoryId[${index}]`)
-        : null,
-      referencePriceId: isEmptyObject(
-        form.getFieldsValue(`referencePriceId[${index}]`)
-      )
-        ? form.getFieldsValue(`referencePriceId[${index}]`)
-        : null,
-      numOfVehicle: isEmptyObject(form.getFieldsValue(`numOfVehicle[${index}]`))
-        ? form.getFieldsValue(`numOfVehicle[${index}]`)
-        : null,
+      vehicleType: item.vehicleType || null,
+      startPoint: item.startPointId || null,
+      endPoint: item.endPointId || null,
+      portStartPoint: form.getFieldValue(`portStartPoint[${index}]`) || null,
+      portEndPoint: form.getFieldValue(`portEndPoint[${index}]`) || null,
+      startDate: form.getFieldValue(`startDate[${index}]`) || null,
+      endDate: form.getFieldValue(`endDate[${index}]`) || null,
+      driverId: form.getFieldValue(`driverId[${index}]`) || null,
+      sellPriceHistoryId:
+        form.getFieldValue(`sellPriceHistoryId[${index}]`) || null,
+      referencePriceId:
+        form.getFieldValue(`referencePriceId[${index}]`) || null,
+      numOfVehicle: form.getFieldValue(`numOfVehicle[${index}]`) || null,
     }));
   };
   const setFieldsValue = (values) => {
@@ -121,7 +108,7 @@ const CreatePlanForm = ({
       <Divider />
       <div className="mt-10">
         <h3>Form Data:</h3>
-        <pre>{JSON.stringify(buildRestarent(), null, 2)}</pre>
+        <pre>{JSON.stringify(buildData(), null, 2)}</pre>
       </div>
       <Form
         initialValues={{
