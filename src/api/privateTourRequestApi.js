@@ -53,5 +53,16 @@ const getRoomSuggestion = async (data) => {
   }
 };
 
-export { getAllProvince, getAllPrivateTour, getPrivateTourById, createPrivateTour, getRoomSuggestion};
+const getPrivateTourByIdForCustomer = async(id) =>{
+  try {
+    const response = await api.get(
+      `get-private-tour-request-by-id-for-customer/${id}`
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export { getAllProvince, getAllPrivateTour, getPrivateTourById, createPrivateTour, getRoomSuggestion, getPrivateTourByIdForCustomer};
 

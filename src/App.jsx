@@ -11,11 +11,35 @@ import "react-toastify/dist/ReactToastify.css";
 import AOS from "aos";
 import { AuthProvider } from "./context/AuthContext";
 import { PriceProvider } from "./context/PriceContext";
+import { useEffect } from "react";
 AOS.init({
   duration: 1000,
 });
 
 function App() {
+  useEffect(() => {
+    const handleScroll = () => {
+      const menuItems = document.querySelectorAll(".menuItem");
+      if (window.scrollY >= 50) {
+        menuItems.forEach((item) => {
+          item.classList.add("hover-white");
+          item.classList.remove("hover-black");
+        });
+      } else {
+        menuItems.forEach((item) => {
+          item.classList.add("hover-black");
+          item.classList.remove("hover-white");
+        });
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
   return (
     <>
       <Provider store={store}>

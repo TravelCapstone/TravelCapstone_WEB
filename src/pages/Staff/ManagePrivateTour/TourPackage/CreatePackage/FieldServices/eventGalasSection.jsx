@@ -30,6 +30,7 @@ import {
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import LoadingOverlay from "../../../../../../components/Loading/LoadingOverlay";
+import dayjs from "../../../../../../settings/setupDayjs";
 
 const { Option } = Select;
 
@@ -45,6 +46,8 @@ const EventGalasSection = ({
   setJsonCustomEventJsonString,
   startDateTourChange,
   endDateChange,
+  startDateFinal,
+  endDateFinal,
 }) => {
   const [events, setEvents] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -357,13 +360,22 @@ const EventGalasSection = ({
     return current && (current < startDate || current > endDate);
   };
 
-  // Lấy giá trị defaultPickerValue từ tourDate
+  // Chuyển đổi startDateFinal và endDateFinal để getDefaultPickerValue hợp lệ
   const getDefaultPickerValue = () => {
-    const tourDate = form.getFieldValue("tourDate");
-    if (!tourDate || tourDate.length < 2) {
-      return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
+    const startDateFinal1 = moment(
+      startDateFinal,
+      "YYYY-MM-DDTHH:mm:ss"
+    ).toDate();
+    const endDateFinal1 = moment(endDateFinal, "YYYY-MM-DDTHH:mm:ss").toDate();
+
+    // Convert to Day.js
+    const startDateDayjs = dayjs(startDateFinal1);
+    const endDateDayjs = dayjs(endDateFinal1);
+
+    if (!startDateDayjs || !endDateDayjs) {
+      return moment(); // If no tourDate, use current date for both start and end
     }
-    return tourDate[0]; // Sử dụng ngày bắt đầu của tourDate
+    return startDateDayjs; // Use start and end date of tourDate
   };
 
   const isChanged = () => {
@@ -545,7 +557,7 @@ const EventGalasSection = ({
                       >
                         <DatePicker
                           disabledDate={disabledDate}
-                          // defaultPickerValue={[getDefaultPickerValue()]}
+                          defaultPickerValue={[getDefaultPickerValue()]}
                           showTime
                           onChange={handleDateChange}
                           format="DD-MM-YYYY HH:mm:ss"

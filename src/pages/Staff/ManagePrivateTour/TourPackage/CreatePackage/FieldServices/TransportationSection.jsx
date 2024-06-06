@@ -27,11 +27,15 @@ import moment from "moment";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import { getAllDistrictsByProvinceId } from "../../../../../../api/LocationApi";
+import dayjs from "../../../../../../settings/setupDayjs";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const TransportationSection = ({
+  startDateFinal,
+  endDateFinal,
+
   startDateTourChange,
   endDateChange,
   form,
@@ -154,7 +158,7 @@ const TransportationSection = ({
     const hasInitialized = localStorage.getItem("hasInitializedTransportation");
 
     // if (!hasInitialized) {
-    debugger;
+    // debugger;
     form.setFieldsValue({ transportation: initialTransportationValues });
     // }
     setTransportationCount(initialTransportationValues.length);
@@ -383,6 +387,37 @@ const TransportationSection = ({
     return false;
   };
 
+  // const disabledDate2 = (current) => {
+  //   if (!startDateFinal && !endDateFinal) {
+  //     return false;
+  //   }
+  //   debugger;
+  //   const startDateFinal2 = moment(startDateFinal).subtract(2, "days");
+  //   const endDateFinal2 = moment(endDateFinal).add(1, "days");
+  //   const startDate = startDateFinal2;
+  //   const endDate = endDateFinal2;
+  //   // return current && (current < startDate || current > endDate);
+  //   // Disable giờ ngoài khung
+  //   if (current.isSame(startDateFinal2, "day")) {
+  //     const numOfDays = request?.privateTourResponse?.numOfDay || 0;
+  //     const numOfNight = request?.privateTourResponse?.numOfNight || 0;
+  //     if (numOfDays === numOfNight) {
+  //       return current.hour() < 6 || current.hour() > 12;
+  //     } else if (numOfDays === numOfNight + 1) {
+  //       return current.hour() < 12 || current.hour() > 18;
+  //     }
+  //   }
+
+  //   if (current.isSame(endDateFinal2, "day")) {
+  //     return current.hour() < 12 || current.hour() > 21;
+  //   }
+  //   // Disable toàn bộ ngày ngoài khung
+  //   if (current && (current < startDate || current > endDate)) {
+  //     return true;
+  //   }
+  //   return false;
+  // };
+
   const hasDuplicates = (provinces) => {
     // Use a Set to efficiently store unique values and check for duplicates
     const uniqueProvinces = new Set();
@@ -410,13 +445,22 @@ const TransportationSection = ({
   const hasDuplicatesResult = hasDuplicates(provinces);
   console.log("Provinces have duplicates:", hasDuplicatesResult); // Output: Provinces have duplicates: true (assuming duplicates exist)
 
-  // Lấy giá trị defaultPickerValue từ tourDate
+  // Chuyển đổi startDateFinal và endDateFinal để getDefaultPickerValue hợp lệ
   const getDefaultPickerValue = () => {
-    const startDateTourChange2 = moment(
-      startDateTourChange,
-      "DD-MM-YYYY HH:mm:ss"
-    ).subtract(2, "days");
-    return startDateTourChange2.format("DD-MM-YYYY HH:mm:ss");
+    const startDateFinal1 = moment(
+      startDateFinal,
+      "YYYY-MM-DDTHH:mm:ss"
+    ).toDate();
+    const endDateFinal1 = moment(endDateFinal, "YYYY-MM-DDTHH:mm:ss").toDate();
+
+    // Convert to Day.js
+    const startDateDayjs = dayjs(startDateFinal1);
+    const endDateDayjs = dayjs(endDateFinal1);
+
+    if (!startDateDayjs || !endDateDayjs) {
+      return moment(); // If no tourDate, use current date for both start and end
+    }
+    return startDateDayjs; // Use start and end date of tourDate
   };
 
   const executeSwap = () => {
@@ -434,6 +478,9 @@ const TransportationSection = ({
       message.success("Items swapped successfully!");
     }
   };
+
+  const fieldsTransportation = form.getFieldValue("transportation") || [];
+  console.log("fieldsTransportation", fieldsTransportation);
 
   const addRoute = (add) => {
     const fields = form.getFieldValue("transportation") || [];
@@ -688,7 +735,7 @@ const TransportationSection = ({
                         className="!w-[350px] mr-10"
                         format="DD-MM-YYYY HH:mm:ss"
                         disabledDate={disabledDate}
-                        // defaultPickerValue={getDefaultPickerValue()}
+                        defaultPickerValue={[getDefaultPickerValue()]}
                       />
                     </Form.Item>
                   </ConfigProvider>
