@@ -1,17 +1,7 @@
-import {
-  Input,
-  Typography,
-  Collapse,
-  Form,
-  Select,
-  DatePicker,
-  Button,
-} from "antd";
-import { formatPrice, formatDate, getTimePeriod } from "../../../../utils/Util";
+import { Input, Typography, Collapse, Form } from "antd";
+import { formatPrice, getTimePeriod } from "../../../../utils/Util";
 import { ratingLabels } from "../../../../settings/globalStatus";
-import FoodModal from "./FoodModal/FoodModal";
 import { useEffect, useState } from "react";
-import moment from "moment";
 import { getSellPriceByMenuId } from "../../../../api/SellPriceHistoryApi";
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -71,7 +61,7 @@ const FoodAndBevarageAssignment = ({
     <>
       {data.map((item, index) => (
         <>
-          <div className="mb-2">
+          <div className="mb-2  p-4 ">
             <Text strong>Loại hình ăn uống:</Text>
             <div className="flex justify-start">
               <Text className="font-bold mr-2">
@@ -92,35 +82,36 @@ const FoodAndBevarageAssignment = ({
                 <Text strong>Bữa:</Text> {getTimePeriod(item.startDate)}
               </p>
             </div>
+            <p>
+              <strong> Địa điểm ăn uống: </strong>
+              {
+                restaurent[0]?.sellPriceHistory?.menu?.facilityService?.facility
+                  ?.name
+              }{" "}
+            </p>
+            <p>
+              <strong> Menu: </strong>
+              {restaurent[index]?.sellPriceHistory?.menu?.name}
+            </p>
+            <p>
+              <strong>Món ăn chi tiết: </strong>
+              {restaurent[index]?.menuResponse?.dishes?.map(
+                (menuItem, idx, arr) => (
+                  <span
+                    key={menuItem.id}
+                    style={{
+                      display: "inline-block",
+                      marginRight: "5px",
+                    }}
+                  >
+                    {menuItem.name}
+                    {idx !== arr.length - 1 && " -"}
+                  </span>
+                )
+              )}
+            </p>
           </div>
-          <p>
-            <strong> Địa điểm ăn uống: </strong>
-            {
-              restaurent[0]?.sellPriceHistory?.menu?.facilityService?.facility
-                ?.name
-            }{" "}
-          </p>
-          <p>
-            <strong> Menu: </strong>
-            {restaurent[index]?.sellPriceHistory?.menu?.name}
-          </p>
-          <p>
-            <strong>Món ăn chi tiết: </strong>
-            {restaurent[index]?.menuResponse?.dishes?.map(
-              (menuItem, idx, arr) => (
-                <span
-                  key={menuItem.id}
-                  style={{
-                    display: "inline-block",
-                    marginRight: "5px",
-                  }}
-                >
-                  {menuItem.name}
-                  {idx !== arr.length - 1 && " -"}
-                </span>
-              )
-            )}
-          </p>
+
           <Form.Item name={`restaurentSellPriceHistoryId[${index}]`} hidden>
             <Input />
           </Form.Item>

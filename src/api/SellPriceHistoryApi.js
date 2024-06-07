@@ -280,7 +280,17 @@ export const getLatestHotelPrice = async (
     return [];
   }
 };
-
+const getLatestEntertaimentPrice = async (districtId, privateTourRequestId) => {
+  try {
+    const response = await api.get(
+      `/sell-price/get-latest-entertaiment-price/${districtId}/${privateTourRequestId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching entertainment prices:", error);
+    return [];
+  }
+};
 export {
   getAveragePriceOfService,
   getAveragePriceOfMealService,
@@ -295,4 +305,5 @@ export {
   getAttractionSellPriceRange,
   getVehiclePriceRange,
   getVehiclePriceRangeNoEndPoint,
+  getLatestEntertaimentPrice,
 };

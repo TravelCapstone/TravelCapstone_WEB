@@ -54,7 +54,7 @@ const getRoomSuggestion = async (data) => {
 const getProvinceOfOption = async (optionid) => {
   try {
     const response = await api.get(`/get-province-of-option/${optionid}`);
-    return response.tourData;
+    return response.data;
   } catch (error) {
     console.log(error);
   }

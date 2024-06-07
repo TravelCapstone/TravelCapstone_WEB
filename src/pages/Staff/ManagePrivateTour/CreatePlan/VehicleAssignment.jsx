@@ -1,17 +1,8 @@
-import {
-  Input,
-  Select,
-  DatePicker,
-  Typography,
-  ConfigProvider,
-  Form,
-} from "antd";
+import { Input, Select, DatePicker, Typography, Form } from "antd";
 import { formatPrice } from "../../../../utils/Util";
 import { vehicleTypeLabels } from "../../../../settings/globalStatus";
-import VehicleSelect from "../CreatePlan/Vehicle/VehicleSelect";
 import "../../../../settings/setupDayjs";
-import viVN from "antd/lib/locale/vi_VN";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   getAvailableVehicle,
   getPriceForVehicle,
@@ -96,9 +87,10 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
   console.log("form data", getFieldValue());
   return (
     <div>
+      <h3 className="font-bold text-primary text-xl">Phương tiện di chuyển</h3>
       {data &&
         data.map((item, index) => (
-          <div>
+          <div className="rounded-md shadow-md p-4 m-2">
             <div key={index} className="mb-4">
               <div className="flex items-center mb-2">
                 <Text strong className="mr-2">
@@ -147,13 +139,7 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
               <Text strong className="mr-2">
                 <strong>Số lượng ngày thuê:</strong> {item.numOfRentingDay}
               </Text>
-              {item.vehicleType === 4 && (
-                <VehicleSelect
-                  startPoint={item.startPointId}
-                  endPoint={item.endPointId}
-                  vehicleType={item.vehicleType}
-                />
-              )}
+              {item.vehicleType === 4 && <></>}
               <div className="flex flex-wrap">
                 <Form.Item
                   name={`dateRange[${index}]`}
@@ -172,25 +158,7 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
               </div>
 
               {item.vehicleType !== 4 && item.vehicleType !== 5 ? (
-                // <VehicleSelect
-                //   startPoint={item.startPointId}
-                //   endPoint={item.endPointId}
-                //   vehicleType={item.vehicleType}
-                // />
                 <>
-                  <Form.Item
-                    name={`numOfVehicle[${index}]`}
-                    label="Số lượng"
-                    className="mx-2"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập số lượng",
-                      },
-                    ]}
-                  >
-                    <Input type="number" disabled={disabledSelect[index]} />
-                  </Form.Item>
                   <Form.Item
                     name={`sellPriceHistoryId[${index}]`}
                     label="Thông tin xe"
@@ -205,6 +173,20 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                       <Text>Loading....</Text>
                     )}
                   </Form.Item>
+                  <Form.Item
+                    name={`numOfVehicle[${index}]`}
+                    label="Số lượng"
+                    className="mx-2"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập số lượng",
+                      },
+                    ]}
+                  >
+                    <Input type="number" disabled={disabledSelect[index]} />
+                  </Form.Item>
+
                   <Form.Item
                     name={`driverId[${index}]`}
                     label="Tài xế"

@@ -8,7 +8,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 
-function MaterialAssignment({ data }) {
+const MaterialAssignment = ({ data }) => {
   console.log("MaterialAssignment", data);
   return (
     <div className="my-16">
@@ -36,6 +36,6 @@ function MaterialAssignment({ data }) {
       </div>
     </div>
   );
-}
+};
 
 export default MaterialAssignment;

@@ -1,30 +1,16 @@
-import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Button,
-  Divider,
-  Card,
-  List,
-  Input,
-  DatePicker,
-  TimePicker,
-  ConfigProvider,
-} from "antd";
+import { useEffect, useState } from "react";
+import { Form, Button, Divider } from "antd";
 import RestingAssignment from "./RestingAssignment";
 import FoodAndBevarageAssignment from "./FoodAndBevarageAssigment";
 import VehicleAssignment from "./VehicleAssignment";
 import EntertainmentAssignment from "./EntertainmentAssignment";
-import BasicTimeline from "./PlanDetail/BasicTimeline";
 import DetailPlanFollowingTimeline from "./PlanDetail/DetailPlanFollowingTimeline";
-import MaterialAssignment from "./PlanDetail/MaterialAssignment";
 import TourguideAssignment from "./PlanDetail/TourguideAssignment";
-import LocalVehicleAssignment from "./LocalVehicleAssignment";
 import { optionClassLabels } from "../../../../settings/globalStatus";
 import "../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
-import moment from "moment";
-import { isEmptyObject } from "../../../../utils/Util";
 import { getProvinceOfOption } from "../../../../api/privateTourRequestApi";
+import MaterialAssignment from "./MaterialAssignment";
 
 const CreatePlanForm = ({
   privateTourResponse,
@@ -48,46 +34,57 @@ const CreatePlanForm = ({
   const [provinceList, setProvinceList] = useState([]);
   const [form] = Form.useForm();
 
-  console.log("optionQuotation", optionQuotation);
+  console.log("quotationDetails", quotationDetails);
   const onFinish = (values) => {
     console.log("merge", buildData());
   };
-  const buildData = () => {
-    const locationData = buildLocation();
+
+  const buildLocation = () => {
+    const hotelData = buildHotel();
     const restaurantData = buildRestarent();
+    const entertaimentData = buildEntertainment();
     debugger;
+    let combinedLocationData = [];
+
+    if (hotelData.length > 0) {
+      combinedLocationData = [...combinedLocationData, ...hotelData];
+    }
+    if (restaurantData.length > 0) {
+      combinedLocationData = [...combinedLocationData, ...restaurantData];
+    }
+    if (entertaimentData.length > 0) {
+      combinedLocationData = [...combinedLocationData, ...entertaimentData];
+    }
+    return combinedLocationData;
+  };
+  const builDdetailPlanRoutes = () => {
+    return form.getFieldValue("detailPlanRoutes").map((item) => ({
+      date: new Date(item.date).toISOString(),
+      description: item.description,
+      detailDayPlanRoutes: item.detailDayPlanRoutes.map((innerItem) => ({
+        startTime: new Date(innerItem.dateRange[0]).toISOString(),
+        endTime: new Date(innerItem.dateRange[1]).toISOString(),
+        note: innerItem.note,
+        startFacilityId: innerItem.startFacilityId,
+        endFacilityId: innerItem.endFacilityId,
+        startPortId: innerItem.startPortId,
+        endPortId: innerItem.endPortId,
+      })),
+    }));
+  };
+  const buildData = () => {
     setData({
       privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
       startDate: privateTourResponse?.privateTourResponse?.startDate,
       endDate: privateTourResponse?.privateTourResponse?.endDate,
-      location:
-        locationData.length > 0 && restaurantData.length > 0
-          ? [...locationData, ...restaurantData]
-          : [],
+      location: buildLocation(),
       vehicles: buildVehicle(),
       tourguides: [],
       material: buildMaterial(),
-      detailPlanRoutes: [],
+      detailPlanRoutes: builDdetailPlanRoutes(),
     });
-    return {
-      privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
-      startDate: privateTourResponse?.privateTourResponse?.startDate,
-      endDate: privateTourResponse?.privateTourResponse?.endDate,
-      location:
-        locationData.length > 0 && restaurantData.length > 0
-          ? [...locationData, ...restaurantData]
-          : locationData.length > 0 && restaurantData.length === 0
-            ? [...locationData]
-            : restaurantData.length > 0 && locationData.length === 0
-              ? [...restaurantData]
-              : [],
-      vehicles: buildVehicle(),
-      tourguides: [],
-      material: buildMaterial(),
-      detailPlanRoutes: [],
-    };
   };
-  const buildLocation = () => {
+  const buildHotel = () => {
     const hotelValue = form.getFieldValue("hotel");
     let locationArray = Array.isArray(hotelValue)
       ? hotelValue.flat()
@@ -107,6 +104,25 @@ const CreatePlanForm = ({
     }));
   };
 
+  const buildEntertainment = () => {
+    const adultEntertainments = form.getFieldValue("adultEntertainments");
+    const childEntertainments = form.getFieldValue("childEntertainments");
+    const adultMap = adultEntertainments?.map((item, index) => ({
+      sellPriceHistoryId: item,
+      startDate: form.getFieldValue(`entertainmentStartDate]`) || null,
+      endDate: form.getFieldValue(`entertainmentEndDate`) || null,
+      numOfServiceUse:
+        form.getFieldValue(`entertainmentNumOfServiceUseAdult`) || null,
+    }));
+    const childMap = childEntertainments?.map((item, index) => ({
+      sellPriceHistoryId: item,
+      startDate: form.getFieldValue(`entertainmentStartDate`) || null,
+      endDate: form.getFieldValue(`entertainmentEndDate`) || null,
+      numOfServiceUse:
+        form.getFieldValue(`entertainmentNumOfServiceUseChild`) || null,
+    }));
+    return [...adultMap, ...childMap];
+  };
   const buildVehicle = () => {
     return vehicleQuotationDetails.map((item, index) => ({
       vehicleType: item.vehicleType || null,
@@ -142,14 +158,15 @@ const CreatePlanForm = ({
 
   const fetchProvinces = async () => {
     const data = await getProvinceOfOption(optionQuotation?.id);
-    debugger;
-    if (data?.isSuccess) {
-      setProvinceList(data.result?.items);
+    if (data.isSuccess) {
+      setProvinceList(data.result);
     }
   };
   useEffect(() => {
     fetchProvinces();
   }, [optionQuotation]);
+
+  console.log("provinceList", provinceList);
   return (
     <div className="  p-4  bg-white max-h-[680px]  overflow-y-auto">
       <h3 className="font-bold text-mainColor text-xl text-center">
@@ -193,32 +210,21 @@ const CreatePlanForm = ({
           setFieldsValue={setFieldsValue}
           getFieldValue={getFieldValue}
         />
-        <Form.Item>
-          <h3 className="font-bold text-primary text-xl">
-            Phương tiện di chuyển
-          </h3>
 
-          <VehicleAssignment
-            data={vehicleQuotationDetails}
-            form={form}
-            setFieldsValue={setFieldsValue}
-            getFieldValue={getFieldValue}
-          />
-        </Form.Item>
-        {/* <Form.Item> */}
-        {/* <LocalVehicleAssignment data={vehicleQuotationDetails} /> */}
-        {/* </Form.Item> */}
-        {/* <Form.Item>
-          <h3 className="font-bold text-primary text-xl">
-            Dịch vụ vui chơi giải trí
-          </h3>
+        <VehicleAssignment
+          data={vehicleQuotationDetails}
+          form={form}
+          setFieldsValue={setFieldsValue}
+          getFieldValue={getFieldValue}
+        />
 
-          <EntertainmentAssignment
-            data={entertainment}
-            privateTourResponse={privateTourResponse}
-            setEntertainmentData={setEntertainmentData}
-          />
-        </Form.Item> */}
+        <EntertainmentAssignment
+          data={entertainment}
+          privateTourResponse={privateTourResponse}
+          form={form}
+          setFieldsValue={setFieldsValue}
+          getFieldValue={getFieldValue}
+        />
         {/* TẠO KẾ HOẠCH CHI TIẾT CHO TOUR */}
         <MaterialAssignment data={material} />
 
@@ -226,60 +232,17 @@ const CreatePlanForm = ({
           <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
             TẠO KẾ HOẠCH CHI TIẾT CHO TOUR
           </h2>
-          {/* <BasicTimeline /> */}
         </div>
 
-        {/* LỊCH TRÌNH TỪNG THỜI GIAN */}
-        {/* <DetailPlanFollowingTimeline /> */}
-        {/* {provinceServices.length > 0 &&
-          provinceServices.map((province) => (
-            <div key={province.provinceId} style={{ marginBottom: "20px" }}>
-              <Card title={province.provinceName}>
-                <List
-                  dataSource={province.services}
-                  grid={{ gutter: 16, column: 1 }}
-                  renderItem={(item) => (
-                    <List.Item key={item.id}>
-                      <div className="grid grid-cols-2">
-                        <div>
-                          <p className="font-bold text-primary text-lg">
-                            Thời gian:{" "}
-                          </p>
-                          <div>
-                            <ConfigProvider locale={viVN}>
-                              <DatePicker
-                                className="ml-2"
-                                format="DD/MM/YYYY"
-                              />
-                              <TimePicker className="ml-2" format="HH:mm" />
-                            </ConfigProvider>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="font-bold text-primary text-lg">
-                            Địa điểm
-                          </p>
-                          <p>
-                            {item.name} - {item.address}
-                          </p>
-                          <textarea
-                            className="w-full border rounded p-2"
-                            placeholder="Nhập nội dung"
-                          ></textarea>
-                        </div>
-                      </div>
-                    </List.Item>
-                  )}
-                />
-              </Card>
-            </div>
-          ))} */}
+        <DetailPlanFollowingTimeline />
 
         {/* THÔNG TIN HƯỚNG DẪN VIÊN */}
-        <TourguideAssignment provinceList={provinceList} />
-        <Button type="primary" htmlType="submit">
-          Tạo kế hoạch tour
-        </Button>
+        <TourguideAssignment provinceList={provinceList} form={form} />
+        <div className="flex justify-center">
+          <Button className="bg-primary text-white" htmlType="submit">
+            Tạo kế hoạch tour
+          </Button>
+        </div>
       </Form>
       <Button onClick={() => buildData()}>Log data</Button>
     </div>
