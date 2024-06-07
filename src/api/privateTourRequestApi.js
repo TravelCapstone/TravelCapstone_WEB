@@ -76,14 +76,6 @@ export {
   getPrivateTourById,
   createPrivateTour,
   getRoomSuggestion,
-  getPrivateTourByIdForCustomer,
-};
-
-export {
-  getAllProvince,
-  getAllPrivateTour,
-  getPrivateTourById,
-  createPrivateTour,
-  getRoomSuggestion,
   getProvinceOfOption,
+  getPrivateTourByIdForCustomer,
 };
