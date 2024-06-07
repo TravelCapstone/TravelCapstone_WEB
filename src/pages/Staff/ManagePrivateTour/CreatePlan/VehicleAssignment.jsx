@@ -12,27 +12,88 @@ import VehicleSelect from "../CreatePlan/Vehicle/VehicleSelect";
 import "../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import { useEffect, useState } from "react";
-import { getAvailableVehicle } from "../../../../api/VehicleApi";
+import {
+  getAvailableVehicle,
+  getPriceForVehicle,
+} from "../../../../api/VehicleApi";
+import { getAvailableDriver } from "../../../../api/HumanResourceSalaryApi";
 
 const { Option } = Select;
 const { Text } = Typography;
 
 const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
-  const [vehicle, setVehicle] = useState(Array(data.length).fill([]));
+  const [vehicle, setVehicle] = useState([[]]);
+  const [driver, setDriver] = useState([[]]);
+  const [sellPriceHistory, setSellPriceHistory] = useState([]);
+  const [disabledSelect, setDisabledSelect] = useState(data.map(() => true)); // Initialize with true values
 
-  console.log("datavehicle", data);
-  useEffect(() => {}, [data]);
-
-  const handleChange = async (index) => {
+  const handleChange = async (index, item) => {
+    let newDisabledSelect = [...disabledSelect];
+    newDisabledSelect[index] = false;
+    setDisabledSelect(newDisabledSelect);
     const dateRange = getFieldValue(`dateRange[${index}]`);
     const date1 = new Date(dateRange[0]).toISOString();
     const date2 = new Date(dateRange[1]).toISOString();
-    const data = await getAvailableVehicle(date1, date2, 1, 100);
-    if (data.isSuccess) {
-      setVehicle((vehicle[index] = data.result.items));
+    setFieldsValue({ [`startDate[${index}]`]: date1 });
+    setFieldsValue({ [`endDate[${index}]`]: date2 });
+    const vehiclePromise = getAvailableVehicle(
+      item.vehicleType,
+      date1,
+      date2,
+      1,
+      100
+    );
+
+    const driverPromise = getAvailableDriver(date1, date2);
+
+    let sellPriceHistoryPromise;
+    if (item.vehicleType !== 4 && item.vehicleType !== 5) {
+      sellPriceHistoryPromise = getPriceForVehicle({
+        firstLocation: {
+          provinceId: item.startPointId,
+          districtId: null,
+        },
+        secondLocation: {
+          provinceId: item.endPointId ? item.endPointId : item.startPointId,
+          districtId: null,
+        },
+        vehicleType: item.vehicleType,
+        startDate: date1,
+        endDate: date2,
+        numOfServiceUse: item.numOfVehicle,
+      });
+    }
+
+    const [data, dataDriver, sellPriceHistoryResponse] = await Promise.all([
+      vehiclePromise,
+      driverPromise,
+      sellPriceHistoryPromise,
+    ]);
+
+    if (
+      data.isSuccess &&
+      dataDriver.isSuccess &&
+      sellPriceHistoryResponse?.isSuccess
+    ) {
+      // Create a new array from the current state
+      let newVehicle = [...vehicle];
+      let newDriver = [...driver];
+      let newSellPriceHistory = [...sellPriceHistory];
+      newVehicle[index] = data.result.items;
+      newDriver[index] = dataDriver.result.items;
+      newSellPriceHistory[index] = sellPriceHistoryResponse?.result;
+      // Set the state with the new array
+      setVehicle(newVehicle);
+      setDriver(newDriver);
+      setSellPriceHistory(newSellPriceHistory);
+      debugger;
+      setFieldsValue({
+        [`sellPriceHistoryId[${index}]`]: sellPriceHistoryResponse?.result.id,
+      });
+      setFieldsValue({ [`numOfVehicle[${index}]`]: item.numOfVehicle });
     }
   };
-  console.log("vehicle", vehicle);
+  console.log("form data", getFieldValue());
   return (
     <div>
       {data &&
@@ -105,7 +166,7 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                   ]}
                 >
                   <DatePicker.RangePicker
-                    onChange={() => handleChange(index)}
+                    onChange={() => handleChange(index, item)}
                   />
                 </Form.Item>
               </div>
@@ -128,22 +189,21 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                       },
                     ]}
                   >
-                    <Input type="number" />
+                    <Input type="number" disabled={disabledSelect[index]} />
                   </Form.Item>
                   <Form.Item
                     name={`sellPriceHistoryId[${index}]`}
-                    label="Cơ sở thuê"
+                    label="Thông tin xe"
                     className="mx-2"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn cơ sở thuê",
-                      },
-                    ]}
                   >
-                    <Select>
-                      <Option value="1">Xe 1</Option>
-                    </Select>
+                    <Input hidden />
+                    {sellPriceHistory[index] ? (
+                      <Text>
+                        {`${vehicleTypeLabels[sellPriceHistory[index]?.transportServiceDetail?.vehicleTypeId]} - Giá: ${formatPrice(sellPriceHistory[index]?.price)}`}
+                      </Text>
+                    ) : (
+                      <Text>Loading....</Text>
+                    )}
                   </Form.Item>
                   <Form.Item
                     name={`driverId[${index}]`}
@@ -156,8 +216,18 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                       },
                     ]}
                   >
-                    <Select>
-                      <Option value="1">Nguyễn Văn A</Option>
+                    <Select
+                      loading={driver[index] && driver[index].length === 0}
+                      disabled={disabledSelect[index]} // Use the disabledSelect state variable
+                      placeholder="Chọn tài xế"
+                    >
+                      {driver[index] &&
+                        driver[index].length > 0 &&
+                        driver[index].map((item) => (
+                          <Select.Option key={item.id} value={item.id}>
+                            {`${item.name} - ${formatPrice(item.fixDriverSalary)}- ${item.phoneNumber}`}
+                          </Select.Option>
+                        ))}
                     </Select>
                   </Form.Item>
                   <Form.Item
@@ -170,11 +240,16 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                       },
                     ]}
                   >
-                    <Select loading={vehicle[index].length === 0}>
-                      {vehicle[index].length > 0 &&
+                    <Select
+                      loading={vehicle[index] && vehicle[index].length === 0}
+                      disabled={disabledSelect[index]} // Use the disabledSelect state variable
+                      placeholder="Chọn phương tiện"
+                    >
+                      {vehicle[index] &&
+                        vehicle[index].length > 0 &&
                         vehicle[index].map((item) => (
                           <Select.Option key={item.id} value={item.id}>
-                            {item.name}
+                            {`${item.brand} - ${item.owner} - ${item.plate}`}
                           </Select.Option>
                         ))}
                     </Select>

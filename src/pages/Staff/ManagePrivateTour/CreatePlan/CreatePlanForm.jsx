@@ -24,6 +24,7 @@ import "../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import moment from "moment";
 import { isEmptyObject } from "../../../../utils/Util";
+import { getProvinceOfOption } from "../../../../api/privateTourRequestApi";
 
 const CreatePlanForm = ({
   privateTourResponse,
@@ -40,29 +41,58 @@ const CreatePlanForm = ({
   const restaurant = quotationDetails?.filter(
     (item) => item?.facilityRating?.facilityTypeId === 1
   );
+  const material = quotationDetails?.filter(
+    (item) => item.materialPriceHistoryId !== null
+  );
+  const [data, setData] = useState({});
+  const [provinceList, setProvinceList] = useState([]);
   const [form] = Form.useForm();
 
-  console.log("privateTourResponse", privateTourResponse);
+  console.log("optionQuotation", optionQuotation);
   const onFinish = (values) => {
     console.log("merge", buildData());
   };
   const buildData = () => {
+    const locationData = buildLocation();
+    const restaurantData = buildRestarent();
+    debugger;
+    setData({
+      privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
+      startDate: privateTourResponse?.privateTourResponse?.startDate,
+      endDate: privateTourResponse?.privateTourResponse?.endDate,
+      location:
+        locationData.length > 0 && restaurantData.length > 0
+          ? [...locationData, ...restaurantData]
+          : [],
+      vehicles: buildVehicle(),
+      tourguides: [],
+      material: buildMaterial(),
+      detailPlanRoutes: [],
+    });
     return {
       privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
       startDate: privateTourResponse?.privateTourResponse?.startDate,
       endDate: privateTourResponse?.privateTourResponse?.endDate,
-      location: [...buildLocation(), ...buildRestarent()],
+      location:
+        locationData.length > 0 && restaurantData.length > 0
+          ? [...locationData, ...restaurantData]
+          : locationData.length > 0 && restaurantData.length === 0
+            ? [...locationData]
+            : restaurantData.length > 0 && locationData.length === 0
+              ? [...restaurantData]
+              : [],
       vehicles: buildVehicle(),
       tourguides: [],
-      material: {},
+      material: buildMaterial(),
       detailPlanRoutes: [],
     };
   };
-
   const buildLocation = () => {
-    debugger;
     const hotelValue = form.getFieldValue("hotel");
-    return Array.isArray(hotelValue) ? hotelValue.flat() : [hotelValue];
+    let locationArray = Array.isArray(hotelValue)
+      ? hotelValue.flat()
+      : [hotelValue];
+    return locationArray.filter((item) => item !== undefined);
   };
   const buildRestarent = () => {
     return restaurant.map((item, index) => ({
@@ -100,6 +130,26 @@ const CreatePlanForm = ({
   const getFieldValue = (values) => {
     return form.getFieldValue(values);
   };
+  const buildMaterial = () => {
+    return {
+      tourId: privateTourResponse?.privateTourResponse?.tourId,
+      materialRequests: material?.map((item) => ({
+        materialSellPriceId: item.materialPriceHistory.id,
+        quantity: item.quantity,
+      })),
+    };
+  };
+
+  const fetchProvinces = async () => {
+    const data = await getProvinceOfOption(optionQuotation?.id);
+    debugger;
+    if (data?.isSuccess) {
+      setProvinceList(data.result?.items);
+    }
+  };
+  useEffect(() => {
+    fetchProvinces();
+  }, [optionQuotation]);
   return (
     <div className="  p-4  bg-white max-h-[680px]  overflow-y-auto">
       <h3 className="font-bold text-mainColor text-xl text-center">
@@ -108,7 +158,7 @@ const CreatePlanForm = ({
       <Divider />
       <div className="mt-10">
         <h3>Form Data:</h3>
-        <pre>{JSON.stringify(buildData(), null, 2)}</pre>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
       </div>
       <Form
         initialValues={{
@@ -170,6 +220,8 @@ const CreatePlanForm = ({
           />
         </Form.Item> */}
         {/* TẠO KẾ HOẠCH CHI TIẾT CHO TOUR */}
+        <MaterialAssignment data={material} />
+
         <div className="my-16">
           <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
             TẠO KẾ HOẠCH CHI TIẾT CHO TOUR
@@ -224,12 +276,12 @@ const CreatePlanForm = ({
           ))} */}
 
         {/* THÔNG TIN HƯỚNG DẪN VIÊN */}
-        {/* <TourguideAssignment provinceList={provinceList} /> */}
-        {/* <MaterialAssignment /> */}
+        <TourguideAssignment provinceList={provinceList} />
         <Button type="primary" htmlType="submit">
           Tạo kế hoạch tour
         </Button>
       </Form>
+      <Button onClick={() => buildData()}>Log data</Button>
     </div>
   );
 };
