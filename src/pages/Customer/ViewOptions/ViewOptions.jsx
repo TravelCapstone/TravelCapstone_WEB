@@ -11,19 +11,27 @@ import ViewOptionsWrapper, {
 } from "./ViewOptions.style";
 import { getIdOptionsRequest } from "../../../api/OptionsApi";
 import LoadingOverlay from "../../../components/Loading/LoadingOverlay";
+import { useLocation, useParams } from "react-router-dom";
+import TourRequestPage from "../../Staff/ManagePrivateTour/TourPackage/ViewListTourPrivate/DetailTourRequest";
+import TourRequestSection from "../../Staff/ManagePrivateTour/TourPackage/CreatePackage/TourRequestSection";
 
 const ViewOptions = () => {
+  const { id } = useParams();
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const location = useLocation();
+  const reservationState = location.state; // This contains startDate, endDate, totalWeeks, totalPrice
+  console.log("reservationState", reservationState);
+
+  console.log("id", id);
 
   useEffect(() => {
     const fetchOptions = async () => {
       setLoading(true);
       try {
-        const data = await getIdOptionsRequest(
-          "c41e0543-f944-4dee-9622-c5550d5f007a"
-        );
+        const data = await getIdOptionsRequest(id);
+        // debugger;
         setOptions(data.result);
         setError(null);
       } catch (error) {
@@ -43,17 +51,23 @@ const ViewOptions = () => {
   console.log("options", options);
 
   return (
-    <ViewOptionsWrapper>
-      <ViewOptionHeader>
-        <Title>Chọn Gói Dịch Vụ</Title>
-        <Description>
-          Khách hàng Vui Lòng chọn 1 trong 3 gói (options) dưới đây!
-        </Description>
-      </ViewOptionHeader>
-      <div>
-        <ViewOptionsItems options={options} />
-      </div>
-    </ViewOptionsWrapper>
+    <div>
+      <TourRequestSection request={options} />
+
+      {options && options.length === 0 && (
+        <ViewOptionsWrapper>
+          <ViewOptionHeader>
+            <Title>Chọn Gói Dịch Vụ</Title>
+            <Description>
+              Khách hàng Vui Lòng chọn 1 trong 3 gói (options) dưới đây!
+            </Description>
+          </ViewOptionHeader>
+          <div>
+            <ViewOptionsItems options={options} />
+          </div>
+        </ViewOptionsWrapper>
+      )}
+    </div>
   );
 };
 

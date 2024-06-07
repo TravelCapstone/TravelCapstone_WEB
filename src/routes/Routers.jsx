@@ -9,6 +9,7 @@ import {
   ADMIN_PAGE,
   CREATE_TOUR_PRIVATE,
   DETAIL_FACILITY,
+  DETAIL_TOUR_PRIVATE,
   DETAIL_TOUR_REQUEST_STAFF,
   FACILITY,
   HELP,
@@ -38,6 +39,8 @@ import FacilityManagement from "../pages/Admin/Facility/FacilityManagement";
 import DetailFacility from "../pages/Admin/Facility/DetailFacility";
 import MenuManagement from "../pages/Admin/Menu/MenuManagement";
 import CreatePlanForm from "../pages/Staff/ManagePrivateTour/CreatePlan/CreatePlanForm";
+import ListPrivateTour from "../pages/Customer/TourRequest/CompanyTour/ListPrivateTour";
+import CustomerLayout from "../layouts/CustomerLayout";
 const ProtectedRouteAuth = ({ children }) => {
   const user = useSelector(selectUser);
   if (!user) {
@@ -81,11 +84,17 @@ function Routers() {
       children: [
         { index: true, element: <Home /> },
         { path: CREATE_TOUR_PRIVATE, element: <TourRequestForm /> },
+      ],
+    },
+    {
+      path: "/customer",
+      element: <CustomerLayout />, // Sử dụng CustomerLayout cho các route của khách hàng
+      children: [
         { path: INFOMATION_ACC, element: <TourRequestForm /> },
         { path: SECURITY_ACC, element: <TourRequestForm /> },
         { path: LISTING_TOUR, element: <TourRequestForm /> },
-        { path: LISTING_TOUR_PRIVATE, element: "" },
-        { path: VIEW_OPTIONS_TOUR_PRIVATE, element: <ViewOptions /> },
+        { path: LISTING_TOUR_PRIVATE, element: <ListPrivateTour /> },
+        { path: `${VIEW_OPTIONS_TOUR_PRIVATE}/:id`, element: <ViewOptions /> },
         { path: TRANSACTIONS, element: <TourRequestForm /> },
         { path: VIEW_POLICY, element: <TourRequestForm /> },
         { path: HELP, element: <TourRequestForm /> },

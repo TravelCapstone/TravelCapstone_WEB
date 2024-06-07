@@ -32,18 +32,21 @@ export const CREATE_OPTIONS_TOUR_PRIVATE = 'create-options';
 
 
 //====================== CUSTORMER ==============================
+export const CUS_PAGE= '/customer';
+
 // Listing Single Page Section
-export const INFOMATION_ACC = '/view-information-acc';
-export const SECURITY_ACC = '/view-security-acc';
-export const TRANSACTIONS = '/view-transactions';
-export const VIEW_POLICY = '/policies/view-policy';
-export const HELP = '/policies/help';
+export const INFOMATION_ACC = '/customer/view-information-acc';
+export const SECURITY_ACC = '/customer/view-security-acc';
+export const TRANSACTIONS = '/customer/view-transactions';
+export const VIEW_POLICY = '/customer/policies/view-policy';
+export const HELP = '/customer/policies/help';
 
 // Listing Tour
-export const LISTING_TOUR = '/view-list-tour-public';
-export const DETAIL_TOUR = '/detail-tour-public';
-export const LISTING_TOUR_PRIVATE = '/view-list-tour-private';
-export const VIEW_OPTIONS_TOUR_PRIVATE = '/view-options';
+export const LISTING_TOUR = '/customer/view-list-tour-public';
+export const DETAIL_TOUR = '/customer/detail-tour-public';
+export const LISTING_TOUR_PRIVATE = '/customer/view-list-tour-private';
+export const DETAIL_TOUR_PRIVATE = '/customer/detail-tour-private';
+export const VIEW_OPTIONS_TOUR_PRIVATE = '/customer/view-options';
 
 
 // Form Request

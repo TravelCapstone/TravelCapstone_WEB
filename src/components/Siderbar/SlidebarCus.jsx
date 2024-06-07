@@ -22,6 +22,7 @@ import {
   VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
+import ListPrivateTour from "../../pages/Customer/TourRequest/CompanyTour/ListPrivateTour";
 
 const { Header, Sider, Content } = Layout;
 
@@ -30,11 +31,11 @@ const SlidebarCus = () => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState(null);
-  const [sidebarWidth, setSidebarWidth] = useState(200); // initial width
+  const [sidebarWidth, setSidebarWidth] = useState(250); // initial width
   const sidebarRef = useRef(null);
   const [activeMenuKeys, setActiveMenuKeys] = useState(null);
 
-  console.log("collapsed", collapsed);
+  console.log("sidebarWidth", sidebarWidth);
   const menuItems = [
     {
       title: "Tài khoản",
@@ -106,10 +107,6 @@ const SlidebarCus = () => {
   };
 
   useEffect(() => {
-    // Ensure the sidebar is expanded when the location pathname changes
-    if (collapsed) {
-      setCollapsed(false);
-    }
     setActiveMenuKeys(findActiveMenuKey(menuItems));
   }, [location.pathname]);
 
@@ -121,9 +118,8 @@ const SlidebarCus = () => {
     }
   };
 
-  const renderMenu = (items, parentKey = null) => {
-    return items.map((item, index) => {
-      const key = parentKey ? `${parentKey}-${index}` : `${index}`;
+  const renderMenu = (items) => {
+    return items.map((item) => {
       const isActive =
         activeMenuKeys &&
         (activeMenuKeys.key === item.path ||
@@ -136,7 +132,7 @@ const SlidebarCus = () => {
           title={item.title}
           popupClassName={isActive ? "ant-menu-item-selected" : ""}
         >
-          {renderMenu(item.submenu, key)}
+          {renderMenu(item.submenu)}
         </Menu.SubMenu>
       ) : (
         <Menu.Item
@@ -216,7 +212,7 @@ const SlidebarCus = () => {
             borderRadius: theme.useToken().token.borderRadiusLG,
           }}
         >
-          content
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

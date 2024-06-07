@@ -29,7 +29,7 @@ const DropdownLinks = [
 const UserDropdownLinks = [
   // Add links that you want to appear in the user dropdown
   {
-    name: "Thông tin cá nhân",
+    name: "Thông tin người dùng",
     link: AGENT_PROFILE_PAGE,
     role: ["STAFF", "CUSTOMER"],
   },
@@ -85,7 +85,7 @@ function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 right-0 w-full flex justify-between items-center z-50 font-semibold ${header ? "bg-white backdrop-blur-sm text-black shadow-md" : "bg-transparent text-black"}`}
+        className={`navbar fixed top-0 right-0 w-full flex justify-between items-center z-50 font-semibold ${header ? "bg-white backdrop-blur-sm text-black shadow-md" : "bg-transparent text-black"}`}
       >
         <div className="bg-gradient-to-r from-primary to-secondary text-white font-semibold"></div>
         <div className="container py-[2px] sm:block hidden font-semibold">
