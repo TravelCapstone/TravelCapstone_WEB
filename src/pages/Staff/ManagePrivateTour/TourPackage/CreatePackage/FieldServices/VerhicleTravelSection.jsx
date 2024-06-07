@@ -24,6 +24,7 @@ import moment from "moment";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import { getAvailableVehicleType } from "../../../../../../api/VehicleApi";
+import dayjs from "../../../../../../settings/setupDayjs";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -37,6 +38,8 @@ const VerhicleTravelSection = ({
   onProvinceChange,
   startDateTourChange,
   endDateChange,
+  startDateFinal,
+  endDateFinal,
 }) => {
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
@@ -262,13 +265,22 @@ const VerhicleTravelSection = ({
     return current && (current < startDate || current > endDate);
   };
 
-  // Lấy giá trị defaultPickerValue từ tourDate
+  // Chuyển đổi startDateFinal và endDateFinal để getDefaultPickerValue hợp lệ
   const getDefaultPickerValue = () => {
-    const tourDate = form.getFieldValue("tourDate");
-    if (!tourDate || tourDate.length < 2) {
-      return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
+    const startDateFinal1 = moment(
+      startDateFinal,
+      "YYYY-MM-DDTHH:mm:ss"
+    ).toDate();
+    const endDateFinal1 = moment(endDateFinal, "YYYY-MM-DDTHH:mm:ss").toDate();
+
+    // Convert to Day.js
+    const startDateDayjs = dayjs(startDateFinal1);
+    const endDateDayjs = dayjs(endDateFinal1);
+
+    if (!startDateDayjs || !endDateDayjs) {
+      return moment(); // If no tourDate, use current date for both start and end
     }
-    return tourDate[0]; // Sử dụng ngày bắt đầu của tourDate
+    return startDateDayjs; // Use start and end date of tourDate
   };
 
   useEffect(() => {
@@ -360,7 +372,7 @@ const VerhicleTravelSection = ({
                             className="!w-[350px] mr-10"
                             format="DD-MM-YYYY HH:mm:ss"
                             disabledDate={disabledDate}
-                            // defaultPickerValue={[getDefaultPickerValue()]}
+                            defaultPickerValue={[getDefaultPickerValue()]}
                           />
                         </Form.Item>
                       </ConfigProvider>

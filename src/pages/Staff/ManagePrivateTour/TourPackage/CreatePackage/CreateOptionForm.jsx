@@ -44,6 +44,15 @@ import { getRoomSuggestion } from "../../../../../api/privateTourRequestApi";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
+const convertDateFormat = (dateString) => {
+  if (!dateString) return null; // Kiểm tra nếu dateString là null hoặc undefined
+  const [datePart, timePart] = dateString.split(" ");
+  const [day, month, year] = datePart.split("-");
+
+  const isoDate = `${year}-${month}-${day}T${timePart}`;
+  return isoDate;
+};
+
 function CreateOptionForm({ request }) {
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({});
@@ -62,9 +71,15 @@ function CreateOptionForm({ request }) {
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
   const [numOfDaysLoging, setNumOfDaysLoging] = useState(0);
 
-  const [endDateChange, setEndDateChange] = useState(null); // tourDate
-  const [startDateTourChange, setStartDateTourChange] = useState(null); // tourDate
+  const [endDateChange, setEndDateChange] = useState(null);
+  const [startDateTourChange, setStartDateTourChange] = useState(null);
   const [startDateChange, setStartDateChange] = useState(null); // theo dõi value thay đổi của thời gian tour
+
+  const [endDateFinal, setEndDateFinal] = useState(null); // tourDate
+  const [startDateFinal, setStartDateFinal] = useState(null); // tourDate
+
+  console.log("startDateFinal", startDateFinal);
+  console.log("endDateFinal", endDateFinal);
 
   const startDate = request?.privateTourResponse?.startDate;
 
@@ -421,6 +436,20 @@ function CreateOptionForm({ request }) {
     return vehicles;
   };
 
+  useEffect(() => {
+    const startDateFinalChange = startDateTourChange
+      ? convertDateFormat(startDateTourChange)
+      : null; // "2024-06-19T12:00:00"
+    const endDateFinalChange = endDateChange
+      ? convertDateFormat(endDateChange)
+      : null; // "2024-06-20T18:00:00"
+
+    if (startDateFinalChange && endDateFinalChange) {
+      setEndDateFinal(endDateFinalChange);
+      setStartDateFinal(startDateFinalChange);
+    }
+  }, [startDateTourChange, endDateChange]); // Chỉ chạy lại effect khi startDateTourChange hoặc endDateChange thay đổi
+
   const adjustFormToAPI = (values) => {
     console.log("VALUE", values);
 
@@ -459,20 +488,9 @@ function CreateOptionForm({ request }) {
       (room) => room.roomSize === 4
     );
 
-    const convertDateFormat = (dateString) => {
-      const [datePart, timePart] = dateString.split(" ");
-      const [day, month, year] = datePart.split("-");
-
-      const isoDate = `${year}-${month}-${day}T${timePart}`;
-      return isoDate;
-    };
-
-    const startDate = convertDateFormat(startDateTourChange); // "2024-06-19T12:00:00"
-    const endDate = convertDateFormat(endDateChange); // "2024-06-20T18:00:00"
-
     const apiPayload = {
-      startDate: startDate, //ok
-      endDate: endDate, //ok
+      startDate: startDateFinal, //ok
+      endDate: endDateFinal, //ok
       tourGuideCosts: tourGuideCosts, //ok
       materialCosts: values.materialCosts.map((material) => ({
         materialPriceHistoryId: material.materialId, //ok
@@ -564,7 +582,7 @@ function CreateOptionForm({ request }) {
       const response = await createOptionsPrivateTour(payload);
       console.log("response", response);
 
-      if (response?.data?.isSuccess) {
+      if (response?.isSuccess) {
         alertSuccess("Tạo Gói Tour Thành Công!");
         form.resetFields(); // Reset all fields in the form
       } else {
@@ -777,6 +795,8 @@ function CreateOptionForm({ request }) {
                   Phương tiện di chuyển
                 </h3>
                 <TransportationSection
+                  startDateFinal={startDateFinal}
+                  endDateFinal={endDateFinal}
                   startDateTourChange={startDateTourChange}
                   endDateChange={endDateChange}
                   request={request}
@@ -800,6 +820,8 @@ function CreateOptionForm({ request }) {
                   Phương tiện du lịch trong tỉnh
                 </h3>
                 <VerhicleTravelSection
+                  startDateFinal={startDateFinal}
+                  endDateFinal={endDateFinal}
                   startDateTourChange={startDateTourChange}
                   endDateChange={endDateChange}
                   request={request}
@@ -891,6 +913,8 @@ function CreateOptionForm({ request }) {
                   setProvinces={setProvinces}
                   startDateTourChange={startDateTourChange}
                   endDateChange={endDateChange}
+                  startDateFinal={startDateFinal}
+                  endDateFinal={endDateFinal}
                 />
               </div>
               {/* MATERIAL COST */}
@@ -953,6 +977,8 @@ function CreateOptionForm({ request }) {
                 numOfRoom={numOfRoom}
                 startDateTourChange={startDateTourChange}
                 endDateChange={endDateChange}
+                startDateFinal={startDateFinal}
+                endDateFinal={endDateFinal}
               />
             </div>
 

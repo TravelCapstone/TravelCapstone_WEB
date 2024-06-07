@@ -1,8 +1,9 @@
 import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
-import { TourRequestForm, Home } from "../pages";
+import { Home } from "../pages";
 import { CommonLayout, ManagementLayout } from "../layouts";
-import ViewOptions from "../pages/ViewOptions/ViewOptions";
+import ViewOptions from "../pages/Customer/ViewOptions/ViewOptions";
+import TourRequestForm from "../pages/Customer/TourRequest/CompanyTour/TourRequestForm";
 import { alertFail } from "../hook/useNotification";
 import {
   ADMIN_PAGE,
@@ -10,13 +11,20 @@ import {
   DETAIL_FACILITY,
   DETAIL_TOUR_REQUEST_STAFF,
   FACILITY,
+  HELP,
   HOME_PAGE,
   IMPORT_DATA,
+  INFOMATION_ACC,
+  LISTING_TOUR,
+  LISTING_TOUR_PRIVATE,
   LISTING_TOUR_REQUEST_STAFF,
   LOGIN_PAGE,
   MENU,
+  SECURITY_ACC,
   STAFF_PAGE,
+  TRANSACTIONS,
   VIEW_OPTIONS_TOUR_PRIVATE,
+  VIEW_POLICY,
   VIEW_REFERENCE_TRANSPORT_PRICE,
   VIEW_USER,
 } from "../settings/constant";
@@ -72,8 +80,15 @@ function Routers() {
       element: <CommonLayout />,
       children: [
         { index: true, element: <Home /> },
-        { path: VIEW_OPTIONS_TOUR_PRIVATE, element: <ViewOptions /> },
         { path: CREATE_TOUR_PRIVATE, element: <TourRequestForm /> },
+        { path: INFOMATION_ACC, element: <TourRequestForm /> },
+        { path: SECURITY_ACC, element: <TourRequestForm /> },
+        { path: LISTING_TOUR, element: <TourRequestForm /> },
+        { path: LISTING_TOUR_PRIVATE, element: "" },
+        { path: VIEW_OPTIONS_TOUR_PRIVATE, element: <ViewOptions /> },
+        { path: TRANSACTIONS, element: <TourRequestForm /> },
+        { path: VIEW_POLICY, element: <TourRequestForm /> },
+        { path: HELP, element: <TourRequestForm /> },
       ],
     },
     {

@@ -9,14 +9,25 @@ body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
-  font-family: "Montserrat" !important;
+  font-family: Inter var,ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji ;
 }
 
+/* Home.css */
 .menuItem {
-  @apply relative hover:text-black;
+  @apply relative;
 }
+
+.hover-white:hover {
+  @apply text-white;
+}
+
+.hover-black:hover {
+  @apply text-black;
+}
+
+
 .menuItem::after {
-  @apply content-[''] bg-mainColor h-[3px] w-[0%] left-0 -bottom-[5px] rounded-xl absolute duration-300;
+  @apply content-[''] bg-mainColor h-[3px] w-[0%] left-0 -bottom-[5px] rounded-xl absolute duration-300 text-white;
 }
 
 .menuItem:hover::after {

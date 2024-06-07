@@ -49,6 +49,8 @@ const EachServiceSection = ({
   numOfRoom,
   startDateTourChange,
   endDateChange,
+  startDateFinal,
+  endDateFinal,
 }) => {
   console.log("selectedProvinces: ", selectedProvinces);
   console.log("selectedProvince: ", selectedProvince);
@@ -180,6 +182,8 @@ const EachServiceSection = ({
                                     Nơi lưu trú:
                                   </h3>
                                   <LodgingSection
+                                    startDateFinal={startDateFinal}
+                                    endDateFinal={endDateFinal}
                                     startDateTourChange={startDateTourChange}
                                     endDateChange={endDateChange}
                                     basePath={[field.name]}
@@ -202,6 +206,8 @@ const EachServiceSection = ({
                                     Dịch vụ ăn uống:
                                   </h3>
                                   <RestaurantSection
+                                    startDateFinal={startDateFinal}
+                                    endDateFinal={endDateFinal}
                                     startDateTourChange={startDateTourChange}
                                     endDateChange={endDateChange}
                                     selectedDistrict={selectedDistrict}
@@ -218,6 +224,8 @@ const EachServiceSection = ({
                                     Gói dịch vụ giải trí:
                                   </h3>
                                   <EntertainmentSection
+                                    startDateFinal={startDateFinal}
+                                    endDateFinal={endDateFinal}
                                     startDateTourChange={startDateTourChange}
                                     endDateChange={endDateChange}
                                     basePath={[field.name]}

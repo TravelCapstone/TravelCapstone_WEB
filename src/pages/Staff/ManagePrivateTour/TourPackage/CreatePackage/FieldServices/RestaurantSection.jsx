@@ -34,6 +34,7 @@ import { getPriceOfMeal } from "../../../../../../api/SellPriceHistoryApi";
 import moment from "moment";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
+import dayjs from "../../../../../../settings/setupDayjs";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -702,6 +703,8 @@ const RestaurantSection = ({
   request,
   startDateTourChange,
   endDateChange,
+  startDateFinal,
+  endDateFinal,
 }) => {
   const [mealTime, setMealTime] = useState(null);
   const [facilities, setFacilities] = useState([]);
@@ -775,13 +778,22 @@ const RestaurantSection = ({
     return current && (current < startDate || current > endDate);
   };
 
-  // Lấy giá trị defaultPickerValue từ tourDate
+  // Chuyển đổi startDateFinal và endDateFinal để getDefaultPickerValue hợp lệ
   const getDefaultPickerValue = () => {
-    const tourDate = form.getFieldValue("tourDate");
-    if (!tourDate || tourDate.length < 2) {
-      return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
+    const startDateFinal1 = moment(
+      startDateFinal,
+      "YYYY-MM-DDTHH:mm:ss"
+    ).toDate();
+    const endDateFinal1 = moment(endDateFinal, "YYYY-MM-DDTHH:mm:ss").toDate();
+
+    // Convert to Day.js
+    const startDateDayjs = dayjs(startDateFinal1);
+    const endDateDayjs = dayjs(endDateFinal1);
+
+    if (!startDateDayjs || !endDateDayjs) {
+      return moment(); // If no tourDate, use current date for both start and end
     }
-    return tourDate[0]; // Sử dụng ngày bắt đầu của tourDate
+    return startDateDayjs; // Use start and end date of tourDate
   };
 
   return (
@@ -809,7 +821,7 @@ const RestaurantSection = ({
                     >
                       <DatePicker
                         disabledDate={disabledDate}
-                        // defaultPickerValue={[getDefaultPickerValue()]}
+                        defaultPickerValue={[getDefaultPickerValue()]}
                         className="!min-w-[300px]"
                         format="DD-MM-YYYY HH:mm:ss"
                         onChange={handleDateChange}
