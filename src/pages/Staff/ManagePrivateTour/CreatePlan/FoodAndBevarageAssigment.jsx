@@ -102,11 +102,11 @@ const FoodAndBevarageAssignment = ({
           </p>
           <p>
             <strong> Menu: </strong>
-            {restaurent[index].sellPriceHistory?.menu?.name}
+            {restaurent[index]?.sellPriceHistory?.menu?.name}
           </p>
           <p>
             <strong>Món ăn chi tiết: </strong>
-            {restaurent[index].menuResponse?.dishes?.map(
+            {restaurent[index]?.menuResponse?.dishes?.map(
               (menuItem, idx, arr) => (
                 <span
                   key={menuItem.id}

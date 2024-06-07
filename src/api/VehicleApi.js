@@ -1,10 +1,7 @@
 import api from "../config/axios";
-const getPriceForVehicle = async (pageNumber, pageSize, data) => {
+const getPriceForVehicle = async (data) => {
   try {
-    const response = await api.post(
-      `/vehicle/get-price-for-vehicle/${pageNumber}/${pageSize}`,
-      data
-    );
+    const response = await api.post(`/vehicle/get-price-for-vehicle`, data);
     return response.data;
   } catch (error) {
     console.error("Error fetching sell price:", error);
@@ -39,6 +36,7 @@ const getAvailableVehicleType = async (
   }
 };
 const getAvailableVehicle = async (
+  type,
   startTime,
   endTime,
   pageNumber,
@@ -46,7 +44,7 @@ const getAvailableVehicle = async (
 ) => {
   try {
     const response = await api.get(
-      `/vehicle/get-available-vehicle?startTime=${startTime}&endTime=${endTime}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+      `/vehicle/get-available-vehicle?type=${type}&startTime=${startTime}&endTime=${endTime}&pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
     return response.data;
   } catch (error) {
