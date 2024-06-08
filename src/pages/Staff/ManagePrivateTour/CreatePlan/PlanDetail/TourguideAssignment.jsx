@@ -2,7 +2,10 @@ import { Select, DatePicker, Typography, Form, Button } from "antd";
 import "../../../../../settings/setupDayjs";
 import { useState } from "react";
 import { getAvailableTourguide } from "../../../../../api/TourguideAssignmentApi";
-import { formatPrice } from "../../../../../utils/Util";
+import { formatDateToISOString, formatPrice } from "../../../../../utils/Util";
+import locale from "antd/es/date-picker/locale/vi_VN";
+import moment from "moment-timezone";
+
 const TourguideAssignment = ({ provinceList, form }) => {
   console.log("form", form.getFieldValue("tourguide"));
   const [tourguide, setTourguide] = useState([[]]);
@@ -13,8 +16,8 @@ const TourguideAssignment = ({ provinceList, form }) => {
     // form.setFieldsValue({ tourguide: newTourguide });
     const tourguide = form.getFieldValue("tourguide");
     const province = tourguide[index].province;
-    const startDate = new Date(tourguide[index].time[0]).toISOString();
-    const endDate = new Date(tourguide[index].time[1]).toISOString();
+    const startDate = formatDateToISOString(new Date(tourguide[index].time[0]));
+    const endDate = formatDateToISOString(new Date(tourguide[index].time[1]));
     const availableTourguide = await getAvailableTourguide(
       province,
       startDate,
@@ -79,6 +82,7 @@ const TourguideAssignment = ({ provinceList, form }) => {
                     key={`${field.key}-time`}
                   >
                     <DatePicker.RangePicker
+                      locale={locale}
                       onChange={() => handleChange(index)}
                     />
                   </Form.Item>

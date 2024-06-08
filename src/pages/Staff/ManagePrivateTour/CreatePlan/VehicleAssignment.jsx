@@ -1,5 +1,5 @@
-import { Input, Select, DatePicker, Typography, Form } from "antd";
-import { formatPrice } from "../../../../utils/Util";
+import { Input, Select, DatePicker, Typography, Form, Space } from "antd";
+import { formatDateToISOString, formatPrice } from "../../../../utils/Util";
 import { vehicleTypeLabels } from "../../../../settings/globalStatus";
 import "../../../../settings/setupDayjs";
 import { useState } from "react";
@@ -11,6 +11,8 @@ import { getAvailableDriver } from "../../../../api/HumanResourceSalaryApi";
 
 const { Option } = Select;
 const { Text } = Typography;
+import locale from "antd/es/date-picker/locale/vi_VN";
+import moment from "moment-timezone";
 
 const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
   const [vehicle, setVehicle] = useState([[]]);
@@ -23,8 +25,8 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
     newDisabledSelect[index] = false;
     setDisabledSelect(newDisabledSelect);
     const dateRange = getFieldValue(`dateRange[${index}]`);
-    const date1 = new Date(dateRange[0]).toISOString();
-    const date2 = new Date(dateRange[1]).toISOString();
+    const date1 = formatDateToISOString(new Date(dateRange[0]));
+    const date2 = formatDateToISOString(new Date(dateRange[1]));
     setFieldsValue({ [`startDate[${index}]`]: date1 });
     setFieldsValue({ [`endDate[${index}]`]: date2 });
     const vehiclePromise = getAvailableVehicle(
@@ -77,16 +79,26 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
       setVehicle(newVehicle);
       setDriver(newDriver);
       setSellPriceHistory(newSellPriceHistory);
-      debugger;
       setFieldsValue({
         [`sellPriceHistoryId[${index}]`]: sellPriceHistoryResponse?.result.id,
       });
       setFieldsValue({ [`numOfVehicle[${index}]`]: item.numOfVehicle });
     }
   };
+  const handleDateChange = (date, dateString) => {
+    if (date) {
+      const timezoneOffset = date.utcOffset() / 60; // Lấy giá trị offset theo giờ
+      console.log(
+        `Selected date in timezone: UTC${timezoneOffset >= 0 ? "+" : ""}${timezoneOffset}`
+      );
+    }
+  };
   return (
     <div>
       <h3 className="font-bold text-primary text-xl">Phương tiện di chuyển</h3>
+      <Space direction="vertical">
+        <DatePicker showTime onChange={handleDateChange} />
+      </Space>
       {data &&
         data.map((item, index) => (
           <div className="rounded-md shadow-md p-4 m-2">
@@ -152,6 +164,7 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                 >
                   <DatePicker.RangePicker
                     onChange={() => handleChange(index, item)}
+                    locale={locale}
                   />
                 </Form.Item>
               </div>

@@ -14,6 +14,8 @@ import MaterialAssignment from "./MaterialAssignment";
 import { useSelector } from "react-redux";
 import { createTour } from "../../../../api/TourApi";
 import LoadingOverlay from "../../../../components/Loading/LoadingOverlay";
+import moment from "moment-timezone";
+import { formatDateToISOString } from "../../../../utils/Util";
 const CreatePlanForm = ({
   privateTourResponse,
   optionQuotation,
@@ -40,8 +42,7 @@ const CreatePlanForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const onFinish = async (values) => {
     setIsLoading(true);
-    console.log("merge", buildData());
-    const response = await createTour(data);
+    const response = await createTour(buildData());
     if (response.isSuccess) {
       message.success("Tạo kế hoạch thành công");
     } else {
@@ -56,7 +57,6 @@ const CreatePlanForm = ({
     const hotelData = buildHotel();
     const restaurantData = buildRestarent();
     const entertaimentData = buildEntertainment();
-    debugger;
     let combinedLocationData = [];
 
     if (hotelData.length > 0) {
@@ -74,11 +74,11 @@ const CreatePlanForm = ({
     if (!form.getFieldValue("detailPlanRoutes")) return [];
     else {
       return form.getFieldValue("detailPlanRoutes").map((item) => ({
-        date: new Date(item.date).toISOString(),
+        date: formatDateToISOString(new Date(item.date)),
         description: item.description,
         detailDayPlanRoutes: item.detailDayPlanRoutes.map((innerItem) => ({
-          startTime: new Date(innerItem.dateRange[0]).toISOString(),
-          endTime: new Date(innerItem.dateRange[1]).toISOString(),
+          startTime: formatDateToISOString(new Date(innerItem.dateRange[0])),
+          endTime: formatDateToISOString(new Date(innerItem.dateRange[1])),
           note: innerItem.note,
           startId: innerItem.startId,
           endId: innerItem.endId,
@@ -97,6 +97,16 @@ const CreatePlanForm = ({
       material: buildMaterial(),
       detailPlanRoutes: builDdetailPlanRoutes(),
     });
+    return {
+      privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
+      startDate: privateTourResponse?.privateTourResponse?.startDate,
+      endDate: privateTourResponse?.privateTourResponse?.endDate,
+      location: buildLocation(),
+      vehicles: buildVehicle(),
+      tourguides: buildTourguide(),
+      material: buildMaterial(),
+      detailPlanRoutes: builDdetailPlanRoutes(),
+    };
   };
   const buildHotel = () => {
     const hotelValue = form.getFieldValue("hotel");
@@ -122,7 +132,6 @@ const CreatePlanForm = ({
   const buildEntertainment = () => {
     const adultEntertainments = form.getFieldValue("adultEntertainments");
     const childEntertainments = form.getFieldValue("childEntertainments");
-    debugger;
     if (!adultEntertainments && !childEntertainments) return [];
     else {
       const adultMap = adultEntertainments?.map((item, index) => ({
@@ -163,11 +172,10 @@ const CreatePlanForm = ({
   };
   const buildTourguide = () => {
     const tourguide = form.getFieldValue("tourguide");
-    debugger;
     return tourguide.map((item, index) => ({
       tourguideId: item.tourguide,
-      startDate: new Date(item.time[0]).toISOString(),
-      endDate: new Date(item.time[1]).toISOString(),
+      startDate: formatDateToISOString(new Date(item.time[0])),
+      endDate: formatDateToISOString(new Date(item.time[1])),
       provinceId: item.province,
       districtId: null,
     }));
@@ -204,7 +212,7 @@ const CreatePlanForm = ({
   }, [signal]);
   return (
     <>
-      <LoadingOverlay isLoading={isLoading} />
+      <LoadingOverlay isLoading={false} />
       <div className="  p-4  bg-white max-h-[680px]  overflow-y-auto">
         <h3 className="font-bold text-mainColor text-xl text-center">
           TẠO KẾ HOẠCH TOUR CHI TIẾT
