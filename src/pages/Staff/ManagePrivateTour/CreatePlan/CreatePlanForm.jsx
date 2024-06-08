@@ -16,6 +16,7 @@ import { createTour } from "../../../../api/TourApi";
 import LoadingOverlay from "../../../../components/Loading/LoadingOverlay";
 import moment from "moment-timezone";
 import { formatDateToISOString } from "../../../../utils/Util";
+import { useNavigate } from "react-router-dom";
 const CreatePlanForm = ({
   privateTourResponse,
   optionQuotation,
@@ -40,11 +41,13 @@ const CreatePlanForm = ({
   const signal = useSelector((state) => state.plan.isCreatePlan || false);
   const [form] = Form.useForm();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const onFinish = async (values) => {
     setIsLoading(true);
     const response = await createTour(buildData());
     if (response.isSuccess) {
       message.success("Tạo kế hoạch thành công");
+      navigate("/staff/view-list-tour-private");
     } else {
       response.messages.forEach((mess) => {
         message.error(mess);
