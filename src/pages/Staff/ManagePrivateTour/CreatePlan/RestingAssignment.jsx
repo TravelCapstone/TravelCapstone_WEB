@@ -6,7 +6,7 @@ import {
   formatPrice,
 } from "../../../../utils/Util";
 import { ratingLabels } from "../../../../settings/globalStatus";
-import moment from "moment";
+import moment from "moment-timezone";
 import { getLatestHotelPrice } from "../../../../api/SellPriceHistoryApi";
 
 const RestingAssignment = ({
@@ -32,7 +32,6 @@ const RestingAssignment = ({
         1,
         10
       );
-      console.log("response", response);
 
       setHotel((prevHotel) => {
         const newHotel = [...prevHotel];
@@ -47,7 +46,6 @@ const RestingAssignment = ({
     fetchHotelPrices();
   }, [data]);
   const handleHotelChange = (e, index, dataIndex, itemData) => {
-    console.log("hotel[dataIndex]", hotel[dataIndex]);
     debugger;
     const selectedItem = hotel[dataIndex].find((item) => item.id === e);
     if (selectedItem) {
@@ -154,42 +152,52 @@ const RestingAssignment = ({
                                   <strong>{index + 1}.</strong>
                                 </div>
                                 <div>
-                                  <Form.Item
-                                    {...field}
-                                    name={[field.name, "sellPriceHistoryId"]}
-                                    key={`${field.key}-sellPriceHistoryId`}
-                                    rules={[
-                                      {
-                                        required: true,
-                                        message:
-                                          "Missing sell price history ID",
-                                      },
-                                    ]}
-                                  >
-                                    <Select
-                                      placeholder={"Chọn nơi lưu trú"}
-                                      loading={hotel[dataIdx]?.length === 0}
-                                      onChange={(e) =>
-                                        handleHotelChange(
-                                          e,
-                                          index,
-                                          dataIdx,
-                                          itemData
-                                        )
-                                      }
+                                  <div className="flex">
+                                    <Form.Item
+                                      {...field}
+                                      name={[field.name, "sellPriceHistoryId"]}
+                                      key={`${field.key}-sellPriceHistoryId`}
+                                      rules={[
+                                        {
+                                          required: true,
+                                          message:
+                                            "Missing sell price history ID",
+                                        },
+                                      ]}
                                     >
-                                      {hotel[dataIdx] &&
-                                        hotel[dataIdx].length > 0 &&
-                                        hotel[dataIdx].map((item) => (
-                                          <Select.Option
-                                            key={item.id}
-                                            value={item.id}
-                                          >
-                                            {`${item.facilityService?.facility?.name} - ${item.facilityService?.name}- ${formatPrice(item.price)}`}
-                                          </Select.Option>
-                                        ))}
-                                    </Select>
-                                  </Form.Item>
+                                      <Select
+                                        placeholder={"Chọn nơi lưu trú"}
+                                        loading={hotel[dataIdx]?.length === 0}
+                                        onChange={(e) =>
+                                          handleHotelChange(
+                                            e,
+                                            index,
+                                            dataIdx,
+                                            itemData
+                                          )
+                                        }
+                                      >
+                                        {hotel[dataIdx] &&
+                                          hotel[dataIdx].length > 0 &&
+                                          hotel[dataIdx].map((item) => (
+                                            <Select.Option
+                                              key={item.id}
+                                              value={item.id}
+                                            >
+                                              {`${item.facilityService?.facility?.name} - ${item.facilityService?.name}- ${formatPrice(item.price)}`}
+                                            </Select.Option>
+                                          ))}
+                                      </Select>
+                                    </Form.Item>
+
+                                    <Button
+                                      onClick={() => remove(field.name)}
+                                      className="bg-red-500 text-white"
+                                    >
+                                      Xoá
+                                    </Button>
+                                  </div>
+
                                   <div className="hidden">
                                     <Form.Item
                                       {...field}
@@ -234,13 +242,6 @@ const RestingAssignment = ({
                                       defaultValue={itemData.serviceTypeId}
                                     />
                                   </Form.Item>
-
-                                  <Button
-                                    onClick={() => remove(field.name)}
-                                    className="bg-red-500 text-white"
-                                  >
-                                    Xoá địa điểm lưu trú
-                                  </Button>
                                 </div>
                               </div>
                             ))}
@@ -254,61 +255,7 @@ const RestingAssignment = ({
                           </div>
                         )}
                       </Form.List>
-
-                      {/* <HotelModal
-                          districtId={item.districtId}
-                          privateTourRequestId={
-                            privateTourResponse?.privateTourResponse?.id
-                          }
-                          servingQuantity={item.servingQuantity}
-                          serviceType={0}
-                          log={(hotel) => log(hotel, dataIdx, 0)} // Assuming single hotel selection for now
-                          ratingId={item.facilityRating?.id}
-                        /> */}
                     </div>
-
-                    {/* {selectedHotels[dataIdx] &&
-                        selectedHotels[dataIdx].map((hotel, hotelIndex) => (
-                          <div key={hotelIndex}>
-                            {hotel && (
-                              <>
-                                <div className="flex">
-                                  <strong className="mr-2">
-                                    Tên khách sạn:{" "}
-                                  </strong>
-                                  <p>{hotel.facilityName}</p>
-                                </div>
-                                <div className="flex">
-                                  <strong className="mr-2">
-                                    Địa chỉ:{" "}
-                                  </strong>
-                                  <p>{hotel.address}</p>
-                                </div>
-                                <div className="flex">
-                                  <strong className="mr-2">
-                                    Giá tổng = giá phòng x số phòng x số
-                                    ngày thuê =
-                                  </strong>
-                                  {formatPrice(hotel.price)} x{" "}
-                                  {item.quantity} x{" "}
-                                  {differenceInDays(
-                                    item.startDate,
-                                    item.endDate
-                                  )}
-                                  ={" "}
-                                  {formatPrice(
-                                    hotel.price *
-                                      item.quantity *
-                                      differenceInDays(
-                                        item.startDate,
-                                        item.endDate
-                                      )
-                                  )}
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        ))} */}
                   </div>
                 </div>
               </div>

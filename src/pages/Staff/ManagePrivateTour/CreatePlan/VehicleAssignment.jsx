@@ -84,7 +84,6 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
       setFieldsValue({ [`numOfVehicle[${index}]`]: item.numOfVehicle });
     }
   };
-  console.log("form data", getFieldValue());
   return (
     <div>
       <h3 className="font-bold text-primary text-xl">Phương tiện di chuyển</h3>

@@ -9,7 +9,6 @@ import {
 } from "@ant-design/icons";
 
 const MaterialAssignment = ({ data }) => {
-  console.log("MaterialAssignment", data);
   return (
     <div className="my-16">
       <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">

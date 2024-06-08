@@ -3,14 +3,40 @@ import { Form, Input, DatePicker, Select, Button, Row, Col } from "antd";
 import moment from "moment";
 import "../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
+import { useDispatch } from "react-redux";
+import { pushSignal } from "../../../../../redux/features/createPlanSlice";
+import { getFacilityAndPortInformation } from "../../../../../api/FacilityApi";
 const { Option } = Select;
 
-const DetailPlanFollowingTimeline = ({}) => {
+const DetailPlanFollowingTimeline = ({ location, optionQuotation }) => {
+  const [port, setPort] = useState([]);
+  const fetchLocation = async () => {
+    debugger;
+    const response = await getFacilityAndPortInformation({
+      optionId: optionQuotation.id,
+      planLocations: location,
+    });
+    debugger;
+    if (response.isSuccess) {
+      setPort(response?.result);
+    }
+  };
+  const dispatch = useDispatch();
+  useEffect(() => {
+    fetchLocation();
+  }, [location]);
+  console.log("port", location);
+
   return (
     <>
       <Form.List name="detailPlanRoutes">
         {(fields, { add, remove }) => (
           <>
+            <div className="my-16">
+              <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
+                TẠO KẾ HOẠCH CHI TIẾT CHO TOUR
+              </h2>
+            </div>
             {fields.map(({ name, ...restField }, index) => (
               <div
                 key={`plan- ${index}`}
@@ -21,7 +47,10 @@ const DetailPlanFollowingTimeline = ({}) => {
                 </h1>
                 <div className="flex justify-end">
                   <Button
-                    onClick={() => remove(name)}
+                    onClick={() => {
+                      dispatch(pushSignal(false));
+                      remove(name);
+                    }}
                     className="bg-red-700 text-white my-2"
                   >
                     Xóa kế hoạch
@@ -78,6 +107,40 @@ const DetailPlanFollowingTimeline = ({}) => {
                             >
                               <DatePicker.RangePicker showTime />
                             </Form.Item>
+                            <div className="grid grid-cols-2">
+                              <Form.Item
+                                {...innerField}
+                                name={[innerField.key, "startId"]}
+                                key={`startPoint-${innerField.key}`}
+                                label="Điểm xuất phát"
+                                required
+                              >
+                                <Select>
+                                  {port.length > 0 &&
+                                    port.map((item) => (
+                                      <Option value={item.id} key={item.id}>
+                                        {`${item.name} - ${item.address}`}
+                                      </Option>
+                                    ))}
+                                </Select>
+                              </Form.Item>
+                              <Form.Item
+                                {...innerField}
+                                name={[innerField.key, "endId"]}
+                                key={`endPoint-${innerField.key}`}
+                                label="Điểm kết thúc"
+                                required
+                              >
+                                <Select>
+                                  {port.length > 0 &&
+                                    port.map((item) => (
+                                      <Option value={item.id} key={item.id}>
+                                        {`${item.name} - ${item.address}`}
+                                      </Option>
+                                    ))}
+                                </Select>
+                              </Form.Item>
+                            </div>
                             <Form.Item
                               {...innerField}
                               name={[innerField.key, "note"]}
@@ -88,7 +151,6 @@ const DetailPlanFollowingTimeline = ({}) => {
                               <Input.TextArea />
                             </Form.Item>
                           </div>
-                          {/* ... */}
                         </div>
                       ))}
                       <Button
@@ -104,7 +166,10 @@ const DetailPlanFollowingTimeline = ({}) => {
               </div>
             ))}
             <Button
-              onClick={() => add()}
+              onClick={() => {
+                add();
+                dispatch(pushSignal(true));
+              }}
               className="bg-primary text-white mt-10"
             >
               Thêm kế hoạch

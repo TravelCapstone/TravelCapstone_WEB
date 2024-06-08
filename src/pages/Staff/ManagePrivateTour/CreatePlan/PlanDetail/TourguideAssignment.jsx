@@ -2,6 +2,7 @@ import { Select, DatePicker, Typography, Form, Button } from "antd";
 import "../../../../../settings/setupDayjs";
 import { useState } from "react";
 import { getAvailableTourguide } from "../../../../../api/TourguideAssignmentApi";
+import { formatPrice } from "../../../../../utils/Util";
 const TourguideAssignment = ({ provinceList, form }) => {
   console.log("form", form.getFieldValue("tourguide"));
   const [tourguide, setTourguide] = useState([[]]);
@@ -27,7 +28,6 @@ const TourguideAssignment = ({ provinceList, form }) => {
       setTourguide(newTourguide);
     }
   };
-
   return (
     <div className="my-16">
       <h3 className="text-mainColor font-bold text-xl border-b-2">
@@ -39,24 +39,6 @@ const TourguideAssignment = ({ provinceList, form }) => {
             <>
               {fields.map((field, index) => (
                 <div key={field.key} className="flex flex-wrap">
-                  <Form.Item
-                    {...field}
-                    className=""
-                    label="Thời gian"
-                    required
-                    name={[field.name, "time"]}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Missing time",
-                      },
-                    ]}
-                    key={`${field.key}-time`}
-                  >
-                    <DatePicker.RangePicker
-                      onChange={() => handleChange(index)}
-                    />
-                  </Form.Item>
                   <Form.Item
                     {...field}
                     className="mx-4"
@@ -83,6 +65,25 @@ const TourguideAssignment = ({ provinceList, form }) => {
                     </Select>
                   </Form.Item>
                   <Form.Item
+                    {...field}
+                    className=""
+                    label="Thời gian"
+                    required
+                    name={[field.name, "time"]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Missing time",
+                      },
+                    ]}
+                    key={`${field.key}-time`}
+                  >
+                    <DatePicker.RangePicker
+                      onChange={() => handleChange(index)}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
                     label="Hướng dẫn viên"
                     {...field}
                     className=""
@@ -90,7 +91,20 @@ const TourguideAssignment = ({ provinceList, form }) => {
                     name={[field.name, "tourguide"]}
                     key={`${field.key}-tourguide`}
                   >
-                    <Select placeholder="Select a tour guide"></Select>
+                    <Select
+                      placeholder="Select a tour guide"
+                      loading={tourguide[index]?.length === 0}
+                    >
+                      {tourguide[index]?.length > 0 &&
+                        tourguide[index]?.map((tourguide) => (
+                          <Select.Option
+                            key={tourguide.id}
+                            value={tourguide.id}
+                          >
+                            {`${tourguide.account?.firstName} ${tourguide.account?.lastName}- SĐT:${tourguide.account.phoneNumber} - ${formatPrice(tourguide.salary)}/ ngày`}
+                          </Select.Option>
+                        ))}
+                    </Select>
                   </Form.Item>
 
                   <Button

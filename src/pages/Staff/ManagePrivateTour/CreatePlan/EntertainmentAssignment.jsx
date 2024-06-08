@@ -50,8 +50,6 @@ function EntertainmentAssignment({
         newChildEntertainments[index] =
           response.result[index]?.childrenSellPrice;
         debugger;
-        setFieldsValue({ [`entertainmentStartDate[${index}]`]: null });
-        setFieldsValue({ [`entertainmentEndDate[${index}]`]: null });
         setFieldsValue({
           [`entertainmentNumOfServiceUseAdult`]: item.quantityOfAdult,
         });
@@ -66,9 +64,8 @@ function EntertainmentAssignment({
   useEffect(() => {
     fetchData();
   }, []);
-  console.log("adultEntertainments", adultEntertainments);
   const handleTimeChange = (value) => {
-    console.log("value", value);
+    debugger;
     setFieldsValue({
       [`entertainmentStartDate`]: new Date(value[0]).toISOString(),
     });

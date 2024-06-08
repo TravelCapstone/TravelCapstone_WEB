@@ -12,15 +12,12 @@ const FoodAndBevarageAssignment = ({
   setFieldsValue,
   getFieldValue,
 }) => {
-  console.log(data);
-
   const [restaurent, setRestaurent] = useState(Array(data.length).fill([]));
   const fetchMenu = async () => {
     data?.forEach(async (item, index) => {
       const menuId = item.menuId;
 
       const response = await getSellPriceByMenuId(menuId, item.quantity);
-      console.log("response", response);
 
       setRestaurent((prevRestaurent) => {
         const newRestaurent = [...prevRestaurent];
@@ -35,7 +32,6 @@ const FoodAndBevarageAssignment = ({
         const menuId = item.menuId;
 
         const response = await getSellPriceByMenuId(menuId, item.quantity);
-        console.log("response", response);
 
         setRestaurent((prevRestaurent) => {
           const newRestaurent = [...prevRestaurent];
