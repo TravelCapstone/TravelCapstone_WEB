@@ -102,8 +102,8 @@ const TourguideAssignment = ({ provinceList, form }) => {
                       {tourguide[index]?.length > 0 &&
                         tourguide[index]?.map((tourguide) => (
                           <Select.Option
-                            key={tourguide.id}
-                            value={tourguide.id}
+                            key={tourguide.account?.id}
+                            value={tourguide.account?.id}
                           >
                             {`${tourguide.account?.firstName} ${tourguide.account?.lastName}- SĐT:${tourguide.account.phoneNumber} - ${formatPrice(tourguide.salary)}/ ngày`}
                           </Select.Option>
