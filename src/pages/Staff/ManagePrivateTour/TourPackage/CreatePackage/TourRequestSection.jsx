@@ -79,7 +79,7 @@ function TourRequestSection({ request }) {
           THÔNG TIN YÊU CẦU TOUR
         </h1>
         <div className="   ">
-          <div className="grid grid-cols-1 md:grid-cols-2  mt-10 p-5 rounded-4xl ">
+          <div className="grid grid-cols-1 md:grid-cols-[30%_70%] mt-10 p-5 rounded-4xl ">
             {/* Thông tin khách hàng */}
             <div className="md:border-r md:border-solid border-gray-300">
               <h2 className="text-start font-semibold text-mainColor text-lg mb-5">

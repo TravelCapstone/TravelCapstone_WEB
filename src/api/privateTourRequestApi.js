@@ -59,10 +59,10 @@ const getProvinceOfOption = async (optionid) => {
     console.log(error);
   }
 };
-const getPrivateTourByIdForCustomer = async (id) => {
+const getPrivateTourByIdForCustomer = async (id, pageNumber, pageSize) => {
   try {
     const response = await api.get(
-      `get-private-tour-request-by-id-for-customer/${id}`
+      `get-private-tour-request-by-id-for-customer/${id}/${pageNumber}/${pageSize}`
     );
     return response;
   } catch (error) {
