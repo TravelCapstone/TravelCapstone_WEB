@@ -1,66 +1,89 @@
 import api from "../config/axios";
 
-const getAllFacilityByFilter = async (data,pageNumber,pageSize) => {
-    try {
-      const response = await api.post(`/facility/get-all-facility-by-filter?pageNumber=${pageNumber}&pageSize=${pageSize}`,data);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching provinces:', error);
-      return []; 
-    }
-  };
-
-
-const getAllFacilityByLocationAndRatingId = async (ratingId, data, pageNumber, pageSize) => {
-    try {
-        const response = await api.post(
-            `/facility/get-all-facility-by-location-and-ratingId/${ratingId}?pageNumber=${pageNumber}&pageSize=${pageSize}`,
-            data
-        );
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching facilities:', error);
-        return [];
-    }
+const getAllFacilityByFilter = async (data, pageNumber, pageSize) => {
+  try {
+    const response = await api.post(
+      `/facility/get-all-facility-by-filter?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching provinces:", error);
+    return [];
+  }
 };
-  
-const getServiceByFacilityId = async (facilityId,pageNumber,pageSize)=>{
+
+const getAllFacilityByLocationAndRatingId = async (
+  ratingId,
+  data,
+  pageNumber,
+  pageSize
+) => {
   try {
-    const response = await api.get(`/facility-service/get-service-by-facilityId/${facilityId}?pageNumber=${pageNumber}&pageSize=${pageSize}
+    const response = await api.post(
+      `/facility/get-all-facility-by-location-and-ratingId/${ratingId}?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching facilities:", error);
+    return [];
+  }
+};
+
+const getServiceByFacilityId = async (facilityId, pageNumber, pageSize) => {
+  try {
+    const response =
+      await api.get(`/facility-service/get-service-by-facilityId/${facilityId}?pageNumber=${pageNumber}&pageSize=${pageSize}
     `);
     return response.data;
   } catch (error) {
-    console.error('Error fetching provinces:', error);
-    return []; 
+    console.error("Error fetching provinces:", error);
+    return [];
   }
-}
+};
 
-const getAllFacility = async (pageNumber,pageSize)=>{
+const getAllFacility = async (pageNumber, pageSize) => {
   try {
-    const response = await api.get(`/facility/get-all-facility?pageNumber=${pageNumber}&pageSize=${pageSize}
+    const response =
+      await api.get(`/facility/get-all-facility?pageNumber=${pageNumber}&pageSize=${pageSize}
     `);
     return response.data;
   } catch (error) {
-    console.error('Error fetching provinces:', error);
-    return []; 
+    console.error("Error fetching provinces:", error);
+    return [];
   }
-}
+};
 
-const getAllFacilityRating  = async (id)=>{
+const getAllFacilityRating = async (id) => {
   try {
-    const response = await api.get(`/facility-type/get-all-facility-rating-by-facilityTypeId/${id}
+    const response =
+      await api.get(`/facility-type/get-all-facility-rating-by-facilityTypeId/${id}
     `);
     return response.data.result.items;
   } catch (error) {
-    console.error('Error fetching provinces:', error);
-    return []; 
+    console.error("Error fetching provinces:", error);
+    return [];
   }
-}
+};
+const getFacilityAndPortInformation = async (data) => {
+  try {
+    const response = await api.post(
+      `/facility/get-facility-and-port-information`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching provinces:", error);
+    return [];
+  }
+};
 
-  export {
-    getAllFacilityRating,
-    getAllFacilityByFilter,
-    getServiceByFacilityId,
-    getAllFacility,
-    getAllFacilityByLocationAndRatingId
-  }
+export {
+  getAllFacilityRating,
+  getAllFacilityByFilter,
+  getServiceByFacilityId,
+  getAllFacility,
+  getAllFacilityByLocationAndRatingId,
+  getFacilityAndPortInformation,
+};

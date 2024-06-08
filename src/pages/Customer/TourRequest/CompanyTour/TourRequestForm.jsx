@@ -30,7 +30,7 @@ import {
 } from "../../../../api/LocationApi";
 import AddressSearchMultiple from "../../../../api/SearchAddress/SearchAddressMulti";
 import { getAllFacilityRating } from "../../../../api/FacilityApi";
-import moment from "moment";
+import moment from "moment-timezone";
 import DetailFamilySection from "../Sections/DetailFamilySection";
 
 import "../../../../settings/setupDayjs";

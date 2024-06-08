@@ -1,165 +1,134 @@
-import React, { useState } from "react";
-import {
-  Select,
-  Button,
-  Space,
-  DatePicker,
-  Card,
-  Typography,
-  ConfigProvider,
-} from "antd";
-import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import axios from "axios";
-import moment from "moment";
+import { Select, DatePicker, Typography, Form, Button } from "antd";
 import "../../../../../settings/setupDayjs";
-import viVN from "antd/lib/locale/vi_VN";
-
-const { Title } = Typography;
-const { RangePicker } = DatePicker;
-const { Option } = Select;
-
-function TourguideAssignment({ provinceList }) {
-  const [record, setRecord] = useState([]);
-  const [data, setData] = useState({}); // Store fetched data by province ID
-
-  const addTourGuide = (provinceId) => {
-    setRecord((prevTourGuides) => [
-      ...prevTourGuides,
-      {
-        provinceId,
-        id: prevTourGuides.length + 1,
-        dateRange: [null, null],
-        selectedGuide: null,
-      },
-    ]);
-  };
-
-  const removeTourGuide = (id) => {
-    setRecord((prevTourGuides) =>
-      prevTourGuides.filter((guide) => guide.id !== id)
+import { useState } from "react";
+import { getAvailableTourguide } from "../../../../../api/TourguideAssignmentApi";
+import { formatPrice } from "../../../../../utils/Util";
+const TourguideAssignment = ({ provinceList, form }) => {
+  console.log("form", form.getFieldValue("tourguide"));
+  const [tourguide, setTourguide] = useState([[]]);
+  const handleChange = async (index) => {
+    // const newTourguide = [...tourguide];
+    // newTourguide[index] = item;
+    // setTourguide(newTourguide);
+    // form.setFieldsValue({ tourguide: newTourguide });
+    const tourguide = form.getFieldValue("tourguide");
+    const province = tourguide[index].province;
+    const startDate = new Date(tourguide[index].time[0]).toISOString();
+    const endDate = new Date(tourguide[index].time[1]).toISOString();
+    const availableTourguide = await getAvailableTourguide(
+      province,
+      startDate,
+      endDate,
+      1,
+      100
     );
-  };
-
-  const handleChangeTourGuideInfo = async (id, field, value) => {
-    setRecord((prevTourGuides) =>
-      prevTourGuides.map((guide) =>
-        guide.id === id ? { ...guide, [field]: value } : guide
-      )
-    );
-
-    if (field === "dateRange") {
-      const [startDate, endDate] = value;
-      if (startDate && endDate) {
-        const provinceId = record.find((guide) => guide.id === id).provinceId;
-        const response = await fetchAvailableTourGuides(
-          startDate.toISOString(),
-          endDate.toISOString(),
-          provinceId
-        );
-
-        if (response) {
-          setData((prevData) => ({
-            ...prevData,
-            [provinceId]: response.result.items,
-          }));
-        }
-      }
+    if (availableTourguide.isSuccess) {
+      let newTourguide = [...tourguide];
+      newTourguide[index] = availableTourguide.result?.items;
+      setTourguide(newTourguide);
     }
   };
-  const logData = () => {
-    console.log("Current records:", record);
-  };
-  const fetchAvailableTourGuides = async (startDate, endDate, provinceId) => {
-    try {
-      const response = await axios.get(
-        `https://travel-be.azurewebsites.net/tour-guide-assignment/get-available-tour-guide/5CDE5BFC-B286-459B-8CD1-1E560F87936A
-        ?pageNumber=1&pageSize=10&startDate=${startDate}&endDate=${endDate}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching available tour guides:", error);
-      return null;
-    }
-  };
-
   return (
     <div className="my-16">
       <h3 className="text-mainColor font-bold text-xl border-b-2">
         THÔNG TIN HƯỚNG DẪN VIÊN
       </h3>
-      <div className="flex flex-wrap justify-center">
-        {provinceList.map((province) => (
-          <Card
-            key={province.provinceId}
-            className="m-4 w-full"
-            title={province.provinceName}
-            extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => addTourGuide(province.provinceId)}
-              >
-                Thêm hướng dẫn viên
-              </Button>
-            }
-          >
-            {(
-              record.filter(
-                (guide) => guide.provinceId === province.provinceId
-              ) || []
-            ).map((guide) => (
-              <div
-                key={guide.id}
-                className="mb-4 grid grid-cols-1 md:grid-cols-3"
-              >
-                <div className="md:px-10">
-                  <strong>Thời gian: </strong>
-                  <ConfigProvider locale={viVN}>
-                    <RangePicker
-                      placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
-                      value={guide.dateRange}
-                      onChange={(dates) =>
-                        handleChangeTourGuideInfo(guide.id, "dateRange", dates)
-                      }
-                    />
-                  </ConfigProvider>
-                </div>
-                <div>
-                  <strong>Hướng dẫn viên: </strong>
-                  <Select
-                    placeholder="Chọn hướng dẫn viên"
-                    value={guide.selectedGuide}
-                    onChange={(value) =>
-                      handleChangeTourGuideInfo(
-                        guide.id,
-                        "selectedGuide",
-                        value
-                      )
-                    }
+      <div className="grid grid-cols-1 mt-10">
+        <Form.List name="tourguide">
+          {(fields, { add, remove }) => (
+            <>
+              {fields.map((field, index) => (
+                <div key={field.key} className="flex flex-wrap">
+                  <Form.Item
+                    {...field}
+                    className="mx-4"
+                    label="Tỉnh"
+                    required
+                    name={[field.name, "province"]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Missing province",
+                      },
+                    ]}
+                    key={`${field.key}-province`}
                   >
-                    {(data[province.provinceId] || []).length > 0 &&
-                      data[province.provinceId].map((item, index) => (
-                        <Option key={index} value={item.id}>
-                          {`${item.firstName} ${item.lastName} - Tiền lương: 300.000đ/ngày`}
-                        </Option>
+                    <Select
+                      placeholder="Chọn tỉnh"
+                      loading={provinceList.length === 0}
+                    >
+                      {provinceList.map((province) => (
+                        <Select.Option key={province.id} value={province.id}>
+                          {province.name}
+                        </Select.Option>
                       ))}
-                  </Select>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    {...field}
+                    className=""
+                    label="Thời gian"
+                    required
+                    name={[field.name, "time"]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Missing time",
+                      },
+                    ]}
+                    key={`${field.key}-time`}
+                  >
+                    <DatePicker.RangePicker
+                      onChange={() => handleChange(index)}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Hướng dẫn viên"
+                    {...field}
+                    className=""
+                    required
+                    name={[field.name, "tourguide"]}
+                    key={`${field.key}-tourguide`}
+                  >
+                    <Select
+                      placeholder="Select a tour guide"
+                      loading={tourguide[index]?.length === 0}
+                    >
+                      {tourguide[index]?.length > 0 &&
+                        tourguide[index]?.map((tourguide) => (
+                          <Select.Option
+                            key={tourguide.id}
+                            value={tourguide.id}
+                          >
+                            {`${tourguide.account?.firstName} ${tourguide.account?.lastName}- SĐT:${tourguide.account.phoneNumber} - ${formatPrice(tourguide.salary)}/ ngày`}
+                          </Select.Option>
+                        ))}
+                    </Select>
+                  </Form.Item>
+
+                  <Button
+                    className="mx-4 bg-red-700 text-white"
+                    onClick={() => remove(field.name)}
+                  >
+                    Xóa
+                  </Button>
                 </div>
+              ))}
+              <Form.Item>
                 <Button
-                  danger
-                  icon={<CloseOutlined />}
-                  onClick={() => removeTourGuide(guide.id)}
-                />
-              </div>
-            ))}
-          </Card>
-        ))}
+                  className="bg-primary text-white "
+                  onClick={() => add()}
+                >
+                  Thêm hướng dẫn viên
+                </Button>
+              </Form.Item>
+            </>
+          )}
+        </Form.List>{" "}
       </div>
-      <Space className="mt-4">
-        <Button onClick={logData}>Log dữ liệu</Button>
-      </Space>
     </div>
   );
-}
+};
 
 export default TourguideAssignment;

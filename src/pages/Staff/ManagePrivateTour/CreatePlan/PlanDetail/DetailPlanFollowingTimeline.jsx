@@ -1,191 +1,184 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, DatePicker, ConfigProvider } from "antd";
+import { Form, Input, DatePicker, Select, Button, Row, Col } from "antd";
 import moment from "moment";
 import "../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
+import { useDispatch } from "react-redux";
+import { pushSignal } from "../../../../../redux/features/createPlanSlice";
+import { getFacilityAndPortInformation } from "../../../../../api/FacilityApi";
+const { Option } = Select;
 
-function DetailPlanFollowingTimeline(props) {
-  const [milestones, setMilestones] = useState([]);
-  const [phases, setPhases] = useState([]);
-
-  const handleGetData = () => {
-    console.log("Milestones:", milestones);
-    console.log("Phases:", phases);
+const DetailPlanFollowingTimeline = ({ location, optionQuotation }) => {
+  const [port, setPort] = useState([]);
+  const fetchLocation = async () => {
+    debugger;
+    const response = await getFacilityAndPortInformation({
+      optionId: optionQuotation.id,
+      planLocations: location,
+    });
+    debugger;
+    if (response.isSuccess) {
+      setPort(response?.result);
+    }
   };
+  const dispatch = useDispatch();
+  useEffect(() => {
+    fetchLocation();
+  }, [location]);
+  console.log("port", location);
 
   return (
-    <Form>
-      <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
-        LỊCH TRÌNH TỪNG THỜI GIAN
-      </h2>
-      <Form.List name="milestones">
+    <>
+      <Form.List name="detailPlanRoutes">
         {(fields, { add, remove }) => (
           <>
-            {fields.map(({ key, name, fieldKey, ...restField }) => (
-              <div key={key} className="flex justify-between mt-2">
-                <ConfigProvider locale={viVN}>
+            <div className="my-16">
+              <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
+                TẠO KẾ HOẠCH CHI TIẾT CHO TOUR
+              </h2>
+            </div>
+            {fields.map(({ name, ...restField }, index) => (
+              <div
+                key={`plan- ${index}`}
+                className="shadow-md rounded-md p-4 my-10"
+              >
+                <h1 className="text-primary font-bold text-xl text-center">
+                  KẾ HOẠCH THEO NGÀY
+                </h1>
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => {
+                      dispatch(pushSignal(false));
+                      remove(name);
+                    }}
+                    className="bg-red-700 text-white my-2"
+                  >
+                    Xóa kế hoạch
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 mt-10">
                   <Form.Item
                     {...restField}
                     name={[name, "date"]}
-                    fieldKey={[fieldKey, "date"]}
+                    key={`date-${fields.key}`}
                     rules={[{ required: true, message: "Vui lòng chọn ngày" }]}
+                    label="Ngày"
                   >
-                    <DatePicker />
+                    <DatePicker id={`date-${fields.key}`} />
                   </Form.Item>
-                </ConfigProvider>
-                <Form.Item
-                  {...restField}
-                  name={[name, "content"]}
-                  fieldKey={[fieldKey, "content"]}
-                  rules={[
-                    { required: true, message: "Vui lòng nhập nội dung" },
-                  ]}
-                >
-                  <Input placeholder="Nội dung" />
-                </Form.Item>
-                <Button danger onClick={() => remove(name)}>
-                  Xóa
-                </Button>
-              </div>
-            ))}
-            <Button type="dashed" onClick={() => add()}>
-              Thêm mốc thời gian
-            </Button>
-          </>
-        )}
-      </Form.List>
 
-      <Form.List name="phases">
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map(({ key, name, fieldKey, ...restField }) => (
-              <div key={key} className="flex flex-col mt-4">
-                <div className="flex items-center relative">
-                  <div className="bg-red-700 text-white w-12 h-12 text-center flex justify-center items-center">
-                    <span className="font-bold">{key + 1}</span>
-                  </div>
-                  <span className="mx-2 font-bold">{`Giai đoạn ${key + 1}`}</span>
-                  <Button
-                    type="primary"
-                    danger
-                    shape="circle"
-                    icon={<i className="fa-solid fa-xmark"></i>}
-                    onClick={() => remove(name)}
-                  />
-                </div>
-                <ConfigProvider locale={viVN}>
                   <Form.Item
                     {...restField}
-                    name={[name, "fromDate"]}
-                    fieldKey={[fieldKey, "fromDate"]}
-                    rules={[
-                      { required: true, message: "Vui lòng chọn ngày bắt đầu" },
-                    ]}
+                    name={[name, "description"]}
+                    key={`description-${fields.key}`}
+                    rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
+                    label="Mô tả"
                   >
-                    <DatePicker className="w-full mt-1" placeholder="Từ ngày" />
-                  </Form.Item>
-                </ConfigProvider>
-                <ConfigProvider locale={viVN}>
-                  <Form.Item
-                    {...restField}
-                    name={[name, "toDate"]}
-                    fieldKey={[fieldKey, "toDate"]}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn ngày kết thúc",
-                      },
-                    ]}
-                  >
-                    <DatePicker
-                      className="w-full mt-1"
-                      placeholder="Đến ngày"
+                    <Input.TextArea
+                      id={`description-${fields.key}`}
+                      placeholder="Nhập mô tả"
                     />
                   </Form.Item>
-                </ConfigProvider>
-                <Form.Item
-                  {...restField}
-                  name={[name, "title"]}
-                  fieldKey={[fieldKey, "title"]}
-                  rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
-                >
-                  <Input placeholder="Tiêu đề" />
-                </Form.Item>
+                </div>
 
-                <Form.List name={[name, "milestones"]}>
-                  {(
-                    milestoneFields,
-                    { add: addMilestone, remove: removeMilestone }
-                  ) => (
+                <Form.List name={[name, "detailDayPlanRoutes"]}>
+                  {(innerFields, { add, remove }) => (
                     <>
-                      {milestoneFields.map(
-                        ({
-                          key: milestoneKey,
-                          name: milestoneName,
-                          fieldKey: milestoneFieldKey,
-                          ...restMilestoneField
-                        }) => (
-                          <div
-                            key={milestoneKey}
-                            className="flex justify-between mt-2"
-                          >
-                            <ConfigProvider locale={viVN}>
-                              <Form.Item
-                                {...restMilestoneField}
-                                name={[milestoneName, "date"]}
-                                fieldKey={[milestoneFieldKey, "date"]}
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Vui lòng chọn ngày",
-                                  },
-                                ]}
-                              >
-                                <DatePicker />
-                              </Form.Item>
-                            </ConfigProvider>
-                            <Form.Item
-                              {...restMilestoneField}
-                              name={[milestoneName, "content"]}
-                              fieldKey={[milestoneFieldKey, "content"]}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Vui lòng nhập nội dung",
-                                },
-                              ]}
-                            >
-                              <Input placeholder="Nội dung" />
-                            </Form.Item>
+                      {innerFields.map((innerField) => (
+                        <div key={`${name}-${innerField.key}`}>
+                          <div className="flex flex-wrap justify-between items-center">
+                            <h1 className="text-primary text-bold text-xl">
+                              Lộ trình
+                            </h1>
                             <Button
-                              danger
-                              onClick={() => removeMilestone(milestoneName)}
+                              onClick={() => remove(innerField.name)}
+                              className="bg-red-700 text-white my-2"
                             >
-                              Xóa
+                              Xóa lộ trình
                             </Button>
                           </div>
-                        )
-                      )}
-                      <Button type="dashed" onClick={() => addMilestone()}>
-                        Thêm mốc thời gian
+                          <div>
+                            <Form.Item
+                              {...innerField}
+                              name={[innerField.key, "dateRange"]}
+                              key={`dateRange-${innerField.key}`}
+                              label="Thời gian"
+                              required
+                            >
+                              <DatePicker.RangePicker showTime />
+                            </Form.Item>
+                            <div className="grid grid-cols-2">
+                              <Form.Item
+                                {...innerField}
+                                name={[innerField.key, "startId"]}
+                                key={`startPoint-${innerField.key}`}
+                                label="Điểm xuất phát"
+                                required
+                              >
+                                <Select>
+                                  {port.length > 0 &&
+                                    port.map((item) => (
+                                      <Option value={item.id} key={item.id}>
+                                        {`${item.name} - ${item.address}`}
+                                      </Option>
+                                    ))}
+                                </Select>
+                              </Form.Item>
+                              <Form.Item
+                                {...innerField}
+                                name={[innerField.key, "endId"]}
+                                key={`endPoint-${innerField.key}`}
+                                label="Điểm kết thúc"
+                                required
+                              >
+                                <Select>
+                                  {port.length > 0 &&
+                                    port.map((item) => (
+                                      <Option value={item.id} key={item.id}>
+                                        {`${item.name} - ${item.address}`}
+                                      </Option>
+                                    ))}
+                                </Select>
+                              </Form.Item>
+                            </div>
+                            <Form.Item
+                              {...innerField}
+                              name={[innerField.key, "note"]}
+                              key={`note-${innerField.key}`}
+                              label="Ghi chú"
+                              required
+                            >
+                              <Input.TextArea />
+                            </Form.Item>
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        className="bg-primary text-white"
+                        onClick={() => add()}
+                      >
+                        Thêm lộ trình
                       </Button>
                     </>
                   )}
                 </Form.List>
+                <br />
               </div>
             ))}
-            <Button type="dashed" onClick={() => add()} className="mt-4">
-              Thêm giai đoạn
+            <Button
+              onClick={() => {
+                add();
+                dispatch(pushSignal(true));
+              }}
+              className="bg-primary text-white mt-10"
+            >
+              Thêm kế hoạch
             </Button>
           </>
         )}
       </Form.List>
-
-      <Button onClick={handleGetData} className="mt-4">
-        Log dữ liệu
-      </Button>
-    </Form>
+    </>
   );
-}
+};
 
 export default DetailPlanFollowingTimeline;

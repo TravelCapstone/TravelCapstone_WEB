@@ -15,7 +15,10 @@ import { useEffect } from "react";
 AOS.init({
   duration: 1000,
 });
+import moment from "moment-timezone";
 
+// Đặt múi giờ thành GMT+7 (Việt Nam)
+moment.tz.setDefault("Asia/Ho_Chi_Minh");
 function App() {
   useEffect(() => {
     const handleScroll = () => {

@@ -22,7 +22,7 @@ import {
 } from "../../../../../../settings/globalStatus";
 import { getMinMaxPriceOfHotel } from "../../../../../../api/SellPriceHistoryApi";
 import { getAllFacility } from "../../../../../../api/FacilityApi";
-import moment from "moment";
+import moment from "moment-timezone";
 import { v4 as uuidv4 } from "uuid";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";

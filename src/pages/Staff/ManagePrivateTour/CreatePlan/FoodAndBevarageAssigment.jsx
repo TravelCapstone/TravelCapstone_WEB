@@ -1,87 +1,63 @@
-import { Input, Typography, Collapse } from "antd";
-import { formatPrice, formatDate, getTimePeriod } from "../../../../utils/Util";
+import { Input, Typography, Collapse, Form } from "antd";
+import { formatPrice, getTimePeriod } from "../../../../utils/Util";
 import { ratingLabels } from "../../../../settings/globalStatus";
-import FoodModal from "./FoodModal/FoodModal";
 import { useEffect, useState } from "react";
+import { getSellPriceByMenuId } from "../../../../api/SellPriceHistoryApi";
 const { Text } = Typography;
 const { Panel } = Collapse;
-
 const FoodAndBevarageAssignment = ({
   data,
   privateTourResponse,
-  setFoodData,
+  form,
+  setFieldsValue,
+  getFieldValue,
 }) => {
-  const [selectedRestaurent, setSelectedRestaurent] = useState([[]]);
-  const log = (restaurant, index, restaurantIndex) => {
-    console.log(index, restaurantIndex);
-    const updatedSelectedRestaurants = [...selectedRestaurent];
-    if (!updatedSelectedRestaurants[index]) {
-      updatedSelectedRestaurants[index] = [];
-    }
-    if (updatedSelectedRestaurants[index][restaurantIndex]) {
-      delete updatedSelectedRestaurants[index][restaurantIndex];
-      updatedSelectedRestaurants[index] = updatedSelectedRestaurants[
-        index
-      ].filter((item) => item !== undefined);
-    } else {
-      updatedSelectedRestaurants[index][restaurantIndex] = restaurant;
-    }
-    setSelectedRestaurent(updatedSelectedRestaurants);
-  };
+  const [restaurent, setRestaurent] = useState(Array(data.length).fill([]));
+  const fetchMenu = async () => {
+    data?.forEach(async (item, index) => {
+      const menuId = item.menuId;
 
-  const convertData = (data) => {
-    const provinces = {};
+      const response = await getSellPriceByMenuId(menuId, item.quantity);
 
-    data.flat().forEach((item) => {
-      const provinceId = item.province;
-
-      if (!provinces[provinceId]) {
-        provinces[provinceId] = {
-          provinceId: provinceId,
-          provinceName: item.provinceName, // Cần cập nhật tên tỉnh
-          services: [],
-        };
-      }
-      console.log(item);
-      provinces[provinceId].services.push({
-        facilityService: {
-          id: item.facilityId,
-          name: item.name,
-          address: item.address,
-        },
+      setRestaurent((prevRestaurent) => {
+        const newRestaurent = [...prevRestaurent];
+        newRestaurent[index] = response.result;
+        return newRestaurent;
       });
     });
-
-    return Object.values(provinces);
   };
-  const convertedData = convertData(selectedRestaurent);
-  console.log(JSON.stringify(convertedData, null, 2));
   useEffect(() => {
-    setFoodData(convertedData);
-  }, [selectedRestaurent]);
+    const fetchMenu = async () => {
+      data?.forEach(async (item, index) => {
+        const menuId = item.menuId;
+
+        const response = await getSellPriceByMenuId(menuId, item.quantity);
+
+        setRestaurent((prevRestaurent) => {
+          const newRestaurent = [...prevRestaurent];
+          newRestaurent[index] = response.result;
+          return newRestaurent;
+        });
+
+        // Set form fields after updating restaurent state
+        form.setFieldsValue({
+          [`restaurentSellPriceHistoryId[${index}]`]:
+            response.result?.sellPriceHistory?.id,
+          [`restaurentStartDate[${index}]`]: data[index].startDate,
+          [`restaurentEndDate[${index}]`]: data[index].endDate,
+          [`restaurentNumOfServiceUse[${index}]`]: data[index].quantity,
+        });
+      });
+    };
+
+    fetchMenu();
+  }, [data]);
+
   return (
-    <Collapse defaultActiveKey={data.map((_, index) => index)} bordered={false}>
+    <>
       {data.map((item, index) => (
-        <Panel
-          header={
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Text strong className="mr-2">
-                  {index + 1}.
-                </Text>
-                <Text className="font-bold">
-                  {item.district?.name} - {item.district?.province?.name}
-                </Text>
-              </div>
-              <Text>
-                {formatDate(item.startDate)} - {formatDate(item.endDate)}
-              </Text>
-            </div>
-          }
-          key={index}
-          className="bg-white"
-        >
-          <div className="mb-2">
+        <>
+          <div className="mb-2  p-4 ">
             <Text strong>Loại hình ăn uống:</Text>
             <div className="flex justify-start">
               <Text className="font-bold mr-2">
@@ -91,64 +67,62 @@ const FoodAndBevarageAssignment = ({
                 {formatPrice(item.minPrice)} - {formatPrice(item.maxPrice)}
               </Text>
             </div>
-            <p className="my-2">
-              <Text strong>Số lượng bàn:</Text> {item.quantity} bàn
+            <div className="flex flex-wrap">
+              <p className="">
+                <Text strong>Số lượng bàn:</Text> {item.quantity} bàn
+              </p>
+              <p className="mx-2">
+                <Text strong>Bàn:</Text> {item.servingQuantity} người
+              </p>
+              <p className="mx-2">
+                <Text strong>Bữa:</Text> {getTimePeriod(item.startDate)}
+              </p>
+            </div>
+            <p>
+              <strong> Địa điểm ăn uống: </strong>
+              {
+                restaurent[0]?.sellPriceHistory?.menu?.facilityService?.facility
+                  ?.name
+              }{" "}
             </p>
-            <p className="my-2">
-              <Text strong>Bàn:</Text> {item.servingQuantity} người
+            <p>
+              <strong> Menu: </strong>
+              {restaurent[index]?.sellPriceHistory?.menu?.name}
             </p>
-            <p className="my-2">
-              <Text strong>Bữa:</Text> {getTimePeriod(item.startDate)}
+            <p>
+              <strong>Món ăn chi tiết: </strong>
+              {restaurent[index]?.menuResponse?.dishes?.map(
+                (menuItem, idx, arr) => (
+                  <span
+                    key={menuItem.id}
+                    style={{
+                      display: "inline-block",
+                      marginRight: "5px",
+                    }}
+                  >
+                    {menuItem.name}
+                    {idx !== arr.length - 1 && " -"}
+                  </span>
+                )
+              )}
             </p>
           </div>
-          <FoodModal
-            districtId={item.districtId}
-            servingQuantity={item.servingQuantity}
-            serviceType={0}
-            ratingId={item.facilityRating?.id}
-            privateTourRequestId={privateTourResponse?.privateTourResponse?.id}
-            log={(restaurant) => log(restaurant, index, 0)}
-          />
 
-          {selectedRestaurent[index] &&
-            selectedRestaurent[index].map((restaurant, restaurantIndex) => (
-              <div key={restaurantIndex}>
-                <div className="flex">
-                  <Text strong className="mr-2">
-                    Tên nhà hàng:
-                  </Text>
-                  <Text>{restaurant?.name}</Text>
-                </div>
-                <div className="flex">
-                  <Text strong className="mr-2">
-                    Địa chỉ:
-                  </Text>
-                  <Text>{restaurant?.address}</Text>
-                </div>
-                <div className="flex">
-                  <Text strong>
-                    Thực đơn{" "}
-                    {restaurant.mealType === 0
-                      ? "ăn sáng"
-                      : restaurant.mealType === 1
-                        ? "ăn trưa"
-                        : "ăn tối"}
-                  </Text>
-                  <Text className="mx-2">
-                    {restaurant.menu.map((dish) => dish.dish.name).join(", ")}
-                  </Text>
-                </div>
-                <div className="flex">
-                  <Text strong className="mr-2">
-                    Giá:
-                  </Text>
-                  <Text>{formatPrice(restaurant?.price)}</Text>
-                </div>
-              </div>
-            ))}
-        </Panel>
+          <Form.Item name={`restaurentSellPriceHistoryId[${index}]`} hidden>
+            <Input />
+          </Form.Item>
+          <Form.Item name={`restaurentStartDate[${index}]`} hidden>
+            <Input />
+          </Form.Item>
+          <Form.Item name={`restaurentEndDate[${index}]`} hidden>
+            <Input />
+          </Form.Item>
+          <Form.Item name={`restaurentNumOfServiceUse[${index}]`} hidden>
+            <Input />
+          </Form.Item>
+        </>
       ))}
-    </Collapse>
+    </>
   );
 };
 

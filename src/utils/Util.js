@@ -93,17 +93,22 @@ function metersToKilometers(meters) {
 function getTimePeriod(dateTimeString) {
   const dateTime = new Date(dateTimeString);
   const hours = dateTime.getHours();
-
+  console.log(hours);
   if (hours < 10) {
     return "Sáng";
   } else if (hours >= 10 && hours < 14) {
     return "Trưa";
-  } else if (hours >= 18) {
+  } else if (hours >= 14) {
     return "Tối";
   } else {
     return "";
   }
 }
+
+function isEmptyObject(obj) {
+  return Object.keys(obj).length === 0;
+}
+
 export {
   formatPrice,
   formatDateTime,
@@ -112,4 +117,5 @@ export {
   secondsToHours,
   metersToKilometers,
   getTimePeriod,
+  isEmptyObject,
 };

@@ -1,10 +1,7 @@
 import api from "../config/axios";
-const getPriceForVehicle = async (pageNumber, pageSize, data) => {
+const getPriceForVehicle = async (data) => {
   try {
-    const response = await api.post(
-      `/vehicle/get-price-for-vehicle/${pageNumber}/${pageSize}`,
-      data
-    );
+    const response = await api.post(`/vehicle/get-price-for-vehicle`, data);
     return response.data;
   } catch (error) {
     console.error("Error fetching sell price:", error);
@@ -24,7 +21,10 @@ const getOptimalPath = async (startDestinationId, data) => {
   }
 };
 
-const getAvailableVehicleType = async (provinceStartPointId, provinceEndPointId) => {
+const getAvailableVehicleType = async (
+  provinceStartPointId,
+  provinceEndPointId
+) => {
   try {
     const response = await api.get(
       `/vehicle/get-available-vehicle-type/${provinceStartPointId}/${provinceEndPointId}`
@@ -35,4 +35,27 @@ const getAvailableVehicleType = async (provinceStartPointId, provinceEndPointId)
     return [];
   }
 };
-export { getPriceForVehicle, getOptimalPath, getAvailableVehicleType };
+const getAvailableVehicle = async (
+  type,
+  startTime,
+  endTime,
+  pageNumber,
+  pageSize
+) => {
+  try {
+    const response = await api.get(
+      `/vehicle/get-available-vehicle?type=${type}&startTime=${startTime}&endTime=${endTime}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sell price:", error);
+    return [];
+  }
+};
+
+export {
+  getPriceForVehicle,
+  getOptimalPath,
+  getAvailableVehicleType,
+  getAvailableVehicle,
+};

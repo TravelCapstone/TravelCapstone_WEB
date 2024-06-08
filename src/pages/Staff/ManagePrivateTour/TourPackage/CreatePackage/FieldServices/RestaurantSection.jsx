@@ -31,7 +31,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getAllFacilityByLocationAndRatingId } from "../../../../../../api/FacilityApi";
 import { getMenuByFacilityId } from "../../../../../../api/MenuApi";
 import { getPriceOfMeal } from "../../../../../../api/SellPriceHistoryApi";
-import moment from "moment";
+import moment from "moment-timezone";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import dayjs from "../../../../../../settings/setupDayjs";

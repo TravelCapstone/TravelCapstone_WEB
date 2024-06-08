@@ -43,6 +43,12 @@ function TourRequestPage() {
     const tab = parseInt(query.get("tab"), 10);
     if (!isNaN(tab)) {
       setActiveTab(tab);
+    } else {
+      // Get activeTab from localStorage if it exists
+      const savedTab = localStorage.getItem("activeTab");
+      if (savedTab !== null) {
+        setActiveTab(parseInt(savedTab, 10));
+      }
     }
   }, [id, location.search]);
   console.log(selectedOption);
@@ -51,7 +57,7 @@ function TourRequestPage() {
   useEffect(() => {
     // Adjust the active tab based on the status when it changes
     if (request?.privateTourResponse?.status !== 0 && activeTab === 1) {
-      setActiveTab(0); // Default to the first tab
+      setActiveTab(1); // Default to the first tab
     }
   }, [request]);
 
@@ -67,6 +73,8 @@ function TourRequestPage() {
   const handleTabChange = (index) => {
     setActiveTab(index);
     navigate(`${location.pathname}?tab=${index}`);
+    // Save activeTab to localStorage
+    localStorage.setItem("activeTab", index);
   };
 
   const tabs = [

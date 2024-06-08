@@ -23,7 +23,7 @@ import {
   secondsToHours,
 } from "../../../../../../utils/Util";
 import { usePrice } from "../../../../../../context/PriceContext";
-import moment from "moment";
+import moment from "moment-timezone";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import { getAllDistrictsByProvinceId } from "../../../../../../api/LocationApi";

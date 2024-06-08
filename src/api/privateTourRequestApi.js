@@ -11,7 +11,7 @@ const getAllProvince = async (data) => {
   }
 };
 
-const getAllPrivateTour = async(pageNumber,pageSize) =>{
+const getAllPrivateTour = async (pageNumber, pageSize) => {
   try {
     const response = await api.get(
       `get-all-private-tour-request/${pageNumber}/${pageSize}`
@@ -20,39 +20,45 @@ const getAllPrivateTour = async(pageNumber,pageSize) =>{
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-const getPrivateTourById = async(id) =>{
+const getPrivateTourById = async (id) => {
   try {
-    const response = await api.get(
-      `get-private-tour-request-by-id//${id}`
-    );
+    const response = await api.get(`get-private-tour-request-by-id//${id}`);
     return response;
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 const createPrivateTour = async (tourData) => {
   try {
-    const response = await api.post('/create-private-tour-request', tourData);
+    const response = await api.post("/create-private-tour-request", tourData);
     return response;
   } catch (error) {
-    console.error('Error creating private tour:', error);
-    throw error; 
+    console.error("Error creating private tour:", error);
+    throw error;
   }
 };
 
 const getRoomSuggestion = async (data) => {
   try {
-    const response = await api.post('/get-room-suggestion', data);
+    const response = await api.post("/get-room-suggestion", data);
     return response;
   } catch (error) {
-    console.error('Error getting room suggestion:', error);
+    console.error("Error getting room suggestion:", error);
     throw error;
   }
 };
 
+const getProvinceOfOption = async (optionid) => {
+  try {
+    const response = await api.get(`/get-province-of-option/${optionid}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
 const getPrivateTourByIdForCustomer = async (id, pageNumber, pageSize) => {
   try {
     const response = await api.get(
@@ -64,5 +70,12 @@ const getPrivateTourByIdForCustomer = async (id, pageNumber, pageSize) => {
   }
 };
 
-export { getAllProvince, getAllPrivateTour, getPrivateTourById, createPrivateTour, getRoomSuggestion, getPrivateTourByIdForCustomer};
-
+export {
+  getAllProvince,
+  getAllPrivateTour,
+  getPrivateTourById,
+  createPrivateTour,
+  getRoomSuggestion,
+  getProvinceOfOption,
+  getPrivateTourByIdForCustomer,
+};
