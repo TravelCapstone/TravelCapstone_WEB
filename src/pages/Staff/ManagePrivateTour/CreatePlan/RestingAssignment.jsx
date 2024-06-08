@@ -46,7 +46,6 @@ const RestingAssignment = ({
     fetchHotelPrices();
   }, [data]);
   const handleHotelChange = (e, index, dataIndex, itemData) => {
-    debugger;
     const selectedItem = hotel[dataIndex].find((item) => item.id === e);
     if (selectedItem) {
       const hotelForm = getFieldValue(`hotel`);

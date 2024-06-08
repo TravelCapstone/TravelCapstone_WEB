@@ -11,12 +11,10 @@ const { Option } = Select;
 const DetailPlanFollowingTimeline = ({ location, optionQuotation }) => {
   const [port, setPort] = useState([]);
   const fetchLocation = async () => {
-    debugger;
     const response = await getFacilityAndPortInformation({
       optionId: optionQuotation.id,
       planLocations: location,
     });
-    debugger;
     if (response.isSuccess) {
       setPort(response?.result);
     }

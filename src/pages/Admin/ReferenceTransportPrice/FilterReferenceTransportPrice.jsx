@@ -4,6 +4,7 @@ import { typePortLabels } from "../../../settings/globalStatus";
 import { getAllReferenceTransportPriceByFilter } from "../../../api/ReferencePriceTransportApi";
 import { toast } from "react-toastify";
 import LoadingComponent from "../../../components/Loading/LoadingComponent";
+import moment from "moment-timezone";
 
 function FilterReferenceTransportPrice({
   log,
@@ -49,8 +50,8 @@ function FilterReferenceTransportPrice({
         communeId: commune2,
       },
       portType: Number(portType),
-      startDate: startDate == null ? null : new Date(startDate).toISOString(),
-      endDate: endDate == null ? null : new Date(endDate).toISOString(),
+      startDate: startDate == null ? null : moment(startDate).format(),
+      endDate: endDate == null ? null : moment(endDate).format(),
     };
     console.log(dataSend);
     setIsLoading(true);

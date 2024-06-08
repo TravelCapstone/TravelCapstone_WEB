@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { DatePicker, Form, Input, Select, message } from "antd";
-import { formatPrice } from "../../../../utils/Util";
+import { formatDateToISOString, formatPrice } from "../../../../utils/Util";
 import { getLatestEntertaimentPrice } from "../../../../api/SellPriceHistoryApi";
+import moment from "moment-timezone";
 
 function EntertainmentAssignment({
   data,
@@ -37,8 +38,6 @@ function EntertainmentAssignment({
 
   const fetchData = async () => {
     data?.forEach(async (item, index) => {
-      debugger;
-
       const response = await getLatestEntertaimentPrice(
         item?.districtId,
         privateTourResponse?.privateTourResponse?.id
@@ -49,7 +48,6 @@ function EntertainmentAssignment({
         newAdultEntertainments[index] = response.result[index]?.adultSellPrice;
         newChildEntertainments[index] =
           response.result[index]?.childrenSellPrice;
-        debugger;
         setFieldsValue({
           [`entertainmentNumOfServiceUseAdult`]: item.quantityOfAdult,
         });
@@ -65,12 +63,11 @@ function EntertainmentAssignment({
     fetchData();
   }, []);
   const handleTimeChange = (value) => {
-    debugger;
     setFieldsValue({
-      [`entertainmentStartDate`]: new Date(value[0]).toISOString(),
+      [`entertainmentStartDate`]: formatDateToISOString(new Date(value[0])),
     });
     setFieldsValue({
-      [`entertainmentEndDate`]: new Date(value[1]).toISOString(),
+      [`entertainmentEndDate`]: formatDateToISOString(new Date(value[1])),
     });
   };
   return (
