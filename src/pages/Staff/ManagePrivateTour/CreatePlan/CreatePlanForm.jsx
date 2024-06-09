@@ -16,6 +16,7 @@ import { createTour } from "../../../../api/TourApi";
 import LoadingOverlay from "../../../../components/Loading/LoadingOverlay";
 import moment from "moment-timezone";
 import { formatDateToISOString } from "../../../../utils/Util";
+import { useNavigate } from "react-router-dom";
 const CreatePlanForm = ({
   privateTourResponse,
   optionQuotation,
@@ -34,17 +35,38 @@ const CreatePlanForm = ({
   const material = quotationDetails?.filter(
     (item) => item.materialPriceHistoryId !== null
   );
-  const [data, setData] = useState({});
   const [provinceList, setProvinceList] = useState([]);
   const [location, setLocation] = useState([]);
   const signal = useSelector((state) => state.plan.isCreatePlan || false);
   const [form] = Form.useForm();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const onFinish = async (values) => {
+    debugger;
+    const data = buildData();
+    if (data.location.length === 0) {
+      message.error("Vui lòng chọn ít nhất một địa điểm");
+      return;
+    }
+    if (data.vehicles.length === 0) {
+      message.error("Vui lòng chọn ít nhất một phương tiện");
+      return;
+    }
+    if (data.tourguides.length === 0) {
+      message.error("Vui lòng chọn ít nhất một hướng dẫn viên");
+      return;
+    }
+
+    if (data.detailPlanRoutes.length === 0) {
+      message.error("Vui lòng chọn ít nhất một kế hoạch chi tiết");
+      return;
+    }
+
     setIsLoading(true);
-    const response = await createTour(buildData());
+    const response = await createTour(data);
     if (response.isSuccess) {
       message.success("Tạo kế hoạch thành công");
+      navigate("/staff/view-list-tour-private");
     } else {
       response.messages.forEach((mess) => {
         message.error(mess);
@@ -68,9 +90,10 @@ const CreatePlanForm = ({
     if (entertaimentData.length > 0) {
       combinedLocationData = [...combinedLocationData, ...entertaimentData];
     }
+    debugger;
     return combinedLocationData;
   };
-  const builDdetailPlanRoutes = () => {
+  const buildDetailPlanRoutes = () => {
     if (!form.getFieldValue("detailPlanRoutes")) return [];
     else {
       return form.getFieldValue("detailPlanRoutes").map((item) => ({
@@ -87,33 +110,35 @@ const CreatePlanForm = ({
     }
   };
   const buildData = () => {
-    setData({
-      privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
-      startDate: privateTourResponse?.privateTourResponse?.startDate,
-      endDate: privateTourResponse?.privateTourResponse?.endDate,
-      location: buildLocation(),
-      vehicles: buildVehicle(),
-      tourguides: buildTourguide(),
-      material: buildMaterial(),
-      detailPlanRoutes: builDdetailPlanRoutes(),
-    });
     return {
       privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
       startDate: privateTourResponse?.privateTourResponse?.startDate,
       endDate: privateTourResponse?.privateTourResponse?.endDate,
       location: buildLocation(),
-      vehicles: buildVehicle(),
-      tourguides: buildTourguide(),
-      material: buildMaterial(),
-      detailPlanRoutes: builDdetailPlanRoutes(),
+      vehicles: buildVehicle() || [],
+      tourguides: buildTourguide() || [],
+      material: buildMaterial() || [],
+      detailPlanRoutes: buildDetailPlanRoutes() || [],
     };
+    debugger;
   };
   const buildHotel = () => {
     const hotelValue = form.getFieldValue("hotel");
     let locationArray = Array.isArray(hotelValue)
       ? hotelValue.flat()
       : [hotelValue];
-    return locationArray.filter((item) => item !== undefined);
+    const hotelData = locationArray.filter((item) => item !== undefined);
+    return hotelData
+      ? hotelData.map((item) => {
+          return {
+            sellPriceHistoryId: item.sellPriceHistoryId,
+            startDate: formatDateToISOString(new Date(item.startDate)),
+            endDate: formatDateToISOString(new Date(item.endDate)),
+            numOfServiceUse: item.numOfServiceUse,
+            serviceType: 0,
+          };
+        })
+      : [];
   };
   const buildRestarent = () => {
     return restaurant.map((item, index) => ({
@@ -209,7 +234,7 @@ const CreatePlanForm = ({
     if (signal) {
       setLocation(buildLocation());
     }
-  }, [signal]);
+  }, [signal === true]);
   return (
     <>
       <LoadingOverlay isLoading={false} />
@@ -218,10 +243,7 @@ const CreatePlanForm = ({
           TẠO KẾ HOẠCH TOUR CHI TIẾT
         </h3>
         <Divider />
-        <div className="mt-10">
-          <h3>Form Data:</h3>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
-        </div>
+
         <Form
           initialValues={{
             remember: true,
@@ -278,6 +300,8 @@ const CreatePlanForm = ({
           <DetailPlanFollowingTimeline
             location={location}
             optionQuotation={optionQuotation}
+            setFieldsValue={setFieldsValue}
+            getFieldValue={getFieldValue}
           />
 
           {/* THÔNG TIN HƯỚNG DẪN VIÊN */}
@@ -287,7 +311,6 @@ const CreatePlanForm = ({
             </Button>
           </div>
         </Form>
-        <Button onClick={() => buildData()}>Log data</Button>
       </div>
     </>
   );

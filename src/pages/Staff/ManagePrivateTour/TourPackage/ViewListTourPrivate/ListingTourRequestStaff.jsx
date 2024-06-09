@@ -50,7 +50,20 @@ const ListingTourRequestStaff = () => {
   const renderOtherLocations = (locations) => {
     return locations.map((location) => location.province?.name).join(", ");
   };
-
+  const getOrderStatusStyle = (status) => {
+    switch (status) {
+      case 0:
+        return { fontWeight: 600, color: "orange" };
+      case 1:
+        return { fontWeight: 600, color: "007bff" };
+      case 2:
+        return { fontWeight: 600, color: "green" };
+      case 3:
+        return { fontWeight: 600, color: "28a745" };
+      default:
+        return {};
+    }
+  };
   return (
     <>
       <div className="bg-white shadow-md rounded-lg p-6 overflow-x-auto ">
@@ -83,6 +96,7 @@ const ListingTourRequestStaff = () => {
                   <th>Địa điểm bắt đầu</th>
                   <th>Loại tour</th>
                   <th>Ngày tạo yêu cầu</th>
+                  <th>Trạng thái</th>
                   <th></th>
                 </tr>
               </thead>
@@ -102,6 +116,13 @@ const ListingTourRequestStaff = () => {
                     <td>{item.startLocation}</td>
                     <td>{item.isEnterprise ? "Doanh nghiệp" : "Gia đình"}</td>
                     <td>{formatDate(item.createDate)}</td>
+                    <td
+                      style={{
+                        ...getOrderStatusStyle(item.status),
+                      }}
+                    >
+                      {statusPrivateTourLabels[item.status]}
+                    </td>
                     <td>
                       <NavLink
                         to={`/staff/${DETAIL_TOUR_REQUEST_STAFF}/${item.id}`}
