@@ -85,20 +85,10 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
       setFieldsValue({ [`numOfVehicle[${index}]`]: item.numOfVehicle });
     }
   };
-  const handleDateChange = (date, dateString) => {
-    if (date) {
-      const timezoneOffset = date.utcOffset() / 60; // Lấy giá trị offset theo giờ
-      console.log(
-        `Selected date in timezone: UTC${timezoneOffset >= 0 ? "+" : ""}${timezoneOffset}`
-      );
-    }
-  };
   return (
     <div>
       <h3 className="font-bold text-primary text-xl">Phương tiện di chuyển</h3>
-      <Space direction="vertical">
-        <DatePicker showTime onChange={handleDateChange} />
-      </Space>
+
       {data &&
         data.map((item, index) => (
           <div className="rounded-md shadow-md p-4 m-2">

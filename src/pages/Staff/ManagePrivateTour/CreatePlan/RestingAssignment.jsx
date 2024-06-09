@@ -50,12 +50,10 @@ const RestingAssignment = ({
     if (selectedItem) {
       const hotelForm = getFieldValue(`hotel`);
       const startDate = (hotelForm[dataIndex][index].startDate = moment(
-        itemData.startDate,
-        "YYYY-MM-DD"
+        itemData.startDate
       ));
       const endDate = (hotelForm[dataIndex][index].endDate = moment(
-        itemData.endDate,
-        "YYYY-MM-DD"
+        itemData.endDate
       ));
       const serviceType = (hotelForm[dataIndex][index].serviceType =
         itemData.serviceTypeId);
