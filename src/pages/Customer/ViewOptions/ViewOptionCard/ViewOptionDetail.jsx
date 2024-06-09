@@ -5,12 +5,13 @@ import {
   ratingLabels,
   vehicleTypeLabels,
 } from "../../../../settings/globalStatus";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getDishListByMenuId } from "../../../../api/MenuApi";
 const { TabPane } = Tabs;
 
-const ViewOptionDetail = ({ data, visible, onOk, onCancel }) => {
+const ViewOptionDetail = ({ data, visible, onOk, onCancel, showModal }) => {
   const [menuData, setMenuData] = useState(null);
+
   const handleEyeClick = async (id) => {
     try {
       const response = await getDishListByMenuId(id);
@@ -171,7 +172,7 @@ const ViewOptionDetail = ({ data, visible, onOk, onCancel }) => {
               ))}
           </TabPane>
           <TabPane tab="Phương tiện" key="4">
-            {data.vehicleQuotationDetails.length > 0 &&
+            {data.vehicleQuotationDetails !== null &&
               data?.vehicleQuotationDetails?.map((vehicle) => (
                 <Card key={vehicle.id}>
                   <div>

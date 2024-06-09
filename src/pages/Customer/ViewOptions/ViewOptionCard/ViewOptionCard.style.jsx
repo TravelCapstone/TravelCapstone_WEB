@@ -8,7 +8,7 @@ const ViewOptionCardWrapper = styled.div`
   height: 100%;
   border-radius: 6px;
   position: relative;
-  max-width: 350px;
+  max-width: 500px;
   border: 1px solid ${themeGet("border.3", "#E6E6E6")};
   transition: box-shadow 0.3s ease;
   margin: 10px; // Added based on the card margin from your ViewOptionCard component

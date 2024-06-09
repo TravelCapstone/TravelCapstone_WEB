@@ -1,11 +1,12 @@
-import styled from 'styled-components';
-import { themeGet } from '@styled-system/theme-get';
+import styled from "styled-components";
+import { themeGet } from "@styled-system/theme-get";
 
 const ViewOptionsWrapper = styled.div`
   max-width: 1140px;
   margin: 0 auto;
   padding-bottom: 30px;
-  padding-top: 100px;
+  padding-top: 10px;
+  text-color: #008489;
 
   @media (max-width: 1200px) {
     padding-left: 30px;
@@ -25,14 +26,14 @@ export const ViewOptionHeader = styled.div`
 `;
 
 export const Title = styled.h2`
-  color: ${themeGet('text.0', '#2C2C2C')};
+  color: ${themeGet("text.0", "#2C2C2C")};
   font-size: 21px;
   font-weight: 700;
   margin-bottom: 20px;
 `;
 
 export const Description = styled.p`
-  color: ${themeGet('text.0', '#2C2C2C')};
+  color: ${themeGet("text.0", "#2C2C2C")};
   font-size: 16px;
   line-height: 18px;
   margin-bottom: 30px;
@@ -59,13 +60,13 @@ export const ButtonGroup = styled.div`
   min-height: 47px;
   padding: 5px;
   border-radius: 3px;
-  background-color: ${themeGet('color.2', '#F7F7F7')};
+  background-color: ${themeGet("color.2", "#F7F7F7")};
   margin: 0 auto;
   display: flex;
   align-items: center;
 
   button {
-    color: ${themeGet('text.0', '#2C2C2C')};
+    color: ${themeGet("text.0", "#2C2C2C")};
     font-size: 16px;
     min-width: 117px;
     min-height: 37px;
@@ -80,7 +81,7 @@ export const ButtonGroup = styled.div`
       font-weight: 700;
       border-radius: 3px;
       box-shadow: 0 0 1px rgba(0, 0, 0, 0.16);
-      background-color: ${themeGet('color.1', '#ffffff')};
+      background-color: ${themeGet("color.1", "#ffffff")};
     }
 
     &:hover,

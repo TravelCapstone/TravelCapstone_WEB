@@ -7,6 +7,8 @@ import CreateOptionForm from "../CreatePackage/CreateOptionForm";
 import CreatePlanForm from "../../CreatePlan/CreatePlanForm";
 import BreadcrumbWithBackButton from "../../../../../components/BreadCrumb/BreadCrumb";
 import { LISTING_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
+import ViewOptionCard from "../../../../Customer/ViewOptions/ViewOptionCard/ViewOptionCard";
+import ViewOptionsItems from "../../../../Customer/ViewOptions/ViewOptionsItems";
 
 function TourRequestPage() {
   const { id } = useParams();
@@ -18,6 +20,7 @@ function TourRequestPage() {
   const [selectedOption, setSelectedOption] = useState(null);
 
   console.log("selectedOption", selectedOption);
+  console.log("request", request);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +29,7 @@ function TourRequestPage() {
         setRequest(data?.data?.result);
         setIsLoading(false);
         // Kiểm tra xem có option nào có optionQuotationStatusId == 1 không
+        debugger;
         const selected = [
           data.data.result.option1,
           data.data.result.option2,
@@ -91,6 +95,37 @@ function TourRequestPage() {
     },
     {
       label:
+        request.privateTourResponse?.status === 1
+          ? "Các gói tour đã gửi"
+          : null,
+      content:
+        request.privateTourResponse?.status === 1 ? (
+          <div className="flex justify-center">
+            {request.option1 !== null && (
+              <ViewOptionsItems options={request} loading={isLoading} />
+            )}
+          </div>
+        ) : null,
+    },
+    {
+      label:
+        request.privateTourResponse?.status === 2 ||
+        request.privateTourResponse?.status === 4
+          ? "Gói tour đã chọn"
+          : null,
+      content:
+        request.privateTourResponse?.status === 2 ||
+        request.privateTourResponse?.status === 4 ? (
+          <div className="flex justify-center">
+            <ViewOptionCard
+              option={selectedOption}
+              selectedOption={selectedOption}
+            />
+          </div>
+        ) : null,
+    },
+    {
+      label:
         request.privateTourResponse?.status === 2 && hasOptions
           ? "Tạo kế hoạch chi tiết"
           : null,
@@ -103,6 +138,11 @@ function TourRequestPage() {
             privateTourResponse={request}
           />
         ) : null,
+    },
+    {
+      label:
+        request.privateTourResponse?.status === 4 ? "Kế hoạch chi tiết" : null,
+      content: request.privateTourResponse?.status === 4 ? <p> hihi</p> : null,
     },
   ].filter((tab) => tab.content != null);
 

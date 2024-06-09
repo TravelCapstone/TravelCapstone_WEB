@@ -6,6 +6,7 @@ import { statusPrivateTourLabels } from "../../../../../settings/globalStatus";
 import PaginationManagement from "../../../../../components/UI/Pagination/PaginationManagement";
 import LoadingComponent from "../../../../../components/Loading/LoadingComponent";
 import { formatDate } from "../../../../../utils/Util";
+import { Tooltip } from "antd";
 const ListingTourRequestStaff = () => {
   const itemsPerPage = 10;
   const [listTourRequest, setListTourRequest] = useState([]);
@@ -47,23 +48,10 @@ const ListingTourRequestStaff = () => {
     setCurrentPage(1);
   };
 
-  const renderOtherLocations = (locations) => {
-    return locations.map((location) => location.province?.name).join(", ");
-  };
-  const getOrderStatusStyle = (status) => {
-    switch (status) {
-      case 0:
-        return { fontWeight: 600, color: "orange" };
-      case 1:
-        return { fontWeight: 600, color: "007bff" };
-      case 2:
-        return { fontWeight: 600, color: "green" };
-      case 3:
-        return { fontWeight: 600, color: "28a745" };
-      default:
-        return {};
-    }
-  };
+  // const renderOtherLocations = (locations) => {
+  //   return locations.map((location) => location.province?.name).join(", ");
+  // };
+
   return (
     <>
       <div className="bg-white shadow-md rounded-lg p-6 overflow-x-auto ">
@@ -73,7 +61,7 @@ const ListingTourRequestStaff = () => {
 
         <div className="overflow-auto">
           <div className="tabs-bordered mb-4">
-            {["all", "0", "1", "2", "3"].map((status) => (
+            {["all", "0", "1", "2", "4", "3"].map((status) => (
               <a
                 key={status}
                 className={`tab tab-lifted ${activeTab === status ? "tab-active" : ""}`}
@@ -88,13 +76,14 @@ const ListingTourRequestStaff = () => {
               <thead className="bg-mainColor text-white h-14">
                 <tr>
                   <th>STT</th>
+                  <th className="w-20">Mã tour</th>
                   <th>Tên khách hàng</th>
                   <th>Số điện thoại</th>
                   <th>Địa điểm muốn thêm</th>
-                  <th>Địa điểm chính</th>
                   <th>Ngày khởi hành - kết thúc</th>
                   <th>Địa điểm bắt đầu</th>
                   <th>Loại tour</th>
+                  <th>Trạng thái</th>
                   <th>Ngày tạo yêu cầu</th>
                   <th>Trạng thái</th>
                   <th></th>
@@ -103,35 +92,67 @@ const ListingTourRequestStaff = () => {
               <tbody>
                 <LoadingComponent isLoading={isLoading} />
 
-                {filteredData.map((item, index) => (
-                  <tr key={item.id}>
-                    <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                    <td>{item.name}</td>
-                    <td>{item.account.phoneNumber}</td>
-                    <td>{renderOtherLocations(item.otherLocation)}</td>
-                    <td>{item.mainDestination.name}</td>
-                    <td>
-                      {formatDate(item.startDate)} - {formatDate(item.endDate)}
-                    </td>
-                    <td>{item.startLocation}</td>
-                    <td>{item.isEnterprise ? "Doanh nghiệp" : "Gia đình"}</td>
-                    <td>{formatDate(item.createDate)}</td>
-                    <td
-                      style={{
-                        ...getOrderStatusStyle(item.status),
-                      }}
-                    >
-                      {statusPrivateTourLabels[item.status]}
-                    </td>
-                    <td>
-                      <NavLink
-                        to={`/staff/${DETAIL_TOUR_REQUEST_STAFF}/${item.id}`}
+                {filteredData.map((item, index) => {
+                  const uniqueProvinces = [
+                    ...new Set(
+                      item.otherLocation.map(
+                        (location) => location.province.name
+                      )
+                    ),
+                  ];
+                  return (
+                    <tr key={item.id}>
+                      <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                      <td>
+                        <Tooltip title={item.id}>
+                          <span className="truncate w-20 block">{item.id}</span>
+                        </Tooltip>
+                      </td>
+                      <td>{item.name}</td>
+                      <td>{item.account.phoneNumber}</td>
+                      <td>
+                        <Tooltip title={uniqueProvinces.join(", ")}>
+                          <span className="truncate text-mainColor w-32 block font-semibold">
+                            {uniqueProvinces.join(", ")}
+                          </span>
+                        </Tooltip>
+                      </td>
+                      <td>
+                        {formatDate(item.startDate)} -{" "}
+                        {formatDate(item.endDate)}
+                      </td>
+                      <td>
+                        <Tooltip title={item.startLocation}>
+                          <span className="truncate text-mainColor w-32 block font-semibold">
+                            {item.startLocation}
+                          </span>
+                        </Tooltip>
+                      </td>
+                      <td>{item.isEnterprise ? "Doanh nghiệp" : "Gia đình"}</td>
+
+                      <td
+                        className=" w-56 uppercase font-semibold p-2"
+                        style={{
+                          ...getOrderStatusStyle(item.status),
+                        }}
                       >
-                        <i className="fa-solid fa-eye cursor-pointer"></i>
-                      </NavLink>
-                    </td>
-                  </tr>
-                ))}
+                        {item.status === 0 && "CHỜ XỬ LÝ"}
+                        {item.status === 1 && "ĐỢI KHÁCH HÀNG PHẢN HỒI"}
+                        {item.status === 2 && "ĐÃ CHỌN TOUR "}
+                        {item.status === 3 && "HUỶ YÊU CẦU"}
+                        {item.status === 4 && "ĐÃ TẠO KẾ HOẠCH TOUR"}
+                      </td>
+                      <td>{formatDate(item.createDate)}</td>
+                      <td>
+                        <NavLink
+                          to={`/staff/${DETAIL_TOUR_REQUEST_STAFF}/${item.id}`}
+                        >
+                          <i className="fa-solid fa-eye cursor-pointer"></i>
+                        </NavLink>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             {filteredData.length > 0 && (
@@ -147,6 +168,23 @@ const ListingTourRequestStaff = () => {
       </div>
     </>
   );
+};
+
+const getOrderStatusStyle = (status) => {
+  switch (status) {
+    case 0:
+      return { fontWeight: 600, color: "orange" };
+    case 1:
+      return { fontWeight: 600, color: "007bff" };
+    case 2:
+      return { fontWeight: 600, color: "green" };
+    case 3:
+      return { fontWeight: 600, color: "red" };
+    case 4:
+      return { fontWeight: 600, color: "blue" };
+    default:
+      return {};
+  }
 };
 
 export default ListingTourRequestStaff;

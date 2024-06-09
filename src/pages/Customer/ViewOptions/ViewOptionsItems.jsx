@@ -18,6 +18,7 @@ import {
   ratingRestaurant,
 } from "../../../settings/globalStatus";
 import { getExcelQuotation } from "../../../api/OptionsApi";
+import LoadingComponent from "../../../components/Loading/LoadingComponent";
 const formatter = (value) =>
   `${value} VND`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
@@ -29,7 +30,7 @@ const ButtonModal = styled(Button)`
   font-size: 18px;
 `;
 
-const ViewOptionsItems = ({ options }) => {
+const ViewOptionsItems = ({ options, loading, error, selectedOption, cus }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   console.log("options ViewOptionsItems", options);
 
@@ -37,25 +38,6 @@ const ViewOptionsItems = ({ options }) => {
   const optionsArray = Object.keys(options)
     .filter((key) => key.startsWith("option"))
     .map((key) => options[key]);
-
-  const user = {
-    id: "e392d0b3-1ffe-4bfe-81cb-c3f80c402ea5",
-    phoneNumber: "0912345678",
-    firstName: "Duong",
-    lastName: "Hong Quan",
-    gender: true,
-    isVerified: false,
-    userName: "duonghongquan0312@gmail.com",
-    email: "duonghongquan0312@gmail.com",
-    role: [
-      {
-        id: "02962efa-1273-46c0-b103-7167b1742ef3",
-        name: "CUSTOMER",
-        normalizedName: "customer",
-        concurrencyStamp: "02962efa-1273-46c0-b103-7167b1742ef3",
-      },
-    ],
-  };
 
   const getPackageName = (isEnterprise) => {
     if (isEnterprise === true) {
@@ -78,41 +60,44 @@ const ViewOptionsItems = ({ options }) => {
     return `${diffDays + 1}N${diffDays}D`;
   };
 
-  const data = [
-    {
-      title: "Họ tên người đại diện",
-      description: `${user?.firstName} ${user?.lastName}`,
-    },
-    { title: "Số điện thoại liên hệ", description: user?.phoneNumber },
-    {
-      title: "Phân loại tour",
-      description: getPackageName(options?.privateTourResponse?.isEnterprise),
-    },
-    { title: "Tên tour", description: options?.privateTourResponse?.name },
-    {
-      title: "Thời gian",
-      description: `${formatDate(options?.privateTourResponse?.startDate)} - ${formatDate(options?.privateTourResponse?.endDate)}`,
-    },
-    {
-      title: "Mô tả yêu cầu",
-      description: options?.privateTourResponse?.description,
-    },
-    {
-      title: "Số người lớn",
-      description: options?.privateTourResponse?.numOfAdult,
-    },
-    {
-      title: "Số trẻ em",
-      description: options?.privateTourResponse?.numOfChildren,
-    },
-    {
-      title: "Khoảng thời gian",
-      description: calculateDuration(
-        options?.privateTourResponse?.startDate,
-        options?.privateTourResponse?.endDate
-      ),
-    },
-  ];
+  // const data = [
+  //   {
+  //     title: "Họ tên người đại diện",
+  //     description: `${options?.privateTourResponse?.account?.firstName} ${options?.privateTourResponse.account?.lastName}`,
+  //   },
+  //   {
+  //     title: "Số điện thoại liên hệ",
+  //     description: options?.privateTourResponse?.account?.phoneNumber,
+  //   },
+  //   {
+  //     title: "Phân loại tour",
+  //     description: getPackageName(options?.privateTourResponse?.isEnterprise),
+  //   },
+  //   { title: "Tên tour", description: options?.privateTourResponse?.name },
+  //   {
+  //     title: "Thời gian",
+  //     description: `${formatDate(options?.privateTourResponse?.startDate)} - ${formatDate(options?.privateTourResponse?.endDate)}`,
+  //   },
+  //   {
+  //     title: "Mô tả yêu cầu",
+  //     description: options?.privateTourResponse?.description,
+  //   },
+  //   {
+  //     title: "Số người lớn",
+  //     description: options?.privateTourResponse?.numOfAdult,
+  //   },
+  //   {
+  //     title: "Số trẻ em",
+  //     description: options?.privateTourResponse?.numOfChildren,
+  //   },
+  //   {
+  //     title: "Khoảng thời gian",
+  //     description: calculateDuration(
+  //       options?.privateTourResponse?.startDate,
+  //       options?.privateTourResponse?.endDate
+  //     ),
+  //   },
+  // ];
 
   // Các hàm để mở và đóng Modal
   const showModal = () => {
@@ -126,6 +111,9 @@ const ViewOptionsItems = ({ options }) => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
+  if (loading) return <LoadingComponent isLoading={true} />;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="mb-20">
@@ -141,7 +129,12 @@ const ViewOptionsItems = ({ options }) => {
         </ButtonModal>
       </div>
 
-      <Modal visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+      <Modal
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        className="!w-[50%] items-center"
+      >
         <div className="p-4 mx-auto bg-white  rounded-lg w-full h-[700px] overflow-y-scroll">
           <div className="mb-4">
             <h2 className="text-2xl font-bold text-gray-800 text-center mb-2">
@@ -158,20 +151,22 @@ const ViewOptionsItems = ({ options }) => {
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
               Thông tin khách hàng
             </h3>
-            {/* <p className='mb-4'> <strong>Họ tên người đại diện </strong> {user?.firstName} {user?.lastName} </p> */}
             <div className="flex">
               <p className="text-gray-500 flex-1 py-2">
                 <strong>Họ tên người đại diện: </strong>
               </p>
               <p className="text-gray-500 flex-1 py-2 ">
-                {user?.firstName} {user?.lastName}
+                {options?.privateTourResponse?.account?.firstName}{" "}
+                {options?.privateTourResponse?.account?.lastName}
               </p>
             </div>
             <div className="flex">
               <p className="text-gray-500 flex-1 py-2">
                 <strong>Số điện thoại liên hệ: </strong>
               </p>
-              <p className="text-gray-500 flex-1 py-2 ">{user?.phoneNumber}</p>
+              <p className="text-gray-500 flex-1 py-2 ">
+                {options?.privateTourResponse?.account?.phoneNumber}
+              </p>
             </div>
             <div className="flex">
               <p className="text-gray-500 flex-1 py-2">
@@ -328,13 +323,14 @@ const ViewOptionsItems = ({ options }) => {
               </p>
               <p className="text-gray-500 flex-1 py-2">
                 {" "}
-                {options?.privateTourResponse?.status === 0 &&
-                  "CHƯA CHỌN OPTION"}
+                {options?.privateTourResponse?.status === 0 && "CHỜ XỬ LÝ"}
                 {options?.privateTourResponse?.status === 1 &&
-                  "ĐANG ĐỢI KHÁCH HÀNG PHẢN HỒI"}
-                {options?.privateTourResponse?.status === 2 &&
-                  "ĐÃ CHỌN TOUR THÀNH CÔNG"}
-                {options?.privateTourResponse?.status === 3 && "HUỶ YÊU CẦU"}{" "}
+                  "CHỜ CHỌN GÓI TOUR"}
+                {options?.privateTourResponse?.status === 2 && "ĐÃ CHỌN TOUR"}
+                {options?.privateTourResponse?.status === 3 &&
+                  "HUỶ YÊU CẦU"}{" "}
+                {options?.privateTourResponse?.status === 4 &&
+                  "ĐÃ TẠO KẾ HOẠCH TOUR"}{" "}
               </p>
             </div>
           </div>
@@ -343,7 +339,12 @@ const ViewOptionsItems = ({ options }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 flex flex-wrap justify-around">
         {optionsArray.map((option, index) => (
-          <ViewOptionCard key={index} option={option} />
+          <ViewOptionCard
+            key={index}
+            option={option}
+            selectedOptionCus={selectedOption}
+            cus={cus}
+          />
         ))}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ViewOptionCardWrapper, {
   ViewOptionHeader,
   Title,
@@ -12,18 +12,22 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { optionClassLabels } from "../../../../settings/globalStatus";
 import { formatPrice } from "../../../../utils/Util";
 import ViewOptionDetail from "./ViewOptionDetail";
+import { VIEW_OPTIONS_TOUR_PRIVATE } from "../../../../settings/constant";
 
-const ViewOptionCard = ({ option }) => {
+const ViewOptionCard = ({ option, selectedOption, cus }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModalDetailVisible, setIsModalDetailVisible] = useState(false);
   console.log(isModalDetailVisible);
   const navigate = useNavigate();
+
+  console.log("option ViewOptionCard", option);
+
   const {
     optionQuotation,
     quotationDetails,
-    tourguideQuotationDetails,
-    optionEvent,
-    vehicleQuotationDetails,
+    // tourguideQuotationDetails,
+    // optionEvent,
+    // vehicleQuotationDetails,
   } = option;
 
   const showModal = () => {
@@ -31,8 +35,9 @@ const ViewOptionCard = ({ option }) => {
   };
 
   const handleOk = () => {
+    const orderId = option.optionQuotation.privateTourRequest.id;
     setIsModalVisible(false);
-    navigate("/#");
+    navigate(0); // Reload lại trang
   };
 
   const handleCancel = () => {
@@ -52,7 +57,7 @@ const ViewOptionCard = ({ option }) => {
     }
   };
 
-  console.log("option ViewOptionCard", option);
+  console.log("selectedOption", selectedOption);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -199,25 +204,33 @@ const ViewOptionCard = ({ option }) => {
           <h2>Tổng Tiền</h2>
           <p>{formatPrice(optionQuotation.maxTotal)} VND</p>
         </div>
-        <SelectButton>Chọn option này</SelectButton>
+        {!selectedOption && cus === 0 && (
+          <SelectButton>Chọn gói tour này</SelectButton>
+        )}
       </ViewOptionAction>
 
       <ViewOptionDetail
+        showModal={showModal}
         data={option}
         visible={isModalDetailVisible}
-        onOk={() => setIsModalDetailVisible(!isModalDetailVisible)}
+        onOk={() => {
+          setIsModalDetailVisible(false);
+          showModal();
+        }}
         onCancel={() => setIsModalDetailVisible(!isModalDetailVisible)}
       />
 
       {/* Modal xác nhận */}
-      <Modal
-        title="Xác nhận chọn gói"
-        visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <p>Bạn có chắc chắn chọn gói này không?</p>
-      </Modal>
+      {!selectedOption && cus === 0 && (
+        <Modal
+          title="Xác nhận chọn gói"
+          visible={isModalVisible}
+          onOk={handleOk}
+          onCancel={handleCancel}
+        >
+          <p>Bạn có chắc chắn chọn gói này không?</p>
+        </Modal>
+      )}
     </ViewOptionCardWrapper>
   );
 };

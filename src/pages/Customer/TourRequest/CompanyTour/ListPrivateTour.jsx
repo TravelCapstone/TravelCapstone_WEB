@@ -52,7 +52,7 @@ const ListPrivateTour = () => {
             )
           );
 
-          const detailedOrders = response.data.result.items.map(
+          const detailedOrders = response?.data?.result?.items.map(
             (order, index) => ({
               ...order,
               details: detailResponses[index]?.result || {},
@@ -85,9 +85,10 @@ const ListPrivateTour = () => {
   const tabs = [
     { key: "1", label: "Tất cả" },
     { key: "2", label: "Đã gửi yêu cầu" },
-    { key: "3", label: "Chọn Options" },
-    { key: "4", label: "Đã hoàn thành" },
-    { key: "5", label: "Đã huỷ" },
+    { key: "3", label: "Chọn gói tour" },
+    { key: "4", label: "Đã chọn gói tour" },
+    { key: "5", label: "Đã tạo kế hoạch tour" },
+    { key: "6", label: "Đã huỷ" },
   ];
 
   return (
@@ -102,56 +103,68 @@ const ListPrivateTour = () => {
         <h2 className="text-xl font-bold mb-5 text-mainColor">
           LỊCH SỬ ĐẶT TOUR YÊU CẦU CỦA TÔI
         </h2>
-        <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
-          <Tabs.TabPane tab="Tất cả" key="1">
-            <RequestSent
-              title="Tổng tour yêu cầu"
-              orders={detailTour || []}
-              error={error}
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Đã gửi yêu cầu" key="2">
-            <RequestSent
-              title="Tổng tour đã gửi yêu cầu"
-              orders={
-                detailTour.filter(
-                  (order) => order.details.privateTourResponse.status === 0
-                ) || []
-              }
-              error={error}
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Chọn Options" key="3">
-            <RequestSent
-              title="Tổng tour đã chọn Options"
-              orders={
-                detailTour.filter(
-                  (order) => order.details.privateTourResponse.status === 1
-                ) || []
-              }
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Đã hoàn thành" key="4">
-            <RequestSent
-              title="Tổng tour đã hoàn thành"
-              orders={
-                detailTour.filter(
-                  (order) => order.details.privateTourResponse.status === 2
-                ) || []
-              }
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Đã huỷ" key="5">
-            <RequestSent
-              title="Tổng tour đã huỷ"
-              orders={
-                detailTour.filter(
-                  (order) => order.details.privateTourResponse.status === 3
-                ) || []
-              }
-            />
-          </Tabs.TabPane>
-        </Tabs>
+        {detailTour.length !== 0 && (
+          <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
+            <Tabs.TabPane tab="Tất cả" key="1">
+              <RequestSent
+                title="Tổng tour yêu cầu"
+                orders={detailTour || []}
+                error={error}
+              />
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Đã gửi yêu cầu" key="2">
+              <RequestSent
+                title="Tổng tour đã gửi yêu cầu"
+                orders={
+                  detailTour.filter(
+                    (order) => order.details.privateTourResponse.status === 0
+                  ) || []
+                }
+                error={error}
+              />
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Chọn gói tour" key="3">
+              <RequestSent
+                title="Tổng tour đã chọn gói tour"
+                orders={
+                  detailTour.filter(
+                    (order) => order.details.privateTourResponse.status === 1
+                  ) || []
+                }
+              />
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Đã chọn gói tour" key="4">
+              <RequestSent
+                title="Tổng tour đã chọn gói tour"
+                orders={
+                  detailTour.filter(
+                    (order) => order.details.privateTourResponse.status === 2
+                  ) || []
+                }
+              />
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Đã tạo kế hoạch tour" key="5">
+              <RequestSent
+                title="Tổng tour đã tạo kế hoạch tour"
+                orders={
+                  detailTour.filter(
+                    (order) => order.details.privateTourResponse.status === 4
+                  ) || []
+                }
+              />
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Đã huỷ" key="6">
+              <RequestSent
+                title="Tổng tour đã huỷ"
+                orders={
+                  detailTour.filter(
+                    (order) => order.details.privateTourResponse.status === 3
+                  ) || []
+                }
+              />
+            </Tabs.TabPane>
+          </Tabs>
+        )}
       </div>
     </div>
   );

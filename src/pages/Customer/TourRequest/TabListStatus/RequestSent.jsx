@@ -33,7 +33,7 @@ const RequestSent = ({ orders, title, error }) => {
             <tr>
               <th className="w-10 ">STT</th>
               <th className="w-20">Mã tour</th>
-              <th className="w-70">Tên Tour yêu cầu</th>
+              <th className="w-40">Tên Tour yêu cầu</th>
               <th className="w-40">Địa điểm xuất phát</th>
               <th className="w-32">Thời lượng tour</th>
               <th className="w-40 ">Khoảng thời gian</th>
@@ -62,7 +62,7 @@ const RequestSent = ({ orders, title, error }) => {
                   </td>
                   <td>
                     <Tooltip title={`Tour đi ${uniqueProvinces.join("- ")}`}>
-                      <span className="truncate text-mainColor w-70 block font-semibold">
+                      <span className="truncate text-mainColor w-40 block font-semibold">
                         Tour đi {uniqueProvinces.join("- ")}
                       </span>
                     </Tooltip>
@@ -104,10 +104,12 @@ const RequestSent = ({ orders, title, error }) => {
                     {order.details.privateTourResponse.status === 0 &&
                       "Đã gửi yêu cầu"}
                     {order.details.privateTourResponse.status === 1 &&
-                      "Chọn Options"}
+                      "Chọn gói tour"}
                     {order.details.privateTourResponse.status === 2 &&
                       "ĐÃ HOÀN THÀNH"}
                     {order.details.privateTourResponse.status === 3 && "ĐÃ HUỶ"}
+                    {order.details.privateTourResponse.status === 4 &&
+                      "ĐÃ TẠO KẾ HOẠCH TOUR"}
                   </td>
                   <td className="text-center">
                     <NavLink
@@ -143,7 +145,9 @@ const getOrderStatusStyle = (status) => {
     case 2:
       return { fontWeight: 600, color: "green" };
     case 3:
-      return { fontWeight: 600, color: "28a745" };
+      return { fontWeight: 600, color: "red" };
+    case 4:
+      return { fontWeight: 600, color: "blue" };
     default:
       return {};
   }

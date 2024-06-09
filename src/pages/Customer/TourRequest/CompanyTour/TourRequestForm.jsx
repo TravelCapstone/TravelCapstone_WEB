@@ -36,12 +36,19 @@ import DetailFamilySection from "../Sections/DetailFamilySection";
 import "../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import LoadingOverlay from "../../../../components/Loading/LoadingOverlay";
+import { useNavigate } from "react-router-dom";
+import {
+  LISTING_TOUR_PRIVATE,
+  VIEW_OPTIONS_TOUR_PRIVATE,
+} from "../../../../settings/constant";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 const { Option } = Select;
 
 function TourRequestForm() {
+  let navigate = useNavigate();
+
   const [isLoading, setIsLoading] = useState(false);
 
   const [value, setValue] = useState();
@@ -120,9 +127,12 @@ function TourRequestForm() {
 
   useEffect(() => {
     if (selectedLocations.length === 1) {
+      debugger;
       setMainLocation(selectedLocations[0]);
+      setMainDestinationId(selectedLocations[0].provinceId);
     } else {
       setMainLocation(null);
+      setMainDestinationId(null);
     }
   }, [selectedLocations]);
 
@@ -391,7 +401,6 @@ function TourRequestForm() {
       mainDestinationId: mainDestinationId,
       accountId: "208be820-3a09-4a8c-af3f-d86cb0f5ccee", // accoundId
       dietaryPreference: valueFoodType,
-      wishPrice: formValues["budget"],
     };
     console.log("tourData", tourData);
     setIsLoading(true);
@@ -404,6 +413,7 @@ function TourRequestForm() {
         setSelectedLocations([]); // Reset state if needed for locations
         setMainLocation(""); // Reset main location
         setIsChecked(false); // Uncheck the terms and conditions box
+        navigate(`${LISTING_TOUR_PRIVATE}`);
       } else {
         for (const message in response.messages) {
           // alertFail(message);
@@ -604,119 +614,6 @@ function TourRequestForm() {
                 </Radio>
               </Radio.Group>
             </Form.Item>
-
-            <Form.Item
-              label="Hình thức ăn:"
-              name="foodType"
-              className="font-semibold"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Radio.Group onChange={onChangeFoodType} defaultValue={value}>
-                <Radio className="font-normal" value={0}>
-                  Ăn chay
-                </Radio>
-                <Radio className="font-normal" value={1}>
-                  Ăn mặn
-                </Radio>
-                <Radio className="font-normal" value={2}>
-                  Có người ăn chay, có người ăn mặn
-                </Radio>
-              </Radio.Group>
-            </Form.Item>
-
-            <Flex vertical gap={32}>
-              <Form.Item
-                label="Mô tả yêu cầu:"
-                className="font-semibold"
-                name="description"
-              >
-                <TextArea
-                  rows={6}
-                  showCount
-                  maxLength={225}
-                  className="h-10"
-                  placeholder="Nhập mô tả yêu cầu (VD: 10 người ăn chay, dị ứng món gì, .... )"
-                  style={{
-                    height: 120,
-                    //   resize: 'none',
-                  }}
-                />
-              </Form.Item>
-            </Flex>
-
-            <Form.Item
-              name="locations"
-              label={
-                <span>
-                  Địa điểm mong muốn: &nbsp;
-                  <Tooltip title="Bạn có thể chọn nhiều địa điểm trên thanh tìm kiếm!">
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </span>
-              }
-              className="font-semibold"
-              rules={[
-                {
-                  required: true,
-                  message: "Chọn ít nhất 1 địa điểm mà bạn muốn thăm",
-                },
-              ]}
-            >
-              <AddressSearchMultiple onChange={handleLocationsChange} />
-            </Form.Item>
-            {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
-            {selectedLocations.length > 1 && (
-              <Form.Item
-                name="mainLocation"
-                label="Địa điểm mong muốn chính (địa điểm quan trọng nhất):"
-                className="font-semibold"
-                rules={[
-                  { required: true, message: "Chọn một địa điểm quan trọng" },
-                ]}
-              >
-                <Select
-                  placeholder="Chọn địa điểm chính"
-                  showSearch
-                  style={{ width: "100%" }}
-                  value={mainLocation}
-                  onChange={handleMainLocationChange}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                >
-                  {selectedLocations.map((location) => (
-                    <Option
-                      key={location.location}
-                      value={location.provinceName}
-                    >
-                      {location.description}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            )}
-            <Form.Item
-              name="startLocation"
-              label={
-                <span>
-                  Địa chỉ xuất phát hoặc tập trung: &nbsp;
-                  <Tooltip
-                    title="Nếu điền địa chỉ xuất phát hoặc tập trung thì chúng tôi sẽ chuẩn bị cho bạn phương tiện đưa đón phù hợp 
-                  tới điểm bắt đầu chuyến tour!"
-                  >
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </span>
-              }
-              className="font-semibold"
-            >
-              <AddressSearch onChange={handleAddressSelect} />
-            </Form.Item>
-
             <Form.Item
               name="range-picker"
               label={
@@ -735,7 +632,7 @@ function TourRequestForm() {
                   justifyContent: "space-between",
                   alignItems: "center",
                 }}
-                className="ml-3 flex-wrap"
+                className="ml-3 w-[70%] flex-wrap"
               >
                 <ConfigProvider locale={viVN}>
                   <Form.Item
@@ -748,9 +645,9 @@ function TourRequestForm() {
                         </Tooltip>
                       </span>
                     }
-                    // rules={[
-                    //   { required: true, message: " Vui lòng chọn thời gian!" },
-                    // ]}
+                    rules={[
+                      { required: true, message: " Vui lòng chọn thời gian!" },
+                    ]}
                   >
                     <DatePicker
                       showTime
@@ -773,9 +670,9 @@ function TourRequestForm() {
                         </Tooltip>
                       </span>
                     }
-                    // rules={[
-                    //   { required: true, message: " Vui lòng chọn thời gian!" },
-                    // ]}
+                    rules={[
+                      { required: true, message: " Vui lòng chọn thời gian!" },
+                    ]}
                   >
                     <DatePicker
                       showTime
@@ -827,6 +724,7 @@ function TourRequestForm() {
                 >
                   <InputNumber
                     value={nights}
+                    // defaultValue={nights}
                     placeholder={nights}
                     min={nights}
                     max={nights + 1}
@@ -835,6 +733,119 @@ function TourRequestForm() {
                 </Form.Item>
               </div>
             </Form.Item>
+
+            {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
+            {selectedLocations.length > 1 && (
+              <Form.Item
+                name="mainLocation"
+                label="Địa điểm mong muốn chính (địa điểm quan trọng nhất):"
+                className="font-semibold"
+                rules={[
+                  { required: true, message: "Chọn một địa điểm quan trọng" },
+                ]}
+              >
+                <Select
+                  placeholder="Chọn địa điểm chính"
+                  showSearch
+                  style={{ width: "100%" }}
+                  value={mainLocation}
+                  onChange={handleMainLocationChange}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {selectedLocations.map((location) => (
+                    <Option
+                      key={location.location}
+                      value={location.provinceName}
+                    >
+                      {location.description}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            )}
+            <Form.Item
+              name="startLocation"
+              label={
+                <span>
+                  Địa chỉ xuất phát hoặc tập trung: &nbsp;
+                  <Tooltip
+                    title="Nếu điền địa chỉ xuất phát hoặc tập trung thì chúng tôi sẽ chuẩn bị cho bạn phương tiện đưa đón phù hợp 
+                  tới điểm bắt đầu chuyến tour!"
+                  >
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
+              className="font-semibold"
+            >
+              <AddressSearch onChange={handleAddressSelect} />
+            </Form.Item>
+
+            <Form.Item
+              name="locations"
+              label={
+                <span>
+                  Địa điểm mong muốn: &nbsp;
+                  <Tooltip title="Bạn có thể chọn nhiều địa điểm trên thanh tìm kiếm!">
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
+              className="font-semibold"
+              rules={[
+                {
+                  required: true,
+                  message: "Chọn ít nhất 1 địa điểm mà bạn muốn thăm",
+                },
+              ]}
+            >
+              <AddressSearchMultiple onChange={handleLocationsChange} />
+            </Form.Item>
+            <Form.Item
+              label="Hình thức ăn:"
+              name="foodType"
+              className="font-semibold"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Radio.Group onChange={onChangeFoodType} defaultValue={value}>
+                <Radio className="font-normal" value={0}>
+                  Ăn chay
+                </Radio>
+                <Radio className="font-normal" value={1}>
+                  Ăn mặn
+                </Radio>
+                <Radio className="font-normal" value={2}>
+                  Có người ăn chay
+                </Radio>
+              </Radio.Group>
+            </Form.Item>
+
+            <Flex vertical gap={32}>
+              <Form.Item
+                label="Mô tả yêu cầu:"
+                className="font-semibold"
+                name="description"
+              >
+                <TextArea
+                  rows={6}
+                  showCount
+                  maxLength={225}
+                  className="h-10"
+                  placeholder="Nhập mô tả yêu cầu (VD: 10 người ăn chay, dị ứng món gì, .... )"
+                  style={{
+                    height: 120,
+                    //   resize: 'none',
+                  }}
+                />
+              </Form.Item>
+            </Flex>
+
             <p className="text-sm font-semibold">
               Số lượng hành khách: &nbsp;
               <Tooltip title="Điền chi tiết số lượng hành khách để chúng tôi xếp phòng lưu trú phù hợp nhất cho bạn!">
@@ -1006,7 +1017,7 @@ function TourRequestForm() {
               <Input />
             </Form.Item>
 
-            <Form.Item
+            {/* <Form.Item
               name="budget"
               label={
                 <span>
@@ -1032,7 +1043,7 @@ function TourRequestForm() {
                 <InputNumber min={0} className="w-[40%]" />
                 <span className="ml-2">VND / Người</span>
               </div>
-            </Form.Item>
+            </Form.Item> */}
 
             <Flex vertical gap={32}>
               <Form.Item
