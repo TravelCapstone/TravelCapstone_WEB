@@ -39,8 +39,9 @@ const OrderCard = ({ order, index, onSelect, status }) => {
         >
           {" "}
           {order.details.privateTourResponse.status === 0 && "Đã gửi yêu cầu"}
-          {order.details.privateTourResponse.status === 1 && "Chọn Options"}
-          {order.details.privateTourResponse.status === 2 && "ĐÃ HOÀN THÀNH"}
+          {order.details.privateTourResponse.status === 1 && "Chọn gói tour"}
+          {order.details.privateTourResponse.status === 2 &&
+            "ĐÃ CHONJ GÓI TOUR"}
           {order.details.privateTourResponse.status === 3 && "ĐÃ HUỶ"}
         </p>
       </div>

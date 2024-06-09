@@ -63,6 +63,8 @@ const TransportationSection = ({
   const [optimalPath, setOptimalPath] = useState([]);
   const [loadingVehicle, setLoadingVehicle] = useState(false);
 
+  console.log("optimalPath", optimalPath);
+
   const { updateCommonPrice, commonPrices } = usePrice();
 
   const handleProvinceChange = useCallback(
@@ -332,6 +334,7 @@ const TransportationSection = ({
     const result = updatedProvinces.map((item) => item.id);
     console.log("resultgetSuggestPath", result);
     const data = await getOptimalPath(result[0], result);
+    debugger;
     if (data.isSuccess) {
       setOptimalPath(Array.isArray(data.result) ? data.result : []);
     }

@@ -1,9 +1,9 @@
 const statusPrivateTourLabels = {
   0: "Chờ xử lí",
   1: "Đợi khách hàng phản hồi",
-  2: "Chấp nhận",
+  2: "Đã chọn tour",
   3: "Từ chối",
-  4: "Đã tạo kế hoạch",
+  4: "Đã tạo kế hoạch tour",
 };
 const typePortLabels = {
   0: "Hàng Không",

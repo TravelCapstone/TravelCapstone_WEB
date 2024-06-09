@@ -8,8 +8,10 @@ import { Button, Card, List } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getRoomSuggestion } from "../../../../../api/privateTourRequestApi";
 import { LISTING_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
+import LoadingComponent from "../../../../../components/Loading/LoadingComponent";
 
-function TourRequestSection({ request }) {
+function TourRequestSection({ request, loading, error, cus }) {
+  console.log("cus", cus);
   const navigate = useNavigate();
 
   const [numOfRoom, setNumOfRoom] = useState([]);
@@ -50,6 +52,7 @@ function TourRequestSection({ request }) {
     1: { backgroundColor: "#E5F1FF", color: "#007BFF" }, // Light blue bg, blue text
     2: { backgroundColor: "#E5FFE5", color: "#28A745" }, // Light green bg, green text
     3: { backgroundColor: "#FFE5E5", color: "#FF0000" }, // Light red bg, red text
+    4: { backgroundColor: "#87ceeb", color: "#1560bd" }, // Light blue bg, blue text
   };
 
   const renderOtherLocations = (locations) => {
@@ -72,9 +75,18 @@ function TourRequestSection({ request }) {
     return dietaryPreferenceLabels[food] || "Không yêu cầu";
   };
 
+  if (loading) return <LoadingComponent isLoading={true} />;
+  if (error) return <div>Error: {error}</div>;
+
+  if (cus === 0) {
+    statusPrivateTourLabels[1] = "Chờ chọn gói tour";
+  } else if (cus === undefined) {
+    statusPrivateTourLabels[1] = "Đợi khách hàng phản hồi";
+  }
+
   return (
     <>
-      <div className="p-5 mx-10 py-10 shadow-inner rounded-3xl  bg-white">
+      <div className="p-5 mx-10 mt-10 py-8 shadow-inner rounded-3xl  bg-white">
         <h1 className="text-center font-bold text-xl mb-5 text-mainColor">
           THÔNG TIN YÊU CẦU TOUR
         </h1>
@@ -284,7 +296,7 @@ function TourRequestSection({ request }) {
 
           {/* Nút tạo tour */}
           <div className="text-right my-4 w-5/6">
-            {request.privateTourResponse?.status === 0 && (
+            {request.privateTourResponse?.status === 0 && cus === undefined && (
               <Button
                 className="bg-mainColor text-white font-semibold"
                 onClick={handleCreateTour}

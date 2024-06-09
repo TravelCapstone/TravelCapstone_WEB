@@ -49,7 +49,8 @@ const convertDateFormat = (dateString) => {
   const [datePart, timePart] = dateString.split(" ");
   const [day, month, year] = datePart.split("-");
 
-  const isoDate = `${year}-${month}-${day}T${timePart}`;
+  const isoDate = `${year}-${month}-${day}T${timePart}.000Z`;
+  debugger;
   return isoDate;
 };
 
