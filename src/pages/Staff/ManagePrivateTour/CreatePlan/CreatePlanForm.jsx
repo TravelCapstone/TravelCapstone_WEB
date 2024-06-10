@@ -283,11 +283,12 @@ const CreatePlanForm = ({
             form={form}
             setFieldsValue={setFieldsValue}
             getFieldValue={getFieldValue}
+            privateTourResponse={privateTourResponse?.privateTourResponse}
           />
 
           <EntertainmentAssignment
             data={entertainment}
-            privateTourResponse={privateTourResponse}
+            privateTourResponse={privateTourResponse?.privateTourResponse}
             form={form}
             setFieldsValue={setFieldsValue}
             getFieldValue={getFieldValue}
@@ -295,13 +296,18 @@ const CreatePlanForm = ({
           {/* TẠO KẾ HOẠCH CHI TIẾT CHO TOUR */}
           <MaterialAssignment data={material} />
 
-          <TourguideAssignment provinceList={provinceList} form={form} />
+          <TourguideAssignment
+            provinceList={provinceList}
+            form={form}
+            privateTourResponse={privateTourResponse?.privateTourResponse}
+          />
 
           <DetailPlanFollowingTimeline
             location={location}
             optionQuotation={optionQuotation}
             setFieldsValue={setFieldsValue}
             getFieldValue={getFieldValue}
+            privateTourResponse={privateTourResponse?.privateTourResponse}
           />
 
           {/* THÔNG TIN HƯỚNG DẪN VIÊN */}

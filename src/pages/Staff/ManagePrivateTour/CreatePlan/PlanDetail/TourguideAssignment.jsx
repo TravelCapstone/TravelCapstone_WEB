@@ -6,7 +6,7 @@ import { formatDateToISOString, formatPrice } from "../../../../../utils/Util";
 import locale from "antd/es/date-picker/locale/vi_VN";
 import moment from "moment-timezone";
 
-const TourguideAssignment = ({ provinceList, form }) => {
+const TourguideAssignment = ({ provinceList, form, privateTourResponse }) => {
   console.log("form", form.getFieldValue("tourguide"));
   const [tourguide, setTourguide] = useState([[]]);
   const handleChange = async (index) => {
@@ -84,6 +84,15 @@ const TourguideAssignment = ({ provinceList, form }) => {
                     <DatePicker.RangePicker
                       locale={locale}
                       onChange={() => handleChange(index)}
+                      disabledDate={(current) =>
+                        current &&
+                        (current <
+                          moment(privateTourResponse.startDate).startOf(
+                            "day"
+                          ) ||
+                          current >
+                            moment(privateTourResponse.endDate).endOf("day"))
+                      }
                     />
                   </Form.Item>
 

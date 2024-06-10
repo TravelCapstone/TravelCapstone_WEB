@@ -14,7 +14,13 @@ const { Text } = Typography;
 import locale from "antd/es/date-picker/locale/vi_VN";
 import moment from "moment-timezone";
 
-const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
+const VehicleAssignment = ({
+  data,
+  form,
+  setFieldsValue,
+  getFieldValue,
+  privateTourResponse,
+}) => {
   const [vehicle, setVehicle] = useState([[]]);
   const [driver, setDriver] = useState([[]]);
   const [sellPriceHistory, setSellPriceHistory] = useState([]);
@@ -155,6 +161,13 @@ const VehicleAssignment = ({ data, form, setFieldsValue, getFieldValue }) => {
                   <DatePicker.RangePicker
                     onChange={() => handleChange(index, item)}
                     locale={locale}
+                    disabledDate={(current) =>
+                      current &&
+                      (current <
+                        moment(privateTourResponse.startDate).startOf("day") ||
+                        current >
+                          moment(privateTourResponse.endDate).endOf("day"))
+                    }
                   />
                 </Form.Item>
               </div>
