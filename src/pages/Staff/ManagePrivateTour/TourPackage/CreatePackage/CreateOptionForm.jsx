@@ -81,8 +81,6 @@ function CreateOptionForm({ request }) {
 
   const [insurances, setInsurances] = useState({});
 
-  console.log("startDateFinal", startDateFinal);
-  console.log("endDateFinal", endDateFinal);
 
   const startDate = request?.privateTourResponse?.startDate;
 
@@ -98,7 +96,6 @@ function CreateOptionForm({ request }) {
   const { updateCommonPrice, commonPrices } = usePrice();
   const [numOfRoom, setNumOfRoom] = useState([]);
 
-  console.log("numOfRoom", numOfRoom);
 
   const fetchGetRoomSuggestion = async (data) => {
     const response = await getRoomSuggestion(data);
@@ -157,13 +154,47 @@ function CreateOptionForm({ request }) {
 
   // Example usage
   const hasDuplicatesResult = hasDuplicates(provinces);
-  console.log("Provinces have duplicates:", hasDuplicatesResult); // Output: Provinces have duplicates: true (assuming duplicates exist)
 
   const startDateTour = form.getFieldValue("startDateTour");
 
   const endDate = request?.privateTourResponse?.endDate;
   const parsedStartDate = startDate ? dayjs(startDate) : null;
   const parsedEndDate = endDate ? dayjs(endDate) : null;
+
+  const [provinceNumDay, setProvinceNumDay] = useState([]);
+
+
+  const calculateDays = (dateRange) => {
+    if (dateRange && dateRange.length === 2) {
+      const startDate = dayjs(dateRange[0]);
+      const endDate = dayjs(dateRange[1]);
+      return endDate.diff(startDate, 'day') + 1;
+    }
+    return 0;
+  };
+  const handleDateRangeChange = () => {
+    const travelOptions = form.getFieldValue("travelOptions") || [];
+    const updatedProvinces = provinces.map((province) => {
+      const option = travelOptions.find(
+        (opt) => opt.provinceId === province.id
+      );
+      // debugger 
+      const numOfDays = option ? calculateDays(option.dateRange) : 0;
+      return { ...province, numOfDays };
+    });
+    setProvinceNumDay(updatedProvinces);
+
+    const updatedTourGuideCosts = form.getFieldValue("tourGuideCosts").map(
+      (item, index) => {
+        const province = updatedProvinces.find(
+          (province) => province.id === item.provinceId
+        );
+        return province ? { ...item, numOfDay: province.numOfDays } : item;
+      }
+    );
+    form.setFieldsValue({ tourGuideCosts: updatedTourGuideCosts });
+  };
+
 
   useEffect(() => {
     const numOfDays = request?.privateTourResponse?.numOfDay || 0;
@@ -234,8 +265,6 @@ function CreateOptionForm({ request }) {
     }
   }, [salaryInfo, updateCommonPrice, commonPrices]);
 
-  console.log("salaryInfo", salaryInfo);
-  console.log("numOfDaysLoging", numOfDaysLoging);
 
   useEffect(() => {
     form.setFieldsValue(formValues);
@@ -244,6 +273,8 @@ function CreateOptionForm({ request }) {
   const onValuesChange = (changedValues, allValues) => {
     setFormValues(allValues);
   };
+
+
 
   useEffect(() => {
     const fetchSalary = async () => {
@@ -318,7 +349,6 @@ function CreateOptionForm({ request }) {
         startDate,
         endDate
       );
-      console.log("responseVerhicle", response);
       if (response && response.result) {
         setPriceInfo((prev) => ({
           ...prev,
@@ -341,7 +371,6 @@ function CreateOptionForm({ request }) {
     fetchVehiclePriceRange(index);
   };
 
-  console.log("request", request);
 
   const renderOtherLocations = (locations) => {
     return locations?.map((location) => (
@@ -454,7 +483,6 @@ function CreateOptionForm({ request }) {
   }, [startDateTourChange, endDateChange]); // Chỉ chạy lại effect khi startDateTourChange hoặc endDateChange thay đổi
 
   const adjustFormToAPI = (values) => {
-    console.log("VALUE", values);
 
     const vehicles = buildVehiclesPayload(
       values.transportation,
@@ -559,7 +587,6 @@ function CreateOptionForm({ request }) {
       vehicles: vehicles, // ok
     };
 
-    console.log("API PAYLOAD", apiPayload);
 
     return apiPayload;
   };
@@ -644,7 +671,6 @@ function CreateOptionForm({ request }) {
     if (!parsedStartDate || !parsedEndDate) {
       return moment(); // Nếu không có tourDate, sử dụng ngày hiện tại
     }
-    console.log("parsedStartDate,getDefaultPickerValue", parsedStartDate);
     return parsedStartDate; // Sử dụng ngày bắt đầu của tourDate
   };
 
@@ -833,6 +859,7 @@ function CreateOptionForm({ request }) {
                   districts={districts}
                   onProvinceChange={handleProvinceChange}
                   setProvinces={setProvinces}
+                  handleDateRangeChange={handleDateRangeChange}
                 />
               </div>
 
@@ -880,6 +907,7 @@ function CreateOptionForm({ request }) {
                   Thông tin hướng dẫn viên trong tỉnh
                 </h3>
                 <InfoTourGuideSection
+                  provinceNumDay={provinceNumDay}
                   request={request}
                   form={form}
                   provinces={provinces}

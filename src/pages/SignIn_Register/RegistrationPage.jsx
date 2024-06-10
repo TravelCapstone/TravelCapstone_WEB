@@ -65,7 +65,7 @@ function RegistrationPage() {
       return;
     }
     const data = await generateOTP(phoneNumber);
-    debugger;
+    // debugger;
     if (!data.isSuccess) {
       data.messages.forEach((mess) => {
         message.error(mess);

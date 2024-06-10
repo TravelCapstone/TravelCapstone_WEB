@@ -13,6 +13,7 @@ import {
   Tooltip,
   Checkbox,
   ConfigProvider,
+  message,
 } from "antd";
 import {
   WarningFilled,
@@ -352,6 +353,14 @@ function TourRequestForm() {
     setIsChecked(e.target.checked);
   };
 
+  const onFinishFailed = (errorInfo) => {
+    message.error(
+      "Có lỗi xảy ra. Bạn vui lòng kiểm tra lại các trường thông tin đã điền đầy đủ chưa.",
+      3
+    ); // Hiển thị thông báo lỗi trong 3 giây
+    console.log("Failed:", errorInfo);
+  };
+
   const onFinish = async (formValues) => {
     if (!isChecked) {
       alertFail("Please agree to the terms and conditions before submitting.");
@@ -576,7 +585,7 @@ function TourRequestForm() {
           Đặt tour theo yêu cầu
         </div>
         <div className="max-w-[800px] mx-auto mb-12">
-          <Form form={form} onFinish={onFinish} className="" layout="vertical">
+          <Form form={form} onFinish={onFinish}  onFinishFailed={onFinishFailed} className="" layout="vertical">
             <Form.Item
               label="Họ tên người đại diện:"
               name="username"
@@ -777,8 +786,48 @@ function TourRequestForm() {
               </div>
             </Form.Item>
 
-            {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
-            {selectedLocations.length > 1 && (
+           
+            <Form.Item
+              name="startLocation"
+              label={
+                <span>
+                  Địa chỉ xuất phát hoặc tập trung: &nbsp;
+                  <Tooltip
+                    title="Nếu điền địa chỉ xuất phát hoặc tập trung thì chúng tôi sẽ chuẩn bị cho bạn phương tiện đưa đón phù hợp 
+                  tới điểm bắt đầu chuyến tour!"
+                  >
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
+              className="font-semibold"
+            >
+              <AddressSearch onChange={handleAddressSelect} />
+            </Form.Item>
+            
+
+            <Form.Item
+              name="locations"
+              label={
+                <span>
+                  Địa điểm mong muốn: &nbsp;
+                  <Tooltip title="Bạn có thể chọn nhiều địa điểm trên thanh tìm kiếm!">
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              }
+              className="font-semibold"
+              rules={[
+                {
+                  required: true,
+                  message: "Chọn ít nhất 1 địa điểm mà bạn muốn thăm",
+                },
+              ]}
+            >
+              <AddressSearchMultiple onChange={handleLocationsChange} />
+            </Form.Item>
+             {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
+             {selectedLocations.length > 1 && (
               <Form.Item
                 name="mainLocation"
                 label="Địa điểm mong muốn chính (địa điểm quan trọng nhất):"
@@ -808,44 +857,6 @@ function TourRequestForm() {
                 </Select>
               </Form.Item>
             )}
-            <Form.Item
-              name="startLocation"
-              label={
-                <span>
-                  Địa chỉ xuất phát hoặc tập trung: &nbsp;
-                  <Tooltip
-                    title="Nếu điền địa chỉ xuất phát hoặc tập trung thì chúng tôi sẽ chuẩn bị cho bạn phương tiện đưa đón phù hợp 
-                  tới điểm bắt đầu chuyến tour!"
-                  >
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </span>
-              }
-              className="font-semibold"
-            >
-              <AddressSearch onChange={handleAddressSelect} />
-            </Form.Item>
-
-            <Form.Item
-              name="locations"
-              label={
-                <span>
-                  Địa điểm mong muốn: &nbsp;
-                  <Tooltip title="Bạn có thể chọn nhiều địa điểm trên thanh tìm kiếm!">
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </span>
-              }
-              className="font-semibold"
-              rules={[
-                {
-                  required: true,
-                  message: "Chọn ít nhất 1 địa điểm mà bạn muốn thăm",
-                },
-              ]}
-            >
-              <AddressSearchMultiple onChange={handleLocationsChange} />
-            </Form.Item>
             <Form.Item
               label="Hình thức ăn:"
               name="foodType"

@@ -8,11 +8,13 @@ import {
 import { servingVehiclesQuantity } from "../../../../../../settings/globalStatus";
 import { postHumanResourceSalaryWithIsForTourguide } from "../../../../../../api/HumanResourceSalaryApi";
 import { usePrice } from "../../../../../../context/PriceContext";
+import moment from "moment";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 const InfoTourGuideSection = ({
+  provinceNumDay,
   request,
   form,
   setProvinces,
@@ -25,9 +27,23 @@ const InfoTourGuideSection = ({
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
   const [selectedProvinces, setSelectedProvinces] = useState([]);
   const [availableProvinces, setAvailableProvinces] = useState([]);
-  console.log("availableProvinces", availableProvinces);
+
+  console.log("selectedProvinces", selectedProvinces);
+
+  const fieldstravelOptions = form.getFieldValue("travelOptions") || [];
 
   const { updateCommonPrice, commonPrices } = usePrice();
+
+  useEffect(() => {
+    if (form.getFieldValue("tourGuideCosts")) {
+
+      const initialSelectedProvinces = form.getFieldValue("tourGuideCosts").map(
+        (item) => item.provinceId
+      );
+      setSelectedProvinces(initialSelectedProvinces);
+    }
+  }, [form]);
+
 
   useEffect(() => {
     // debugger;
@@ -67,6 +83,9 @@ const InfoTourGuideSection = ({
     }
   }, [salaryInfo, form, request, commonPrices, updateCommonPrice]);
 
+
+
+
   const handleQuantityChange = (index, value) => {
     form.setFieldsValue({
       tourGuideCosts: form
@@ -75,6 +94,18 @@ const InfoTourGuideSection = ({
           idx === index ? { ...item, quantity: value } : item
         ),
     });
+    fetchSalaries();
+  };
+
+
+
+  const handleProvinceChange = (index, value) => {
+    const currentValues = form.getFieldValue("tourGuideCosts");
+    const newValues = currentValues.map((item, idx) =>
+      idx === index ? { ...item, provinceId: value } : item
+    );
+    form.setFieldsValue({ tourGuideCosts: newValues });
+    setSelectedProvinces(newValues.map((item) => item?.provinceId));
     fetchSalaries();
   };
 
@@ -89,14 +120,31 @@ const InfoTourGuideSection = ({
     fetchSalaries();
   };
 
-  const handleProvinceChange = (index, value) => {
+  const handleSelectProvince = (index, value) => {
     const currentValues = form.getFieldValue("tourGuideCosts");
     const newValues = currentValues.map((item, idx) =>
       idx === index ? { ...item, provinceId: value } : item
     );
     form.setFieldsValue({ tourGuideCosts: newValues });
-    setSelectedProvinces(newValues.map((item) => item.provinceId));
-    fetchSalaries();
+
+    const selectedProvince = provinces.find(
+      (province) => province.id === value
+    );
+    if (selectedProvince) {
+      form.setFieldsValue({
+        tourGuideCosts: form
+          .getFieldValue("tourGuideCosts")
+          .map((item, idx) =>
+            idx === index
+              ? { ...item, numOfDay: selectedProvince.numOfDays }
+              : item
+          ),
+      });
+    }
+
+    // Cập nhật selectedProvinces
+    const updatedSelectedProvinces = newValues.map(item => item.provinceId);
+    setSelectedProvinces(updatedSelectedProvinces);
   };
 
   const fetchSalaries = async () => {
@@ -181,117 +229,141 @@ const InfoTourGuideSection = ({
     );
   }, [selectedProvinces]);
 
+
+
   return (
     <>
       <Form.List name="tourGuideCosts">
         {(fields, { add, remove }) => (
           <>
-            {fields.map(({ key, name }, index) => (
-              <Space
-                key={key}
-                align="baseline"
-                className="mb-4 flex justify-between"
-              >
-                <div className="flex flex-wrap">
-                  <div className="text-center font-bold mr-14">{index + 1}</div>
-                  <div>
-                    <div className="flex flex-wrap">
-                      <Form.Item
-                        label="Tỉnh:"
-                        name={[name, "provinceId"]}
-                        className="flex font-semibold"
-                        rules={[
-                          { required: true, message: "Missing province" },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Tỉnh"
-                          onChange={(value) =>
-                            handleProvinceChange(index, value)
-                          }
-                          className="!w-[200px] mr-10"
-                        >
-                          {availableProvinces?.map((province) => (
-                            <Option key={province.id} value={province.id}>
-                              {province.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
+            {fields.map(({ key, name, ...restField }, index) => {
+              const provinceId = form.getFieldValue(["tourGuideCosts", index, "provinceId"]);
 
-                      <Form.Item
-                        label="Số ngày:"
-                        className=" font-semibold"
-                        name={[name, "numOfDay"]}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter number of days",
-                          },
-                        ]}
-                      >
-                        <InputNumber
-                          min={1}
-                          max={30}
-                          onChange={(value) =>
-                            handleNumOfDayChange(index, value)
-                          }
-                          placeholder="Số ngày"
-                          className="!w-[200px] mr-10"
-                        />
-                      </Form.Item>
-                      <Form.Item
-                        label="Số lượng hướng dẫn viên:"
-                        className=" font-semibold"
-                        name={[name, "quantity"]}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng điền số lượng hướng dẫn viên",
-                          },
-                        ]}
-                      >
-                        <InputNumber
-                          min={1}
-                          max={30}
-                          onChange={(value) =>
-                            handleQuantityChange(index, value)
-                          }
-                          placeholder="Số lượng hướng dẫn viên"
-                          className="!w-[200px] mr-10"
-                        />
-                      </Form.Item>
-                    </div>
-                    <div className="w-full">
-                      <div className="flex font-semibold text-gray-500 mr-10">
-                        {salaryInfo[index] && (
-                          <p>
-                            {" "}
-                            Phí hướng dẫn viên:{" "}
-                            {salaryInfo[index].result.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            })}
-                          </p>
-                        )}
+              const numOfDays = provinceNumDay.find(
+                (province) => province.id === provinceId
+              )?.numOfDays;
+
+              const filteredProvinces = availableProvinces.filter(
+                (province) => !selectedProvinces.includes(province.id) || province.id === provinceId
+              );
+
+              console.log("numOfDays", numOfDays);
+              console.log("provinces", provinceNumDay);
+              console.log("availableProvinces", availableProvinces);
+              console.log("filteredProvinces", filteredProvinces);
+
+
+              return (
+                <Space
+                  key={key}
+                  align="baseline"
+                  className="mb-4 flex justify-between"
+                >
+                  <div className="flex flex-wrap">
+                    <div className="text-center font-bold mr-14">{index + 1}</div>
+                    <div>
+                      <div className="flex flex-wrap">
+                        <Form.Item
+                          {...restField}
+                          label="Tỉnh:"
+                          name={[name, "provinceId"]}
+                          className="flex font-semibold"
+                          rules={[
+                            { required: true, message: "Missing province" },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Tỉnh"
+                            onChange={(value) => handleSelectProvince(index, value)}
+                            className="!w-[200px] mr-10"
+                          >
+                            {filteredProvinces.map((province) => (
+                              <Option key={province.id} value={province.id}>
+                                {province.name}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+
+                        <Form.Item
+                          {...restField}
+                          label="Số ngày:"
+                          className=" font-semibold"
+                          name={[name, "numOfDay"]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please enter number of days",
+                            },
+                          ]}
+                        >
+                          <InputNumber
+                            min={1}
+                            max={30}
+                            disabled={true}
+
+                            value={numOfDays}
+                            placeholder={numOfDays}
+                            className="!w-[200px] mr-10"
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          label="Số lượng hướng dẫn viên:"
+                          className=" font-semibold"
+                          name={[name, "quantity"]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng điền số lượng hướng dẫn viên",
+                            },
+                          ]}
+                        >
+                          <InputNumber
+                            min={1}
+                            max={30}
+                            onChange={(value) =>
+                              handleQuantityChange(index, value)
+                            }
+                            placeholder="Số lượng hướng dẫn viên"
+                            className="!w-[200px] mr-10"
+                          />
+                        </Form.Item>
+                      </div>
+                      <div className="w-full">
+                        <div className="flex font-semibold text-gray-500 mr-10">
+                          {salaryInfo[index] && (
+                            <p>
+                              {" "}
+                              Phí hướng dẫn viên:{" "}
+                              {salaryInfo[index].result.toLocaleString("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              })}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <DeleteOutlined onClick={() => handleRemove(index)} />
-              </Space>
-            ))}
-            <Form.Item className="w-1/3 ">
-              <Button
-                className="bg-teal-600 font-semibold text-white"
-                type="dashed"
-                onClick={() => add()}
-                block
-                icon={<PlusOutlined />}
-              >
-                Thêm tỉnh
-              </Button>
-            </Form.Item>
+                  <DeleteOutlined onClick={() => handleRemove(index)} />
+                </Space>
+              );
+            })}
+            {fields.length < fieldstravelOptions.length && (
+
+              <Form.Item className="w-1/3 ">
+                <Button
+                  className="bg-teal-600 font-semibold text-white"
+                  type="dashed"
+                  onClick={() => add()}
+                  block
+                  icon={<PlusOutlined />}
+                >
+                  Thêm tỉnh
+                </Button>
+              </Form.Item>
+            )}
           </>
         )}
       </Form.List>
