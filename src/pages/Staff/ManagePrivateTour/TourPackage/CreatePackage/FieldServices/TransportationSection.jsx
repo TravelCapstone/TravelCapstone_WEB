@@ -197,21 +197,15 @@ const TransportationSection = ({
     const hasInitialized = localStorage.getItem("hasInitializedTransportation");
 
     // Initialize only if it hasn't been done before
-    // if (!hasInitialized) {
     form.setFieldsValue({ transportation: initialTransportationValues });
     setTransportationCount(initialTransportationValues.length);
 
-    // Use an async function to handle province changes sequentially
-    const initializeProvinces = async () => {
-      for (let index = 0; index < initialTransportationValues.length; index++) {
-        const data = initialTransportationValues[index];
-        await handleProvinceChange(data.startPoint, index, "startPoint");
-        await handleProvinceChange(data.endPoint, index, "endPoint");
-      }
-    };
-
-    localStorage.setItem("hasInitializedTransportation", true);
-    // }
+    for (let index = 0; index < initialTransportationValues.length; index++) {
+      const data = initialTransportationValues[index];
+      handleProvinceChange(data.startPoint, index, "startPoint");
+      handleProvinceChange(data.endPoint, index, "endPoint");
+      localStorage.setItem("hasInitializedTransportation", true);
+    }
   }, [form, initialTransportationValues]);
 
   // Define state variable for available vehicle types

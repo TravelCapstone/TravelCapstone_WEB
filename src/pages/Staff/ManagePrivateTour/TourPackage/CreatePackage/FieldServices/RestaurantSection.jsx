@@ -321,11 +321,11 @@ const DaySection = ({
             rules={
               !selfServeStates.value
                 ? [
-                    {
-                      required: true,
-                      message: "Please select servingQuantity!",
-                    },
-                  ]
+                  {
+                    required: true,
+                    message: "Please select servingQuantity!",
+                  },
+                ]
                 : []
             }
             style={{ margin: 0 }}
@@ -333,6 +333,7 @@ const DaySection = ({
             <Select
               placeholder="Chọn loại bàn ăn"
               className="!w-[200px]"
+              loading={availableQuantities.length === 0}
               disabled={selfServeStates[record.key]}
               onChange={(value) => {
                 form.setFieldValue([record.name, "servingQuantity"], value);
@@ -373,45 +374,45 @@ const DaySection = ({
           <div className="w-[150px]">
             {!selfServeStates[record.key] && filteredPrices.length > 0
               ? filteredPrices.map((price) => (
-                  <div key={price.serviceTypeId}>
-                    {price.servingQuantity === 1
-                      ? "Bàn lẻ 1 người: "
-                      : price.servingQuantity === 5
-                        ? "Bàn 5 người: "
-                        : price.servingQuantity === 10
-                          ? "Bàn 10 người: "
-                          : `Bàn ${price.servingQuantity} người: `}
-                    {price.minPrice.toLocaleString("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
-                    ~{" "}
-                    {price.maxPrice.toLocaleString("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
-                  </div>
-                ))
+                <div key={price.serviceTypeId}>
+                  {price.servingQuantity === 1
+                    ? "Bàn lẻ 1 người: "
+                    : price.servingQuantity === 5
+                      ? "Bàn 5 người: "
+                      : price.servingQuantity === 10
+                        ? "Bàn 10 người: "
+                        : `Bàn ${price.servingQuantity} người: `}
+                  {price.minPrice.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                  ~{" "}
+                  {price.maxPrice.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </div>
+              ))
               : prices.map((price) => (
-                  <div key={price.serviceTypeId}>
-                    {price.servingQuantity === 1
-                      ? "Bàn lẻ 1 người: "
-                      : price.servingQuantity === 5
-                        ? "Bàn 5 người: "
-                        : price.servingQuantity === 10
-                          ? "Bàn 10 người: "
-                          : `Bàn ${price.servingQuantity} người: `}
-                    {price.minPrice.toLocaleString("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
-                    ~{" "}
-                    {price.maxPrice.toLocaleString("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
-                  </div>
-                ))}
+                <div key={price.serviceTypeId}>
+                  {price.servingQuantity === 1
+                    ? "Bàn lẻ 1 người: "
+                    : price.servingQuantity === 5
+                      ? "Bàn 5 người: "
+                      : price.servingQuantity === 10
+                        ? "Bàn 10 người: "
+                        : `Bàn ${price.servingQuantity} người: `}
+                  {price.minPrice.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                  ~{" "}
+                  {price.maxPrice.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </div>
+              ))}
           </div>
         );
       },
@@ -547,27 +548,27 @@ const DaySection = ({
             const priceMenu =
               prices.length > 0
                 ? prices.map((price) => (
-                    <div key={price.serviceTypeId}>
-                      {price.servingQuantity === 1
-                        ? "Bàn lẻ 1 người: "
-                        : price.servingQuantity === 5
-                          ? "Bàn 5 người: "
-                          : price.servingQuantity === 10
-                            ? "Bàn 10 người: "
-                            : `Bàn ${price.servingQuantity} người: `}
-                      <strong>
-                        {price.minPrice.toLocaleString("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        })}
-                        ~{" "}
-                        {price.maxPrice.toLocaleString("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        })}
-                      </strong>
-                    </div>
-                  ))
+                  <div key={price.serviceTypeId}>
+                    {price.servingQuantity === 1
+                      ? "Bàn lẻ 1 người: "
+                      : price.servingQuantity === 5
+                        ? "Bàn 5 người: "
+                        : price.servingQuantity === 10
+                          ? "Bàn 10 người: "
+                          : `Bàn ${price.servingQuantity} người: `}
+                    <strong>
+                      {price.minPrice.toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                      ~{" "}
+                      {price.maxPrice.toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </strong>
+                  </div>
+                ))
                 : "N/A";
 
             return {

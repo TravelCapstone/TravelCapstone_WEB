@@ -63,7 +63,7 @@ const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
     } = values;
     const total =
       organizationCost +
-      contigencyFeePerPerson * quantity +
+      contigencyFeePerPerson +
       escortFee +
       operatingFee +
       assurancePricePerPerson;
@@ -74,7 +74,7 @@ const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
     calculateTotalCost();
   }, [quantity, form]);
 
-  const minAssurancePricePerPerson = insurances.price * quantity;
+  const minAssurancePricePerPerson = insurances.price;
 
   return (
     <>
