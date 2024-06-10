@@ -9,18 +9,17 @@ import {
 import { getOperationFees } from "../../../../../../api/FeeApi";
 import { formatPrice } from "../../../../../../utils/Util";
 import { usePrice } from "../../../../../../context/PriceContext";
-const CustomSurchangeSection = ({ form, quantity, request }) => {
+
+const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
   const [fees, setFees] = useState({});
   const [totalCost, setTotalCost] = useState(0);
   console.log("fees", fees);
+  console.log("insurances", insurances);
 
   const { updateCommonPrice, commonPrices } = usePrice();
 
   useEffect(() => {
     if (totalCost) {
-      const quantity =
-        request?.privateTourResponse?.numOfAdult +
-        request?.privateTourResponse?.numOfChildren;
       const perInsurance = totalCost / quantity;
       const commonService = {
         item: "Phí dịch vụ tổ chức",
@@ -67,13 +66,15 @@ const CustomSurchangeSection = ({ form, quantity, request }) => {
       contigencyFeePerPerson * quantity +
       escortFee +
       operatingFee +
-      assurancePricePerPerson * quantity;
+      assurancePricePerPerson;
     setTotalCost(total);
   };
 
   useEffect(() => {
     calculateTotalCost();
   }, [quantity, form]);
+
+  const minAssurancePricePerPerson = insurances.price * quantity;
 
   return (
     <>
@@ -193,35 +194,35 @@ const CustomSurchangeSection = ({ form, quantity, request }) => {
           placeholder={fees?.minOperatingFee}
         />
       </Form.Item>
-      <Form.Item
-        label={
-          <span>
-            Phí bảo hiểm trên đầu người: &nbsp;
-            <Tooltip
-              title={`Phí vận hành phải nằm trong khoảng từ ${formatPrice(fees?.minAssurancePricePerPerson)} đến ${formatPrice(fees?.maxAssurancePricePerPerson)}`}
-            >
-              <QuestionCircleOutlined />
-            </Tooltip>
-          </span>
-        }
-        name="assurancePricePerPerson"
-        rules={[
-          {
-            type: "number",
-            min: fees?.minAssurancePricePerPerson,
-            max: fees?.maxAssurancePricePerPerson,
-            message: `Phí vận hành phải nằm trong khoảng từ ${formatPrice(fees?.minAssurancePricePerPerson)} đến ${formatPrice(fees?.maxAssurancePricePerPerson)}`,
-          },
-        ]}
-      >
-        <InputNumber
-          min={fees?.minAssurancePricePerPerson}
-          max={fees?.maxAssurancePricePerPerson}
-          onChange={() => calculateTotalCost()}
-          value={fees?.minAssurancePricePerPerson}
-          placeholder={fees?.minAssurancePricePerPerson}
-        />
-      </Form.Item>
+      {minAssurancePricePerPerson && (
+        <Form.Item
+          label={
+            <span>
+              Phí bảo hiểm trên đầu người: &nbsp;
+              <Tooltip
+                title={`Phí vận hành phải nằm trong khoảng từ ${formatPrice(fees?.minAssurancePricePerPerson)} đến ${formatPrice(fees?.maxAssurancePricePerPerson)}`}
+              >
+                <QuestionCircleOutlined />
+              </Tooltip>
+            </span>
+          }
+          name="assurancePricePerPerson"
+          rules={[
+            {
+              type: "number",
+              min: minAssurancePricePerPerson,
+              message: `Phí vận hành phải nằm trong khoảng từ ${formatPrice(minAssurancePricePerPerson)} đến ${formatPrice(fees?.maxAssurancePricePerPerson)}`,
+            },
+          ]}
+        >
+          <InputNumber
+            min={minAssurancePricePerPerson}
+            onChange={() => calculateTotalCost()}
+            value={minAssurancePricePerPerson}
+            placeholder={minAssurancePricePerPerson}
+          />
+        </Form.Item>
+      )}
       <div className="font-bold text-lg mt-4">
         Tổng giá:{" "}
         {totalCost.toLocaleString("vi-VN", {

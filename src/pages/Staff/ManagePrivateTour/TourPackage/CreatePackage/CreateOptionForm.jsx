@@ -50,7 +50,7 @@ const convertDateFormat = (dateString) => {
   const [day, month, year] = datePart.split("-");
 
   const isoDate = `${year}-${month}-${day}T${timePart}.000Z`;
-  debugger;
+  // debugger;
   return isoDate;
 };
 
@@ -78,6 +78,8 @@ function CreateOptionForm({ request }) {
 
   const [endDateFinal, setEndDateFinal] = useState(null); // tourDate
   const [startDateFinal, setStartDateFinal] = useState(null); // tourDate
+
+  const [insurances, setInsurances] = useState({});
 
   console.log("startDateFinal", startDateFinal);
   console.log("endDateFinal", endDateFinal);
@@ -892,6 +894,8 @@ function CreateOptionForm({ request }) {
                 </h3>
                 <InsuranceSection
                   // basePath={[field.name]}
+                  insurances={insurances}
+                  setInsurances={setInsurances}
                   request={request}
                   form={form}
                   provinces={provinces}
@@ -937,6 +941,7 @@ function CreateOptionForm({ request }) {
                 </h3>
                 <CustomSurchangeSection
                   request={request}
+                  insurances={insurances}
                   form={form}
                   quantity={
                     request?.privateTourResponse.numOfAdult +

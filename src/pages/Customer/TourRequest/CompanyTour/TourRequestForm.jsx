@@ -127,7 +127,7 @@ function TourRequestForm() {
 
   useEffect(() => {
     if (selectedLocations.length === 1) {
-      debugger;
+      // debugger;
       setMainLocation(selectedLocations[0]);
       setMainDestinationId(selectedLocations[0].provinceId);
     } else {
@@ -331,7 +331,7 @@ function TourRequestForm() {
           districtName,
           communeName
         );
-        debugger;
+        // debugger;
         if (communeData && communeData.result.items.length > 0) {
           setStartCommuneId(communeData.result.items[0].id);
         } else {
@@ -403,29 +403,71 @@ function TourRequestForm() {
       dietaryPreference: valueFoodType,
     };
     console.log("tourData", tourData);
-    setIsLoading(true);
-    try {
-      const response = await createPrivateTour(tourData);
 
-      if (response?.data?.isSuccess) {
-        alertSuccess("Tour created successfully!");
-        form.resetFields(); // Reset all fields in the form
-        setSelectedLocations([]); // Reset state if needed for locations
-        setMainLocation(""); // Reset main location
-        setIsChecked(false); // Uncheck the terms and conditions box
-        navigate(`${LISTING_TOUR_PRIVATE}`);
-      } else {
-        for (const message in response.messages) {
-          // alertFail(message);
+    const totalPassengers = tourData.numOfChildren + tourData.numOfAdult;
+
+    const showModal = () => {
+      Modal.confirm({
+        title: "Số lượng hành khách trong tour đang dưới 10 người",
+        content: (
+          <>
+            <p>
+              Bạn có thể xem qua danh sách tour phù hợp nhất với bạn dưới đây:
+            </p>
+            <ul>
+              <li>
+                <a href="link1" target="_blank" rel="noopener noreferrer">
+                  link 1
+                </a>
+              </li>
+              <li>
+                <a href="link2" target="_blank" rel="noopener noreferrer">
+                  link 2
+                </a>
+              </li>
+            </ul>
+            <p>
+              Nếu bạn vẫn mong muốn tạo tour yêu cầu thì hãy gửi đơn để chúng
+              tôi hỗ trợ bạn!
+            </p>
+          </>
+        ),
+        onOk: () => proceedWithTourCreation(),
+        onCancel: () => console.log("Tour creation canceled by user"),
+      });
+    };
+
+    const proceedWithTourCreation = async () => {
+      setIsLoading(true);
+      try {
+        const response = await createPrivateTour(tourData);
+
+        if (response?.data?.isSuccess) {
+          alertSuccess("Tour created successfully!");
+          form.resetFields(); // Reset all fields in the form
+          setSelectedLocations([]); // Reset state if needed for locations
+          setMainLocation(""); // Reset main location
+          setIsChecked(false); // Uncheck the terms and conditions box
+          navigate(`${LISTING_TOUR_PRIVATE}`);
+        } else {
+          for (const message in response.messages) {
+            // alertFail(message);
+          }
         }
+      } catch (error) {
+        console.error("Error creating tour:", error);
+        alertFail(
+          "An error occurred while creating the tour. Please try again later."
+        );
+      } finally {
+        setIsLoading(false); // Set loading to false after the form submission is complete
       }
-    } catch (error) {
-      console.error("Error creating tour:", error);
-      alertFail(
-        "An error occurred while creating the tour. Please try again later."
-      );
-    } finally {
-      setIsLoading(false); // Set loading to false after the form submission is complete
+    };
+
+    if (totalPassengers < 10) {
+      showModal();
+    } else {
+      proceedWithTourCreation();
     }
   };
 

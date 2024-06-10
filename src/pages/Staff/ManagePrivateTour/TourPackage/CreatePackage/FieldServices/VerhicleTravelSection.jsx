@@ -49,12 +49,77 @@ const VerhicleTravelSection = ({
   console.log("availableVehicleTypes", availableVehicleTypes);
   const [loadingVehicle, setLoadingVehicle] = useState(false);
   const { updateCommonPrice, commonPrices } = usePrice();
+  const [provinceVerhicle, setProvinceVerhicle] = useState([]);
+
+  console.log("provinceVerhicle", provinceVerhicle);
+
+  const fieldsTransportation = form.getFieldValue("transportation") || [];
+
+  console.log(
+    "fieldsTransportation in VerhicleTravelSection",
+    fieldsTransportation
+  );
+
+  // Extract startPoint of the first item and endPoint of the last item
+  const firstStartPoint =
+    fieldsTransportation.length > 0 ? fieldsTransportation[0].startPoint : null;
+  const lastEndPoint =
+    fieldsTransportation.length > 0
+      ? fieldsTransportation[fieldsTransportation.length - 1].endPoint
+      : null;
+
+  let remainingProvinces = [];
+  if (fieldsTransportation.length > 2) {
+    remainingProvinces = Array.from(
+      new Set(
+        fieldsTransportation
+          .slice(1, -1) // Ignore the first and last items
+          .flatMap((item) => [item.startPoint, item.endPoint]) // Extract startPoint and endPoint
+          .filter((point, index, self) => self.indexOf(point) === index) // Remove duplicates
+      )
+    );
+  } else if (fieldsTransportation.length === 2) {
+    remainingProvinces = Array.from(
+      new Set([
+        fieldsTransportation[0].endPoint,
+        fieldsTransportation[1].startPoint,
+      ])
+    );
+  }
+
+  // Log for debugging
+  console.log("firstStartPoint", firstStartPoint);
+  console.log("lastEndPoint", lastEndPoint);
+  console.log("remainingProvinces", remainingProvinces);
+
+  useEffect(() => {
+    setProvinceVerhicle(remainingProvinces);
+  }, [fieldsTransportation]);
+
+  // Map provinceVerhicle to the ids and names from provinces
+  const provinceIdNamePairs = provinceVerhicle
+    .map((id) => {
+      const province = provinces.find((province) => province.id === id);
+      return province ? { id: province.id, name: province.name } : null;
+    })
+    .filter((item) => item !== null); // Filter out any null values
+
+  // Log for debugging
+  console.log("provinceIdNamePairs", provinceIdNamePairs);
+
+  // Prepare initial values for Form.List
+  const initialValues = provinceIdNamePairs.map((pair) => ({
+    provinceId: pair.id,
+  }));
+
+  console.log("initialValues", initialValues);
 
   useEffect(() => {
     if (
       priceInfo &&
       typeof priceInfo === "object" &&
-      !Array.isArray(priceInfo)
+      !Array.isArray(priceInfo) &&
+      availableVehicleTypes.length !== 0
     ) {
       const travelOptionsFields = form.getFieldValue("travelOptions");
       travelOptionsFields.forEach((_, index) => {
@@ -90,6 +155,7 @@ const VerhicleTravelSection = ({
     const fetchAvailableVehicleTypes = async () => {
       const travelOptions = form.getFieldValue("travelOptions");
       if (travelOptions && travelOptions.length > 0) {
+        debugger;
         const results = await Promise.all(
           travelOptions.map(async (item) => {
             const { provinceId } = item;
@@ -171,12 +237,15 @@ const VerhicleTravelSection = ({
   };
 
   useEffect(() => {
-    form.setFieldsValue({
-      travelOptions: form.getFieldValue("travelOptions").map((option) => ({
-        ...option,
-        numOfVehicle: calculateNumOfVehicle(option.vehicleType),
-      })),
-    });
+    const travelOptions = form.getFieldValue("travelOptions");
+    if (Array.isArray(travelOptions)) {
+      form.setFieldsValue({
+        travelOptions: travelOptions.map((option) => ({
+          ...option,
+          numOfVehicle: calculateNumOfVehicle(option.vehicleType),
+        })),
+      });
+    }
   }, [form]);
 
   // get giá verhicle
@@ -295,42 +364,47 @@ const VerhicleTravelSection = ({
 
   return (
     <>
-      <Form.List name="travelOptions" initialValue={[{}]}>
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map(({ key, name }, index) => (
-              <Space
-                key={key}
-                align="baseline"
-                className="mb-4 flex justify-between"
-              >
-                <div className="flex ">
-                  <div className="text-center font-bold mr-14">{index + 1}</div>
-                  <div>
-                    <div className="flex flex-wrap">
-                      <Form.Item
-                        label="Tỉnh:"
-                        name={[name, "provinceId"]}
-                        className="flex font-semibold"
-                        rules={[
-                          { required: true, message: "Missing province" },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Tỉnh"
-                          onChange={(value) =>
-                            handleProvinceChange(index, value, "provinceId")
-                          }
-                          className="!w-[200px] mr-10"
+      {provinceIdNamePairs.length > 0 && (
+        <Form.List name="travelOptions" initialValue={initialValues}>
+          {(fields, { add, remove }) => (
+            <>
+              {fields.map(({ key, name, ...restField }, index) => (
+                <Space
+                  key={key}
+                  align="baseline"
+                  className="mb-4 flex justify-between"
+                >
+                  <div className="flex ">
+                    <div className="text-center font-bold mr-14">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap">
+                        <Form.Item
+                          {...restField}
+                          label="Tỉnh:"
+                          name={[name, "provinceId"]}
+                          className="flex font-semibold"
+                          rules={[
+                            { required: true, message: "Missing province" },
+                          ]}
                         >
-                          {availableProvinces?.map((province) => (
-                            <Option key={province.id} value={province.id}>
-                              {province.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                      {/* <Form.Item
+                          <Select
+                            placeholder="Tỉnh"
+                            onChange={(value) =>
+                              handleProvinceChange(index, value, "provinceId")
+                            }
+                            className="!w-[200px] mr-10"
+                            defaultValue={initialValues[index]?.provinceId}
+                          >
+                            {provinceIdNamePairs.map((province) => (
+                              <Option key={province.id} value={province.id}>
+                                {province.name}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                        {/* <Form.Item
                         name={[name, "districtId"]}
                         className="flex font-semibold"
                         placeholder="Huyện/TP"
@@ -354,93 +428,103 @@ const VerhicleTravelSection = ({
                         </Select>
                       </Form.Item> */}
 
-                      <ConfigProvider locale={viVN}>
-                        <Form.Item
-                          name={[name, "dateRange"]}
-                          label="Ngày đi:"
-                          className="flex font-semibold"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Vui lòng chọn ngày đi!",
-                            },
-                          ]}
-                        >
-                          <RangePicker
-                            onChange={() => fetchVehiclePriceRange(index)}
-                            showTime
-                            className="!w-[350px] mr-10"
-                            format="DD-MM-YYYY HH:mm:ss"
-                            disabledDate={disabledDate}
-                            defaultPickerValue={[getDefaultPickerValue()]}
-                          />
-                        </Form.Item>
-                      </ConfigProvider>
-                    </div>
-                    <div className="">
-                      <div className="flex flex-wrap">
-                        <Form.Item
-                          className=" font-semibold"
-                          label="Phương tiện du lịch:"
-                          name={[name, "vehicleType"]}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Please select a vehicle",
-                            },
-                          ]}
-                        >
-                          <Select
-                            placeholder="Chọn phương tiện"
-                            className="!w-[200px] mr-10"
-                            loading={loadingVehicle}
-                            disabled={loadingVehicle || !selectedProvinces}
-                            onChange={(value) =>
-                              onVehicleTypeChange(index, value, name)
-                            }
+                        <ConfigProvider locale={viVN}>
+                          <Form.Item
+                            {...restField}
+                            name={[name, "dateRange"]}
+                            label="Ngày đi:"
+                            className="flex font-semibold"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Vui lòng chọn ngày đi!",
+                              },
+                            ]}
                           >
-                            {availableVehicleTypes[index]?.map((key) => {
-                              const label = servingVehiclesQuantity[key];
-                              return (
-                                <Option key={key} value={parseInt(key, 10)}>
-                                  {label}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        </Form.Item>
-                        <Form.Item
-                          className="font-semibold "
-                          label="Số lượng phương tiện:"
-                          name={[name, "numOfVehicle"]}
-                        >
-                          <Input readOnly disabled className="w-[100px]" />
-                        </Form.Item>
+                            <RangePicker
+                              onChange={() => fetchVehiclePriceRange(index)}
+                              showTime
+                              className="!w-[350px] mr-10"
+                              format="DD-MM-YYYY HH:mm:ss"
+                              disabledDate={disabledDate}
+                              defaultPickerValue={[getDefaultPickerValue()]}
+                            />
+                          </Form.Item>
+                        </ConfigProvider>
                       </div>
-                      {priceInfo[index] && (
-                        <div className="flex font-semibold text-gray-500 mr-10">
-                          <h3 className="text-lg mr-3">Khoảng giá: </h3>
-                          <p className="text-lg">
-                            {priceInfo[index].minCostperPerson.toLocaleString(
-                              "vi-VN",
+                      <div className="">
+                        <div className="flex flex-wrap">
+                          <Form.Item
+                            className="font-semibold"
+                            {...restField}
+                            label="Phương tiện du lịch:"
+                            name={[name, "vehicleType"]}
+                            rules={[
                               {
-                                style: "currency",
-                                currency: "VND",
+                                required: true,
+                                message: "Please select a vehicle",
+                              },
+                            ]}
+                          >
+                            <Select
+                              placeholder="Chọn phương tiện"
+                              className="!w-[200px] mr-10"
+                              loading={
+                                loadingVehicle ||
+                                availableVehicleTypes.length === 0
                               }
-                            )}{" "}
-                            ~{" "}
-                            {priceInfo[index].maxCostperPerson.toLocaleString(
-                              "vi-VN",
-                              {
-                                style: "currency",
-                                currency: "VND",
+                              disabled={
+                                loadingVehicle ||
+                                !selectedProvinces ||
+                                availableVehicleTypes.length === 0
                               }
-                            )}{" "}
-                            /người
-                          </p>
+                              onChange={(value) =>
+                                onVehicleTypeChange(index, value, name)
+                              }
+                            >
+                              {availableVehicleTypes[index]?.map((key) => {
+                                const label = servingVehiclesQuantity[key];
+                                return (
+                                  <Option key={key} value={parseInt(key, 10)}>
+                                    {label}
+                                  </Option>
+                                );
+                              })}
+                            </Select>
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            className="font-semibold "
+                            label="Số lượng phương tiện:"
+                            name={[name, "numOfVehicle"]}
+                          >
+                            <Input readOnly disabled className="w-[100px]" />
+                          </Form.Item>
                         </div>
-                      )}
-                      {/* <Form.Item
+                        {priceInfo[index] && (
+                          <div className="flex font-semibold text-gray-500 mr-10">
+                            <h3 className="text-lg mr-3">Khoảng giá: </h3>
+                            <p className="text-lg">
+                              {priceInfo[index].minCostperPerson.toLocaleString(
+                                "vi-VN",
+                                {
+                                  style: "currency",
+                                  currency: "VND",
+                                }
+                              )}{" "}
+                              ~{" "}
+                              {priceInfo[index].maxCostperPerson.toLocaleString(
+                                "vi-VN",
+                                {
+                                  style: "currency",
+                                  currency: "VND",
+                                }
+                              )}{" "}
+                              /người
+                            </p>
+                          </div>
+                        )}
+                        {/* <Form.Item
                         label="Số lượng xe:"
                         className=" font-semibold"
                         name={[name, "numOfVehicle"]}
@@ -459,32 +543,33 @@ const VerhicleTravelSection = ({
                           className="!w-[200px] mr-10"
                         />
                       </Form.Item> */}
+                      </div>
                     </div>
-                  </div>
 
-                  <DeleteOutlined
-                    className="self-start mt-2"
-                    onClick={() => remove(name)}
-                  />
-                </div>
-              </Space>
-            ))}
-            {availableVehicleTypes.length === fields.length && (
-              <Form.Item className="w-1/3 ">
-                <Button
-                  className="bg-teal-600 font-semibold text-white"
-                  type="dashed"
-                  onClick={() => add()}
-                  block
-                  icon={<PlusOutlined />}
-                >
-                  Thêm phương tiện du lịch
-                </Button>
-              </Form.Item>
-            )}
-          </>
-        )}
-      </Form.List>
+                    <DeleteOutlined
+                      className="self-start mt-2"
+                      onClick={() => remove(name)}
+                    />
+                  </div>
+                </Space>
+              ))}
+              {fields.length < initialValues.length && (
+                <Form.Item className="w-1/3 ">
+                  <Button
+                    className="bg-teal-600 font-semibold text-white"
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                  >
+                    Thêm phương tiện du lịch
+                  </Button>
+                </Form.Item>
+              )}
+            </>
+          )}
+        </Form.List>
+      )}
     </>
   );
 };

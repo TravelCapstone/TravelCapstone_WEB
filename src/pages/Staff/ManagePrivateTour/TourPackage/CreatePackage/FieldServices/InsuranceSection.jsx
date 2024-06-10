@@ -20,8 +20,9 @@ const InsuranceSection = ({
   provinces,
   onProvinceChange,
   basePath,
+  setInsurances,
+  insurances,
 }) => {
-  const [insurances, setInsurances] = useState({});
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [insuranceId, setInsuranceId] = useState(null);
   const numOfDays = request?.privateTourResponse?.numOfDay;
@@ -120,7 +121,7 @@ const InsuranceSection = ({
           <strong>Tên:</strong> {insurances.assurance?.name}
         </p>
         <p>
-          <strong>Giá:</strong> {formatPrice(insurances.price)}
+          <strong>Giá:</strong> {formatPrice(insurances.price)} / người
         </p>
         <p>
           <strong>Mô tả:</strong> {insurances.assurance?.description}
