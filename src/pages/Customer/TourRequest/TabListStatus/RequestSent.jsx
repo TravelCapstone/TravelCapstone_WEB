@@ -76,8 +76,7 @@ const RequestSent = ({ orders, title, error }) => {
                   </td>
 
                   <td>
-                    {order.details.privateTourResponse.numOfDay} ngày{" "}
-                    {order.details.privateTourResponse.numOfNight} đêm
+                    {order.numOfDay} ngày {order.numOfNight} đêm
                   </td>
                   <td>
                     <Tooltip
@@ -96,20 +95,14 @@ const RequestSent = ({ orders, title, error }) => {
                   <td
                     className="text-gray-600 uppercase font-semibold p-2"
                     style={{
-                      ...getOrderStatusStyle(
-                        order.details.privateTourResponse.status
-                      ),
+                      ...getOrderStatusStyle(order.privateTourStatusId),
                     }}
                   >
-                    {order.details.privateTourResponse.status === 0 &&
-                      "Đã gửi yêu cầu"}
-                    {order.details.privateTourResponse.status === 1 &&
-                      "Chọn gói tour"}
-                    {order.details.privateTourResponse.status === 2 &&
-                      "ĐÃ HOÀN THÀNH"}
-                    {order.details.privateTourResponse.status === 3 && "ĐÃ HUỶ"}
-                    {order.details.privateTourResponse.status === 4 &&
-                      "ĐÃ TẠO KẾ HOẠCH TOUR"}
+                    {order.privateTourStatusId === 0 && "Đã gửi yêu cầu"}
+                    {order.privateTourStatusId === 1 && "Chọn gói tour"}
+                    {order.privateTourStatusId === 2 && "ĐÃ HOÀN THÀNH"}
+                    {order.privateTourStatusId === 3 && "ĐÃ HUỶ"}
+                    {order.privateTourStatusId === 4 && "ĐÃ TẠO KẾ HOẠCH TOUR"}
                   </td>
                   <td className="text-center">
                     <NavLink

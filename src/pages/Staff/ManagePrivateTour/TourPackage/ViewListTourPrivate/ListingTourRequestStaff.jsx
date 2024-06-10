@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { getAllPrivateTour } from "../../../../../api/privateTourRequestApi";
-import { DETAIL_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
+import {
+  DETAIL_TOUR_REQUEST_STAFF,
+  LISTING_TOUR_REQUEST_STAFF,
+} from "../../../../../settings/constant";
 import { statusPrivateTourLabels } from "../../../../../settings/globalStatus";
 import PaginationManagement from "../../../../../components/UI/Pagination/PaginationManagement";
 import LoadingComponent from "../../../../../components/Loading/LoadingComponent";
@@ -9,6 +12,7 @@ import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
 
 import { formatDate } from "../../../../../utils/Util";
 import { Tooltip } from "antd";
+import BreadcrumbWithBackButton from "../../../../../components/BreadCrumb/BreadCrumb";
 const ListingTourRequestStaff = () => {
   const itemsPerPage = 10;
   const [listTourRequest, setListTourRequest] = useState([]);
@@ -50,14 +54,24 @@ const ListingTourRequestStaff = () => {
     setCurrentPage(1);
   };
 
-  // const renderOtherLocations = (locations) => {
-  //   return locations.map((location) => location.province?.name).join(", ");
-  // };
+  const breadcrumbItems = [
+    { name: "Lịch sử tour yêu cầu", url: LISTING_TOUR_REQUEST_STAFF },
+  ];
 
   return (
     <>
       <LoadingOverlay isLoading={isLoading} />
       <div className="bg-white shadow-md rounded-lg p-6 overflow-x-auto ">
+        <div className="mb-8">
+          <BreadcrumbWithBackButton
+            breadcrumbItems={breadcrumbItems}
+            currentTab={
+              activeTab === "all"
+                ? "Tất cả"
+                : statusPrivateTourLabels[activeTab]
+            }
+          />
+        </div>
         <h2 className="text-xl text-primary font-semibold mb-4 text-center text-pretty">
           LỊCH SỬ TOUR YÊU CẦU
         </h2>
@@ -70,7 +84,7 @@ const ListingTourRequestStaff = () => {
                 className={`tab tab-lifted ${activeTab === status ? "tab-active" : ""}`}
                 onClick={() => handleTabChange(status)}
               >
-                {status === "all" ? "All" : statusPrivateTourLabels[status]}
+                {status === "all" ? "Tất cả" : statusPrivateTourLabels[status]}
               </a>
             ))}
           </div>
