@@ -9,6 +9,7 @@ import BreadcrumbWithBackButton from "../../../../../components/BreadCrumb/Bread
 import { LISTING_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
 import ViewOptionCard from "../../../../Customer/ViewOptions/ViewOptionCard/ViewOptionCard";
 import ViewOptionsItems from "../../../../Customer/ViewOptions/ViewOptionsItems";
+import ViewPlan from "../../../../Plan/ViewPlan";
 
 function TourRequestPage() {
   const { id } = useParams();
@@ -142,7 +143,10 @@ function TourRequestPage() {
     {
       label:
         request.privateTourResponse?.status === 4 ? "Kế hoạch chi tiết" : null,
-      content: request.privateTourResponse?.status === 4 ? <p> hihi</p> : null,
+      content:
+        request.privateTourResponse?.status === 4 ? (
+          <ViewPlan privateTourResponse={request?.privateTourResponse} />
+        ) : null,
     },
   ].filter((tab) => tab.content != null);
 
