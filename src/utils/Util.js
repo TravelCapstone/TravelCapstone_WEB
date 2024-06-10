@@ -113,6 +113,7 @@ import moment from "moment-timezone";
 function formatDateToISOString(date) {
   return moment(date).format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
 }
+
 export {
   formatPrice,
   formatDateTime,

@@ -1,12 +1,22 @@
-    import React, { useState } from 'react';
-    import { Form, Input, Button, Checkbox } from 'antd';
-    import styled from 'styled-components';
-    import { MainLogo } from '../../components';
-    import { Link, Navigate} from 'react-router-dom';
-    import { FORGET_PASSWORD_PAGE } from '../../settings/constant';
-    import { useAuth } from '../../context/AuthContext';
-
-    const SignInContainer = styled.div`
+import React, { useEffect, useState } from "react";
+import { Form, Input, Button, Checkbox, message } from "antd";
+import styled from "styled-components";
+import { MainLogo } from "../../components";
+import { Link, NavLink, Navigate, useNavigate } from "react-router-dom";
+import { FORGET_PASSWORD_PAGE } from "../../settings/constant";
+import { useAuth } from "../../context/AuthContext";
+import {
+  activeAccount,
+  getAccountById,
+  googleCallback,
+  loginWithEmailPass,
+} from "../../api/AccountApi";
+import { decode } from "../../utils/JwtUtil";
+import { author, login } from "../../redux/features/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import LoadingOverlay from "../../components/Loading/LoadingOverlay";
+const SignInContainer = styled.div`
     width: 600px;
     border-radius: 0.75rem;
     padding: 50px 100px 50px 100px;
@@ -14,152 +24,242 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     `;
 
-    const SignInForm = styled(Form)`
-    .ant-form-item {
-        margin-bottom: 40px;
-    }
-    `;
+const SignInForm = styled(Form)`
+  .ant-form-item {
+    margin-bottom: 40px;
+  }
+`;
 
-    const ButtonSignIn = styled(Button)`
-        background-color: rgb(13 148 136);
-    `
+const ButtonSignIn = styled(Button)`
+  background-color: rgb(13 148 136);
+`;
 
-    const StyledButton = styled(Button)`
-    background-color: ${(props) => (props.isLoginButton ? 'rgb(13 148 136)' : 'default')};
-    `;
+const StyledButton = styled(Button)`
+  background-color: ${(props) =>
+    props.isLoginButton ? "rgb(13 148 136)" : "default"};
+`;
 
-    const SocialLoginButton = styled(Button)`
-    width: 100%;
-    margin-bottom: 10px;
-    `;
+const SocialLoginButton = styled(Button)`
+  width: 100%;
+  margin-bottom: 10px;
+`;
 
-    const SocialLoginContainer = styled.div`
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
+const SocialLoginContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
 
-    & > * {
-        margin-right: 10px; // Spacing between buttons
-    }
+  & > * {
+    margin-right: 10px; // Spacing between buttons
+  }
 
-    & > *:last-child {
-        margin-right: 0;
-    }
-    `;
+  & > *:last-child {
+    margin-right: 0;
+  }
+`;
+import { auth } from "../../config/firebase";
+import OtpModal from "../Common/OtpModal";
+function SignInPage() {
+  const [form] = Form.useForm();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [isModalForgotPasswordVisible, setIsModalForgotPasswordVisible] =
+    useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-    const mockLogin = async (username, password) => {
-        const mockUser = {
-            username: 'admin123',
-            password: '12345', // You should never store passwords like this in a real app
-        };
+  const user = useSelector((state) => state.user.user || {});
+  const dispatch = useDispatch();
+  const googleProvider = new GoogleAuthProvider();
 
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (username === mockUser.username && password === mockUser.password) {
-                    resolve({ success: true, message: 'Login successful' });
-                } else {
-                    reject({ success: false, message: 'Incorrect username or password' });
-                }
-            }, 1000); // Simulate a network request with a timeout
-        });
-    };
-
-    function SignInPage() {
-        const [form] = Form.useForm();
-        const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
-        const { login } = useAuth();
-
-        // Usage within the onFinish function in the Form component
-        const onFinish = async (values) => {
-            try {
-                const response = await mockLogin(values.username, values.password);
-                console.log(response.message);
-                setIsLoggedIn(true); // Update the login state
-                login(values.username);
-            } catch (error) {
-                console.log(error.message);
-                setIsLoggedIn(false); // Update the login state
-            }
-        };
-
-        if (isLoggedIn) {
-            return <Navigate to="/" replace={true} />;
-          }
-
-        return (
-            <div className="flex h-screen bg-[url('https://media1.thrillophilia.com/filestore/e0sv7qhxf4fg3gd33dfe1liycj4h_shutterstock_2178792551.jpg?dpr=1.75&w=1463')] bg-cover bg-center">
-                <div className=" flex flex-col justify-center items-center w-1/2 ">
-                    <SignInContainer>
-                        <h1 className='scale-150 w-20 ml-5 mb-10'>
-                            <MainLogo />
-                        </h1>
-                        <h2 className='font-semibold text-5xl mb-3'>Welcome Back</h2>
-                        <p className='font-medium text-2xl text-slate-500'>Please log into your account</p>
-
-                        <SignInForm 
-                            className='mt-10'
-                            name="normal_login"
-                            initialValues={{
-                                remember: true,
-                            }}
-                            onFinish={onFinish}
-                        >
-                            <Form.Item
-                                name="username"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please input your Username!',
-                                    },
-                                ]}
-                            >
-                                <Input className='h-10' placeholder="Tên đăng nhập" />
-                            </Form.Item>
-
-                            <Form.Item
-                                name="password"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please input your Password!',
-                                    },
-                                ]}
-                            >
-                                <Input.Password className='h-10' placeholder="Password" />
-                            </Form.Item>
-
-                            <Form.Item className="flex justify-between items-center">
-                                <Form.Item name="remember" valuePropName="checked" noStyle>
-                                    <Checkbox className='text-base font-semibold'>Nhớ mật khẩu</Checkbox>
-                                </Form.Item>
-                                <Link to={FORGET_PASSWORD_PAGE} className='text-base font-semibold text-cyan-700'>Quên mật khẩu ?</Link>
-                            </Form.Item>
-
-                            <Form.Item>
-                                <ButtonSignIn type="primary" htmlType="submit" className="login-form-button w-full text-base h-10 font-semibold">
-                                    Đăng nhập
-                                </ButtonSignIn>
-                            </Form.Item>
-
-                            <Form.Item>
-                                <SocialLoginContainer>
-                                    <SocialLoginButton type="primary" className="bg-blue-500 flex-grow text-base h-10 font-semibold">
-                                        Facebook
-                                    </SocialLoginButton>
-                                    <SocialLoginButton type="primary" className="bg-red-500 flex-grow text-base h-10 font-semibold">
-                                        Google+
-                                    </SocialLoginButton>
-                                </SocialLoginContainer>
-                            </Form.Item>
-
-                            <Form.Item >
-                                <p className='text-base text-center font-semibold'>Don't Have an Account? <a href="" className='ml-2 font-bold text-cyan-700'>Registration</a></p>
-                            </Form.Item>
-                        </SignInForm>
-                    </SignInContainer>
-                </div>
-            </div>
+  const navigate = useNavigate();
+  const onFinish = async (values) => {
+    try {
+      debugger;
+      setIsLoading(true);
+      const data = await loginWithEmailPass({
+        email: values.username,
+        password: values.password,
+      });
+      if (data.isSuccess) {
+        localStorage.setItem("accessToken", data.result.token);
+        localStorage.setItem("refreshToken", data.result.refreshToken);
+        var fetchAccount = await getAccountById(
+          decode(localStorage.getItem("accessToken")).accountId,
+          localStorage.getItem("accessToken")
         );
+        debugger;
+        dispatch(author(decode(localStorage.getItem("accessToken")).role));
+        if (fetchAccount.isSuccess) {
+          dispatch(login(fetchAccount.result));
+          message.success("Đăng nhập thành công");
+          navigate("/");
+        }
+      } else {
+        for (var i = 0; i < data.messages.length; i++) {
+          message.error(data.messages[i]);
+          if (data.messages[i] == "Tài khoản này chưa được xác thực !") {
+            setEmail(values.username);
+            debugger;
+            setIsModalVisible(true);
+          }
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    export default SignInPage;
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    const userCred = await signInWithPopup(auth, googleProvider);
+    console.log("userCred: ", userCred);
+
+    if (userCred) {
+      const accessToken = userCred._tokenResponse.idToken;
+      console.log("Google Access Token: ", accessToken);
+      var result = await googleCallback(accessToken);
+      if (result.isSuccess) {
+        console.log("callback: ", result);
+        localStorage.setItem("accessToken", result?.result?.token);
+        localStorage.setItem("refreshToken", result?.result?.refreshToken);
+        var fetchAccount = await getAccountById(
+          decode(localStorage.getItem("accessToken")).accountId,
+          localStorage.getItem("accessToken")
+        );
+        dispatch(author(decode(localStorage.getItem("accessToken")).role));
+        if (fetchAccount.isSuccess) {
+          dispatch(login(fetchAccount.result));
+          message.success("Đăng nhập thành công");
+          navigate("/");
+        }
+      }
+    }
+    setIsLoading(false);
+  };
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+  const showOtpModal = () => {
+    setIsModalVisible(true);
+  };
+  const handleOtpSubmit = async (otp) => {
+    console.log("Submitted OTP:", otp);
+    const result = await activeAccount(email, otp);
+    if (result.isSuccess) {
+      message.success("Verify successfully");
+      setIsModalVisible(false);
+    }
+  };
+  return (
+    <div className="flex h-screen bg-[url('https://media1.thrillophilia.com/filestore/e0sv7qhxf4fg3gd33dfe1liycj4h_shutterstock_2178792551.jpg?dpr=1.75&w=1463')] bg-cover bg-center">
+      <LoadingOverlay
+        isLoading={isLoading}
+        title={"đang tiến hành đăng nhập"}
+      />
+      <div className=" flex flex-col justify-center items-center w-1/2 ">
+        <SignInContainer>
+          <h1 className="scale-150 w-20 ml-5 mb-10">
+            <MainLogo />
+          </h1>
+          <h2 className="font-semibold text-3xl mb-3">
+            Chào mừng bạn đến với Cóc Travel
+          </h2>
+          <p className="font-medium text-2xl text-slate-500">
+            Vui lòng nhập thông tin để đăng nhập
+          </p>
+
+          <SignInForm
+            className="mt-10"
+            name="normal_login"
+            initialValues={{
+              remember: true,
+            }}
+            onFinish={onFinish}
+          >
+            <Form.Item
+              name="username"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập email!",
+                },
+              ]}
+            >
+              <Input className="h-10" placeholder="Tên đăng nhập" />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập mật khẩu",
+                },
+              ]}
+            >
+              <Input.Password className="h-10" placeholder="Password" />
+            </Form.Item>
+
+            <Form.Item className="flex justify-between items-center">
+              <Form.Item name="remember" valuePropName="checked" noStyle>
+                <Checkbox className="text-base font-semibold">
+                  Nhớ mật khẩu
+                </Checkbox>
+              </Form.Item>
+              <Link
+                to={FORGET_PASSWORD_PAGE}
+                className="text-base font-semibold text-cyan-700"
+              >
+                Quên mật khẩu ?
+              </Link>
+            </Form.Item>
+
+            <Form.Item>
+              <ButtonSignIn
+                type="primary"
+                htmlType="submit"
+                className="login-form-button w-full text-base h-10 font-semibold"
+              >
+                Đăng nhập
+              </ButtonSignIn>
+            </Form.Item>
+
+            <Form.Item>
+              <SocialLoginContainer>
+                <SocialLoginButton
+                  type="primary"
+                  className="bg-red-500 flex-grow text-base h-10 font-semibold"
+                  onClick={handleGoogleSignIn}
+                >
+                  Google+
+                </SocialLoginButton>
+              </SocialLoginContainer>
+            </Form.Item>
+
+            <Form.Item>
+              <p className="text-base text-center font-semibold">
+                Tôi chưa có tài khoản ?
+                <NavLink
+                  to={`/sign-up`}
+                  className="ml-2 font-bold text-cyan-700"
+                >
+                  Đăng ký
+                </NavLink>
+              </p>
+            </Form.Item>
+          </SignInForm>
+        </SignInContainer>
+      </div>
+      <OtpModal
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        onOtpSubmit={handleOtpSubmit}
+        email={email}
+      />
+    </div>
+  );
+}
+
+export default SignInPage;

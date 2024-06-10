@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { FaCaretDown, FaUserCircle } from "react-icons/fa";
 import { HiMenuAlt3, HiMenuAlt1 } from "react-icons/hi";
 import { LogoutOutlined } from "@ant-design/icons";
@@ -14,6 +14,10 @@ import {
   LISTING_TOUR_PRIVATE,
   LISTING_TOUR_REQUEST_STAFF,
 } from "../../settings/constant";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../redux/features/authSlice";
+import { isEmptyObject } from "../../utils/Util";
+import { message } from "antd";
 
 const DropdownLinks = [
   {
@@ -31,25 +35,28 @@ const UserDropdownLinks = [
   {
     name: "Thông tin người dùng",
     link: AGENT_PROFILE_PAGE,
-    role: ["STAFF", "CUSTOMER"],
+    role: "isAdmin,isTourguide,isStaff,isCustomer",
   },
   {
-    name: "Danh sách tour yêu cầu",
-    link: LISTING_TOUR_REQUEST_STAFF,
-    role: ["STAFF"],
+    name: "Quản lý hệ thống",
+    link: "/staff",
+    role: "isAdmin,isStaff",
   },
   {
     name: "Tour yêu cầu của tôi",
     link: LISTING_TOUR_PRIVATE,
-    role: ["CUSTOMER"],
+    role: "isCustomer",
   },
 ];
 
 function Navbar() {
   const [showMenu, setShowMenu] = useState(false);
-  const { isLoggedIn, username, logout } = useAuth();
-  const location = useLocation();
+  const user = useSelector((state) => state.user.user || {});
+  const role = useSelector((state) => state.user.role || "");
 
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
@@ -80,8 +87,11 @@ function Navbar() {
       window.removeEventListener("scroll", scrollHeader);
     };
   }, []);
-
-  console.log("isLoggedIn", isLoggedIn);
+  useEffect(() => {
+    if (!user) {
+      window.location.reload();
+    }
+  }, [user]);
   return (
     <>
       <nav
@@ -165,21 +175,25 @@ function Navbar() {
               </ul>
             </div>
             <div className="hidden lg:block w-full basis-2/6">
-              {isLoggedIn ? (
+              {!isEmptyObject(user) ? (
                 <div className="group relative cursor-pointer ">
                   <a
                     href="/#home"
                     className="flex h-[72px] items-center gap-[2px] "
                   >
                     <FaUserCircle size={30} className="mr-3" />
-                    <span className="font-semibold">{username} </span>
+                    <span className="font-semibold">
+                      {`${user?.firstName} ${user?.lastName}`}{" "}
+                    </span>
                     <span>
                       <FaCaretDown className="ml-2 transition-all duration-200 group-hover:rotate-180" />
                     </span>
                   </a>
                   <div className="absolute -left-9 z-[9999] hidden rounded-md bg-white p-2 text-black group-hover:block shadow-md min-w-60 cursor-pointer">
                     <ul className="space-y-3">
-                      {UserDropdownLinks.map((link) => (
+                      {UserDropdownLinks.filter((link) =>
+                        link.role.includes(role)
+                      ).map((link) => (
                         <li key={link.name}>
                           <a
                             className="inline-block w-full rounded-md p-2 hover:bg-primary/20  "
@@ -191,7 +205,11 @@ function Navbar() {
                       ))}
                       <li>
                         <button
-                          onClick={logout}
+                          onClick={() => {
+                            dispatch(logout());
+                            message.success("Đăng xuất thành công");
+                            navigate("/");
+                          }}
                           className="font-semibold inline-block w-full rounded-md p-2 hover:bg-primary/20 text-[16px] bg-[#30dae114]"
                         >
                           <LogoutOutlined /> Đăng xuất

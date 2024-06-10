@@ -1,8 +1,8 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import counterReducer from "./features/counterSlice";
+import authReducer from "./features/authSlice";
 import createPlanReducer from "./features/createPlanSlice";
 const rootReducer = combineReducers({
-  user: counterReducer,
+  user: authReducer,
   plan: createPlanReducer,
 });
 

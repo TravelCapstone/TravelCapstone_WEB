@@ -21,6 +21,7 @@ import {
   LISTING_TOUR_REQUEST_STAFF,
   LOGIN_PAGE,
   MENU,
+  REGISTRATION_PAGE,
   SECURITY_ACC,
   STAFF_PAGE,
   TRANSACTIONS,
@@ -41,37 +42,40 @@ import MenuManagement from "../pages/Admin/Menu/MenuManagement";
 import CreatePlanForm from "../pages/Staff/ManagePrivateTour/CreatePlan/CreatePlanForm";
 import ListPrivateTour from "../pages/Customer/TourRequest/CompanyTour/ListPrivateTour";
 import CustomerLayout from "../layouts/CustomerLayout";
-const ProtectedRouteAuth = ({ children }) => {
-  const user = useSelector(selectUser);
-  if (!user) {
-    alertFail("Bạn cần phải đăng nhập để thực hiện thao tác này!!");
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
+import { useSelector } from "react-redux";
+import { message } from "antd";
+import RegistrationPage from "../pages/SignIn_Register/RegistrationPage";
+
 const ProtectedRouteCustomer = ({ children }) => {
-  const user = useSelector(selectUser);
-  console.log(user);
-  if (user?.role === "CUSTOMER") {
-    alertFail("Bạn không có quyền truy cập");
-    return <Navigate to="/go-pro" replace />;
+  const role = useSelector((state) => state.user.role || "");
+  debugger;
+  if (role !== "isCustomer") {
+    message.error("Bạn không có quyền truy cập");
+    return <Navigate to="/" replace />;
   }
   return children;
 };
 const ProtectedRouteStaff = ({ children }) => {
-  const user = useSelector(selectUser);
-  console.log(user);
-  if (user?.role !== "STAFF") {
-    alertFail("Bạn không có quyền truy cập");
+  const role = useSelector((state) => state.user.role || "");
+
+  if (role !== "isStaff") {
+    message.error("Bạn không có quyền truy cập");
     return <Navigate to="/" replace />;
   }
   return children;
 };
 const ProtectedRouteAdmin = ({ children }) => {
-  const user = useSelector(selectUser);
-  console.log(user);
-  if (user?.role !== "ADMIN") {
-    alertFail("Bạn không có quyền truy cập");
+  const role = useSelector((state) => state.user.role || "");
+  if (role !== "isAdmin") {
+    message.error("Bạn không có quyền truy cập");
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
+const ProtectedTourguide = ({ children }) => {
+  const role = useSelector((state) => state.user.role || "");
+  if (role !== "isTourguide") {
+    message.error("Bạn không có quyền truy cập");
     return <Navigate to="/" replace />;
   }
   return children;
@@ -88,7 +92,11 @@ function Routers() {
     },
     {
       path: "/customer",
-      element: <CustomerLayout />, // Sử dụng CustomerLayout cho các route của khách hàng
+      element: (
+        <ProtectedRouteCustomer>
+          <CustomerLayout />
+        </ProtectedRouteCustomer>
+      ), // Sử dụng CustomerLayout cho các route của khách hàng
       children: [
         { path: INFOMATION_ACC, element: <TourRequestForm /> },
         { path: SECURITY_ACC, element: <TourRequestForm /> },
@@ -102,7 +110,12 @@ function Routers() {
     },
     {
       path: STAFF_PAGE,
-      element: <ManagementLayout isAdmin={false} />,
+      element: (
+        <ProtectedRouteStaff>
+          <ManagementLayout isAdmin={false} />
+        </ProtectedRouteStaff>
+      ),
+
       children: [
         {
           path: VIEW_USER,
@@ -129,7 +142,11 @@ function Routers() {
     },
     {
       path: ADMIN_PAGE,
-      element: <ManagementLayout isAdmin={true} />,
+      element: (
+        <ProtectedRouteAdmin>
+          <ManagementLayout isAdmin={true} />
+        </ProtectedRouteAdmin>
+      ),
       children: [
         {
           path: VIEW_REFERENCE_TRANSPORT_PRICE,
@@ -161,6 +178,10 @@ function Routers() {
     {
       path: LOGIN_PAGE,
       element: <SignInPage />,
+    },
+    {
+      path: REGISTRATION_PAGE,
+      element: <RegistrationPage />,
     },
   ]);
   return routing;
