@@ -53,6 +53,17 @@ function RegistrationPage() {
     // If the phone number is valid, set isPhoneValidated to true
     setIsLoading(true);
     const phoneNumber = form.getFieldValue("phoneNumber");
+    debugger;
+    if (
+      phoneNumber === undefined ||
+      phoneNumber == null ||
+      phoneNumber.length < 9 ||
+      phoneNumber.length > 10
+    ) {
+      message.error("Số điện thoại không hợp lệ");
+      setIsLoading(false);
+      return;
+    }
     const data = await generateOTP(phoneNumber);
     debugger;
     if (!data.isSuccess) {
