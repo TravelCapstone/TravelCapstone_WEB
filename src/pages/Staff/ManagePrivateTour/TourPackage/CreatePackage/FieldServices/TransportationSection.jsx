@@ -63,6 +63,15 @@ const TransportationSection = ({
   const [optimalPath, setOptimalPath] = useState([]);
   const [loadingVehicle, setLoadingVehicle] = useState(false);
 
+  const startProvinceId =
+    request?.privateTourResponse?.startLocationCommune?.district?.provinceId;
+  const startProvinceName = request?.privateTourResponse?.startLocation;
+
+  const startDistrictId =
+    request?.privateTourResponse?.startLocationCommune.districtId;
+  const startDistrictName =
+    request?.privateTourResponse?.startLocationCommune.district.name;
+
   console.log("optimalPath", optimalPath);
 
   const { updateCommonPrice, commonPrices } = usePrice();
@@ -146,8 +155,10 @@ const TransportationSection = ({
           return {
             startPoint: path.provinceId,
             endPoint: nextPath.provinceId,
-            // startPointDistrict: "defaultDistrictId",
-            // endPointDistrict: "defaultDistrictId",
+            startPointDistrict: index === 0 ? startDistrictId : null,
+            endPointDistrict:
+              index === optimalPath.length - 2 ? startDistrictId : null,
+
             dateRange: [startDate, endDate],
           };
         }
@@ -312,10 +323,6 @@ const TransportationSection = ({
     }
   }, [request]);
 
-  const startProvinceId =
-    request?.privateTourResponse?.startLocationCommune?.district?.provinceId;
-  const startProvinceName = request?.privateTourResponse?.startLocation;
-
   const updatedProvinces = useMemo(() => {
     // Thêm startProvince vào đầu mảng provinces và loại bỏ trùng lặp
     let provincesWithStart = [
@@ -334,7 +341,7 @@ const TransportationSection = ({
     const result = updatedProvinces.map((item) => item.id);
     console.log("resultgetSuggestPath", result);
     const data = await getOptimalPath(result[0], result);
-    debugger;
+    // debugger;
     if (data.isSuccess) {
       setOptimalPath(Array.isArray(data.result) ? data.result : []);
     }
@@ -618,6 +625,7 @@ const TransportationSection = ({
                           handleProvinceChange(value, index, "startPoint")
                         }
                         className="!w-[200px] mr-10"
+                        disabled={index === 0}
                       >
                         {(index === 0
                           ? [{ id: startProvinceId, name: startProvinceName }]
@@ -649,15 +657,19 @@ const TransportationSection = ({
                             "startPointDistrict"
                           )
                         }
-                        disabled={!selectedProvinces[`${index}_startPoint`]}
+                        disabled={
+                          !selectedProvinces[`${index}_startPoint`] ||
+                          index === 0
+                        }
                       >
-                        {(districts[`${index}_startPoint`] || []).map(
-                          (district) => (
-                            <Option key={district.id} value={district.id}>
-                              {district.name}
-                            </Option>
-                          )
-                        )}
+                        {(index === 0
+                          ? [{ id: startDistrictId, name: startDistrictName }]
+                          : districts[`${index}_startPoint`] || []
+                        ).map((district) => (
+                          <Option key={district.id} value={district.id}>
+                            {district.name}
+                          </Option>
+                        ))}
                       </Select>
                     </Form.Item>
                   </div>
@@ -676,6 +688,7 @@ const TransportationSection = ({
                           handleProvinceChange(value, index, "endPoint")
                         }
                         className="!w-[200px] mr-10"
+                        disabled={index === fields.length - 1}
                       >
                         {(index === fields.length - 1
                           ? [{ id: startProvinceId, name: startProvinceName }]
@@ -703,15 +716,19 @@ const TransportationSection = ({
                         onChange={(value) =>
                           handleDistrictChange(value, index, "endPointDistrict")
                         }
-                        disabled={!selectedProvinces[`${index}_endPoint`]}
+                        disabled={
+                          !selectedProvinces[`${index}_endPoint`] ||
+                          index === fields.length - 1
+                        }
                       >
-                        {(districts[`${index}_endPoint`] || []).map(
-                          (district) => (
-                            <Option key={district.id} value={district.id}>
-                              {district.name}
-                            </Option>
-                          )
-                        )}
+                        {(index === fields.length - 1
+                          ? [{ id: startDistrictId, name: startDistrictName }]
+                          : districts[`${index}_endPoint`] || []
+                        ).map((district) => (
+                          <Option key={district.id} value={district.id}>
+                            {district.name}
+                          </Option>
+                        ))}
                       </Select>
                     </Form.Item>
                   </div>

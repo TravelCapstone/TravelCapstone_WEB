@@ -41,7 +41,7 @@ const VehicleAssignment = ({
     const dateRange = getFieldValue(`dateRange[${index}]`);
     const date1 = formatDateToISOString(new Date(dateRange[0]));
     const date2 = formatDateToISOString(new Date(dateRange[1]));
-    debugger;
+    // debugger;
     setFieldsValue({ [`startDate[${index}]`]: date1 });
     setFieldsValue({ [`endDate[${index}]`]: date2 });
     const vehiclePromise = getAvailableVehicle(

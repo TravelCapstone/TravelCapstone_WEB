@@ -42,7 +42,7 @@ const CreatePlanForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const onFinish = async (values) => {
-    debugger;
+    // debugger;
     const data = buildData();
     if (data.location.length === 0) {
       message.error("Vui lòng chọn ít nhất một địa điểm");
@@ -90,7 +90,7 @@ const CreatePlanForm = ({
     if (entertaimentData.length > 0) {
       combinedLocationData = [...combinedLocationData, ...entertaimentData];
     }
-    debugger;
+    // debugger;
     return combinedLocationData;
   };
   const buildDetailPlanRoutes = () => {
@@ -120,7 +120,7 @@ const CreatePlanForm = ({
       material: buildMaterial() || [],
       detailPlanRoutes: buildDetailPlanRoutes() || [],
     };
-    debugger;
+    // debugger;
   };
   const buildHotel = () => {
     const hotelValue = form.getFieldValue("hotel");

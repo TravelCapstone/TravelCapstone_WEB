@@ -29,7 +29,7 @@ function TourRequestPage() {
         setRequest(data?.data?.result);
         setIsLoading(false);
         // Kiểm tra xem có option nào có optionQuotationStatusId == 1 không
-        debugger;
+        // debugger;
         const selected = [
           data.data.result.option1,
           data.data.result.option2,
