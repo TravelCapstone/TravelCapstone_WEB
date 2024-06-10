@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       // fontFamily: {
@@ -15,10 +12,10 @@ export default {
         primary: "#0287a8",
         secondary: "#00c3c7",
         dark: "#ffcf22",
-        'badge-resting':'#CDAA6B',
-        'badge-entertaiment':'#C9DABC',
-        'badge-fb':'#AFE0EA',
-        'badge-vehicle':'#6A6854',
+        "badge-resting": "#CDAA6B",
+        "badge-entertaiment": "#C9DABC",
+        "badge-fb": "#AFE0EA",
+        "badge-vehicle": "#6A6854",
       },
       fontSize: {
         14: "14px",
@@ -37,16 +34,25 @@ export default {
         },
       },
       screens: {
-        'sm': '640px',  
-        'md': '768px',  
-        'lg': '1024px',  
-        'xl': '1280px',  
-        '2xl': '1536px',
-      }
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
+      },
+      keyframes: {
+        "text-animation": {
+          "0%": { backgroundSize: "0% 100%" },
+          "100%": { backgroundSize: "100% 100%" },
+        },
+      },
+      animation: {
+        text: "text-animation 2s ease infinite",
+      },
     },
   },
   daisyui: {
     themes: ["light"],
   },
   plugins: [require("daisyui")],
-}
+};

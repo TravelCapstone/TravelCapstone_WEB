@@ -7,17 +7,24 @@ import {
 } from "../../../../settings/globalStatus";
 import { useEffect, useState } from "react";
 import { getDishListByMenuId } from "../../../../api/MenuApi";
+import LoadingOverlay from "../../../../components/Loading/LoadingOverlay";
 const { TabPane } = Tabs;
+import { useRef } from "react";
 
 const ViewOptionDetail = ({ data, visible, onOk, onCancel, showModal }) => {
   const [menuData, setMenuData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const modalContentRef = useRef(null);
 
   const handleEyeClick = async (id) => {
     try {
+      setIsLoading(true);
       const response = await getDishListByMenuId(id);
       if (response.isSuccess) {
         setMenuData(response.result.items);
       }
+      setIsLoading(false);
+      modalContentRef.current.scrollTop = modalContentRef.current.scrollHeight;
     } catch (error) {
       console.error("Failed to fetch menu data:", error);
     }
@@ -32,7 +39,8 @@ const ViewOptionDetail = ({ data, visible, onOk, onCancel, showModal }) => {
       width={1200}
       maskClosable={false}
     >
-      <div className="h-[900px] overflow-y-scroll">
+      <div className="h-[900px] overflow-y-scroll " ref={modalContentRef}>
+        <LoadingOverlay isLoading={isLoading} />
         <Card title="Chi tiết báo giá">
           <Descriptions title="Thông tin chung" bordered column={1}>
             <Descriptions.Item label="Ngày bắt đầu">
@@ -97,7 +105,10 @@ const ViewOptionDetail = ({ data, visible, onOk, onCancel, showModal }) => {
                       </td>
                       <td>{formatPrice(item.minPrice)}</td>
                       <td>{formatPrice(item.maxPrice)}</td>
-                      <td onClick={() => handleEyeClick(item.menuId)}>
+                      <td
+                        onClick={() => handleEyeClick(item.menuId)}
+                        className="cursor-pointer hover:color-primary"
+                      >
                         {item.menu && <i className="fa-solid fa-eye"></i>}
                       </td>
                     </tr>
