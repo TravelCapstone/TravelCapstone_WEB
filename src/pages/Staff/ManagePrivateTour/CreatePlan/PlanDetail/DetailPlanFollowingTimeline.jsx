@@ -77,6 +77,7 @@ const DetailPlanFollowingTimeline = ({
                           current >
                             moment(privateTourResponse.endDate).endOf("day"))
                       }
+                      format={"DD/MM/YYYY"}
                     />
                   </Form.Item>
 
@@ -131,6 +132,7 @@ const DetailPlanFollowingTimeline = ({
                                         "day"
                                       ))
                                 }
+                                format={"DD/MM/YYYY HH:mm"}
                               />
                             </Form.Item>
                             <div className="grid grid-cols-2">

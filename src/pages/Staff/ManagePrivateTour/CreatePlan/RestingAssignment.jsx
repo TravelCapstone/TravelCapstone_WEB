@@ -245,7 +245,7 @@ const RestingAssignment = ({
 
                             <Button
                               onClick={() => add()}
-                              className="bg-primary text-white"
+                              className="bg-primary text-white w-40"
                             >
                               Thêm địa điểm lưu trú
                             </Button>

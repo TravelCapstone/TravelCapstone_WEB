@@ -93,6 +93,7 @@ const TourguideAssignment = ({ provinceList, form, privateTourResponse }) => {
                           current >
                             moment(privateTourResponse.endDate).endOf("day"))
                       }
+                      format={"DD/MM/YYYY"}
                     />
                   </Form.Item>
 

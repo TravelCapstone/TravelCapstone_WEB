@@ -1,4 +1,12 @@
-import { Input, Select, DatePicker, Typography, Form, Space } from "antd";
+import {
+  Input,
+  Select,
+  DatePicker,
+  Typography,
+  Form,
+  Space,
+  Button,
+} from "antd";
 import { formatDateToISOString, formatPrice } from "../../../../utils/Util";
 import { vehicleTypeLabels } from "../../../../settings/globalStatus";
 import "../../../../settings/setupDayjs";
@@ -25,7 +33,7 @@ const VehicleAssignment = ({
   const [driver, setDriver] = useState([[]]);
   const [sellPriceHistory, setSellPriceHistory] = useState([]);
   const [disabledSelect, setDisabledSelect] = useState(data.map(() => true)); // Initialize with true values
-
+  console.log("dataVehicle", data);
   const handleChange = async (index, item) => {
     let newDisabledSelect = [...disabledSelect];
     newDisabledSelect[index] = false;
@@ -33,6 +41,7 @@ const VehicleAssignment = ({
     const dateRange = getFieldValue(`dateRange[${index}]`);
     const date1 = formatDateToISOString(new Date(dateRange[0]));
     const date2 = formatDateToISOString(new Date(dateRange[1]));
+    debugger;
     setFieldsValue({ [`startDate[${index}]`]: date1 });
     setFieldsValue({ [`endDate[${index}]`]: date2 });
     const vehiclePromise = getAvailableVehicle(
@@ -129,7 +138,6 @@ const VehicleAssignment = ({
                   {item.startPoint?.name} - {item.endPoint?.name}
                 </strong>
               </div>
-
               <div className="flex items-center mb-2">
                 <Text strong className="mr-2">
                   Phương tiện di chuyển từ{" "}
@@ -143,9 +151,15 @@ const VehicleAssignment = ({
                   {formatPrice(item.minPrice)} - {formatPrice(item.maxPrice)}
                 </Text>
               </div>
-              <Text strong className="mr-2">
-                <strong>Số lượng ngày thuê:</strong> {item.numOfRentingDay}
-              </Text>
+              <div className="flex flex-col">
+                <Text strong className="mr-2">
+                  <strong>Số lượng ngày thuê:</strong> {item.numOfRentingDay}
+                </Text>
+                <Text strong className="mr-2">
+                  <strong>Số lượng xe:</strong>
+                  {item.numOfVehicle}
+                </Text>
+              </div>
               {item.vehicleType === 4 && <></>}
               <div className="flex flex-wrap">
                 <Form.Item
@@ -161,6 +175,7 @@ const VehicleAssignment = ({
                   <DatePicker.RangePicker
                     onChange={() => handleChange(index, item)}
                     locale={locale}
+                    format={"DD/MM/YYYY"}
                     disabledDate={(current) =>
                       current &&
                       (current <
@@ -171,7 +186,6 @@ const VehicleAssignment = ({
                   />
                 </Form.Item>
               </div>
-
               {item.vehicleType !== 4 && item.vehicleType !== 5 ? (
                 <>
                   <Form.Item
@@ -198,59 +212,104 @@ const VehicleAssignment = ({
                         message: "Vui lòng nhập số lượng",
                       },
                     ]}
+                    hidden
                   >
-                    <Input type="number" disabled={disabledSelect[index]} />
+                    <Input
+                      type="number"
+                      disabled={disabledSelect[index]}
+                      hidden
+                    />
                   </Form.Item>
 
-                  <Form.Item
-                    name={`driverId[${index}]`}
-                    label="Tài xế"
-                    className="mx-2"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn tài xế",
-                      },
-                    ]}
-                  >
-                    <Select
-                      loading={driver[index] && driver[index].length === 0}
-                      disabled={disabledSelect[index]} // Use the disabledSelect state variable
-                      placeholder="Chọn tài xế"
-                    >
-                      {driver[index] &&
-                        driver[index].length > 0 &&
-                        driver[index].map((item) => (
-                          <Select.Option key={item.id} value={item.id}>
-                            {`${item.name} - ${formatPrice(item.fixDriverSalary)}- ${item.phoneNumber}`}
-                          </Select.Option>
+                  <Form.List name={`vehicles[${index}]`}>
+                    {(fields, { add, remove }) => (
+                      <>
+                        {fields.map((field, outerIndex) => (
+                          <div key={`vehicles-${field.key}`}>
+                            <div className="flex">
+                              <Form.Item
+                                {...field}
+                                name={[field.name, "driverId"]}
+                                fieldKey={[`vehicles${outerIndex}`, "driverId"]}
+                                label="Tài xế"
+                                className="mx-2"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Vui lòng chọn tài xế",
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  loading={
+                                    driver[index] && driver[index].length === 0
+                                  }
+                                  disabled={disabledSelect[index]}
+                                  placeholder="Chọn tài xế"
+                                >
+                                  {driver[index] &&
+                                    driver[index].length > 0 &&
+                                    driver[index].map((item, innerIndex) => (
+                                      <Select.Option
+                                        key={`${outerIndex}-${innerIndex}`}
+                                        value={item.id}
+                                      >
+                                        {`${item.name} - ${formatPrice(item.fixDriverSalary)}- ${item.phoneNumber}`}
+                                      </Select.Option>
+                                    ))}
+                                </Select>
+                              </Form.Item>
+                              <Button
+                                className="bg-red-700 text-white"
+                                onClick={() => remove(field.name)}
+                              >
+                                Xoá
+                              </Button>
+                            </div>
+                            <Form.Item
+                              {...field}
+                              name={[field.name, "vehicleId"]}
+                              fieldKey={[`vehicles${outerIndex}`, "vehicleId"]}
+                              label="Phương tiện"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Vui lòng chọn phương tiện",
+                                },
+                              ]}
+                            >
+                              <Select
+                                loading={
+                                  vehicle[index] && vehicle[index].length === 0
+                                }
+                                disabled={disabledSelect[index]}
+                                placeholder="Chọn phương tiện"
+                              >
+                                {vehicle[index] &&
+                                  vehicle[index].length > 0 &&
+                                  vehicle[index].map((item, innerIndex) => (
+                                    <Select.Option
+                                      key={`${outerIndex}-${innerIndex}`}
+                                      value={item.id}
+                                    >
+                                      {`${item.brand} - ${item.owner} - ${item.plate}`}
+                                    </Select.Option>
+                                  ))}
+                              </Select>
+                            </Form.Item>
+                          </div>
                         ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    name={`$vehicleId[${index}]`}
-                    label="Phương tiện"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn phương tiện",
-                      },
-                    ]}
-                  >
-                    <Select
-                      loading={vehicle[index] && vehicle[index].length === 0}
-                      disabled={disabledSelect[index]} // Use the disabledSelect state variable
-                      placeholder="Chọn phương tiện"
-                    >
-                      {vehicle[index] &&
-                        vehicle[index].length > 0 &&
-                        vehicle[index].map((item) => (
-                          <Select.Option key={item.id} value={item.id}>
-                            {`${item.brand} - ${item.owner} - ${item.plate}`}
-                          </Select.Option>
-                        ))}
-                    </Select>
-                  </Form.Item>
+                        <Form.Item>
+                          <Button
+                            className="bg-primary text-white"
+                            onClick={() => add()}
+                          >
+                            Thêm phương tiện
+                          </Button>
+                        </Form.Item>
+                      </>
+                    )}
+                  </Form.List>
                 </>
               ) : (
                 <>
