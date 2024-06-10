@@ -237,7 +237,7 @@ const CreatePlanForm = ({
   }, [signal === true]);
   return (
     <>
-      <LoadingOverlay isLoading={false} />
+      <LoadingOverlay isLoading={isLoading} />
       <div className="  p-4  bg-white max-h-[680px]  overflow-y-auto">
         <h3 className="font-bold text-mainColor text-xl text-center">
           TẠO KẾ HOẠCH TOUR CHI TIẾT

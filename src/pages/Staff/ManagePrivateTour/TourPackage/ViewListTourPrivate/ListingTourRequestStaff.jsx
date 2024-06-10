@@ -5,6 +5,8 @@ import { DETAIL_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
 import { statusPrivateTourLabels } from "../../../../../settings/globalStatus";
 import PaginationManagement from "../../../../../components/UI/Pagination/PaginationManagement";
 import LoadingComponent from "../../../../../components/Loading/LoadingComponent";
+import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
+
 import { formatDate } from "../../../../../utils/Util";
 import { Tooltip } from "antd";
 const ListingTourRequestStaff = () => {
@@ -54,6 +56,7 @@ const ListingTourRequestStaff = () => {
 
   return (
     <>
+      <LoadingOverlay isLoading={isLoading} />
       <div className="bg-white shadow-md rounded-lg p-6 overflow-x-auto ">
         <h2 className="text-xl text-primary font-semibold mb-4 text-center text-pretty">
           LỊCH SỬ TOUR YÊU CẦU
@@ -90,7 +93,7 @@ const ListingTourRequestStaff = () => {
                 </tr>
               </thead>
               <tbody>
-                <LoadingComponent isLoading={isLoading} />
+                {/* <LoadingComponent isLoading={isLoading} /> */}
 
                 {filteredData.map((item, index) => {
                   const uniqueProvinces = [
