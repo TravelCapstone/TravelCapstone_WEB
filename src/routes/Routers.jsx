@@ -48,7 +48,7 @@ import RegistrationPage from "../pages/SignIn_Register/RegistrationPage";
 
 const ProtectedRouteCustomer = ({ children }) => {
   const role = useSelector((state) => state.user.role || "");
-  debugger;
+  // debugger;
   if (role !== "isCustomer") {
     message.error("Bạn không có quyền truy cập");
     return <Navigate to="/" replace />;

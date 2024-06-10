@@ -74,7 +74,7 @@ function SignInPage() {
   const navigate = useNavigate();
   const onFinish = async (values) => {
     try {
-      debugger;
+      // debugger;
       setIsLoading(true);
       const data = await loginWithEmailPass({
         email: values.username,
@@ -87,7 +87,7 @@ function SignInPage() {
           decode(localStorage.getItem("accessToken")).accountId,
           localStorage.getItem("accessToken")
         );
-        debugger;
+        // debugger;
         dispatch(author(decode(localStorage.getItem("accessToken")).role));
         if (fetchAccount.isSuccess) {
           dispatch(login(fetchAccount.result));
@@ -99,7 +99,7 @@ function SignInPage() {
           message.error(data.messages[i]);
           if (data.messages[i] == "Tài khoản này chưa được xác thực !") {
             setEmail(values.username);
-            debugger;
+            // debugger;
             setIsModalVisible(true);
           }
         }

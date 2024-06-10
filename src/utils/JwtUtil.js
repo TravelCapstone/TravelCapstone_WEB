@@ -20,7 +20,7 @@ export const decode = (token) => {
   const role =
     decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
   const roleName = assignRole(role);
-  debugger;
+  // debugger;
 
   return {
     accountId: decoded.AccountId,

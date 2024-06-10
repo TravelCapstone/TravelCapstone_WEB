@@ -16,6 +16,7 @@ const RequestSent = ({ orders, title, error }) => {
     setCurrentPage(page);
   };
 
+
   const paginatedOrders = orders.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -47,7 +48,7 @@ const RequestSent = ({ orders, title, error }) => {
             {paginatedOrders.map((order, index) => {
               const uniqueProvinces = [
                 ...new Set(
-                  order.details.privateTourResponse.otherLocation.map(
+                  order.otherLocation.map(
                     (location) => location.province.name
                   )
                 ),
@@ -95,14 +96,14 @@ const RequestSent = ({ orders, title, error }) => {
                   <td
                     className="text-gray-600 uppercase font-semibold p-2"
                     style={{
-                      ...getOrderStatusStyle(order.privateTourStatusId),
+                      ...getOrderStatusStyle(order.status),
                     }}
                   >
-                    {order.privateTourStatusId === 0 && "Đã gửi yêu cầu"}
-                    {order.privateTourStatusId === 1 && "Chọn gói tour"}
-                    {order.privateTourStatusId === 2 && "ĐÃ HOÀN THÀNH"}
-                    {order.privateTourStatusId === 3 && "ĐÃ HUỶ"}
-                    {order.privateTourStatusId === 4 && "ĐÃ TẠO KẾ HOẠCH TOUR"}
+                    {order.status === 0 && "Đã gửi yêu cầu"}
+                    {order.status === 1 && "Chọn gói tour"}
+                    {order.status === 2 && "ĐÃ HOÀN THÀNH"}
+                    {order.status === 3 && "ĐÃ HUỶ"}
+                    {order.status === 4 && "ĐÃ TẠO KẾ HOẠCH TOUR"}
                   </td>
                   <td className="text-center">
                     <NavLink

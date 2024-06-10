@@ -96,8 +96,25 @@ const TransportationSection = ({
           [`${index}_${field}`]: [],
         }));
       }
+      // If updating the first item, propagate changes to the last item
+      if (index === 0 && field === "startPoint") {
+        const fields = form.getFieldValue("transportation");
+        if (fields.length > 1) {
+          form.setFieldsValue({
+            transportation: {
+              ...fields,
+              [fields.length - 1]: {
+                ...fields[fields.length - 1],
+                endPoint: value,
+              },
+            },
+          });
+        }
+      }
     },
-    [fetchVehiclePriceRange]
+    [fetchVehiclePriceRange, form]
+
+
   );
 
   const handleDistrictChange = useCallback(
@@ -115,6 +132,15 @@ const TransportationSection = ({
       }
 
       form.setFieldsValue({ transportation: newTransportationValues });
+
+      // If updating the first item, propagate changes to the last item
+      if (index === 0 && field === "startPointDistrict") {
+        if (newTransportationValues.length > 1) {
+          newTransportationValues[
+            newTransportationValues.length - 1
+          ].endPointDistrict = value;
+        }
+      }
     },
     [form]
   );
@@ -170,19 +196,24 @@ const TransportationSection = ({
   useEffect(() => {
     const hasInitialized = localStorage.getItem("hasInitializedTransportation");
 
+    // Initialize only if it hasn't been done before
     // if (!hasInitialized) {
-    // debugger;
     form.setFieldsValue({ transportation: initialTransportationValues });
-    // }
     setTransportationCount(initialTransportationValues.length);
 
-    initialTransportationValues.forEach((data, index) => {
-      handleProvinceChange(data.startPoint, index, "startPoint");
-      handleProvinceChange(data.endPoint, index, "endPoint");
-    });
+    // Use an async function to handle province changes sequentially
+    const initializeProvinces = async () => {
+      for (let index = 0; index < initialTransportationValues.length; index++) {
+        const data = initialTransportationValues[index];
+        await handleProvinceChange(data.startPoint, index, "startPoint");
+        await handleProvinceChange(data.endPoint, index, "endPoint");
+      }
+    };
 
     localStorage.setItem("hasInitializedTransportation", true);
+    // }
   }, [form, initialTransportationValues]);
+
   // Define state variable for available vehicle types
 
   // Fetch available vehicle types when startPoint and endPoint change
@@ -397,36 +428,6 @@ const TransportationSection = ({
     return false;
   };
 
-  // const disabledDate2 = (current) => {
-  //   if (!startDateFinal && !endDateFinal) {
-  //     return false;
-  //   }
-  //   debugger;
-  //   const startDateFinal2 = moment(startDateFinal).subtract(2, "days");
-  //   const endDateFinal2 = moment(endDateFinal).add(1, "days");
-  //   const startDate = startDateFinal2;
-  //   const endDate = endDateFinal2;
-  //   // return current && (current < startDate || current > endDate);
-  //   // Disable giờ ngoài khung
-  //   if (current.isSame(startDateFinal2, "day")) {
-  //     const numOfDays = request?.privateTourResponse?.numOfDay || 0;
-  //     const numOfNight = request?.privateTourResponse?.numOfNight || 0;
-  //     if (numOfDays === numOfNight) {
-  //       return current.hour() < 6 || current.hour() > 12;
-  //     } else if (numOfDays === numOfNight + 1) {
-  //       return current.hour() < 12 || current.hour() > 18;
-  //     }
-  //   }
-
-  //   if (current.isSame(endDateFinal2, "day")) {
-  //     return current.hour() < 12 || current.hour() > 21;
-  //   }
-  //   // Disable toàn bộ ngày ngoài khung
-  //   if (current && (current < startDate || current > endDate)) {
-  //     return true;
-  //   }
-  //   return false;
-  // };
 
   const hasDuplicates = (provinces) => {
     // Use a Set to efficiently store unique values and check for duplicates
@@ -684,9 +685,10 @@ const TransportationSection = ({
                     >
                       <Select
                         placeholder="Chọn tỉnh"
-                        onChange={(value) =>
-                          handleProvinceChange(value, index, "endPoint")
-                        }
+                        onChange={(value) => {
+                          handleProvinceChange(value, index, "endPoint");
+                          updateNextRoute(index);
+                        }}
                         className="!w-[200px] mr-10"
                         disabled={index === fields.length - 1}
                       >
@@ -718,7 +720,7 @@ const TransportationSection = ({
                         }
                         disabled={
                           !selectedProvinces[`${index}_endPoint`] ||
-                          index === fields.length - 1
+                          index === fields.length - 1 // Disable for the last item
                         }
                       >
                         {(index === fields.length - 1

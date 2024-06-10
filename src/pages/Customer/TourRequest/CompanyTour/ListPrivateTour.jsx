@@ -16,13 +16,11 @@ const ListPrivateTour = () => {
   const [orders, setOrders] = useState([]);
   const user = useSelector((state) => state.user.user || {});
   const navigate = useNavigate();
-  const [detailTour, setDetailTour] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
 
   console.log("orders", orders);
-  console.log("detailTour", detailTour);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,22 +44,8 @@ const ListPrivateTour = () => {
 
         if (response && response.data && response.data.result) {
           setOrders(response.data.result.items);
-          // Fetch details for each order
-          const detailResponses = await Promise.all(
-            response.data.result.items.map((order) =>
-              getIdOptionsRequest(order.id)
-            )
-          );
 
-          const detailedOrders = response?.data?.result?.items.map(
-            (order, index) => ({
-              ...order,
-              details: detailResponses[index]?.result || {},
-            })
-          );
-          //   debugger;
 
-          setDetailTour(detailedOrders);
         } else {
           console.error("Invalid response structure", response);
         }
@@ -104,12 +88,12 @@ const ListPrivateTour = () => {
         <h2 className="text-xl font-bold mb-5 text-mainColor">
           LỊCH SỬ ĐẶT TOUR YÊU CẦU CỦA TÔI
         </h2>
-        {detailTour.length !== 0 && (
+        {orders.length !== 0 && (
           <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
             <Tabs.TabPane tab="Tất cả" key="1">
               <RequestSent
                 title="Tổng tour yêu cầu"
-                orders={detailTour || []}
+                orders={orders || []}
                 error={error}
               />
             </Tabs.TabPane>
@@ -117,8 +101,8 @@ const ListPrivateTour = () => {
               <RequestSent
                 title="Tổng tour đã gửi yêu cầu"
                 orders={
-                  detailTour.filter(
-                    (order) => order.details.privateTourResponse.status === 0
+                  orders.filter(
+                    (order) => order.status === 0
                   ) || []
                 }
                 error={error}
@@ -128,8 +112,8 @@ const ListPrivateTour = () => {
               <RequestSent
                 title="Tổng tour đã chọn gói tour"
                 orders={
-                  detailTour.filter(
-                    (order) => order.details.privateTourResponse.status === 1
+                  orders.filter(
+                    (order) => order.status === 1
                   ) || []
                 }
               />
@@ -138,8 +122,8 @@ const ListPrivateTour = () => {
               <RequestSent
                 title="Tổng tour đã chọn gói tour"
                 orders={
-                  detailTour.filter(
-                    (order) => order.details.privateTourResponse.status === 2
+                  orders.filter(
+                    (order) => order.status === 2
                   ) || []
                 }
               />
@@ -148,8 +132,8 @@ const ListPrivateTour = () => {
               <RequestSent
                 title="Tổng tour đã tạo kế hoạch tour"
                 orders={
-                  detailTour.filter(
-                    (order) => order.details.privateTourResponse.status === 4
+                  orders.filter(
+                    (order) => order.status === 4
                   ) || []
                 }
               />
@@ -158,8 +142,8 @@ const ListPrivateTour = () => {
               <RequestSent
                 title="Tổng tour đã huỷ"
                 orders={
-                  detailTour.filter(
-                    (order) => order.details.privateTourResponse.status === 3
+                  orders.filter(
+                    (order) => order.status === 3
                   ) || []
                 }
               />

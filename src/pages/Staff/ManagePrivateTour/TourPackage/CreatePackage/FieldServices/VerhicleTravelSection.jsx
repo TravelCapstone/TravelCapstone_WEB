@@ -40,25 +40,21 @@ const VerhicleTravelSection = ({
   endDateChange,
   startDateFinal,
   endDateFinal,
+  handleDateRangeChange,
 }) => {
   // Get giá Verhicle
   const [priceInfo, setPriceInfo] = useState({});
   const [availableVehicleTypes, setAvailableVehicleTypes] = useState([]);
   const [selectedProvinces, setSelectedProvinces] = useState([]);
   const [availableProvinces, setAvailableProvinces] = useState([]);
-  console.log("availableVehicleTypes", availableVehicleTypes);
   const [loadingVehicle, setLoadingVehicle] = useState(false);
   const { updateCommonPrice, commonPrices } = usePrice();
   const [provinceVerhicle, setProvinceVerhicle] = useState([]);
 
-  console.log("provinceVerhicle", provinceVerhicle);
 
   const fieldsTransportation = form.getFieldValue("transportation") || [];
 
-  console.log(
-    "fieldsTransportation in VerhicleTravelSection",
-    fieldsTransportation
-  );
+
 
   // Extract startPoint of the first item and endPoint of the last item
   const firstStartPoint =
@@ -88,9 +84,6 @@ const VerhicleTravelSection = ({
   }
 
   // Log for debugging
-  console.log("firstStartPoint", firstStartPoint);
-  console.log("lastEndPoint", lastEndPoint);
-  console.log("remainingProvinces", remainingProvinces);
 
   useEffect(() => {
     setProvinceVerhicle(remainingProvinces);
@@ -105,14 +98,12 @@ const VerhicleTravelSection = ({
     .filter((item) => item !== null); // Filter out any null values
 
   // Log for debugging
-  console.log("provinceIdNamePairs", provinceIdNamePairs);
 
   // Prepare initial values for Form.List
   const initialValues = provinceIdNamePairs.map((pair) => ({
     provinceId: pair.id,
   }));
 
-  console.log("initialValues", initialValues);
 
   useEffect(() => {
     if (
@@ -155,7 +146,6 @@ const VerhicleTravelSection = ({
     const fetchAvailableVehicleTypes = async () => {
       const travelOptions = form.getFieldValue("travelOptions");
       if (travelOptions && travelOptions.length > 0) {
-        debugger;
         const results = await Promise.all(
           travelOptions.map(async (item) => {
             const { provinceId } = item;
@@ -185,6 +175,36 @@ const VerhicleTravelSection = ({
 
     fetchAvailableVehicleTypes();
   }, [form, selectedProvinces]);
+
+  const updateNextTravelOption = (index) => {
+    const fields = form.getFieldValue("travelOptions") || [];
+    if (index < fields.length - 1) {
+      const currentOption = fields[index];
+      const nextOption = fields[index + 1];
+
+      // Kiểm tra và khởi tạo dateRange cho nextOption nếu chưa có
+      if (!currentOption.dateRange) {
+        currentOption.dateRange = [null, null];
+      }
+
+      if (!nextOption.dateRange) {
+        nextOption.dateRange = [null, null];
+      }
+
+      const updatedNextOption = {
+        ...nextOption,
+        dateRange: [currentOption.dateRange[1], nextOption.dateRange[1]],
+      };
+
+      form.setFieldsValue({
+        travelOptions: [
+          ...fields.slice(0, index + 1),
+          updatedNextOption,
+          ...fields.slice(index + 2),
+        ],
+      });
+    }
+  };
 
   const handleRemove = (index) => {
     const currentValues = form.getFieldValue("travelOptions");
@@ -277,7 +297,6 @@ const VerhicleTravelSection = ({
         startDate,
         endDate
       );
-      console.log("responseVerhicle", response);
       if (response && response.result) {
         setPriceInfo((prev) => ({
           ...prev,
@@ -442,7 +461,11 @@ const VerhicleTravelSection = ({
                             ]}
                           >
                             <RangePicker
-                              onChange={() => fetchVehiclePriceRange(index)}
+                              onChange={() => {
+                                fetchVehiclePriceRange(index);
+                                updateNextTravelOption(index);
+                                handleDateRangeChange();
+                              }}
                               showTime
                               className="!w-[350px] mr-10"
                               format="DD-MM-YYYY HH:mm:ss"
