@@ -41,6 +41,7 @@ import {
   LISTING_TOUR_PRIVATE,
   VIEW_OPTIONS_TOUR_PRIVATE,
 } from "../../../../settings/constant";
+import { useSelector } from "react-redux";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -48,7 +49,7 @@ const { Option } = Select;
 
 function TourRequestForm() {
   let navigate = useNavigate();
-
+  const user = useSelector((state) => state.user.user || {});
   const [isLoading, setIsLoading] = useState(false);
 
   const [value, setValue] = useState();
@@ -399,7 +400,7 @@ function TourRequestForm() {
         provinceId: loc.provinceId,
       })),
       mainDestinationId: mainDestinationId,
-      accountId: "208be820-3a09-4a8c-af3f-d86cb0f5ccee", // accoundId
+      accountId: user?.id, // accoundId
       dietaryPreference: valueFoodType,
     };
     console.log("tourData", tourData);

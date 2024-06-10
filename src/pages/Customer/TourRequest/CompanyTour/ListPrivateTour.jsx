@@ -9,11 +9,12 @@ import LoadingOverlay from "../../../../components/Loading/LoadingOverlay";
 import { getIdOptionsRequest } from "../../../../api/OptionsApi";
 import BreadcrumbWithBackButton from "../../../../components/BreadCrumb/BreadCrumb";
 import { LISTING_TOUR_PRIVATE } from "../../../../settings/constant";
+import { useSelector } from "react-redux";
 
 const ListPrivateTour = () => {
   const [userInfo, setUserInfo] = useState({});
   const [orders, setOrders] = useState([]);
-
+  const user = useSelector((state) => state.user.user || {});
   const navigate = useNavigate();
   const [detailTour, setDetailTour] = useState([]);
   const [error, setError] = useState(null);
@@ -27,7 +28,7 @@ const ListPrivateTour = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const userId = "208be820-3a09-4a8c-af3f-d86cb0f5ccee"; // Thay thế bằng ID thực tế của người dùng
+        const userId = user?.id; // Thay thế bằng ID thực tế của người dùng
         const pageNumber = 1;
         const pageSize = 10;
         console.log("Fetching data with parameters:", {
