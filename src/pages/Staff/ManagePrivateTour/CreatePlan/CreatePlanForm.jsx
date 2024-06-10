@@ -179,21 +179,54 @@ const CreatePlanForm = ({
     }
   };
   const buildVehicle = () => {
-    return vehicleQuotationDetails.map((item, index) => ({
-      vehicleType: item.vehicleType || null,
-      startPoint: item.startPointId || null,
-      endPoint: item.endPointId || null,
-      portStartPoint: form.getFieldValue(`portStartPoint[${index}]`) || null,
-      portEndPoint: form.getFieldValue(`portEndPoint[${index}]`) || null,
-      startDate: form.getFieldValue(`startDate[${index}]`) || null,
-      endDate: form.getFieldValue(`endDate[${index}]`) || null,
-      driverId: form.getFieldValue(`driverId[${index}]`) || null,
-      sellPriceHistoryId:
-        form.getFieldValue(`sellPriceHistoryId[${index}]`) || null,
-      referencePriceId:
-        form.getFieldValue(`referencePriceId[${index}]`) || null,
-      numOfVehicle: form.getFieldValue(`numOfVehicle[${index}]`) || null,
-    }));
+    // return vehicleQuotationDetails.map((item, index) => ({
+    //   vehicleType: item.vehicleType || null,
+    //   startPoint: item.startPointId || null,
+    //   endPoint: item.endPointId || null,
+    //   portStartPoint: form.getFieldValue(`portStartPoint[${index}]`) || null,
+    //   portEndPoint: form.getFieldValue(`portEndPoint[${index}]`) || null,
+    //   startDate:
+    //     formatDateToISOString(
+    //       new Date(form.getFieldValue(`dateRange[${index}].[0]`))
+    //     ) || null,
+    //   endDate:
+    //     formatDateToISOString(
+    //       new Date(form.getFieldValue(`dateRange[${index}].[1]`))
+    //     ) || null,
+    //   driverId: form.getFieldValue(`driverId[${index}]`) || null,
+    //   sellPriceHistoryId:
+    //     form.getFieldValue(`sellPriceHistoryId[${index}]`) || null,
+    //   referencePriceId:
+    //     form.getFieldValue(`referencePriceId[${index}]`) || null,
+    //   numOfVehicle: form.getFieldValue(`numOfVehicle[${index}]`) || null,
+    // }));
+
+    return vehicleQuotationDetails
+      .map((item, index) => {
+        const vehicleItems = form.getFieldValue(`vehicles[${index}]`);
+        debugger;
+        const dateRange = form.getFieldValue(`dateRange[${index}]`);
+        const startDate = dateRange[0];
+        const endDate = dateRange[1];
+        return vehicleItems.map((vehicleItem, vehicleIndex) => ({
+          vehicleType: item.vehicleType || null,
+          startPoint: item.startPointId || null,
+          endPoint: item.endPointId || null,
+          portStartPoint:
+            form.getFieldValue(`portStartPoint[${vehicleIndex}]`) || null,
+          portEndPoint:
+            form.getFieldValue(`portEndPoint[${vehicleIndex}]`) || null,
+          startDate: formatDateToISOString(new Date(startDate)) || null,
+          endDate: formatDateToISOString(new Date(endDate)) || null,
+          driverId: vehicleItem.driverId || null,
+          sellPriceHistoryId:
+            form.getFieldValue(`sellPriceHistoryId[${vehicleIndex}]`) || null,
+          referencePriceId: vehicleItem.referencePriceId || null,
+          numOfVehicle:
+            form.getFieldValue(`numOfVehicle[${vehicleIndex}]`) || null,
+        }));
+      })
+      .flat();
   };
   const buildTourguide = () => {
     const tourguide = form.getFieldValue("tourguide");
@@ -283,11 +316,12 @@ const CreatePlanForm = ({
             form={form}
             setFieldsValue={setFieldsValue}
             getFieldValue={getFieldValue}
+            privateTourResponse={privateTourResponse?.privateTourResponse}
           />
 
           <EntertainmentAssignment
             data={entertainment}
-            privateTourResponse={privateTourResponse}
+            privateTourResponse={privateTourResponse?.privateTourResponse}
             form={form}
             setFieldsValue={setFieldsValue}
             getFieldValue={getFieldValue}
@@ -295,13 +329,18 @@ const CreatePlanForm = ({
           {/* TẠO KẾ HOẠCH CHI TIẾT CHO TOUR */}
           <MaterialAssignment data={material} />
 
-          <TourguideAssignment provinceList={provinceList} form={form} />
+          <TourguideAssignment
+            provinceList={provinceList}
+            form={form}
+            privateTourResponse={privateTourResponse?.privateTourResponse}
+          />
 
           <DetailPlanFollowingTimeline
             location={location}
             optionQuotation={optionQuotation}
             setFieldsValue={setFieldsValue}
             getFieldValue={getFieldValue}
+            privateTourResponse={privateTourResponse?.privateTourResponse}
           />
 
           {/* THÔNG TIN HƯỚNG DẪN VIÊN */}

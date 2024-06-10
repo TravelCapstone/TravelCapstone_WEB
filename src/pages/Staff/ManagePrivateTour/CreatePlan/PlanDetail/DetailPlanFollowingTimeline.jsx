@@ -8,7 +8,11 @@ import { pushSignal } from "../../../../../redux/features/createPlanSlice";
 import { getFacilityAndPortInformation } from "../../../../../api/FacilityApi";
 const { Option } = Select;
 
-const DetailPlanFollowingTimeline = ({ location, optionQuotation }) => {
+const DetailPlanFollowingTimeline = ({
+  location,
+  optionQuotation,
+  privateTourResponse,
+}) => {
   const [port, setPort] = useState([]);
   const fetchLocation = async () => {
     const response = await getFacilityAndPortInformation({
@@ -62,7 +66,19 @@ const DetailPlanFollowingTimeline = ({ location, optionQuotation }) => {
                     rules={[{ required: true, message: "Vui lòng chọn ngày" }]}
                     label="Ngày"
                   >
-                    <DatePicker id={`date-${fields.key}`} />
+                    <DatePicker
+                      id={`date-${fields.key}`}
+                      disabledDate={(current) =>
+                        current &&
+                        (current <
+                          moment(privateTourResponse.startDate).startOf(
+                            "day"
+                          ) ||
+                          current >
+                            moment(privateTourResponse.endDate).endOf("day"))
+                      }
+                      format={"DD/MM/YYYY"}
+                    />
                   </Form.Item>
 
                   <Form.Item
@@ -103,7 +119,21 @@ const DetailPlanFollowingTimeline = ({ location, optionQuotation }) => {
                               label="Thời gian"
                               required
                             >
-                              <DatePicker.RangePicker showTime />
+                              <DatePicker.RangePicker
+                                showTime
+                                disabledDate={(current) =>
+                                  current &&
+                                  (current <
+                                    moment(
+                                      privateTourResponse.startDate
+                                    ).startOf("day") ||
+                                    current >
+                                      moment(privateTourResponse.endDate).endOf(
+                                        "day"
+                                      ))
+                                }
+                                format={"DD/MM/YYYY HH:mm"}
+                              />
                             </Form.Item>
                             <div className="grid grid-cols-2">
                               <Form.Item

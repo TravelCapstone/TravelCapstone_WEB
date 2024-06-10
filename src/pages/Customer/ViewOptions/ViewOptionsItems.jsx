@@ -19,6 +19,7 @@ import {
 } from "../../../settings/globalStatus";
 import { getExcelQuotation } from "../../../api/OptionsApi";
 import LoadingComponent from "../../../components/Loading/LoadingComponent";
+import LoadingOverlay from "../../../components/Loading/LoadingOverlay";
 const formatter = (value) =>
   `${value} VND`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
@@ -32,6 +33,7 @@ const ButtonModal = styled(Button)`
 
 const ViewOptionsItems = ({ options, loading, error, selectedOption, cus }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   console.log("options ViewOptionsItems", options);
 
   // Loại bỏ `privateTourResponse` và lấy ra các option
@@ -117,13 +119,20 @@ const ViewOptionsItems = ({ options, loading, error, selectedOption, cus }) => {
 
   return (
     <div className="mb-20">
+      <LoadingOverlay isLoading={isLoading} />
       <div className="flex justify-between">
         <ButtonModal type="primary" onClick={showModal}>
           Hiển thị Chi Tiết Tour Yêu Cầu
         </ButtonModal>
         <ButtonModal
           type="primary"
-          onClick={() => getExcelQuotation(options?.privateTourResponse?.id)}
+          onClick={async () => {
+            setIsLoading(true);
+            const data = await getExcelQuotation(
+              options?.privateTourResponse?.id
+            );
+            setIsLoading(false);
+          }}
         >
           Tải file
         </ButtonModal>

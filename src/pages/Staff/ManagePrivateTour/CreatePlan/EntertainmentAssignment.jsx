@@ -40,7 +40,7 @@ function EntertainmentAssignment({
     data?.forEach(async (item, index) => {
       const response = await getLatestEntertaimentPrice(
         item?.districtId,
-        privateTourResponse?.privateTourResponse?.id
+        privateTourResponse?.id
       );
       if (response.isSuccess) {
         let newAdultEntertainments = [...adultEntertainments];
@@ -109,7 +109,18 @@ function EntertainmentAssignment({
                     key={`dateEntertainments-${index}`}
                     label="Thời gian"
                   >
-                    <DatePicker.RangePicker onChange={handleTimeChange} />
+                    <DatePicker.RangePicker
+                      onChange={handleTimeChange}
+                      disabledDate={(current) =>
+                        current &&
+                        (current <
+                          moment(privateTourResponse.startDate).startOf(
+                            "day"
+                          ) ||
+                          current >
+                            moment(privateTourResponse.endDate).endOf("day"))
+                      }
+                    />
                   </Form.Item>
 
                   <Form.Item
