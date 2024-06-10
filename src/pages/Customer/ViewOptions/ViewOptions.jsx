@@ -23,6 +23,8 @@ import {
   LISTING_TOUR_PRIVATE,
   LISTING_TOUR_REQUEST_STAFF,
 } from "../../../settings/constant";
+import { getPrivateTourById } from "../../../api/privateTourRequestApi";
+import ViewPlan from "../../Plan/ViewPlan";
 
 const ViewOptions = () => {
   const { id } = useParams();
@@ -32,8 +34,7 @@ const ViewOptions = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
-  const [cus, setCus] = useState(0);
-
+  const [privateResponse, setPrivateResponse] = useState({});
   const location = useLocation();
   const reservationState = location.state; // This contains startDate, endDate, totalWeeks, totalPrice
   console.log("reservationState", reservationState);
@@ -50,6 +51,11 @@ const ViewOptions = () => {
       setLoading(true);
       try {
         const data = await getIdOptionsRequest(id);
+        const data2 = await getPrivateTourById(id);
+        if (data2?.data?.isSuccess) {
+          setPrivateResponse(data2?.data?.result?.privateResponse);
+        }
+
         console.log("Fetched data:", data); // Log the fetched data to see its structure
 
         // Adjust the following line based on the actual structure of the data object
@@ -117,7 +123,6 @@ const ViewOptions = () => {
               loading={loading}
               request={options}
               error={error}
-              cus={cus}
             />
           </TabPane>
           {!selectedOption && options.option1 && (
@@ -138,7 +143,6 @@ const ViewOptions = () => {
                       loading={loading}
                       error={error}
                       selectedOptionCus={selectedOption}
-                      cus={cus}
                     />
                   </div>
                 </ViewOptionsWrapper>
@@ -151,14 +155,13 @@ const ViewOptions = () => {
                 <ViewOptionCard
                   option={selectedOption}
                   selectedOption={selectedOption}
-                  cus={cus}
                 />
               </div>
             </TabPane>
           )}
           {options?.privateTourResponse?.status === 4 && (
             <TabPane tab="Xem kế hoạch tour" key="4">
-              <div className="flex justify-center">hihi</div>
+              <ViewPlan privateTourResponse={privateResponse} />
             </TabPane>
           )}
         </Tabs>

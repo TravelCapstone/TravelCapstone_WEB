@@ -7,17 +7,24 @@ import ViewOptionCardWrapper, {
   SelectButton,
   Title2,
 } from "./ViewOptionCard.style";
-import { Button, Divider, Modal } from "antd";
+import { Button, Divider, Modal, message } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { optionClassLabels } from "../../../../settings/globalStatus";
 import { formatPrice } from "../../../../utils/Util";
 import ViewOptionDetail from "./ViewOptionDetail";
 import { VIEW_OPTIONS_TOUR_PRIVATE } from "../../../../settings/constant";
+import { useSelector } from "react-redux";
+import LoadingOverlay from "../../../../components/Loading/LoadingOverlay";
+import { confirmOption } from "../../../../api/OptionsApi";
 
-const ViewOptionCard = ({ option, selectedOption, cus }) => {
+const ViewOptionCard = ({ option, selectedOption }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModalDetailVisible, setIsModalDetailVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   console.log(isModalDetailVisible);
+  const role = useSelector((state) => state.user.role);
+  const user = useSelector((state) => state.user.user);
+
   const navigate = useNavigate();
 
   console.log("option ViewOptionCard", option);
@@ -63,8 +70,22 @@ const ViewOptionCard = ({ option, selectedOption, cus }) => {
     const date = new Date(dateString);
     return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()}`;
   };
+  const handleConfirm = async (id) => {
+    setIsLoading(true);
+    console.log("id", id);
+
+    const response = await confirmOption(id, user.id);
+    console.log("response", response);
+    if (response?.isSuccess) {
+      message.success("Chọn gói thành công");
+      navigate("/customer/view-list-tour-private");
+      setIsLoading(false);
+    }
+    setIsLoading(false);
+  };
   return (
     <ViewOptionCardWrapper>
+      <LoadingOverlay isLoading={isLoading} title={"đang xử lý"} />
       <ViewOptionHeader>
         <Title2 className="uppercase">
           {optionClassLabels[optionQuotation.optionClassId]}
@@ -202,8 +223,12 @@ const ViewOptionCard = ({ option, selectedOption, cus }) => {
           <h2>Tổng Tiền</h2>
           <p>{formatPrice(optionQuotation.maxTotal)} VND</p>
         </div>
-        {!selectedOption && cus === 0 && (
-          <SelectButton>Chọn gói tour này</SelectButton>
+        {!selectedOption && role === "isCustomer" && (
+          <SelectButton
+            onClick={async () => await handleConfirm(optionQuotation.id)}
+          >
+            Chọn gói tour này
+          </SelectButton>
         )}
       </ViewOptionAction>
 
@@ -219,7 +244,7 @@ const ViewOptionCard = ({ option, selectedOption, cus }) => {
       />
 
       {/* Modal xác nhận */}
-      {!selectedOption && cus === 0 && (
+      {!selectedOption && role === "isCustomer" && (
         <Modal
           title="Xác nhận chọn gói"
           visible={isModalVisible}

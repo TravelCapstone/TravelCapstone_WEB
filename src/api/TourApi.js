@@ -9,5 +9,14 @@ const createTour = async (data) => {
     return [];
   }
 };
+export const getPlanByTourId = async (tourId) => {
+  try {
+    const response = await api.get(`/tour/get-plan-by-tour/${tourId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching provinces:", error);
+    return [];
+  }
+};
 
 export { createTour };
