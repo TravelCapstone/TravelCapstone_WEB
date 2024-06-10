@@ -31,7 +31,7 @@ const ButtonModal = styled(Button)`
   font-size: 18px;
 `;
 
-const ViewOptionsItems = ({ options, loading, error, selectedOption, cus }) => {
+const ViewOptionsItems = ({ options, loading, error, selectedOption }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   console.log("options ViewOptionsItems", options);
@@ -120,7 +120,7 @@ const ViewOptionsItems = ({ options, loading, error, selectedOption, cus }) => {
   return (
     <div className="mb-20">
       <LoadingOverlay isLoading={isLoading} />
-      <div className="flex justify-between">
+      <div className="flex justify-between flex-wrap">
         <ButtonModal type="primary" onClick={showModal}>
           Hiển thị Chi Tiết Tour Yêu Cầu
         </ButtonModal>
@@ -346,13 +346,12 @@ const ViewOptionsItems = ({ options, loading, error, selectedOption, cus }) => {
         </div>
       </Modal>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 flex flex-wrap justify-around">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5  justify-around">
         {optionsArray.map((option, index) => (
           <ViewOptionCard
             key={index}
             option={option}
             selectedOptionCus={selectedOption}
-            cus={cus}
           />
         ))}
       </div>

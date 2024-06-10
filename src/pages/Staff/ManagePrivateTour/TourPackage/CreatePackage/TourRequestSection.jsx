@@ -9,10 +9,12 @@ import { useNavigate } from "react-router-dom";
 import { getRoomSuggestion } from "../../../../../api/privateTourRequestApi";
 import { LISTING_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
 import LoadingComponent from "../../../../../components/Loading/LoadingComponent";
+import { useSelector } from "react-redux";
 
-function TourRequestSection({ request, loading, error, cus }) {
-  console.log("cus", cus);
+function TourRequestSection({ request, loading, error }) {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user.user);
+  const role = useSelector((state) => state.user.role);
 
   const [numOfRoom, setNumOfRoom] = useState([]);
 
@@ -78,9 +80,9 @@ function TourRequestSection({ request, loading, error, cus }) {
   if (loading) return <LoadingComponent isLoading={true} />;
   if (error) return <div>Error: {error}</div>;
 
-  if (cus === 0) {
+  if (role === "isCustomer") {
     statusPrivateTourLabels[1] = "Chờ chọn gói tour";
-  } else if (cus === undefined) {
+  } else {
     statusPrivateTourLabels[1] = "Đợi khách hàng phản hồi";
   }
 
@@ -296,14 +298,15 @@ function TourRequestSection({ request, loading, error, cus }) {
 
           {/* Nút tạo tour */}
           <div className="text-right my-4 w-5/6">
-            {request.privateTourResponse?.status === 0 && cus === undefined && (
-              <Button
-                className="bg-mainColor text-white font-semibold"
-                onClick={handleCreateTour}
-              >
-                TẠO GÓI TOUR
-              </Button>
-            )}
+            {request.privateTourResponse?.status === 0 &&
+              role !== "isCustomer" && (
+                <Button
+                  className="bg-mainColor text-white font-semibold"
+                  onClick={handleCreateTour}
+                >
+                  TẠO GÓI TOUR
+                </Button>
+              )}
           </div>
         </div>
       </div>

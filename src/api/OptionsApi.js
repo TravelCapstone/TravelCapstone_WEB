@@ -57,3 +57,14 @@ export const getExcelQuotation = async (id) => {
     throw error;
   }
 };
+export const confirmOption = async (id, accountId) => {
+  try {
+    const response = await api.post(
+      `/confirm-options-private-tour?optionId=${id}&accountId=${accountId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error while creating options:", error);
+    throw error;
+  }
+};

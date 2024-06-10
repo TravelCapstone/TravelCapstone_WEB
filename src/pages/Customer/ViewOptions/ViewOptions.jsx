@@ -32,7 +32,6 @@ const ViewOptions = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
-  const [cus, setCus] = useState(0);
 
   const location = useLocation();
   const reservationState = location.state; // This contains startDate, endDate, totalWeeks, totalPrice
@@ -117,7 +116,6 @@ const ViewOptions = () => {
               loading={loading}
               request={options}
               error={error}
-              cus={cus}
             />
           </TabPane>
           {!selectedOption && options.option1 && (
@@ -138,7 +136,6 @@ const ViewOptions = () => {
                       loading={loading}
                       error={error}
                       selectedOptionCus={selectedOption}
-                      cus={cus}
                     />
                   </div>
                 </ViewOptionsWrapper>
@@ -151,7 +148,6 @@ const ViewOptions = () => {
                 <ViewOptionCard
                   option={selectedOption}
                   selectedOption={selectedOption}
-                  cus={cus}
                 />
               </div>
             </TabPane>
