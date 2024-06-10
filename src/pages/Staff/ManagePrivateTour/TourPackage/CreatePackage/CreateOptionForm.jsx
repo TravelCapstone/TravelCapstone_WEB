@@ -15,7 +15,7 @@ import {
   ConfigProvider,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import { createOptionsPrivateTour } from "../../../../../api/OptionsApi";
+import { calculateOptionsCost, createOptionsPrivateTour } from "../../../../../api/OptionsApi";
 import LodgingSection from "./FieldServices/LodgingSection";
 import RestaurantSection from "./FieldServices/RestaurantSection";
 import TransportationSection from "./FieldServices/TransportationSection";
@@ -29,7 +29,6 @@ import InsuranceSection from "./FieldServices/InsuranceSection";
 import { postHumanResourceSalaryWithIsForTourguide } from "../../../../../api/HumanResourceSalaryApi";
 import { getVehiclePriceRange } from "../../../../../api/SellPriceHistoryApi";
 import MaterialCostsSection from "./FieldServices/materialCostsSection";
-import ExpectedPriceOption from "./FieldServices/ExpectedPriceOption";
 import dayjs from "dayjs";
 import CustomSurchangeSection from "./FieldServices/CustomSurchangeSection";
 import EventGalasSection from "./FieldServices/eventGalasSection";
@@ -40,6 +39,7 @@ import "../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
 import moment from "moment";
 import { getRoomSuggestion } from "../../../../../api/privateTourRequestApi";
+import EstimatedPriceTable from "./FieldServices/ExpectedPriceOption";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -55,6 +55,9 @@ const convertDateFormat = (dateString) => {
 };
 
 function CreateOptionForm({ request }) {
+  const numberOfPassengers =
+    request?.privateTourResponse?.numOfAdult +
+    request?.privateTourResponse?.numOfChildren;
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({});
   const [loading, setLoading] = useState(false);
@@ -80,6 +83,10 @@ function CreateOptionForm({ request }) {
   const [startDateFinal, setStartDateFinal] = useState(null); // tourDate
 
   const [insurances, setInsurances] = useState({});
+
+  const [estimatedPrices, setEstimatedPrices] = useState([]);
+
+  console.log("estimatedPrices", estimatedPrices);
 
 
   const startDate = request?.privateTourResponse?.startDate;
@@ -599,6 +606,26 @@ function CreateOptionForm({ request }) {
     console.log("Failed:", errorInfo);
   };
 
+  const fetchEstimatedPrices = async () => {
+    setLoading(true);
+    try {
+      const payload = adjustFormToAPI(form.getFieldsValue()); // Generate the payload
+      const response = await calculateOptionsCost(payload); // Call the new API
+      debugger
+      if (response.isSuccess) {
+        setEstimatedPrices(response.result);
+      } else {
+        alertFail("Failed to fetch estimated prices");
+      }
+    } catch (error) {
+      alertFail("An error occurred while fetching the estimated prices. Please try again later.");
+      console.error("Error while fetching estimated prices:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   const onFinish = async (values) => {
     console.log("Received values of form: ", values);
 
@@ -1020,8 +1047,21 @@ function CreateOptionForm({ request }) {
 
             <div className="my-12 ">
               <h3 className="font-bold text-2xl  ">GIÁ DỰ KIẾN CỦA GÓI</h3>
-              <ExpectedPriceOption request={request} />
+              {/* <ExpectedPriceOption request={request} /> */}
+
+              <Form.Item>
+
+                <Button onClick={fetchEstimatedPrices} className="bg-teal-600 font-semibold text-white my-4">
+                  XEM GIÁ DỰ KIẾN
+                </Button>
+              </Form.Item>
+
             </div>
+            {loading && <p>Loading...</p>}
+            {estimatedPrices.length > 0 &&
+              <EstimatedPriceTable prices={estimatedPrices} numberOfPassengers={numberOfPassengers} />
+            }
+
             <div className="flex justify-center my-4">
               <Form.Item>
                 <Button
