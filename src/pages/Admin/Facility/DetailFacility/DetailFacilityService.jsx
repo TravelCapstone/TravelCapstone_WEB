@@ -164,7 +164,7 @@ function DetailFacilityService({ id }) {
                     <td className="cursor-pointer">
                       {item.serviceTypeId === 1 && (
                         <NavLink to={`/admin/${MENU}/${id}`}>
-                          <i class="fa-solid fa-eye"></i>
+                          <i className="fa-solid fa-eye"></i>
                         </NavLink>
                       )}
                     </td>

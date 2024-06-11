@@ -2,6 +2,7 @@ import React from "react";
 import { formatDate, formatDateTime } from "../../utils/Util";
 
 const DayPlans = ({ dayPlans }) => {
+  console.log(dayPlans);
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
       <h1 className="text-primary font-bold text-2xl mb-4 text-center">

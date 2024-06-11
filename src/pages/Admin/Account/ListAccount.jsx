@@ -54,7 +54,7 @@ const ListAccount = () => {
     <>
       <div className="bg-white shadow-md rounded-lg p-6">
         <h2 className="text-xl text-primary font-semibold mb-4 text-center text-pretty">
-         QUẢN LÍ KHÁCH HÀNG
+          QUẢN LÍ KHÁCH HÀNG
         </h2>
 
         <div className="overflow-x-auto rounded-xl">
@@ -83,7 +83,7 @@ const ListAccount = () => {
                     <td>{item.email}</td>
                     <td>{renderUserRole(item.role)}</td>
                     <td className="cursor-pointer">
-                      <i class="fa-solid fa-eye"></i>
+                      <i className="fa-solid fa-eye"></i>
                     </td>
                   </tr>
                 ))}
