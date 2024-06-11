@@ -51,10 +51,7 @@ const VerhicleTravelSection = ({
   const { updateCommonPrice, commonPrices } = usePrice();
   const [provinceVerhicle, setProvinceVerhicle] = useState([]);
 
-
   const fieldsTransportation = form.getFieldValue("transportation") || [];
-
-
 
   // Extract startPoint of the first item and endPoint of the last item
   const firstStartPoint =
@@ -103,7 +100,6 @@ const VerhicleTravelSection = ({
   const initialValues = provinceIdNamePairs.map((pair) => ({
     provinceId: pair.id,
   }));
-
 
   useEffect(() => {
     if (

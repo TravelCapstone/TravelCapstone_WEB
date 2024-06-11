@@ -7,7 +7,7 @@ import ViewOptionCardWrapper, {
   SelectButton,
   Title2,
 } from "./ViewOptionCard.style";
-import { Button, Divider, Modal, message } from "antd";
+import { Button, Divider, Modal, Table, message } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { optionClassLabels } from "../../../../settings/globalStatus";
 import { formatPrice } from "../../../../utils/Util";
@@ -28,6 +28,10 @@ const ViewOptionCard = ({ option, selectedOption }) => {
   const navigate = useNavigate();
 
   console.log("option ViewOptionCard", option);
+  const quantity =
+    option?.optionQuotation?.privateTourRequest?.numOfAdult +
+    option?.optionQuotation?.privateTourRequest?.numOfChildren;
+  console.log("quantity ViewOptionCard", quantity);
 
   const {
     optionQuotation,
@@ -36,6 +40,8 @@ const ViewOptionCard = ({ option, selectedOption }) => {
     // optionEvent,
     // vehicleQuotationDetails,
   } = option;
+
+  console.log("quotationDetails", quotationDetails);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -83,6 +89,38 @@ const ViewOptionCard = ({ option, selectedOption }) => {
     }
     setIsLoading(false);
   };
+
+  const calculateTotalPrices = (details) => {
+    let minPrice = 0;
+    let maxPrice = 0;
+    if (details[0].minPrice && details[0].maxPrice) {
+      details.forEach((item) => {
+        minPrice += item.minPrice;
+        maxPrice += item.maxPrice;
+      });
+    } else if (details[0].total) {
+      details.forEach((item) => {
+        minPrice += item.total;
+        maxPrice += item.total;
+      });
+    }
+
+    return {
+      minPrice,
+      maxPrice,
+    };
+  };
+
+  const totalMinPrice = option.optionQuotation.minTotal;
+  const totalMaxPrice = option.optionQuotation.maxTotal;
+  const vat = 0.08;
+  const totalMinVat = totalMinPrice * vat;
+  const totalMaxVat = totalMaxPrice * vat;
+  const finalMinTotal = totalMinPrice + totalMinVat;
+  const finalMaxTotal = totalMaxPrice + totalMaxVat;
+  const minPricePerPerson = finalMinTotal / quantity;
+  const maxPricePerPerson = finalMaxTotal / quantity;
+
   return (
     <ViewOptionCardWrapper>
       <LoadingOverlay isLoading={isLoading} title={"đang xử lý"} />
@@ -138,7 +176,6 @@ const ViewOptionCard = ({ option, selectedOption }) => {
                               : "Dịch vụ vui chơi giải trí"}
                         </p>
                         <p className="text-gray-500 flex-1 py-2 text-right ">
-                          {/* <strong>{`${formatPrice(detail.minPrice)} - ${formatPrice(detail.maxPrice)}`}</strong> */}
                           <strong className="font-bold">{` ${formatPrice(detail.maxPrice)}`}</strong>
                         </p>
                       </li>
@@ -174,15 +211,16 @@ const ViewOptionCard = ({ option, selectedOption }) => {
                           </strong>
                         </p>
                       </li>
-
-                      <li className="flex text-sm">
-                        <p className="text-gray-500 flex-1 py-2 font-semibold">
-                          Ngày
-                        </p>
-                        <p className="text-gray-500 flex-1 py-2 text-right  whitespace-nowrap">
-                          <strong>{`${formatDate(detail.startDate)} - ${formatDate(detail.endDate)}`}</strong>
-                        </p>
-                      </li>
+                      {detail.startDate && detail.endDate && (
+                        <li className="flex text-sm">
+                          <p className="text-gray-500 flex-1 py-2 font-semibold">
+                            Ngày
+                          </p>
+                          <p className="text-gray-500 flex-1 py-2 text-right  whitespace-nowrap">
+                            <strong>{`${formatDate(detail.startDate)} - ${formatDate(detail.endDate)}`}</strong>
+                          </p>
+                        </li>
+                      )}
                     </ul>
                   </div>
                   <Divider />
@@ -191,47 +229,41 @@ const ViewOptionCard = ({ option, selectedOption }) => {
           </div>
         </div>
       </div>
+
       <ViewOptionAction>
-        <div className="text-sm">
-          <div className="grid grid-cols-2">
-            <h2 className="text-left font-semibold">Phí tổ chức</h2>
-            <p className="text-right">
-              {formatPrice(optionQuotation.organizationCost)}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 ">
-            <h2 className="text-left font-semibold">Phí dẫn đường</h2>
-            <p className="text-right">
-              {formatPrice(optionQuotation.escortFee)}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2">
-            <h2 className=" text-left font-semibold">
-              Phí vận hành (bao gồm cả lương tài xế)
-            </h2>
-            <p className="text-right">
-              {formatPrice(
-                optionQuotation.operatingFee + optionQuotation.driverCost
-              )}
-            </p>
-          </div>
+        <div className="flex justify-between my-2">
+          <p className="text-black font-bold">Tổng thành tiền:</p>
+          <p className="text-gray-500 font-bold">
+            {formatPrice(totalMinPrice)} ~ {formatPrice(totalMaxPrice)}
+          </p>
         </div>
-
-        <div className="flex justify-between text-red-500 font-bold my-4">
-          <h2>Tổng Tiền</h2>
-          <p>{formatPrice(optionQuotation.maxTotal)} VND</p>
+        <div className="flex justify-between my-2">
+          <p className="text-black font-bold">VAT (8%):</p>
+          <p className="text-gray-500 font-bold">
+            {formatPrice(totalMinVat)} ~ {formatPrice(totalMaxVat)}
+          </p>
+        </div>
+        <div className="flex justify-between my-2">
+          <p className="text-black font-bold">Tổng giá cuối cùng:</p>
+          <p className="text-gray-500 font-bold">
+            {formatPrice(finalMinTotal)} ~ {formatPrice(finalMaxTotal)}
+          </p>
+        </div>
+        <div className="flex justify-between my-4 uppercase">
+          <p className="text-black font-bold ">Giá trên đầu người:</p>
+          <p className="text-mainColor font-bold">
+            {formatPrice(minPricePerPerson)} ~ {formatPrice(maxPricePerPerson)}{" "}
+            / Pax
+          </p>
         </div>
         {!selectedOption && role === "isCustomer" && (
           <SelectButton
-            onClick={async () => await handleConfirm(optionQuotation.id)}
+            onClick={async () => await handleConfirm(option.optionQuotation.id)}
           >
             Chọn gói tour này
           </SelectButton>
         )}
       </ViewOptionAction>
-
       <ViewOptionDetail
         showModal={showModal}
         data={option}

@@ -73,3 +73,13 @@ body {
   background-color: #fff !important;
 
 }
+
+.child-row .ant-table-row-expand-icon {
+  display: none;
+}
+@media (min-width: 1550px) {
+  
+  .hXBptO {
+    min-width: 417px !important;
+  }
+}

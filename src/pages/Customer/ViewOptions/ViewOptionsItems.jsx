@@ -62,45 +62,6 @@ const ViewOptionsItems = ({ options, loading, error, selectedOption }) => {
     return `${diffDays + 1}N${diffDays}D`;
   };
 
-  // const data = [
-  //   {
-  //     title: "Họ tên người đại diện",
-  //     description: `${options?.privateTourResponse?.account?.firstName} ${options?.privateTourResponse.account?.lastName}`,
-  //   },
-  //   {
-  //     title: "Số điện thoại liên hệ",
-  //     description: options?.privateTourResponse?.account?.phoneNumber,
-  //   },
-  //   {
-  //     title: "Phân loại tour",
-  //     description: getPackageName(options?.privateTourResponse?.isEnterprise),
-  //   },
-  //   { title: "Tên tour", description: options?.privateTourResponse?.name },
-  //   {
-  //     title: "Thời gian",
-  //     description: `${formatDate(options?.privateTourResponse?.startDate)} - ${formatDate(options?.privateTourResponse?.endDate)}`,
-  //   },
-  //   {
-  //     title: "Mô tả yêu cầu",
-  //     description: options?.privateTourResponse?.description,
-  //   },
-  //   {
-  //     title: "Số người lớn",
-  //     description: options?.privateTourResponse?.numOfAdult,
-  //   },
-  //   {
-  //     title: "Số trẻ em",
-  //     description: options?.privateTourResponse?.numOfChildren,
-  //   },
-  //   {
-  //     title: "Khoảng thời gian",
-  //     description: calculateDuration(
-  //       options?.privateTourResponse?.startDate,
-  //       options?.privateTourResponse?.endDate
-  //     ),
-  //   },
-  // ];
-
   // Các hàm để mở và đóng Modal
   const showModal = () => {
     setIsModalVisible(true);
@@ -346,7 +307,7 @@ const ViewOptionsItems = ({ options, loading, error, selectedOption }) => {
         </div>
       </Modal>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5  justify-around">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-7  justify-around">
         {optionsArray.map((option, index) => (
           <ViewOptionCard
             key={index}
