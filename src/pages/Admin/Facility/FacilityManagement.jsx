@@ -137,7 +137,7 @@ function FacilityManagement() {
                     </td>
                     <td className="cursor-pointer">
                       <NavLink to={`/admin/${DETAIL_FACILITY}/${item.id}`}>
-                        <i class="fa-solid fa-eye"></i>
+                        <i className="fa-solid fa-eye"></i>
                       </NavLink>
                     </td>
                   </tr>
