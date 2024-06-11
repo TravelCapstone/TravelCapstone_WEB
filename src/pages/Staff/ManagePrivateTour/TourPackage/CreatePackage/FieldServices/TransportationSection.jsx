@@ -113,8 +113,6 @@ const TransportationSection = ({
       }
     },
     [fetchVehiclePriceRange, form]
-
-
   );
 
   const handleDistrictChange = useCallback(
@@ -339,6 +337,7 @@ const TransportationSection = ({
 
   useEffect(() => {
     if (request?.privateTourResponse?.otherLocation) {
+      // debugger;
       setProvinces(
         request.privateTourResponse.otherLocation.map((loc) => ({
           id: loc.provinceId,
@@ -349,6 +348,7 @@ const TransportationSection = ({
   }, [request]);
 
   const updatedProvinces = useMemo(() => {
+    // debugger;
     // Thêm startProvince vào đầu mảng provinces và loại bỏ trùng lặp
     let provincesWithStart = [
       { id: startProvinceId, name: startProvinceName },
@@ -360,20 +360,45 @@ const TransportationSection = ({
   }, [startProvinceId, startProvinceName, provinces]);
 
   console.log("updatedProvinces", updatedProvinces);
-  console.log("provinces", provinces);
 
   const getSuggestPath = useCallback(async () => {
-    const result = updatedProvinces.map((item) => item.id);
-    console.log("resultgetSuggestPath", result);
-    const data = await getOptimalPath(result[0], result);
-    // debugger;
-    if (data.isSuccess) {
-      setOptimalPath(Array.isArray(data.result) ? data.result : []);
+    if (
+      updatedProvinces.length > 1 &&
+      updatedProvinces[0].id !== updatedProvinces[1].id
+    ) {
+      debugger;
+
+      const result = updatedProvinces.map((item) => item.id);
+      const data = await getOptimalPath(result[0], result);
+
+      if (data.isSuccess) {
+        let newOptimalPath = data.result ? data.result : [];
+        console.log("data newOptimalPath", newOptimalPath);
+
+        if (newOptimalPath.length === 3) {
+          const startProvince = newOptimalPath.find((item) => item.index === 0);
+          const endProvince = newOptimalPath.find((item) => item.index === 1);
+
+          if (startProvince.provinceId === endProvince.provinceId) {
+            debugger;
+            const middleProvinces = newOptimalPath.filter(
+              (item) => item.index !== 0 && item.index !== 1
+            );
+            // Tạo `optimalPath` với địa điểm xuất phát ở đầu và cuối, các địa điểm muốn tới ở giữa
+            newOptimalPath = [startProvince, ...middleProvinces, endProvince];
+          }
+        }
+
+        setOptimalPath(newOptimalPath);
+      }
     }
   }, [updatedProvinces]); // Khai báo dependencies cho useCallback
 
   useEffect(() => {
-    if (updatedProvinces.length > 0) {
+    if (
+      updatedProvinces.length > 1 &&
+      updatedProvinces[0].id !== updatedProvinces[1].id
+    ) {
       getSuggestPath();
     }
   }, [updatedProvinces, getSuggestPath]);
@@ -421,7 +446,6 @@ const TransportationSection = ({
     }
     return false;
   };
-
 
   const hasDuplicates = (provinces) => {
     // Use a Set to efficiently store unique values and check for duplicates

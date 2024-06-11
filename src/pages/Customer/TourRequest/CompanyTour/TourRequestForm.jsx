@@ -585,7 +585,13 @@ function TourRequestForm() {
           Đặt tour theo yêu cầu
         </div>
         <div className="max-w-[800px] mx-auto mb-12">
-          <Form form={form} onFinish={onFinish}  onFinishFailed={onFinishFailed} className="" layout="vertical">
+          <Form
+            form={form}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            className=""
+            layout="vertical"
+          >
             <Form.Item
               label="Họ tên người đại diện:"
               name="username"
@@ -786,7 +792,6 @@ function TourRequestForm() {
               </div>
             </Form.Item>
 
-           
             <Form.Item
               name="startLocation"
               label={
@@ -804,7 +809,6 @@ function TourRequestForm() {
             >
               <AddressSearch onChange={handleAddressSelect} />
             </Form.Item>
-            
 
             <Form.Item
               name="locations"
@@ -826,8 +830,8 @@ function TourRequestForm() {
             >
               <AddressSearchMultiple onChange={handleLocationsChange} />
             </Form.Item>
-             {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
-             {selectedLocations.length > 1 && (
+            {/* Chỉ hiển thị Form.Item này nếu người dùng chọn từ 2 địa điểm trở lên */}
+            {selectedLocations.length > 1 && (
               <Form.Item
                 name="mainLocation"
                 label="Địa điểm mong muốn chính (địa điểm quan trọng nhất):"
@@ -1070,34 +1074,6 @@ function TourRequestForm() {
             >
               <Input />
             </Form.Item>
-
-            {/* <Form.Item
-              name="budget"
-              label={
-                <span>
-                  Ngân sách: &nbsp;
-                  <Tooltip title="Ngân sách của bạn cho tour yêu cầu tính trên đầu người (người lớn).">
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </span>
-              }
-              className="font-semibold w-1/2"
-              rules={[
-                {
-                  required: true,
-                  message: (
-                    <div>
-                      <WarningFilled /> Vui lòng nhập ngân sách của bạn!
-                    </div>
-                  ),
-                },
-              ]}
-            >
-              <div className="flex align-items-center">
-                <InputNumber min={0} className="w-[40%]" />
-                <span className="ml-2">VND / Người</span>
-              </div>
-            </Form.Item> */}
 
             <Flex vertical gap={32}>
               <Form.Item
