@@ -114,7 +114,7 @@ const CreatePlanForm = ({
       privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
       startDate: privateTourResponse?.privateTourResponse?.startDate,
       endDate: privateTourResponse?.privateTourResponse?.endDate,
-      location: buildLocation(),
+      locations: buildLocation(),
       vehicles: buildVehicle() || [],
       tourguides: buildTourguide() || [],
       material: buildMaterial() || [],
