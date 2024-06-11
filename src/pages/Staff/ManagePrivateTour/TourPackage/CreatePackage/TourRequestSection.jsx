@@ -185,14 +185,7 @@ function TourRequestSection({ request, loading, error }) {
                   )}
                 />
               </div>
-              <div className="mb-3">
-                <span className="font-bold text-sm">
-                  Ngân sách dự tính trên đầu người:
-                </span>
-                <span className="font-normal text-sm ml-3">
-                  {formatPrice(request?.privateTourResponse?.wishPrice)}
-                </span>
-              </div>
+
               <div className="mb-3">
                 <span className="font-bold text-sm">Số người lớn:</span>
                 <span className="font-normal text-sm ml-3">
