@@ -10,7 +10,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 import AOS from "aos";
 import { AuthProvider } from "./context/AuthContext";
-import { PriceProvider } from "./context/PriceContext";
 import { useEffect } from "react";
 AOS.init({
   duration: 1000,
@@ -50,23 +49,21 @@ function App() {
           <StateProvider>
             <BrowserRouter>
               <AuthProvider>
-                <PriceProvider>
-                  <Routers />
-                  <ToastContainer
-                    position="top-right"
-                    autoClose={5000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                    theme="light"
-                  />
-                  {/* Same as */}
-                  <ToastContainer />
-                </PriceProvider>
+                <Routers />
+                <ToastContainer
+                  position="top-right"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                  theme="light"
+                />
+                {/* Same as */}
+                <ToastContainer />
               </AuthProvider>
             </BrowserRouter>
           </StateProvider>

@@ -16,7 +16,6 @@ const RequestSent = ({ orders, title, error }) => {
     setCurrentPage(page);
   };
 
-
   const paginatedOrders = orders.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -48,9 +47,7 @@ const RequestSent = ({ orders, title, error }) => {
             {paginatedOrders.map((order, index) => {
               const uniqueProvinces = [
                 ...new Set(
-                  order.otherLocation.map(
-                    (location) => location.province.name
-                  )
+                  order.otherLocation.map((location) => location.province.name)
                 ),
               ];
               return (
@@ -101,7 +98,7 @@ const RequestSent = ({ orders, title, error }) => {
                   >
                     {order.status === 0 && "Đã gửi yêu cầu"}
                     {order.status === 1 && "Chọn gói tour"}
-                    {order.status === 2 && "ĐÃ HOÀN THÀNH"}
+                    {order.status === 2 && "ĐÃ chọn gói tour"}
                     {order.status === 3 && "ĐÃ HUỶ"}
                     {order.status === 4 && "ĐÃ TẠO KẾ HOẠCH TOUR"}
                   </td>

@@ -19,7 +19,6 @@ import {
   getVehiclePriceRange,
   getVehiclePriceRangeNoEndPoint,
 } from "../../../../../../api/SellPriceHistoryApi";
-import { usePrice } from "../../../../../../context/PriceContext";
 import moment from "moment-timezone";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
@@ -48,18 +47,10 @@ const VerhicleTravelSection = ({
   const [selectedProvinces, setSelectedProvinces] = useState([]);
   const [availableProvinces, setAvailableProvinces] = useState([]);
   const [loadingVehicle, setLoadingVehicle] = useState(false);
-  const { updateCommonPrice, commonPrices } = usePrice();
   const [provinceVerhicle, setProvinceVerhicle] = useState([]);
+  const [loadingPrice, setLoadingPrice] = useState([]);
 
   const fieldsTransportation = form.getFieldValue("transportation") || [];
-
-  // Extract startPoint of the first item and endPoint of the last item
-  const firstStartPoint =
-    fieldsTransportation.length > 0 ? fieldsTransportation[0].startPoint : null;
-  const lastEndPoint =
-    fieldsTransportation.length > 0
-      ? fieldsTransportation[fieldsTransportation.length - 1].endPoint
-      : null;
 
   let remainingProvinces = [];
   if (fieldsTransportation.length > 2) {
@@ -79,6 +70,14 @@ const VerhicleTravelSection = ({
       ])
     );
   }
+
+  const setPriceLoadingState = (index, isLoading) => {
+    setLoadingPrice((prev) => {
+      const newLoadingState = [...prev];
+      newLoadingState[index] = isLoading;
+      return newLoadingState;
+    });
+  };
 
   // Log for debugging
 
@@ -101,47 +100,13 @@ const VerhicleTravelSection = ({
     provinceId: pair.id,
   }));
 
-  useEffect(() => {
-    if (
-      priceInfo &&
-      typeof priceInfo === "object" &&
-      !Array.isArray(priceInfo) &&
-      availableVehicleTypes.length !== 0
-    ) {
-      const travelOptionsFields = form.getFieldValue("travelOptions");
-      travelOptionsFields.forEach((_, index) => {
-        if (priceInfo[index]) {
-          const quantity =
-            request?.privateTourResponse?.numOfAdult +
-            request?.privateTourResponse?.numOfChildren;
-          // debugger;
-          const totalPrice = priceInfo[index].maxCostperPerson * quantity;
-          const commonService = {
-            item: `Phương tiện du lịch tỉnh ${index + 1} `,
-            price: priceInfo[index].maxCostperPerson,
-            quantity: 1,
-            total: totalPrice,
-          };
-          // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
-          const existingServiceIndex = commonPrices.findIndex(
-            (service) => service.item === commonService.item
-          );
-          if (existingServiceIndex !== -1) {
-            // Cập nhật giá trị dịch vụ
-            commonPrices[existingServiceIndex] = commonService;
-          } else {
-            // Thêm dịch vụ mới vào danh sách
-            updateCommonPrice(commonService);
-          }
-        }
-      });
-    }
-  }, [priceInfo, form, request, commonPrices, updateCommonPrice]);
+  console.log("initialValues", initialValues);
 
   useEffect(() => {
     const fetchAvailableVehicleTypes = async () => {
       const travelOptions = form.getFieldValue("travelOptions");
       if (travelOptions && travelOptions.length > 0) {
+        debugger;
         const results = await Promise.all(
           travelOptions.map(async (item) => {
             const { provinceId } = item;
@@ -151,7 +116,7 @@ const VerhicleTravelSection = ({
                 provinceId,
                 provinceId
               );
-              // debugger;
+              debugger;
               return response.result;
             } catch (error) {
               log.error("Failed to fetch districts");
@@ -410,7 +375,7 @@ const VerhicleTravelSection = ({
                               handleProvinceChange(index, value, "provinceId")
                             }
                             className="!w-[200px] mr-10"
-                            defaultValue={initialValues[index]?.provinceId}
+                            // defaultValue={initialValues[index]?.provinceId}
                           >
                             {provinceIdNamePairs.map((province) => (
                               <Option key={province.id} value={province.id}>
@@ -492,11 +457,7 @@ const VerhicleTravelSection = ({
                                 loadingVehicle ||
                                 availableVehicleTypes.length === 0
                               }
-                              disabled={
-                                loadingVehicle ||
-                                !selectedProvinces ||
-                                availableVehicleTypes.length === 0
-                              }
+                              disabled={availableVehicleTypes.length === 0}
                               onChange={(value) =>
                                 onVehicleTypeChange(index, value, name)
                               }
@@ -520,28 +481,32 @@ const VerhicleTravelSection = ({
                             <Input readOnly disabled className="w-[100px]" />
                           </Form.Item>
                         </div>
-                        {priceInfo[index] && (
+                        {loadingPrice[index] ? (
                           <div className="flex font-semibold text-gray-500 mr-10">
-                            <h3 className="text-lg mr-3">Khoảng giá: </h3>
-                            <p className="text-lg">
-                              {priceInfo[index].minCostperPerson.toLocaleString(
-                                "vi-VN",
-                                {
-                                  style: "currency",
-                                  currency: "VND",
-                                }
-                              )}{" "}
-                              ~{" "}
-                              {priceInfo[index].maxCostperPerson.toLocaleString(
-                                "vi-VN",
-                                {
-                                  style: "currency",
-                                  currency: "VND",
-                                }
-                              )}{" "}
-                              /người
-                            </p>
+                            <p>Loading...</p>
                           </div>
+                        ) : (
+                          priceInfo[index] && (
+                            <div className="flex font-semibold text-gray-500 mr-10">
+                              <h3 className="text-lg mr-3">Khoảng giá: </h3>
+                              <p className="text-lg">
+                                {priceInfo[
+                                  index
+                                ].minCostperPerson.toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                })}{" "}
+                                ~{" "}
+                                {priceInfo[
+                                  index
+                                ].maxCostperPerson.toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                })}{" "}
+                                /người
+                              </p>
+                            </div>
+                          )
                         )}
                         {/* <Form.Item
                         label="Số lượng xe:"

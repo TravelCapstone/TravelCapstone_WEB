@@ -22,7 +22,6 @@ import {
   metersToKilometers,
   secondsToHours,
 } from "../../../../../../utils/Util";
-import { usePrice } from "../../../../../../context/PriceContext";
 import moment from "moment-timezone";
 import "../../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
@@ -61,7 +60,10 @@ const TransportationSection = ({
     { id: 1, from: "", to: "", transport: "", dateRange: [], cost: 0 },
   ]);
   const [optimalPath, setOptimalPath] = useState([]);
-  const [loadingVehicle, setLoadingVehicle] = useState(false);
+  const [loadingVehicle, setLoadingVehicle] = useState([]);
+  const [loadingPrice, setLoadingPrice] = useState([]);
+
+  console.log("loadingVehicle", loadingVehicle);
 
   const startProvinceId =
     request?.privateTourResponse?.startLocationCommune?.district?.provinceId;
@@ -73,8 +75,7 @@ const TransportationSection = ({
     request?.privateTourResponse?.startLocationCommune.district.name;
 
   console.log("optimalPath", optimalPath);
-
-  const { updateCommonPrice, commonPrices } = usePrice();
+  console.log("optimalPath", optimalPath);
 
   const handleProvinceChange = useCallback(
     async (value, index, field) => {
@@ -114,6 +115,23 @@ const TransportationSection = ({
     },
     [fetchVehiclePriceRange, form]
   );
+
+  // Function to set loading state for a specific item
+  const setItemLoadingState = (index, isLoading) => {
+    setLoadingVehicle((prev) => {
+      const newLoadingState = [...prev];
+      newLoadingState[index] = isLoading;
+      return newLoadingState;
+    });
+  };
+
+  const setPriceLoadingState = (index, isLoading) => {
+    setLoadingPrice((prev) => {
+      const newLoadingState = [...prev];
+      newLoadingState[index] = isLoading;
+      return newLoadingState;
+    });
+  };
 
   const handleDistrictChange = useCallback(
     (value, index, field) => {
@@ -209,80 +227,38 @@ const TransportationSection = ({
   // Define state variable for available vehicle types
 
   // Fetch available vehicle types when startPoint and endPoint change
-  useEffect(() => {
-    const fetchAvailableVehicleTypes = async () => {
-      const transportation = form.getFieldValue("transportation");
-      if (transportation && transportation.length > 0) {
-        const results = await Promise.all(
-          transportation.map(async (item) => {
-            const { startPoint, endPoint } = item;
-            setLoadingVehicle(true);
-            try {
-              const response = await getAvailableVehicleType(
-                startPoint,
-                endPoint
-              );
-              return response.result;
-            } catch (error) {
-              log.error("Failed to fetch districts");
-            } finally {
-              setLoadingVehicle(true);
-            }
 
-            // debugger;
-          })
-        );
-        if (selectedProvinces) {
-          setLoadingVehicle();
-        } else {
-          setAvailableVehicleTypes([]);
-        }
-        setAvailableVehicleTypes(results);
-      }
-    };
-
-    fetchAvailableVehicleTypes();
-  }, [form, selectedProvinces]);
+  const fetchAvailableVehicleTypes = async () => {
+    const transportation = form.getFieldValue("transportation");
+    if (transportation && transportation.length > 0) {
+      // Ensure loadingVehicle array has the same length as transportation array
+      setLoadingVehicle(new Array(transportation.length).fill(false));
+      const results = await Promise.all(
+        transportation.map(async (item, index) => {
+          const { startPoint, endPoint } = item;
+          setItemLoadingState(index, true);
+          try {
+            const response = await getAvailableVehicleType(
+              startPoint,
+              endPoint
+            );
+            return response.result;
+          } catch (error) {
+            log.error("Failed to fetch districts");
+            return [];
+          } finally {
+            setItemLoadingState(index, false);
+          }
+        })
+      );
+      setAvailableVehicleTypes(results);
+    } else {
+      setAvailableVehicleTypes([]);
+      setLoadingVehicle([]);
+    }
+  };
 
   console.log("initialTransportationValues", initialTransportationValues);
-
-  useEffect(() => {
-    const transportationFields = form.getFieldValue("transportation");
-    if (
-      priceInfo &&
-      typeof priceInfo === "object" &&
-      !Array.isArray(priceInfo) &&
-      transportationFields
-    ) {
-      // debugger;
-      transportationFields.forEach((_, index) => {
-        if (priceInfo[index]) {
-          const quantity =
-            request?.privateTourResponse?.numOfAdult +
-            request?.privateTourResponse?.numOfChildren;
-          // debugger;
-          const totalPrice = priceInfo[index].maxCostperPerson * quantity;
-          const commonService = {
-            item: `Phương tiện di chuyển từ tỉnh ${index} đến tỉnh ${index + 1}`,
-            price: priceInfo[index].maxCostperPerson,
-            quantity: 1,
-            total: totalPrice,
-          };
-          // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
-          const existingServiceIndex = commonPrices.findIndex(
-            (service) => service.item === commonService.item
-          );
-          if (existingServiceIndex !== -1) {
-            // Cập nhật giá trị dịch vụ
-            commonPrices[existingServiceIndex] = commonService;
-          } else {
-            // Thêm dịch vụ mới vào danh sách
-            updateCommonPrice(commonService);
-          }
-        }
-      });
-    }
-  }, [priceInfo, form, request, commonPrices, updateCommonPrice]);
 
   const calculateNumOfVehicle = (vehicleType) => {
     const totalPassengers =
@@ -314,7 +290,11 @@ const TransportationSection = ({
     return Math.ceil(totalPassengers / seats);
   };
 
-  const onVehicleTypeChange = (index, value, name) => {
+  useEffect(() => {
+    fetchAvailableVehicleTypes();
+  }, [JSON.stringify(form.getFieldValue("transportation"))]);
+
+  const onVehicleTypeChange = async (index, value, name) => {
     const newTransportation = [...form.getFieldValue("transportation")];
     newTransportation[index] = {
       ...newTransportation[index],
@@ -323,7 +303,12 @@ const TransportationSection = ({
     };
     form.setFieldsValue({ transportation: newTransportation });
     handleProvinceChange(index, value, name);
-    fetchVehiclePriceRange(index);
+
+    setItemLoadingState(index, true);
+    setPriceLoadingState(index, true);
+    await fetchVehiclePriceRange(index);
+    setItemLoadingState(index, false);
+    setPriceLoadingState(index, false);
   };
 
   useEffect(() => {
@@ -800,8 +785,8 @@ const TransportationSection = ({
                           onChange={(value) =>
                             onVehicleTypeChange(index, value, name)
                           }
-                          loading={loadingVehicle}
-                          disabled={loadingVehicle || !selectedProvinces}
+                          loading={loadingVehicle[index] || false}
+                          disabled={!selectedProvinces}
                         >
                           {availableVehicleTypes[index]?.map((key) => {
                             const label = servingVehiclesQuantity[key];
@@ -822,28 +807,34 @@ const TransportationSection = ({
                         <Input readOnly disabled className="w-[100px]" />
                       </Form.Item>
                     </div>
-                    {priceInfo[index] && (
+                    {loadingPrice[index] ? (
                       <div className="flex font-semibold text-gray-500 mr-10">
-                        <h3 className="text-lg mr-3">Khoảng giá: </h3>
-                        <p className="text-lg">
-                          {priceInfo[index].minCostperPerson.toLocaleString(
-                            "vi-VN",
-                            {
-                              style: "currency",
-                              currency: "VND",
-                            }
-                          )}{" "}
-                          ~{" "}
-                          {priceInfo[index].maxCostperPerson.toLocaleString(
-                            "vi-VN",
-                            {
-                              style: "currency",
-                              currency: "VND",
-                            }
-                          )}{" "}
-                          /người
-                        </p>
+                        <p>Loading...</p>
                       </div>
+                    ) : (
+                      priceInfo[index] && (
+                        <div className="flex font-semibold text-gray-500 mr-10">
+                          <h3 className="text-lg mr-3">Khoảng giá: </h3>
+                          <p className="text-lg">
+                            {priceInfo[index].minCostperPerson.toLocaleString(
+                              "vi-VN",
+                              {
+                                style: "currency",
+                                currency: "VND",
+                              }
+                            )}{" "}
+                            ~{" "}
+                            {priceInfo[index].maxCostperPerson.toLocaleString(
+                              "vi-VN",
+                              {
+                                style: "currency",
+                                currency: "VND",
+                              }
+                            )}{" "}
+                            /người
+                          </p>
+                        </div>
+                      )
                     )}
                   </div>
                 </div>

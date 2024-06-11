@@ -8,7 +8,6 @@ import {
 import { getAvailableAssurancesWithNumOfDays } from "../../../../../../api/AssuranceApi";
 import { optionClassLabels } from "../../../../../../settings/globalStatus";
 import { formatPrice } from "../../../../../../utils/Util";
-import { usePrice } from "../../../../../../context/PriceContext";
 
 const { Option } = Select;
 
@@ -26,40 +25,6 @@ const InsuranceSection = ({
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [insuranceId, setInsuranceId] = useState(null);
   const numOfDays = request?.privateTourResponse?.numOfDay;
-
-  const { updateCommonPrice, commonPrices } = usePrice();
-
-  useEffect(() => {
-    if (
-      insurances.assuranceId &&
-      numOfDays &&
-      typeof insurances === "object" &&
-      !Array.isArray(insurances)
-    ) {
-      const quantity =
-        request?.privateTourResponse?.numOfAdult +
-        request?.privateTourResponse?.numOfChildren;
-      // debugger;
-      const totalInsurance = insurances.price * quantity;
-      const commonService = {
-        item: "Bảo hiểm du lịch",
-        price: insurances.price,
-        quantity: 1,
-        total: totalInsurance,
-      };
-      // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
-      const existingServiceIndex = commonPrices.findIndex(
-        (service) => service.item === commonService.item
-      );
-      if (existingServiceIndex !== -1) {
-        // Cập nhật giá trị dịch vụ
-        commonPrices[existingServiceIndex] = commonService;
-      } else {
-        // Thêm dịch vụ mới vào danh sách
-        updateCommonPrice(commonService);
-      }
-    }
-  }, [insurances, updateCommonPrice, commonPrices]);
 
   console.log("insurances", insurances);
   console.log("numOfDays", numOfDays);
