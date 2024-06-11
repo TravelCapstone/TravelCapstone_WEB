@@ -198,6 +198,7 @@ const EachServiceSection = ({
                                     numOfDaysLoging={numOfDaysLoging}
                                     setNumOfDaysLoging={setNumOfDaysLoging}
                                     numOfRoom={numOfRoom}
+                                    indexMain={index}
                                   />
                                 </div>
                                 {/* DỊCH VỤ ĂN UỐNG */}
