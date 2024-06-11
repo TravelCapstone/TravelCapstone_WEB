@@ -51,8 +51,8 @@ const UserDropdownLinks = [
 
 function Navbar() {
   const [showMenu, setShowMenu] = useState(false);
-  const user = useSelector((state) => state.user.user || {});
-  const role = useSelector((state) => state.user.role || "");
+  const user = useSelector((state) => state.user?.user || {});
+  const role = useSelector((state) => state.user?.role || "");
 
   const dispatch = useDispatch();
   const location = useLocation();
