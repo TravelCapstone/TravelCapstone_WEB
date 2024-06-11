@@ -36,7 +36,6 @@ import dayjs from "dayjs";
 import CustomSurchangeSection from "./FieldServices/CustomSurchangeSection";
 import EventGalasSection from "./FieldServices/eventGalasSection";
 import LoadingOverlay from "../../../../../components/Loading/LoadingOverlay";
-import { usePrice } from "../../../../../context/PriceContext";
 import { alertFail, alertSuccess } from "../../../../../hook/useNotification";
 import "../../../../../settings/setupDayjs";
 import viVN from "antd/lib/locale/vi_VN";
@@ -104,9 +103,9 @@ function CreateOptionForm({ request }) {
     useState(null);
 
   // Get giá Verhicle
-  const [priceInfo, setPriceInfo] = useState({});
+  // const [priceInfo, setPriceInfo] = useState({});
+  const [priceInfo, setPriceInfo] = useState([]);
 
-  const { updateCommonPrice, commonPrices } = usePrice();
   const [numOfRoom, setNumOfRoom] = useState([]);
 
   const fetchGetRoomSuggestion = async (data) => {
@@ -251,29 +250,6 @@ function CreateOptionForm({ request }) {
     setStartDateTourChange(adjustedStartDate.format("DD-MM-YYYY HH:mm:ss"));
     setEndDateChange(adjustedEndDate.format("DD-MM-YYYY HH:mm:ss"));
   }, [startDateTour, startDate, request]);
-
-  useEffect(() => {
-    if (salaryInfo) {
-      const priceATourGuide = salaryInfo.result / quantityTourGuide;
-      const commonService = {
-        item: "Hướng dẫn viên cả tour",
-        price: priceATourGuide,
-        quantity: quantityTourGuide,
-        total: salaryInfo.result,
-      };
-      // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
-      const existingServiceIndex = commonPrices.findIndex(
-        (service) => service.item === commonService.item
-      );
-      if (existingServiceIndex !== -1) {
-        // Cập nhật giá trị dịch vụ
-        commonPrices[existingServiceIndex] = commonService;
-      } else {
-        // Thêm dịch vụ mới vào danh sách
-        updateCommonPrice(commonService);
-      }
-    }
-  }, [salaryInfo, updateCommonPrice, commonPrices]);
 
   useEffect(() => {
     form.setFieldsValue(formValues);
@@ -761,12 +737,14 @@ function CreateOptionForm({ request }) {
                     dataSource={numOfRoom}
                     renderItem={(item) => (
                       <List.Item>
-                        <Card className="mr-4 bg-teal-100">
-                          <Card.Meta
-                            title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
-                            description={`Tổng số phòng: ${item.numOfRoom}`}
-                          />
-                        </Card>
+                        {item.numOfRoom > 0 ? (
+                          <Card className="mr-4 bg-teal-100">
+                            <Card.Meta
+                              title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
+                              description={`Tổng số phòng: ${item.numOfRoom}`}
+                            />
+                          </Card>
+                        ) : null}
                       </List.Item>
                     )}
                   />

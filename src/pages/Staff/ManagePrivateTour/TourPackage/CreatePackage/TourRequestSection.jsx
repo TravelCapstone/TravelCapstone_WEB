@@ -89,7 +89,7 @@ function TourRequestSection({ request, loading, error }) {
   return (
     <>
       <div className="p-5 mx-10 mt-10 py-8 shadow-inner rounded-3xl  bg-white">
-        <h1 className="text-center font-bold text-xl mb-5 text-mainColor">
+        <h1 className="text-center font-bold text-xl mb-2 text-mainColor">
           THÔNG TIN YÊU CẦU TOUR
         </h1>
         <div className="   ">
@@ -175,12 +175,14 @@ function TourRequestSection({ request, loading, error }) {
                   dataSource={numOfRoom}
                   renderItem={(item) => (
                     <List.Item>
-                      <Card className="mr-4 bg-teal-100">
-                        <Card.Meta
-                          title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
-                          description={`Tổng số phòng: ${item.numOfRoom}`}
-                        />
-                      </Card>
+                      {item.numOfRoom > 0 ? (
+                        <Card className="mr-4 bg-teal-100">
+                          <Card.Meta
+                            title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
+                            description={`Tổng số phòng: ${item.numOfRoom}`}
+                          />
+                        </Card>
+                      ) : null}
                     </List.Item>
                   )}
                 />

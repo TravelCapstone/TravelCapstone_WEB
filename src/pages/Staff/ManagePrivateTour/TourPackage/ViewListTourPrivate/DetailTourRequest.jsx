@@ -168,7 +168,7 @@ function TourRequestPage() {
       )}
 
       <div className="mx-10 tabs">
-        <div className="tab-headers mb-10">
+        <div className="tab-headers mb-2">
           {tabs.map((tab, index) => (
             <button
               key={index}

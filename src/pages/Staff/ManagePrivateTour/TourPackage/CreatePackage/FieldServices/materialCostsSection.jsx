@@ -6,7 +6,6 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { fetchMaterialList } from "../../../../../../api/MaterialApi";
-import { usePrice } from "../../../../../../context/PriceContext";
 
 const { Option } = Select;
 
@@ -21,35 +20,6 @@ const MaterialCostsSection = ({
   const [materials, setMaterials] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
   const [selectedPrices, setSelectedPrices] = useState({});
-
-  const { updateCommonPrice, commonPrices } = usePrice();
-
-  useEffect(() => {
-    if (totalCost) {
-      const quantity =
-        request?.privateTourResponse?.numOfAdult +
-        request?.privateTourResponse?.numOfChildren;
-      // debugger;
-      const perMaterials = totalCost / quantity;
-      const commonService = {
-        item: "Nước chai và vật liệu khác",
-        price: perMaterials,
-        quantity: 1,
-        total: totalCost,
-      };
-      // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
-      const existingServiceIndex = commonPrices.findIndex(
-        (service) => service.item === commonService.item
-      );
-      if (existingServiceIndex !== -1) {
-        // Cập nhật giá trị dịch vụ
-        commonPrices[existingServiceIndex] = commonService;
-      } else {
-        // Thêm dịch vụ mới vào danh sách
-        updateCommonPrice(commonService);
-      }
-    }
-  }, [totalCost, updateCommonPrice, commonPrices]);
 
   const quantity =
     (request?.privateTourResponse?.numOfAdult || 0) +

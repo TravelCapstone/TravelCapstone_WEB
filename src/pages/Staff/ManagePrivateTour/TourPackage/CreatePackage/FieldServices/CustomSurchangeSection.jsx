@@ -8,7 +8,6 @@ import {
 } from "@ant-design/icons";
 import { getOperationFees } from "../../../../../../api/FeeApi";
 import { formatPrice } from "../../../../../../utils/Util";
-import { usePrice } from "../../../../../../context/PriceContext";
 
 const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
   const [fees, setFees] = useState({});
@@ -16,35 +15,18 @@ const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
   console.log("fees", fees);
   console.log("insurances", insurances);
 
-  const { updateCommonPrice, commonPrices } = usePrice();
-
-  useEffect(() => {
-    if (totalCost) {
-      const perInsurance = totalCost / quantity;
-      const commonService = {
-        item: "Phí dịch vụ tổ chức",
-        price: perInsurance,
-        quantity: 1,
-        total: totalCost,
-      };
-      // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
-      const existingServiceIndex = commonPrices.findIndex(
-        (service) => service.item === commonService.item
-      );
-      if (existingServiceIndex !== -1) {
-        // Cập nhật giá trị dịch vụ
-        commonPrices[existingServiceIndex] = commonService;
-      } else {
-        // Thêm dịch vụ mới vào danh sách
-        updateCommonPrice(commonService);
-      }
-    }
-  }, [totalCost, updateCommonPrice, commonPrices]);
-
   const fetchData = async () => {
     const data = await getOperationFees(quantity);
     if (data.isSuccess) {
       setFees(data.result);
+      form.setFieldsValue({
+        organizationCost: data.result.minOrganizationCost,
+        contigencyFeePerPerson: data.result.minContingencyFee,
+        escortFee: data.result.minEscortFee,
+        operatingFee: data.result.minOperatingFee,
+        assurancePricePerPerson: insurances.price,
+      });
+      calculateTotalCost();
     }
   };
 
@@ -105,6 +87,7 @@ const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
           onChange={() => calculateTotalCost()}
           value={fees?.minOrganizationCost}
           placeholder={fees?.minOrganizationCost}
+          defaultValue={fees.minOrganizationCost}
         />
       </Form.Item>
       <Form.Item
@@ -134,6 +117,7 @@ const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
           onChange={() => calculateTotalCost()}
           value={fees?.minContingencyFee}
           placeholder={fees?.minContingencyFee}
+          defaultValue={fees.minContingencyFee}
         />
       </Form.Item>
       <Form.Item
@@ -152,7 +136,7 @@ const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
           {
             type: "number",
             min: fees?.minEscortFee,
-            max: fees?.maxEscortFee,
+            max: fees.maxEscortFee,
             message: `Phí khác phải nằm trong khoảng từ ${formatPrice(fees?.minEscortFee)} đến ${formatPrice(fees?.maxEscortFee)}`,
           },
         ]}
@@ -163,6 +147,7 @@ const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
           onChange={() => calculateTotalCost()}
           value={fees?.minEscortFee}
           placeholder={fees?.minEscortFee}
+          defaultValue={fees.minEscortFee}
         />
       </Form.Item>
       <Form.Item
@@ -192,6 +177,7 @@ const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
           onChange={() => calculateTotalCost()}
           value={fees?.minOperatingFee}
           placeholder={fees?.minOperatingFee}
+          defaultValue={fees.minOperatingFee}
         />
       </Form.Item>
       {minAssurancePricePerPerson && (
@@ -220,6 +206,7 @@ const CustomSurchangeSection = ({ form, quantity, request, insurances }) => {
             onChange={() => calculateTotalCost()}
             value={minAssurancePricePerPerson}
             placeholder={minAssurancePricePerPerson}
+            defaultValue={minAssurancePricePerPerson}
           />
         </Form.Item>
       )}

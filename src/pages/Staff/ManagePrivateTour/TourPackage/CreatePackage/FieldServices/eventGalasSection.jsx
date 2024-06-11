@@ -21,7 +21,6 @@ import {
   fetchEventListWithQuantity,
   updateEventDetails,
 } from "../../../../../../api/EventApi";
-import { usePrice } from "../../../../../../context/PriceContext";
 import moment from "moment";
 import {
   alertFail,
@@ -65,7 +64,6 @@ const EventGalasSection = ({
 
   console.log("jsonCustormEvent", jsonCustormEvent);
 
-  const { updateCommonPrice, commonPrices } = usePrice();
   const [totalPrice, setTotalPrice] = useState(0);
 
   const quantity =
@@ -73,34 +71,6 @@ const EventGalasSection = ({
     request?.privateTourResponse?.numOfChildren;
 
   console.log("selectedEvent", selectedEvent);
-
-  useEffect(() => {
-    if (
-      selectedEvent &&
-      typeof selectedEvent === "object" &&
-      !Array.isArray(selectedEvent)
-    ) {
-      // debugger;
-      const perInsurance = selectedEvent.total / quantity;
-      const commonService = {
-        item: "Bảo hiểm du lịch",
-        price: perInsurance,
-        quantity: 1,
-        total: selectedEvent.total,
-      };
-      // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
-      const existingServiceIndex = commonPrices.findIndex(
-        (service) => service.item === commonService.item
-      );
-      if (existingServiceIndex !== -1) {
-        // Cập nhật giá trị dịch vụ
-        commonPrices[existingServiceIndex] = commonService;
-      } else {
-        // Thêm dịch vụ mới vào danh sách
-        updateCommonPrice(commonService);
-      }
-    }
-  }, [selectedEvent, updateCommonPrice, commonPrices]);
 
   const showEditModal = (event) => {
     setEditingEvent(event);
@@ -558,9 +528,9 @@ const EventGalasSection = ({
                         <DatePicker
                           disabledDate={disabledDate}
                           defaultPickerValue={[getDefaultPickerValue()]}
-                          showTime
+                          // showTime
                           onChange={handleDateChange}
-                          format="DD-MM-YYYY HH:mm:ss"
+                          format="DD-MM-YYYY"
                         />
                       </Form.Item>
                     </ConfigProvider>

@@ -426,90 +426,92 @@ const LodgingSection = ({
 
                       return (
                         <List.Item key={roomDetail.id}>
-                          <div className="mr-10">
-                            <div className="mb-6">
-                              <p className="font-semibold text-lg mb-3">
-                                Loại Phòng:
-                              </p>
-                              <Card className="mr-4 bg-teal-100">
-                                <Card.Meta
-                                  title={`Phòng ${
-                                    roomDetail.roomSize === 4 ? "đôi" : "đơn"
-                                  } `}
-                                  description={`Tổng số phòng: ${roomDetail.numOfRoom}`}
-                                />
-                              </Card>
-                            </div>
-                            <div className="flex font-semibold text-sm text-gray-500 mb-4">
-                              {minMaxPrice1?.length > 0 && (
-                                <p>
-                                  Gói Tiết Kiệm: Giá khoảng:{" "}
-                                  {minMaxPrice1[0].minPrice.toLocaleString(
-                                    "vi-VN",
-                                    {
-                                      style: "currency",
-                                      currency: "VND",
-                                    }
-                                  )}{" "}
-                                  ~{" "}
-                                  {minMaxPrice1[0].maxPrice.toLocaleString(
-                                    "vi-VN",
-                                    {
-                                      style: "currency",
-                                      currency: "VND",
-                                    }
-                                  )}
-                                  / Người / {numOfDaysLoging} Đêm
+                          {roomDetail.numOfRoom > 0 ? (
+                            <div className="mr-10">
+                              <div className="mb-6">
+                                <p className="font-semibold text-lg mb-3">
+                                  Loại Phòng:
                                 </p>
-                              )}
+                                <Card className="mr-4 bg-teal-100">
+                                  <Card.Meta
+                                    title={`Phòng ${
+                                      roomDetail.roomSize === 4 ? "đôi" : "đơn"
+                                    } `}
+                                    description={`Tổng số phòng: ${roomDetail.numOfRoom}`}
+                                  />
+                                </Card>
+                              </div>
+                              <div className="flex font-semibold text-sm text-gray-500 mb-4">
+                                {minMaxPrice1?.length > 0 && (
+                                  <p>
+                                    Gói Tiết Kiệm: Giá khoảng:{" "}
+                                    {minMaxPrice1[0].minPrice.toLocaleString(
+                                      "vi-VN",
+                                      {
+                                        style: "currency",
+                                        currency: "VND",
+                                      }
+                                    )}{" "}
+                                    ~{" "}
+                                    {minMaxPrice1[0].maxPrice.toLocaleString(
+                                      "vi-VN",
+                                      {
+                                        style: "currency",
+                                        currency: "VND",
+                                      }
+                                    )}
+                                    / Người / {numOfDaysLoging} Đêm
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex font-semibold text-sm text-gray-500 mb-4 ">
+                                {minMaxPrice2?.length > 0 && (
+                                  <p>
+                                    Gói Cơ Bản: Giá khoảng:{" "}
+                                    {minMaxPrice2[0].minPrice.toLocaleString(
+                                      "vi-VN",
+                                      {
+                                        style: "currency",
+                                        currency: "VND",
+                                      }
+                                    )}{" "}
+                                    ~{" "}
+                                    {minMaxPrice2[0].maxPrice.toLocaleString(
+                                      "vi-VN",
+                                      {
+                                        style: "currency",
+                                        currency: "VND",
+                                      }
+                                    )}
+                                    / Người / {numOfDaysLoging} Đêm
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex font-semibold text-sm text-gray-500  mb-4">
+                                {minMaxPrice3?.length > 0 && (
+                                  <p>
+                                    Gói Nâng Cao: Giá khoảng:{" "}
+                                    {minMaxPrice3[0].minPrice.toLocaleString(
+                                      "vi-VN",
+                                      {
+                                        style: "currency",
+                                        currency: "VND",
+                                      }
+                                    )}{" "}
+                                    ~{" "}
+                                    {minMaxPrice3[0].maxPrice.toLocaleString(
+                                      "vi-VN",
+                                      {
+                                        style: "currency",
+                                        currency: "VND",
+                                      }
+                                    )}
+                                    / Người / {numOfDaysLoging} Đêm
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex font-semibold text-sm text-gray-500 mb-4 ">
-                              {minMaxPrice2?.length > 0 && (
-                                <p>
-                                  Gói Cơ Bản: Giá khoảng:{" "}
-                                  {minMaxPrice2[0].minPrice.toLocaleString(
-                                    "vi-VN",
-                                    {
-                                      style: "currency",
-                                      currency: "VND",
-                                    }
-                                  )}{" "}
-                                  ~{" "}
-                                  {minMaxPrice2[0].maxPrice.toLocaleString(
-                                    "vi-VN",
-                                    {
-                                      style: "currency",
-                                      currency: "VND",
-                                    }
-                                  )}
-                                  / Người / {numOfDaysLoging} Đêm
-                                </p>
-                              )}
-                            </div>
-                            <div className="flex font-semibold text-sm text-gray-500  mb-4">
-                              {minMaxPrice3?.length > 0 && (
-                                <p>
-                                  Gói Nâng Cao: Giá khoảng:{" "}
-                                  {minMaxPrice3[0].minPrice.toLocaleString(
-                                    "vi-VN",
-                                    {
-                                      style: "currency",
-                                      currency: "VND",
-                                    }
-                                  )}{" "}
-                                  ~{" "}
-                                  {minMaxPrice3[0].maxPrice.toLocaleString(
-                                    "vi-VN",
-                                    {
-                                      style: "currency",
-                                      currency: "VND",
-                                    }
-                                  )}
-                                  / Người / {numOfDaysLoging} Đêm
-                                </p>
-                              )}
-                            </div>
-                          </div>
+                          ) : null}
                         </List.Item>
                       );
                     }}

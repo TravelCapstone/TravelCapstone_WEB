@@ -7,7 +7,6 @@ import {
 } from "@ant-design/icons";
 import { servingVehiclesQuantity } from "../../../../../../settings/globalStatus";
 import { postHumanResourceSalaryWithIsForTourguide } from "../../../../../../api/HumanResourceSalaryApi";
-import { usePrice } from "../../../../../../context/PriceContext";
 import moment from "moment";
 
 const { Option } = Select;
@@ -29,62 +28,18 @@ const InfoTourGuideSection = ({
   const [availableProvinces, setAvailableProvinces] = useState([]);
 
   console.log("selectedProvinces", selectedProvinces);
+  console.log("provinceNumDay", provinceNumDay);
 
   const fieldstravelOptions = form.getFieldValue("travelOptions") || [];
 
-  const { updateCommonPrice, commonPrices } = usePrice();
-
   useEffect(() => {
     if (form.getFieldValue("tourGuideCosts")) {
-
-      const initialSelectedProvinces = form.getFieldValue("tourGuideCosts").map(
-        (item) => item.provinceId
-      );
+      const initialSelectedProvinces = form
+        .getFieldValue("tourGuideCosts")
+        .map((item) => item.provinceId);
       setSelectedProvinces(initialSelectedProvinces);
     }
   }, [form]);
-
-
-  useEffect(() => {
-    // debugger;
-    const tourGuideCosts = form.getFieldValue("tourGuideCosts");
-    if (
-      salaryInfo &&
-      typeof salaryInfo === "object" &&
-      !Array.isArray(salaryInfo) &&
-      Array.isArray(tourGuideCosts)
-    ) {
-      tourGuideCosts.forEach((_, index) => {
-        if (salaryInfo[index]) {
-          const quantity =
-            request?.privateTourResponse?.numOfAdult +
-            request?.privateTourResponse?.numOfChildren;
-          const perPrice = salaryInfo[index].result / quantity;
-          const commonService = {
-            item: `Phí hướng dẫn viên cho tour ${index + 1}`,
-            price: perPrice,
-            quantity: 1,
-            total: salaryInfo[index].result,
-          };
-
-          // Kiểm tra nếu dịch vụ đã tồn tại trong danh sách
-          const existingServiceIndex = commonPrices.findIndex(
-            (service) => service.item === commonService.item
-          );
-          if (existingServiceIndex !== -1) {
-            // Cập nhật giá trị dịch vụ
-            commonPrices[existingServiceIndex] = commonService;
-          } else {
-            // Thêm dịch vụ mới vào danh sách
-            updateCommonPrice(commonService);
-          }
-        }
-      });
-    }
-  }, [salaryInfo, form, request, commonPrices, updateCommonPrice]);
-
-
-
 
   const handleQuantityChange = (index, value) => {
     form.setFieldsValue({
@@ -96,8 +51,6 @@ const InfoTourGuideSection = ({
     });
     fetchSalaries();
   };
-
-
 
   const handleProvinceChange = (index, value) => {
     const currentValues = form.getFieldValue("tourGuideCosts");
@@ -143,7 +96,7 @@ const InfoTourGuideSection = ({
     }
 
     // Cập nhật selectedProvinces
-    const updatedSelectedProvinces = newValues.map(item => item.provinceId);
+    const updatedSelectedProvinces = newValues.map((item) => item.provinceId);
     setSelectedProvinces(updatedSelectedProvinces);
   };
 
@@ -154,6 +107,19 @@ const InfoTourGuideSection = ({
 
     try {
       const values = await form.validateFields(["tourGuideCosts"]);
+
+      values.tourGuideCosts.forEach((cost) => {
+        if (cost.numOfDay === undefined) {
+          const province = provinceNumDay.find(
+            (prov) => prov.id === cost.provinceId
+          );
+          if (province) {
+            cost.numOfDay = province.numOfDays;
+          }
+        }
+      });
+
+      console.log("Updated values:", values);
       const updates = {};
       for (const [index, item] of values.tourGuideCosts.entries()) {
         if (item.quantity && item.numOfDay && item.provinceId) {
@@ -229,29 +195,32 @@ const InfoTourGuideSection = ({
     );
   }, [selectedProvinces]);
 
-
-
   return (
     <>
       <Form.List name="tourGuideCosts">
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name, ...restField }, index) => {
-              const provinceId = form.getFieldValue(["tourGuideCosts", index, "provinceId"]);
+              const provinceId = form.getFieldValue([
+                "tourGuideCosts",
+                index,
+                "provinceId",
+              ]);
 
               const numOfDays = provinceNumDay.find(
                 (province) => province.id === provinceId
               )?.numOfDays;
 
               const filteredProvinces = availableProvinces.filter(
-                (province) => !selectedProvinces.includes(province.id) || province.id === provinceId
+                (province) =>
+                  !selectedProvinces.includes(province.id) ||
+                  province.id === provinceId
               );
 
               console.log("numOfDays", numOfDays);
               console.log("provinces", provinceNumDay);
               console.log("availableProvinces", availableProvinces);
               console.log("filteredProvinces", filteredProvinces);
-
 
               return (
                 <Space
@@ -260,7 +229,9 @@ const InfoTourGuideSection = ({
                   className="mb-4 flex justify-between"
                 >
                   <div className="flex flex-wrap">
-                    <div className="text-center font-bold mr-14">{index + 1}</div>
+                    <div className="text-center font-bold mr-14">
+                      {index + 1}
+                    </div>
                     <div>
                       <div className="flex flex-wrap">
                         <Form.Item
@@ -274,7 +245,9 @@ const InfoTourGuideSection = ({
                         >
                           <Select
                             placeholder="Tỉnh"
-                            onChange={(value) => handleSelectProvince(index, value)}
+                            onChange={(value) =>
+                              handleSelectProvince(index, value)
+                            }
                             className="!w-[200px] mr-10"
                           >
                             {filteredProvinces.map((province) => (
@@ -301,7 +274,6 @@ const InfoTourGuideSection = ({
                             min={1}
                             max={30}
                             disabled={true}
-
                             value={numOfDays}
                             placeholder={numOfDays}
                             className="!w-[200px] mr-10"
@@ -336,10 +308,13 @@ const InfoTourGuideSection = ({
                             <p>
                               {" "}
                               Phí hướng dẫn viên:{" "}
-                              {salaryInfo[index].result.toLocaleString("vi-VN", {
-                                style: "currency",
-                                currency: "VND",
-                              })}
+                              {salaryInfo[index].result.toLocaleString(
+                                "vi-VN",
+                                {
+                                  style: "currency",
+                                  currency: "VND",
+                                }
+                              )}
                             </p>
                           )}
                         </div>
@@ -351,7 +326,6 @@ const InfoTourGuideSection = ({
               );
             })}
             {fields.length < fieldstravelOptions.length && (
-
               <Form.Item className="w-1/3 ">
                 <Button
                   className="bg-teal-600 font-semibold text-white"

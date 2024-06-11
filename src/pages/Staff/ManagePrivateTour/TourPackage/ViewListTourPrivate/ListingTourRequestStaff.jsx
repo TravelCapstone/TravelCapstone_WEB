@@ -72,12 +72,12 @@ const ListingTourRequestStaff = () => {
             }
           />
         </div>
-        <h2 className="text-xl text-primary font-semibold mb-4 text-center text-pretty">
+        <h2 className="text-xl text-primary font-bold mb-6 ml-2  text-pretty">
           LỊCH SỬ TOUR YÊU CẦU
         </h2>
 
         <div className="overflow-auto">
-          <div className="tabs-bordered mb-4">
+          <div className="tabs-bordered mb-8">
             {["all", "0", "1", "2", "4", "3"].map((status) => (
               <a
                 key={status}
@@ -159,8 +159,10 @@ const ListingTourRequestStaff = () => {
                         {item.status === 3 && "HUỶ YÊU CẦU"}
                         {item.status === 4 && "ĐÃ TẠO KẾ HOẠCH TOUR"}
                       </td>
-                      <td>{formatDate(item.createDate)}</td>
-                      <td>
+                      <td className="text-right">
+                        {formatDate(item.createDate)}
+                      </td>
+                      <td className="text-center">
                         <NavLink
                           to={`/staff/${DETAIL_TOUR_REQUEST_STAFF}/${item.id}`}
                         >

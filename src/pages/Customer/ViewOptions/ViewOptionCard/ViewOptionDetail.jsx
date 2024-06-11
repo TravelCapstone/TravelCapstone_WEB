@@ -15,6 +15,9 @@ const ViewOptionDetail = ({ data, visible, onOk, onCancel, showModal }) => {
   const [menuData, setMenuData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const modalContentRef = useRef(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  console.log("menuData", menuData);
 
   const handleEyeClick = async (id) => {
     try {
@@ -24,10 +27,19 @@ const ViewOptionDetail = ({ data, visible, onOk, onCancel, showModal }) => {
         setMenuData(response.result.items);
       }
       setIsLoading(false);
-      modalContentRef.current.scrollTop = modalContentRef.current.scrollHeight;
+      setIsModalVisible(true); // Open the modal
+      if (modalContentRef.current) {
+        modalContentRef.current.scrollTop =
+          modalContentRef.current.scrollHeight;
+      }
     } catch (error) {
       console.error("Failed to fetch menu data:", error);
+      setIsLoading(false);
     }
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
   };
 
   return (
@@ -117,27 +129,40 @@ const ViewOptionDetail = ({ data, visible, onOk, onCancel, showModal }) => {
             </table>
 
             {menuData && (
-              <>
-                <h3 className="text-center text-primary text-xl font-bold my-2">
-                  THỰC ĐƠN
-                </h3>
-                <table className="table w-full">
-                  <thead>
-                    <tr>
-                      <th>Tên món</th>
-                      <th>Mô tả</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {menuData.map((dish) => (
-                      <tr key={dish.id}>
-                        <td>{dish.name}</td>
-                        <td>{dish.description}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </>
+              <Modal
+                visible={isModalVisible}
+                onCancel={handleModalClose}
+                footer={null}
+                width={800}
+              >
+                {isLoading ? (
+                  <div>Loading...</div>
+                ) : (
+                  <div ref={modalContentRef}>
+                    <h3 className="text-center text-primary text-xl font-bold my-2">
+                      THỰC ĐƠN
+                    </h3>
+                    <table className="table w-full">
+                      <thead>
+                        <tr className="font-semibold">
+                          <th>STT</th>
+                          <th>Tên món</th>
+                          <th>Mô tả</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {menuData.map((dish, index) => (
+                          <tr key={dish.id}>
+                            <td>{index + 1}</td>
+                            <td>{dish.name}</td>
+                            <td>{dish.description}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </Modal>
             )}
           </TabPane>
           <TabPane tab="Hướng dẫn viên" key="2">
