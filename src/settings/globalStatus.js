@@ -143,6 +143,20 @@ const unitLabels = {
   1: "Phòng",
   2: "Người",
 };
+
+export const tourStatus = {
+  0: "Mới",
+  1: "Chờ xác nhận",
+  2: "Hợp lệ",
+  3: "Đã lên kế hoạch",
+  4: "Đang diễn ra",
+  5: "Hoàn thành",
+};
+export const tourTypes = {
+  0: "Tour công khai",
+  1: "Tour gia đình",
+  2: "Tour doanh nghiệp",
+};
 export {
   unitLabels,
   vehicleTypeLabels,
