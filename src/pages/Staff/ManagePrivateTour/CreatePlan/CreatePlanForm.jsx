@@ -12,11 +12,12 @@ import viVN from "antd/lib/locale/vi_VN";
 import { getProvinceOfOption } from "../../../../api/privateTourRequestApi";
 import MaterialAssignment from "./MaterialAssignment";
 import { useSelector } from "react-redux";
-import { createTour } from "../../../../api/TourApi";
+import { calculatePlanCost, createTour } from "../../../../api/TourApi";
 import LoadingOverlay from "../../../../components/Loading/LoadingOverlay";
 import moment from "moment-timezone";
 import { formatDateToISOString } from "../../../../utils/Util";
 import { useNavigate } from "react-router-dom";
+import TourPrices from "../../../Plan/TourPrices";
 const CreatePlanForm = ({
   privateTourResponse,
   optionQuotation,
@@ -40,11 +41,12 @@ const CreatePlanForm = ({
   const signal = useSelector((state) => state.plan.isCreatePlan || false);
   const [form] = Form.useForm();
   const [isLoading, setIsLoading] = useState(false);
+  const [calculateResponse, setCalculateResponse] = useState({});
   const navigate = useNavigate();
   const onFinish = async (values) => {
     // debugger;
     const data = buildData();
-    if (data.location.length === 0) {
+    if (data.locations.length === 0) {
       message.error("Vui lòng chọn ít nhất một địa điểm");
       return;
     }
@@ -63,6 +65,7 @@ const CreatePlanForm = ({
     }
 
     setIsLoading(true);
+    console.log("datadatadata", data);
     const response = await createTour(data);
     if (response.isSuccess) {
       message.success("Tạo kế hoạch thành công");
@@ -114,6 +117,11 @@ const CreatePlanForm = ({
       privateTourRequestId: privateTourResponse?.privateTourResponse?.id,
       startDate: privateTourResponse?.privateTourResponse?.startDate,
       endDate: privateTourResponse?.privateTourResponse?.endDate,
+      total: calculateResponse ? calculateResponse.total : 0,
+      pricePerAdult: calculateResponse ? calculateResponse.pricePerAdult : 0,
+      pricePerChildren: calculateResponse
+        ? calculateResponse.pricePerChildren
+        : 0,
       locations: buildLocation(),
       vehicles: buildVehicle() || [],
       tourguides: buildTourguide() || [],
@@ -211,7 +219,9 @@ const CreatePlanForm = ({
         return vehicleItems.map((vehicleItem, vehicleIndex) => ({
           vehicleType: item.vehicleType || null,
           startPoint: item.startPointId || null,
-          endPoint: item.endPointId || null,
+          endPoint: !item.endPointId
+            ? item.startPointId
+            : item.endPointId || null,
           portStartPoint:
             form.getFieldValue(`portStartPoint[${vehicleIndex}]`) || null,
           portEndPoint:
@@ -268,6 +278,21 @@ const CreatePlanForm = ({
       setLocation(buildLocation());
     }
   }, [signal === true]);
+
+  const handleCaculatePrice = async () => {
+    setIsLoading(true);
+    const response = await calculatePlanCost(buildData());
+    if (response.isSuccess) {
+      message.success("Tính chi phí thành công");
+      setIsLoading(false);
+      setCalculateResponse(response.result);
+    } else {
+      response.messages.forEach((mess) => {
+        message.error(mess);
+      });
+      setIsLoading(false);
+    }
+  };
   return (
     <>
       <LoadingOverlay isLoading={isLoading} />
@@ -342,13 +367,30 @@ const CreatePlanForm = ({
             getFieldValue={getFieldValue}
             privateTourResponse={privateTourResponse?.privateTourResponse}
           />
+          <h3 className="text-primary text-lg font-bold text-center">
+            Tổng chi phí
+          </h3>
+          <Button
+            className="bg-primary text-white my-2"
+            onClick={handleCaculatePrice}
+          >
+            Tính chi phí
+          </Button>
+          {calculateResponse && (
+            <>
+              <TourPrices data={calculateResponse} />
+              <div className="flex justify-center">
+                <Button
+                  className="bg-primary text-white my-2"
+                  htmlType="submit"
+                >
+                  Tạo kế hoạch tour
+                </Button>
+              </div>
+            </>
+          )}
 
           {/* THÔNG TIN HƯỚNG DẪN VIÊN */}
-          <div className="flex justify-center">
-            <Button className="bg-primary text-white" htmlType="submit">
-              Tạo kế hoạch tour
-            </Button>
-          </div>
         </Form>
       </div>
     </>

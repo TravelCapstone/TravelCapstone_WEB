@@ -18,5 +18,13 @@ export const getPlanByTourId = async (tourId) => {
     return [];
   }
 };
-
+export const calculatePlanCost = async (data) => {
+  try {
+    const response = await api.post(`/tour/calculate-plan-cost`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching provinces:", error);
+    return [];
+  }
+};
 export { createTour };
