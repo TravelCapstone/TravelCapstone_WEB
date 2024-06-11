@@ -80,6 +80,10 @@ const ViewOptionCard = ({ option, selectedOption }) => {
       message.success("Chọn gói thành công");
       navigate("/customer/view-list-tour-private");
       setIsLoading(false);
+    } else {
+      response.messages.forEach((item) => {
+        message.error(item);
+      });
     }
     setIsLoading(false);
   };

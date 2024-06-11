@@ -14,7 +14,7 @@ const ViewPlan = ({ privateTourResponse }) => {
   console.log("privateTourResponse", privateTourResponse);
   const fetchPlan = async () => {
     setIsLoading(true);
-    const data = await getPlanByTourId(privateTourResponse.tourId);
+    const data = await getPlanByTourId(privateTourResponse.generatedTourId);
     if (data?.isSuccess) {
       setResult(data.result);
     }
