@@ -15,7 +15,10 @@ import {
   ConfigProvider,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import { calculateOptionsCost, createOptionsPrivateTour } from "../../../../../api/OptionsApi";
+import {
+  calculateOptionsCost,
+  createOptionsPrivateTour,
+} from "../../../../../api/OptionsApi";
 import LodgingSection from "./FieldServices/LodgingSection";
 import RestaurantSection from "./FieldServices/RestaurantSection";
 import TransportationSection from "./FieldServices/TransportationSection";
@@ -40,6 +43,8 @@ import viVN from "antd/lib/locale/vi_VN";
 import moment from "moment";
 import { getRoomSuggestion } from "../../../../../api/privateTourRequestApi";
 import EstimatedPriceTable from "./FieldServices/ExpectedPriceOption";
+import { useNavigate } from "react-router-dom";
+import { LISTING_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -55,6 +60,8 @@ const convertDateFormat = (dateString) => {
 };
 
 function CreateOptionForm({ request }) {
+  let navigate = useNavigate();
+
   const numberOfPassengers =
     request?.privateTourResponse?.numOfAdult +
     request?.privateTourResponse?.numOfChildren;
@@ -88,7 +95,6 @@ function CreateOptionForm({ request }) {
 
   console.log("estimatedPrices", estimatedPrices);
 
-
   const startDate = request?.privateTourResponse?.startDate;
 
   const [endDateTour, setEndDateTour] = useState(
@@ -102,7 +108,6 @@ function CreateOptionForm({ request }) {
 
   const { updateCommonPrice, commonPrices } = usePrice();
   const [numOfRoom, setNumOfRoom] = useState([]);
-
 
   const fetchGetRoomSuggestion = async (data) => {
     const response = await getRoomSuggestion(data);
@@ -170,12 +175,11 @@ function CreateOptionForm({ request }) {
 
   const [provinceNumDay, setProvinceNumDay] = useState([]);
 
-
   const calculateDays = (dateRange) => {
     if (dateRange && dateRange.length === 2) {
       const startDate = dayjs(dateRange[0]);
       const endDate = dayjs(dateRange[1]);
-      return endDate.diff(startDate, 'day') + 1;
+      return endDate.diff(startDate, "day") + 1;
     }
     return 0;
   };
@@ -185,23 +189,22 @@ function CreateOptionForm({ request }) {
       const option = travelOptions.find(
         (opt) => opt.provinceId === province.id
       );
-      // debugger 
+      // debugger
       const numOfDays = option ? calculateDays(option.dateRange) : 0;
       return { ...province, numOfDays };
     });
     setProvinceNumDay(updatedProvinces);
 
-    const updatedTourGuideCosts = form.getFieldValue("tourGuideCosts").map(
-      (item, index) => {
+    const updatedTourGuideCosts = form
+      .getFieldValue("tourGuideCosts")
+      .map((item, index) => {
         const province = updatedProvinces.find(
           (province) => province.id === item.provinceId
         );
         return province ? { ...item, numOfDay: province.numOfDays } : item;
-      }
-    );
+      });
     form.setFieldsValue({ tourGuideCosts: updatedTourGuideCosts });
   };
-
 
   useEffect(() => {
     const numOfDays = request?.privateTourResponse?.numOfDay || 0;
@@ -272,7 +275,6 @@ function CreateOptionForm({ request }) {
     }
   }, [salaryInfo, updateCommonPrice, commonPrices]);
 
-
   useEffect(() => {
     form.setFieldsValue(formValues);
   }, [formValues]);
@@ -280,8 +282,6 @@ function CreateOptionForm({ request }) {
   const onValuesChange = (changedValues, allValues) => {
     setFormValues(allValues);
   };
-
-
 
   useEffect(() => {
     const fetchSalary = async () => {
@@ -377,7 +377,6 @@ function CreateOptionForm({ request }) {
   const handleFieldChange = (index) => {
     fetchVehiclePriceRange(index);
   };
-
 
   const renderOtherLocations = (locations) => {
     return locations?.map((location) => (
@@ -490,7 +489,6 @@ function CreateOptionForm({ request }) {
   }, [startDateTourChange, endDateChange]); // Chỉ chạy lại effect khi startDateTourChange hoặc endDateChange thay đổi
 
   const adjustFormToAPI = (values) => {
-
     const vehicles = buildVehiclesPayload(
       values.transportation,
       values.travelOptions
@@ -594,7 +592,6 @@ function CreateOptionForm({ request }) {
       vehicles: vehicles, // ok
     };
 
-
     return apiPayload;
   };
 
@@ -611,20 +608,25 @@ function CreateOptionForm({ request }) {
     try {
       const payload = adjustFormToAPI(form.getFieldsValue()); // Generate the payload
       const response = await calculateOptionsCost(payload); // Call the new API
-      debugger
+      debugger;
       if (response.isSuccess) {
         setEstimatedPrices(response.result);
+        message.success("Đã tính toán phí dịch vụ thành công!");
       } else {
+        message.error(
+          response.messages[0] || "Có chút lỗi trong quá trình tính toán giá!"
+        );
         alertFail("Failed to fetch estimated prices");
       }
     } catch (error) {
-      alertFail("An error occurred while fetching the estimated prices. Please try again later.");
+      alertFail(
+        "An error occurred while fetching the estimated prices. Please try again later."
+      );
       console.error("Error while fetching estimated prices:", error);
     } finally {
       setLoading(false);
     }
   };
-
 
   const onFinish = async (values) => {
     console.log("Received values of form: ", values);
@@ -642,6 +644,7 @@ function CreateOptionForm({ request }) {
       if (response?.isSuccess) {
         alertSuccess("Tạo Gói Tour Thành Công!");
         form.resetFields(); // Reset all fields in the form
+        navigate(`${LISTING_TOUR_REQUEST_STAFF}`);
       } else {
         for (const message in response.messages) {
           alertFail(message);
@@ -1050,17 +1053,21 @@ function CreateOptionForm({ request }) {
               {/* <ExpectedPriceOption request={request} /> */}
 
               <Form.Item>
-
-                <Button onClick={fetchEstimatedPrices} className="bg-teal-600 font-semibold text-white my-4">
+                <Button
+                  onClick={fetchEstimatedPrices}
+                  className="bg-teal-600 font-semibold text-white my-4"
+                >
                   XEM GIÁ DỰ KIẾN
                 </Button>
               </Form.Item>
-
             </div>
             {loading && <p>Loading...</p>}
-            {estimatedPrices.length > 0 &&
-              <EstimatedPriceTable prices={estimatedPrices} numberOfPassengers={numberOfPassengers} />
-            }
+            {estimatedPrices.length > 0 && (
+              <EstimatedPriceTable
+                prices={estimatedPrices}
+                numberOfPassengers={numberOfPassengers}
+              />
+            )}
 
             <div className="flex justify-center my-4">
               <Form.Item>
