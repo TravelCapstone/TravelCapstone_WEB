@@ -48,6 +48,7 @@ const LodgingSection = ({
   endDateChange,
   startDateFinal,
   endDateFinal,
+  indexMain,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,11 +56,21 @@ const LodgingSection = ({
 
   const [facilities, setFacilities] = useState([]);
 
-  const [selectedOptions, setSelectedOptions] = useState({
-    hotelOptionRatingOption1: null,
-    hotelOptionRatingOption2: null,
-    hotelOptionRatingOption3: null,
-  });
+  // const [selectedOptions, setSelectedOptions] = useState({
+  //   hotelOptionRatingOption1: null,
+  //   hotelOptionRatingOption2: null,
+  //   hotelOptionRatingOption3: null,
+  // });
+
+  const [selectedOptions, setSelectedOptions] = useState([
+    {
+      hotelOptionRatingOption1: null,
+      hotelOptionRatingOption2: null,
+      hotelOptionRatingOption3: null,
+    },
+  ]);
+
+  console.log("selectedOptions", selectedOptions);
 
   const [priceData, setPriceData] = useState({});
   const [disableOptions, setDisableOptions] = useState(true);
@@ -131,42 +142,46 @@ const LodgingSection = ({
     }
   };
 
-  const onDateRangeChange = (dates, dateStrings, fieldKey) => {
+  const onDateRangeChange = (dates, dateStrings, fieldKey, itemIndex) => {
     if (dates) {
-      const startDate = dates[0].toDate(); // Convert moment to Date object
+      const startDate = dates[0].toDate();
       const endDate = dates[1].toDate();
-      const duration = endDate - startDate; // Difference in milliseconds
-      const hours = duration / 3600000; // Convert milliseconds to hours
+      const duration = endDate - startDate;
+      const hours = duration / 3600000;
+      const numOfDays = Math.ceil(hours / 24);
 
-      const numOfDays = Math.ceil(hours / 24); // Rounds up to the nearest whole day
-      setNumOfDaysLoging(numOfDays);
-      // Set the number of days in the form
+      const newNumOfDaysLoging = [...numOfDaysLoging];
+      newNumOfDaysLoging[itemIndex] = numOfDays;
+      debugger;
+      setNumOfDaysLoging(newNumOfDaysLoging);
       setDisableOptions(false);
-      fetchPriceData(districtId, privatetourRequestId, ratingId, numOfDays);
+
       form.setFieldsValue({
         [basePath.join(".")]: {
           ...form.getFieldValue(basePath.join(".")),
           [fieldKey]: {
             ...form.getFieldValue([...basePath, fieldKey]),
-            numOfDays: numOfDays, // Assuming 'numOfRoom' is where you want to store this, adjust as necessary
+            numOfDays: numOfDays,
           },
         },
       });
     } else {
-      setDisableOptions(true); // Disable options when stayDatesLoging is not selected
+      setDisableOptions(true);
     }
   };
 
-  const onOptionChange = (value, optionKey) => {
-    setSelectedOptions((prev) => ({
-      ...prev,
-      [optionKey]: value,
-    }));
+  const onOptionChange = (value, optionKey, index) => {
+    debugger;
+    setSelectedOptions((prev) =>
+      prev.map((item, idx) =>
+        idx === index ? { ...item, [optionKey]: value } : item
+      )
+    );
     fetchPriceData(
       selectedDistrict,
       request.privateTourResponse.id,
       value,
-      numOfDaysLoging
+      numOfDaysLoging[index]
     );
   };
 
@@ -183,22 +198,31 @@ const LodgingSection = ({
   }, [request]);
 
   useEffect(() => {
-    Object.values(selectedOptions).forEach((option) => {
-      const filteredFacilities = facilities.filter(
-        (facility) =>
-          facility.communce.districtId === selectedDistrict &&
-          facility.facilityRating.ratingId === option
-      );
-      if (filteredFacilities) {
-        fetchPriceData(
-          selectedDistrict,
-          privatetourRequestId,
-          filteredFacilities[0]?.id,
-          numOfDaysLoging
+    selectedOptions.forEach((option, index) => {
+      Object.values(option).forEach((opt) => {
+        const filteredFacilities = facilities.filter(
+          (facility) =>
+            facility.communce.districtId === selectedDistrict &&
+            facility.facilityRating.ratingId === opt
         );
-      }
+        if (filteredFacilities.length > 0) {
+          debugger;
+          fetchPriceData(
+            selectedDistrict,
+            privatetourRequestId,
+            filteredFacilities[0]?.id,
+            numOfDaysLoging[index]
+          );
+        }
+      });
     });
-  }, [selectedOptions]);
+  }, [
+    selectedOptions,
+    selectedDistrict,
+    privatetourRequestId,
+    facilities,
+    numOfDaysLoging,
+  ]);
 
   const disabledDate = (current) => {
     if (!startDateTourChange && !endDateChange) {
@@ -269,7 +293,12 @@ const LodgingSection = ({
                           className="!min-w-[300px] mr-10"
                           format="DD-MM-YYYY HH:mm:ss"
                           onChange={(dates, dateStrings) =>
-                            onDateRangeChange(dates, dateStrings, field.name)
+                            onDateRangeChange(
+                              dates,
+                              dateStrings,
+                              field.name,
+                              index
+                            )
                           }
                           disabledDate={disabledDate}
                           defaultPickerValue={[getDefaultPickerValue()]}
@@ -283,9 +312,9 @@ const LodgingSection = ({
                       label="Số lượng ngày/đêm:"
                     >
                       <InputNumber
-                        value={numOfDaysLoging}
-                        min={numOfDaysLoging}
-                        placeholder={numOfDaysLoging}
+                        value={numOfDaysLoging[index]}
+                        min={numOfDaysLoging[index]}
+                        placeholder={numOfDaysLoging[index]}
                         disabled
                       />
                     </Form.Item>
@@ -311,7 +340,11 @@ const LodgingSection = ({
                             className="!w-full mr-10"
                             placeholder="Chọn loại hình lưu trú"
                             onChange={(value) =>
-                              onOptionChange(value, "hotelOptionRatingOption1")
+                              onOptionChange(
+                                value,
+                                "hotelOptionRatingOption1",
+                                index
+                              )
                             }
                             disabled={disableOptions}
                           >
@@ -347,7 +380,11 @@ const LodgingSection = ({
                             className="!w-full mr-10"
                             placeholder="Chọn loại hình lưu trú"
                             onChange={(value) =>
-                              onOptionChange(value, "hotelOptionRatingOption2")
+                              onOptionChange(
+                                value,
+                                "hotelOptionRatingOption2",
+                                index
+                              )
                             }
                             disabled={disableOptions}
                           >
@@ -383,7 +420,11 @@ const LodgingSection = ({
                             className="!w-full mr-10"
                             placeholder="Chọn loại hình lưu trú"
                             onChange={(value) =>
-                              onOptionChange(value, "hotelOptionRatingOption3")
+                              onOptionChange(
+                                value,
+                                "hotelOptionRatingOption3",
+                                index
+                              )
                             }
                             disabled={disableOptions}
                           >
@@ -404,19 +445,20 @@ const LodgingSection = ({
                   <List
                     // dataSource={request.privateTourResponse?.roomDetails}
                     dataSource={numOfRoom}
-                    renderItem={(roomDetail) => {
+                    renderItem={(roomDetail, index) => {
+                      debugger;
                       const minMaxPrice1 = priceData[
-                        selectedOptions["hotelOptionRatingOption1"]
+                        selectedOptions[0]?.hotelOptionRatingOption1
                       ]?.filter(
                         (item) => item.servingQuantity === roomDetail.roomSize
                       );
                       const minMaxPrice2 = priceData[
-                        selectedOptions["hotelOptionRatingOption2"]
+                        selectedOptions[0]?.hotelOptionRatingOption2
                       ]?.filter(
                         (item) => item.servingQuantity === roomDetail.roomSize
                       );
                       const minMaxPrice3 = priceData[
-                        selectedOptions["hotelOptionRatingOption3"]
+                        selectedOptions[0]?.hotelOptionRatingOption3
                       ]?.filter(
                         (item) => item.servingQuantity === roomDetail.roomSize
                       );

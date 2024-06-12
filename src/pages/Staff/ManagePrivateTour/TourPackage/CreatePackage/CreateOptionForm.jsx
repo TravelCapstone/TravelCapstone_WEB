@@ -79,7 +79,7 @@ function CreateOptionForm({ request }) {
 
   const [salaryInfo, setSalaryInfo] = useState(null);
   const [quantityTourGuide, setQuantityTourGuide] = useState(null);
-  const [numOfDaysLoging, setNumOfDaysLoging] = useState(0);
+  const [numOfDaysLoging, setNumOfDaysLoging] = useState([]);
 
   const [endDateChange, setEndDateChange] = useState(null);
   const [startDateTourChange, setStartDateTourChange] = useState(null);
