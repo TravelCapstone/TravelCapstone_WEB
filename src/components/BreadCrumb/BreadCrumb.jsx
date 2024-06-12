@@ -16,14 +16,17 @@ const BreadcrumbWithBackButton = ({ breadcrumbItems, currentTab }) => {
         <a href="/" className="flex items-center text-mainColor">
           <HomeOutlined className="mr-1" />
         </a>
-        {breadcrumbItems.map((item, index) => (
+        {breadcrumbItems && (
+
+        breadcrumbItems.map((item, index) => (
           <React.Fragment key={index}>
             <span className="mx-2 text-gray-400">›</span>
             <a href={item.url} className="hover:underline">
               {item.name}
             </a>
           </React.Fragment>
-        ))}
+        ))
+        )}
         <span className="mx-2 text-gray-400">›</span>
         <span className="text-gray-500">{currentTab}</span>
       </div>
