@@ -51,6 +51,7 @@ export const VIEW_OPTIONS_TOUR_PRIVATE = '/customer/view-options';
 
 // Form Request
 export const CREATE_TOUR_PRIVATE = '/dat-tour-theo-yeu-cau';
+export const DETAIL_PUBLIC_TOUR = '/detail_public_tour';
 
 
 
