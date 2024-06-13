@@ -24,7 +24,7 @@ const getAllPrivateTour = async (pageNumber, pageSize) => {
 
 const getPrivateTourById = async (id) => {
   try {
-    const response = await api.get(`get-private-tour-request-by-id//${id}`);
+    const response = await api.get(`get-private-tour-request-by-id/${id}`);
     return response;
   } catch (error) {
     console.log(error);
