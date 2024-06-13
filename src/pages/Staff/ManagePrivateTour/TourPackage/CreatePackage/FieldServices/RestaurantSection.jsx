@@ -196,33 +196,28 @@ const DaySection = ({
       dataIndex: "mealTypeId",
       fixed: "left",
       width: 100,
-      render: (_, record, index) => (
-        <Form.Item
-          name={[record.name, "mealTypeId"]}
-          rules={[{ required: true, message: "Please select a meal!" }]}
-          style={{ margin: 0 }}
-        >
-          <Select
-            placeholder="Chọn Bữa"
-            className="!w-[100px]"
-            value={
-              record.meal || mealTime || selectedMeals[record.key] || undefined
-            }
-            disabled={!mealTime}
-            onChange={(value) => handleMealTypeChange(value, record.key, index)}
+      render: (_, record, index) => {
+        const mealPlaceholders = ["Sáng", "Trưa", "Tối"];
+        const mealTypeId = index;
+        return (
+          <Form.Item
+            name={[record.name, "mealTypeId"]}
+            rules={[{ required: true, message: "Please select a meal!" }]}
+            style={{ margin: 0 }}
           >
-            {[0, 1, 2].map((type) => (
-              <Option
-                key={type}
-                value={type}
-                disabled={selectedMealTypes.includes(type)}
+            <div className="flex items-center">
+              <span>{mealPlaceholders[index]}</span>
+              <Form.Item
+                name={[record.name, "mealTypeId"]}
+                initialValue={mealTypeId}
+                style={{ display: "none" }}
               >
-                {type === 0 ? "Sáng" : type === 1 ? "Trưa" : "Tối"}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      ),
+                <Input />
+              </Form.Item>
+            </div>
+          </Form.Item>
+        );
+      },
     },
     {
       title: "Tự túc",
@@ -321,11 +316,11 @@ const DaySection = ({
             rules={
               !selfServeStates.value
                 ? [
-                  {
-                    required: true,
-                    message: "Please select servingQuantity!",
-                  },
-                ]
+                    {
+                      required: true,
+                      message: "Please select servingQuantity!",
+                    },
+                  ]
                 : []
             }
             style={{ margin: 0 }}
@@ -374,45 +369,45 @@ const DaySection = ({
           <div className="w-[150px]">
             {!selfServeStates[record.key] && filteredPrices.length > 0
               ? filteredPrices.map((price) => (
-                <div key={price.serviceTypeId}>
-                  {price.servingQuantity === 1
-                    ? "Bàn lẻ 1 người: "
-                    : price.servingQuantity === 5
-                      ? "Bàn 5 người: "
-                      : price.servingQuantity === 10
-                        ? "Bàn 10 người: "
-                        : `Bàn ${price.servingQuantity} người: `}
-                  {price.minPrice.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                  ~{" "}
-                  {price.maxPrice.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                </div>
-              ))
+                  <div key={price.serviceTypeId}>
+                    {price.servingQuantity === 1
+                      ? "Bàn lẻ 1 người: "
+                      : price.servingQuantity === 5
+                        ? "Bàn 5 người: "
+                        : price.servingQuantity === 10
+                          ? "Bàn 10 người: "
+                          : `Bàn ${price.servingQuantity} người: `}
+                    {price.minPrice.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                    ~{" "}
+                    {price.maxPrice.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </div>
+                ))
               : prices.map((price) => (
-                <div key={price.serviceTypeId}>
-                  {price.servingQuantity === 1
-                    ? "Bàn lẻ 1 người: "
-                    : price.servingQuantity === 5
-                      ? "Bàn 5 người: "
-                      : price.servingQuantity === 10
-                        ? "Bàn 10 người: "
-                        : `Bàn ${price.servingQuantity} người: `}
-                  {price.minPrice.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                  ~{" "}
-                  {price.maxPrice.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                </div>
-              ))}
+                  <div key={price.serviceTypeId}>
+                    {price.servingQuantity === 1
+                      ? "Bàn lẻ 1 người: "
+                      : price.servingQuantity === 5
+                        ? "Bàn 5 người: "
+                        : price.servingQuantity === 10
+                          ? "Bàn 10 người: "
+                          : `Bàn ${price.servingQuantity} người: `}
+                    {price.minPrice.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                    ~{" "}
+                    {price.maxPrice.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </div>
+                ))}
           </div>
         );
       },
@@ -548,27 +543,27 @@ const DaySection = ({
             const priceMenu =
               prices.length > 0
                 ? prices.map((price) => (
-                  <div key={price.serviceTypeId}>
-                    {price.servingQuantity === 1
-                      ? "Bàn lẻ 1 người: "
-                      : price.servingQuantity === 5
-                        ? "Bàn 5 người: "
-                        : price.servingQuantity === 10
-                          ? "Bàn 10 người: "
-                          : `Bàn ${price.servingQuantity} người: `}
-                    <strong>
-                      {price.minPrice.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
-                      ~{" "}
-                      {price.maxPrice.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
-                    </strong>
-                  </div>
-                ))
+                    <div key={price.serviceTypeId}>
+                      {price.servingQuantity === 1
+                        ? "Bàn lẻ 1 người: "
+                        : price.servingQuantity === 5
+                          ? "Bàn 5 người: "
+                          : price.servingQuantity === 10
+                            ? "Bàn 10 người: "
+                            : `Bàn ${price.servingQuantity} người: `}
+                      <strong>
+                        {price.minPrice.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                        ~{" "}
+                        {price.maxPrice.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </strong>
+                    </div>
+                  ))
                 : "N/A";
 
             return {
@@ -629,7 +624,14 @@ const DaySection = ({
           pagination={false}
         />
       </Modal>
-      <Form.List name={name} initialValue={[{}]}>
+      <Form.List
+        name={name}
+        initialValue={[
+          { key: uuidv4(), mealTypeId: 0, meal: "Sáng" },
+          { key: uuidv4(), mealTypeId: 1, meal: "Trưa" },
+          { key: uuidv4(), mealTypeId: 2, meal: "Tối" },
+        ]}
+      >
         {(fields, { add, remove }) => (
           <>
             <div className="overflow-x-auto rounded-xl max-w-[1100px]">
@@ -711,12 +713,14 @@ const RestaurantSection = ({
   const [facilities, setFacilities] = useState([]);
   const [RatingId, setRatingId] = useState(null);
   const [menus, setMenus] = useState([]);
+  const [selectedDates, setSelectedDates] = useState([]);
 
   console.log("CHỌN THỊ TRẤN", selectedDistrict);
   console.log("CHỌN TỈNH", selectedProvince);
   console.log("RatingId", RatingId);
   console.log("Facilities Nè", facilities);
   console.log("menus Nè", menus);
+  console.log("selectedDates", selectedDates);
 
   const fetchFacilities = async (ratingId, data) => {
     const response = await getAllFacilityByLocationAndRatingId(
@@ -748,7 +752,7 @@ const RestaurantSection = ({
     fetchFacilities(ratingId, data);
   }, [RatingId, selectedProvince, selectedDistrict]);
 
-  const handleDateChange = (date, dateString) => {
+  const handleDateChange = (date, dateString, index) => {
     const hour = date.hour();
     if (hour < 9) {
       setMealTime("breakfast");
@@ -757,6 +761,10 @@ const RestaurantSection = ({
     } else {
       setMealTime("dinner");
     }
+
+    const newDates = [...selectedDates];
+    newDates[index] = date;
+    setSelectedDates(newDates);
   };
 
   const indexToAlpha = (index) => {
@@ -764,19 +772,26 @@ const RestaurantSection = ({
     return String.fromCharCode(97 + index);
   };
 
-  const disabledDate = (current) => {
+  const disabledDate = (current, index) => {
+    if (!current) return false;
+
     if (!startDateTourChange && !endDateChange) {
       return false;
     }
-    const startDateTourChange2 = moment(
-      startDateTourChange,
-      "DD-MM-YYYY HH:mm:ss"
-    );
-    const endDateChange2 = moment(endDateChange, "DD-MM-YYYY HH:mm:ss");
-    const startDate = startDateTourChange2;
-    const endDate = endDateChange2;
 
-    return current && (current < startDate || current > endDate);
+    // Check if date is within the tour date range
+    if (startDateTourChange && endDateChange) {
+      const startDate = moment(startDateTourChange, "DD-MM-YYYY HH:mm:ss");
+      const endDate = moment(endDateChange, "DD-MM-YYYY HH:mm:ss");
+      if (current < startDate || current > endDate) {
+        return true;
+      }
+    }
+
+    // Check if date is already selected
+    return selectedDates.some(
+      (date, i) => i !== index && current.isSame(date, "day")
+    );
   };
 
   // Chuyển đổi startDateFinal và endDateFinal để getDefaultPickerValue hợp lệ
@@ -802,7 +817,7 @@ const RestaurantSection = ({
       {(fields, { add, remove }) => (
         <>
           {fields.map((field, index) => (
-            <div key={field.key}>
+            <div key={field.key} className="my-6">
               <div className="flex justify-between ">
                 <div className="font-semibold mr-5 text-lg">
                   {indexToAlpha(index)}.
@@ -821,11 +836,13 @@ const RestaurantSection = ({
                       ]}
                     >
                       <DatePicker
-                        disabledDate={disabledDate}
-                        defaultPickerValue={[getDefaultPickerValue()]}
+                        disabledDate={(current) => disabledDate(current, index)}
+                        defaultPickerValue={getDefaultPickerValue()}
                         className="!min-w-[300px]"
-                        format="DD-MM-YYYY HH:mm:ss"
-                        onChange={handleDateChange}
+                        format="DD-MM-YYYY "
+                        onChange={(date, dateString) =>
+                          handleDateChange(date, dateString, index)
+                        }
                       />
                     </Form.Item>
                   </ConfigProvider>

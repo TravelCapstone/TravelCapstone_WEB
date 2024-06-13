@@ -1,7 +1,6 @@
 import axios from "axios";
 // const baseUrl = "http://localhost:8080";
-const baseUrl = "http://localhost:5001";
-//
+const baseUrl = 'https://coc-travel.azurewebsites.net';
 const config = {
   baseUrl,
   timeout: 3000000,

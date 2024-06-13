@@ -83,3 +83,17 @@ body {
     min-width: 417px !important;
   }
 }
+
+:where(.css-dev-only-do-not-override-1l1oid0).ant-rate {
+  font-size: 15px !important; /* Adjust the size as needed */
+  margin: 0 0 10px 0 !important;
+}
+
+:where(.css-dev-only-do-not-override-1l1oid0).ant-tabs {
+  width: 100%;
+}
+
+.image-gallery-swipe{
+  width: fit-content;
+    margin: auto;
+}

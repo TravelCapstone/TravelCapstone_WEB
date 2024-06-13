@@ -3,7 +3,8 @@ import React from 'react';
 import { Carousel, Card } from 'antd';
 import styled from 'styled-components';
 import { HeartOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { DETAIL_PUBLIC_TOUR } from '../../../../settings/constant';
 
 const StyledCardContainer = styled.div`
   max-width: 768px; 
@@ -65,6 +66,7 @@ const formatter = value => `${value} VND`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 // This is the custom card using Tailwind CSS
 const TailwindCard = ({ data }) => {
     console.log('data', data);
+    const navigate = useNavigate();
 
     const { nameTour, minPrice, location, duration, totalSlotOrdered, groupSize, images } = data;
     const firstLocation = location[0];
@@ -77,6 +79,11 @@ const TailwindCard = ({ data }) => {
     const NextArrow = ({ className, style, onClick }) => (
         <RightOutlined className={className} style={{ ...style, color: '#fff', fontSize: '20px', zIndex: 2 }} onClick={onClick} />
     );
+
+    const handleClick = () => {
+        navigate(`${DETAIL_PUBLIC_TOUR}/${data.id}`); // Adjust the path as needed
+    };
+    
     return (
         <StyledCardContainer>
             <StyledCarousel
@@ -110,8 +117,8 @@ const TailwindCard = ({ data }) => {
                 <HeartOutlined />
             </FavoriteIcon>
             <div className="flex justify-end">
-                <NavLink to="/detail-tour-public" className="py-4 text-xl">
-                    <span className="rounded-lg py-2 px-4 bg-[rgb(0,132,137)] text-white hover:bg-teal-800 mr-6">Xem Chi Tiết</span>
+                <NavLink to={`${DETAIL_PUBLIC_TOUR}/${data.id}`} className="py-4 text-xl">
+                    <span className="rounded-lg py-2 px-4 bg-[rgb(0,132,137)] text-white hover:bg-teal-800 mr-6" onClick={handleClick}>Xem Chi Tiết</span>
                 </NavLink>
             </div>
         </StyledCardContainer>

@@ -21,12 +21,17 @@ const EntertainmentSection = ({
   selectedDistrict,
 }) => {
   const [priceRanges, setPriceRanges] = useState({
-    quantityLocation1: { minPrice: 0, maxPrice: 0 },
-    quantityLocation2: { minPrice: 0, maxPrice: 0 },
-    quantityLocation3: { minPrice: 0, maxPrice: 0 },
+    quantityLocation1: { minPrice: null, maxPrice: null, loading: false },
+    quantityLocation2: { minPrice: null, maxPrice: null, loading: false },
+    quantityLocation3: { minPrice: null, maxPrice: null, loading: false },
   });
 
   const fetchPriceRange = async (quantityLocation, fieldName) => {
+    setPriceRanges((prev) => ({
+      ...prev,
+      [fieldName]: { ...prev[fieldName], loading: true },
+    }));
+
     const privateTourRequestId = request?.privateTourResponse?.id;
     const districtId = selectedDistrict;
     const pageNumber = 1;
@@ -43,7 +48,7 @@ const EntertainmentSection = ({
         const { minPrice, maxPrice } = data.result.items[0];
         setPriceRanges((prev) => ({
           ...prev,
-          [fieldName]: { minPrice, maxPrice },
+          [fieldName]: { minPrice, maxPrice, loading: false },
         }));
       }
     }
@@ -108,23 +113,36 @@ const EntertainmentSection = ({
                               }
                             />
                           </Form.Item>
-                          <div className="flex font-semibold text-gray-500 items-center">
-                            <h3 className="text-lg mr-3">
-                              Khu du lịch/Khu vui chơi -{" "}
-                            </h3>
-                            <h3 className="text-lg mr-3">Tổng giá vé: </h3>
-                            <p className="text-lg">{`${priceRanges[
-                              quantityField
-                            ].minPrice.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            })} ~ ${priceRanges[
-                              quantityField
-                            ].maxPrice.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            })}/người`}</p>
-                          </div>
+                          {priceRanges[quantityField].loading ? (
+                            <div className="flex items-center">
+                              <span className="text-lg text-semibold">
+                                Loading...
+                              </span>
+                            </div>
+                          ) : (
+                            priceRanges[quantityField].minPrice !== null &&
+                            priceRanges[quantityField].maxPrice !== null && (
+                              <div className="flex font-semibold text-gray-500 items-center">
+                                <h3 className="text-lg mr-3">
+                                  Khu du lịch/Khu vui chơi -
+                                </h3>
+                                <h3 className="text-lg mr-3">Tổng giá vé:</h3>
+                                <p className="text-lg">
+                                  {`${priceRanges[
+                                    quantityField
+                                  ].minPrice.toLocaleString("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                  })} ~ ${priceRanges[
+                                    quantityField
+                                  ].maxPrice.toLocaleString("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                  })}/người`}
+                                </p>
+                              </div>
+                            )
+                          )}
                         </div>
                       </div>
                     ))}

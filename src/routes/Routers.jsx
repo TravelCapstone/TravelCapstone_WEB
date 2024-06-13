@@ -9,6 +9,7 @@ import {
   ADMIN_PAGE,
   CREATE_TOUR_PRIVATE,
   DETAIL_FACILITY,
+  DETAIL_PUBLIC_TOUR,
   DETAIL_TOUR_PRIVATE,
   DETAIL_TOUR_REQUEST_STAFF,
   FACILITY,
@@ -45,6 +46,7 @@ import CustomerLayout from "../layouts/CustomerLayout";
 import { useSelector } from "react-redux";
 import { message } from "antd";
 import RegistrationPage from "../pages/SignIn_Register/RegistrationPage";
+import TourDetailPage from "../pages/Home/TopListTour/TourPublicDetail";
 
 const ProtectedRouteCustomer = ({ children }) => {
   const role = useSelector((state) => state.user.role || "");
@@ -88,6 +90,7 @@ function Routers() {
       children: [
         { index: true, element: <Home /> },
         { path: CREATE_TOUR_PRIVATE, element: <TourRequestForm /> },
+        { path: `${DETAIL_PUBLIC_TOUR}/:id`, element: <TourDetailPage /> },
       ],
     },
     {
