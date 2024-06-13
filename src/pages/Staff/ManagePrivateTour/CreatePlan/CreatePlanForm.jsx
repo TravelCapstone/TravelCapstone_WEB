@@ -15,7 +15,7 @@ import { useSelector } from "react-redux";
 import { calculatePlanCost, createTour } from "../../../../api/TourApi";
 import LoadingOverlay from "../../../../components/Loading/LoadingOverlay";
 import moment from "moment-timezone";
-import { formatDateToISOString } from "../../../../utils/Util";
+import { formatDateToISOString, isEmptyObject } from "../../../../utils/Util";
 import { useNavigate } from "react-router-dom";
 import TourPrices from "../../../Plan/TourPrices";
 const CreatePlanForm = ({
@@ -256,7 +256,7 @@ const CreatePlanForm = ({
   };
   const buildMaterial = () => {
     return {
-      tourId: privateTourResponse?.privateTourResponse?.tourId,
+      tourId: privateTourResponse?.privateTourResponse?.generatedTourId,
       materialRequests: material?.map((item) => ({
         materialSellPriceId: item.materialPriceHistory.id,
         quantity: item.quantity,
@@ -376,7 +376,7 @@ const CreatePlanForm = ({
           >
             Tính chi phí
           </Button>
-          {calculateResponse && (
+          {!isEmptyObject(calculateResponse) && (
             <>
               <TourPrices data={calculateResponse} />
               <div className="flex justify-center">
