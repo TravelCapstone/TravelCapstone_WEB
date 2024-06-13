@@ -10,6 +10,8 @@ import { LISTING_TOUR_REQUEST_STAFF } from "../../../../../settings/constant";
 import ViewOptionCard from "../../../../Customer/ViewOptions/ViewOptionCard/ViewOptionCard";
 import ViewOptionsItems from "../../../../Customer/ViewOptions/ViewOptionsItems";
 import ViewPlan from "../../../../Plan/ViewPlan";
+import { Tabs } from "antd";
+import TabPane from "antd/es/tabs/TabPane";
 
 function TourRequestPage() {
   const { id } = useParams();
@@ -66,20 +68,39 @@ function TourRequestPage() {
     }
   }, [request]);
 
-  const renderActiveTabContent = () => {
-    const activeTabContent = tabs[activeTab];
-    if (!activeTabContent) {
-      console.error("Active tab index is out of range:", activeTab);
-      return null;
-    }
-    return activeTabContent.content;
-  };
+  const renderTabContent = (tabIndex) => {
+    debugger;
+    switch (tabIndex) {
+      case 0:
+        return <TourRequestSection request={request} />;
+      case 1:
+        return request.privateTourResponse?.status === 0 ? (
+          <CreateOptionForm request={request} />
+        ) : request.privateTourResponse?.status === 1 ? (
+          <ViewOptionsItems options={request} loading={isLoading} />
+        ) : request.privateTourResponse?.status === 2 ||
+          request.privateTourResponse?.status === 4 ? (
+          <ViewOptionCard
+            option={selectedOption}
+            selectedOption={selectedOption}
+          />
+        ) : null;
 
-  const handleTabChange = (index) => {
-    setActiveTab(index);
-    navigate(`${location.pathname}?tab=${index}`);
-    // Save activeTab to localStorage
-    localStorage.setItem("activeTab", index);
+      case 2:
+        return request.privateTourResponse?.status === 2 && hasOptions ? (
+          <CreatePlanForm
+            optionQuotation={selectedOption?.optionQuotation}
+            quotationDetails={selectedOption?.quotationDetails}
+            vehicleQuotationDetails={selectedOption?.vehicleQuotationDetails}
+            privateTourResponse={request}
+          />
+        ) : request.privateTourResponse?.status === 4 ? (
+          <ViewPlan privateTourResponse={request?.privateTourResponse} />
+        ) : null;
+
+      default:
+        return null;
+    }
   };
 
   const tabs = [
@@ -153,7 +174,9 @@ function TourRequestPage() {
   const breadcrumbItems = [
     { name: "Lịch sử tour yêu cầu", url: LISTING_TOUR_REQUEST_STAFF },
   ];
-
+  const handleTabChange = (key) => {
+    setActiveTab(parseInt(key, 10));
+  };
   return (
     <>
       <LoadingOverlay isLoading={isLoading} />
@@ -167,20 +190,13 @@ function TourRequestPage() {
         </div>
       )}
 
-      <div className="mx-10 tabs">
-        <div className="tab-headers mb-2">
-          {tabs.map((tab, index) => (
-            <button
-              key={index}
-              className={`mx-2 tab-header ${activeTab === index ? "font-bold border-b-2" : "font-medium"}`}
-              onClick={() => handleTabChange(index)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      {renderActiveTabContent()}
+      <Tabs activeKey={activeTab.toString()} onChange={handleTabChange}>
+        {tabs.map((tab, index) => (
+          <TabPane tab={tab.label} key={index}>
+            {activeTab === index && renderTabContent(index)}
+          </TabPane>
+        ))}
+      </Tabs>
     </>
   );
 }
