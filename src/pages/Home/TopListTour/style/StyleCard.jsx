@@ -129,7 +129,9 @@ const TailwindCard = ({ data }) => {
         {/* <p className="text-gray-700 text-base">
           Khởi hành từ {firstLocation} đến {lastLocation}
         </p> */}
-        <p className="text-gray-700 text-base">{data.tour?.description}</p>
+        <p className="text-gray-700 text-base line-clamp-2">
+          {data.tour?.description}
+        </p>
         <p className="text-gray-700 text-base">
           Khoảng thời gian:{" "}
           {calculateDuration(data.tour?.endDate, data.tour?.startDate)}
