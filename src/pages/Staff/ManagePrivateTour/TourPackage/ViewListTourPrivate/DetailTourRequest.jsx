@@ -80,10 +80,12 @@ function TourRequestPage() {
           <ViewOptionsItems options={request} loading={isLoading} />
         ) : request.privateTourResponse?.status === 2 ||
           request.privateTourResponse?.status === 4 ? (
-          <ViewOptionCard
-            option={selectedOption}
-            selectedOption={selectedOption}
-          />
+          <div className="flex justify-center">
+            <ViewOptionCard
+              option={selectedOption}
+              selectedOption={selectedOption}
+            />
+          </div>
         ) : null;
 
       case 2:
