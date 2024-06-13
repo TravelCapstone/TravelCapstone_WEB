@@ -5,7 +5,7 @@ import { Hero, Navbar } from "../../components";
 import NatureGif from "../../assets/video/intro.gif";
 import ListPage from "./TopListTour/TopListTour";
 
-function Home() {
+const Home = () => {
   return (
     <>
       <Navbar />
@@ -23,6 +23,6 @@ function Home() {
       <ListPage />
     </>
   );
-}
+};
 
 export default Home;

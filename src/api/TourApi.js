@@ -27,4 +27,14 @@ export const calculatePlanCost = async (data) => {
     return [];
   }
 };
+
+export const getAllTour = async (pageNumber, pageSize) => {
+  try {
+    const response = await api.get(`/tour/get-all/${pageNumber}/${pageSize}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching provinces:", error);
+    return [];
+  }
+};
 export { createTour };

@@ -8,6 +8,7 @@ import {
 import { ratingLabels } from "../../../../settings/globalStatus";
 import moment from "moment-timezone";
 import { getLatestHotelPrice } from "../../../../api/SellPriceHistoryApi";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const RestingAssignment = ({
   data,
@@ -187,12 +188,10 @@ const RestingAssignment = ({
                                       </Select>
                                     </Form.Item>
 
-                                    <Button
+                                    <DeleteOutlined
                                       onClick={() => remove(field.name)}
-                                      className="bg-red-500 text-white"
-                                    >
-                                      Xoá
-                                    </Button>
+                                      className="self-start mt-2 ml-4"
+                                    />
                                   </div>
 
                                   <div className="hidden">

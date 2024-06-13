@@ -1,7 +1,7 @@
 import React from "react";
 import { Input } from "antd";
 
-import { FaMapMarkerAlt, FaRegCalendar} from "react-icons/fa";
+import { FaMapMarkerAlt, FaRegCalendar } from "react-icons/fa";
 
 function Hero() {
   return (
@@ -30,12 +30,12 @@ function Hero() {
                   <FaMapMarkerAlt className="text-mainColor mr-2" />
                   Bạn muốn đi đâu?
                 </label>
-                <Input
+                <input
                   type="text"
                   name="destination"
                   id="destination"
                   placeholder="Tìm tour..."
-                  className="w-full  text-xl bg-gray-100 my-2 range accent-primary focus:outline-primary focus:outline outline-1 p-2"
+                  className="rounded-lg w-full text-xl bg-gray-100 my-2 p-2"
                 />
               </div>
               <div>

@@ -15,7 +15,7 @@ function Footer() {
           </p>
         </div>
         <div className="px-5 ">
-          <h2 className="text-xl mb-5 text-primary">Về chúng tôi</h2>
+          <h2 className="text-xl mb-5 text-primary font-bold">Về chúng tôi</h2>
           <ul className="opacity-50">
             <li className="mb-2">
               <a href="https://www.facebook.com/modareinvented">Facebook</a>
@@ -24,7 +24,7 @@ function Footer() {
           </ul>
         </div>
         <div className="px-5 ">
-          <h2 className="text-xl mb-5 text-primary">
+          <h2 className="text-xl mb-5 text-primary font-bold">
             Dịch vụ chăm sóc khách hàng
           </h2>
           <ul className="opacity-50">
@@ -33,7 +33,7 @@ function Footer() {
           </ul>
         </div>
         <div className="px-5 ">
-          <h2 className="text-xl mb-5 text-primary">Liên hệ</h2>
+          <h2 className="text-xl mb-5 text-primary font-bold">Liên hệ</h2>
           <ul className="opacity-50">
             <li className="mb-2">
               Đại Học FPT Hồ Chí Minh, Quận 9, Thành Phố Hồ Chí Minh

@@ -113,7 +113,15 @@ import moment from "moment-timezone";
 function formatDateToISOString(date) {
   return moment(date).format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
 }
+function calculateDuration(startDate, endDate) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
 
+  const days = differenceInDays(end, start) + 1;
+  const nights = days - 1;
+
+  return `${days} ngày ${nights} đêm`;
+}
 export {
   formatPrice,
   formatDateTime,
@@ -124,4 +132,5 @@ export {
   getTimePeriod,
   isEmptyObject,
   formatDateToISOString,
+  calculateDuration,
 };
