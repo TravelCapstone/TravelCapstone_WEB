@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { isEmptyObject } from "../../utils/Util";
 import { logout } from "../../redux/features/authSlice";
 import { message } from "antd";
+import { FaUserCircle } from "react-icons/fa";
 
 const HeaderManagement = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -79,9 +80,7 @@ const HeaderManagement = () => {
             </div>
             <div className="dropdown dropdown-end">
               <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-                <div className="w-10 rounded-full">
-                  {/* <img src="https://scontent.fdad3-4.fna.fbcdn.net/v/t39.30808-6/414678494_331834699659042_4939488158624701886_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=5f2048&_nc_ohc=pFLzY8KDU2cAb69ugGU&_nc_ht=scontent.fdad3-4.fna&cb_e2o_trans=q&oh=00_AfAUdPoSnLqyb8QOP0lacL00RpF-ttQivPbJjLke_MWJ3w&oe=6629984B" /> */}
-                </div>
+                <FaUserCircle size={30} />
               </label>
               <ul
                 tabIndex={0}

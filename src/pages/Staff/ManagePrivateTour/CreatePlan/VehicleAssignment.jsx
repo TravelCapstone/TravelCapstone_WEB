@@ -21,6 +21,7 @@ const { Option } = Select;
 const { Text } = Typography;
 import locale from "antd/es/date-picker/locale/vi_VN";
 import moment from "moment-timezone";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const VehicleAssignment = ({
   data,
@@ -259,12 +260,10 @@ const VehicleAssignment = ({
                                     ))}
                                 </Select>
                               </Form.Item>
-                              <Button
-                                className="bg-red-700 text-white"
+                              <DeleteOutlined
                                 onClick={() => remove(field.name)}
-                              >
-                                Xoá
-                              </Button>
+                                className="self-start mt-2 ml-4"
+                              />
                             </div>
                             <Form.Item
                               {...field}

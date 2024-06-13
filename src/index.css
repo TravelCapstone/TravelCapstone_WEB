@@ -97,3 +97,8 @@ body {
   width: fit-content;
     margin: auto;
 }
+
+
+:where(.css-dev-only-do-not-override-1l1oid0).ant-menu-light .ant-menu-submenu-selected >.ant-menu-submenu-title, :where(.css-dev-only-do-not-override-1l1oid0).ant-menu-light>.ant-menu .ant-menu-submenu-selected >.ant-menu-submenu-title{
+  color: #0287a8;
+}
