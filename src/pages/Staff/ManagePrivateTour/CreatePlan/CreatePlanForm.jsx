@@ -208,7 +208,7 @@ const CreatePlanForm = ({
     //     form.getFieldValue(`referencePriceId[${index}]`) || null,
     //   numOfVehicle: form.getFieldValue(`numOfVehicle[${index}]`) || null,
     // }));
-
+    console.log("vehicleQuotationDetails", vehicleQuotationDetails);
     return vehicleQuotationDetails
       .map((item, index) => {
         const vehicleItems = form.getFieldValue(`vehicles[${index}]`);
@@ -216,25 +216,28 @@ const CreatePlanForm = ({
         const dateRange = form.getFieldValue(`dateRange[${index}]`);
         const startDate = dateRange[0];
         const endDate = dateRange[1];
-        return vehicleItems.map((vehicleItem, vehicleIndex) => ({
-          vehicleType: item.vehicleType || null,
-          startPoint: item.startPointId || null,
-          endPoint: !item.endPointId
-            ? item.startPointId
-            : item.endPointId || null,
-          portStartPoint:
-            form.getFieldValue(`portStartPoint[${vehicleIndex}]`) || null,
-          portEndPoint:
-            form.getFieldValue(`portEndPoint[${vehicleIndex}]`) || null,
-          startDate: formatDateToISOString(new Date(startDate)) || null,
-          endDate: formatDateToISOString(new Date(endDate)) || null,
-          driverId: vehicleItem.driverId || null,
-          sellPriceHistoryId:
-            form.getFieldValue(`sellPriceHistoryId[${vehicleIndex}]`) || null,
-          referencePriceId: vehicleItem.referencePriceId || null,
-          numOfVehicle:
-            form.getFieldValue(`numOfVehicle[${vehicleIndex}]`) || null,
-        }));
+        if (vehicleItems === undefined) return [];
+        else {
+          return vehicleItems.map((vehicleItem, vehicleIndex) => ({
+            vehicleType: item.vehicleType,
+            startPoint: item.startPointId || null,
+            endPoint: !item.endPointId
+              ? item.startPointId
+              : item.endPointId || null,
+            portStartPoint:
+              form.getFieldValue(`portStartPoint[${vehicleIndex}]`) || null,
+            portEndPoint:
+              form.getFieldValue(`portEndPoint[${vehicleIndex}]`) || null,
+            startDate: formatDateToISOString(new Date(startDate)) || null,
+            endDate: formatDateToISOString(new Date(endDate)) || null,
+            driverId: vehicleItem.driverId || null,
+            sellPriceHistoryId:
+              form.getFieldValue(`sellPriceHistoryId[${vehicleIndex}]`) || null,
+            referencePriceId: vehicleItem.referencePriceId || null,
+            numOfVehicle:
+              form.getFieldValue(`numOfVehicle[${vehicleIndex}]`) || null,
+          }));
+        }
       })
       .flat();
   };
@@ -293,6 +296,11 @@ const CreatePlanForm = ({
       setIsLoading(false);
     }
   };
+
+  const logData = () => {
+    console.log(buildVehicle());
+  };
+
   return (
     <>
       <LoadingOverlay isLoading={isLoading} />
@@ -393,6 +401,7 @@ const CreatePlanForm = ({
           {/* THÔNG TIN HƯỚNG DẪN VIÊN */}
         </Form>
       </div>
+      <button onClick={logData}>Log</button>
     </>
   );
 };
