@@ -231,7 +231,7 @@ const VerhicleTravelSection = ({
 
   // get giá verhicle
   const fetchVehiclePriceRange = async (index) => {
-    // debugger;
+    debugger;
 
     const quantity =
       request?.privateTourResponse?.numOfAdult +
@@ -288,16 +288,16 @@ const VerhicleTravelSection = ({
     fetchVehiclePriceRange(index);
   };
 
-  useEffect(() => {
-    if (request?.privateTourResponse?.otherLocation) {
-      setProvinces(
-        request.privateTourResponse.otherLocation.map((loc) => ({
-          id: loc.provinceId,
-          name: loc.province.name,
-        }))
-      );
-    }
-  }, [request]);
+  // useEffect(() => {
+  //   if (request?.privateTourResponse?.otherLocation) {
+  //     setProvinces(
+  //       request.privateTourResponse.otherLocation.map((loc) => ({
+  //         id: loc.provinceId,
+  //         name: loc.province.name,
+  //       }))
+  //     );
+  //   }
+  // }, [request]);
 
   const disabledDate = (current) => {
     if (!startDateTourChange && !endDateChange) {
@@ -453,11 +453,6 @@ const VerhicleTravelSection = ({
                             <Select
                               placeholder="Chọn phương tiện"
                               className="!w-[200px] mr-10"
-                              loading={
-                                loadingVehicle ||
-                                availableVehicleTypes.length === 0
-                              }
-                              disabled={availableVehicleTypes.length === 0}
                               onChange={(value) =>
                                 onVehicleTypeChange(index, value, name)
                               }

@@ -588,17 +588,20 @@ function CreateOptionForm({ request }) {
       if (response.isSuccess) {
         setEstimatedPrices(response.result);
         message.success("Đã tính toán phí dịch vụ thành công!");
+
+        debugger;
+        if (response.messages.length > 0) {
+          response.messages.forEach((mess) => {
+            message.error(mess);
+          });
+        }
       } else {
-        message.error(
-          response.messages[0] || "Có chút lỗi trong quá trình tính toán giá!"
-        );
-        alertFail("Failed to fetch estimated prices");
+        response.messages.forEach((mess) => {
+          message.error(mess);
+        });
       }
     } catch (error) {
-      alertFail(
-        "An error occurred while fetching the estimated prices. Please try again later."
-      );
-      console.error("Error while fetching estimated prices:", error);
+      message.error(error);
     } finally {
       setLoading(false);
     }
@@ -612,24 +615,22 @@ function CreateOptionForm({ request }) {
 
     console.log("Payload to be sent to the API: ", payload);
 
-    setLoading(true);
     try {
+      setLoading(true);
       const response = await createOptionsPrivateTour(payload);
       console.log("response", response);
 
       if (response?.isSuccess) {
-        alertSuccess("Tạo Gói Tour Thành Công!");
+        message.success("Tạo Gói Tour Thành Công!");
         form.resetFields(); // Reset all fields in the form
         navigate(`${LISTING_TOUR_REQUEST_STAFF}`);
       } else {
-        for (const message in response.messages) {
-          alertFail(message);
-        }
+        response.messages.forEach((mess) => {
+          message.error(mess);
+        });
       }
     } catch (error) {
-      alertFail(
-        "An error occurred while creating the tour. Please try again later."
-      );
+      message.error("Có lỗi xảy ra");
     } finally {
       setLoading(false);
     }
@@ -971,7 +972,7 @@ function CreateOptionForm({ request }) {
                   setProvinces={setProvinces}
                 />
               </div>
-              <div>
+              {/* <div>
                 <h3 className="font-bold text-lg my-2 text-mainColor">
                   Phụ phí tuỳ chỉnh
                 </h3>
@@ -984,7 +985,7 @@ function CreateOptionForm({ request }) {
                     request?.privateTourResponse.numOfChildren
                   }
                 />
-              </div>
+              </div> */}
             </div>
           </div>
           {/* DỊCH VỤ RIÊNG TỪNG GÓI */}
@@ -1030,22 +1031,22 @@ function CreateOptionForm({ request }) {
               <h3 className="font-bold text-2xl  ">GIÁ DỰ KIẾN CỦA GÓI</h3>
               {/* <ExpectedPriceOption request={request} /> */}
 
-              <Form.Item>
+              {/* <Form.Item>
                 <Button
                   onClick={fetchEstimatedPrices}
                   className="bg-teal-600 font-semibold text-white my-4"
                 >
                   XEM GIÁ DỰ KIẾN
                 </Button>
-              </Form.Item>
+              </Form.Item> */}
             </div>
-            {loading && <p>Loading...</p>}
+            {/* {loading && <p>Loading...</p>}
             {estimatedPrices.length > 0 && (
               <EstimatedPriceTable
                 prices={estimatedPrices}
                 numberOfPassengers={numberOfPassengers}
               />
-            )}
+            )} */}
 
             <div className="flex justify-center my-4">
               <Form.Item>
