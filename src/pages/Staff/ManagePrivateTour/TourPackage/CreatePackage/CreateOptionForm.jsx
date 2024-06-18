@@ -972,7 +972,7 @@ function CreateOptionForm({ request }) {
                   setProvinces={setProvinces}
                 />
               </div>
-              {/* <div>
+              <div>
                 <h3 className="font-bold text-lg my-2 text-mainColor">
                   Phụ phí tuỳ chỉnh
                 </h3>
@@ -985,7 +985,7 @@ function CreateOptionForm({ request }) {
                     request?.privateTourResponse.numOfChildren
                   }
                 />
-              </div> */}
+              </div>
             </div>
           </div>
           {/* DỊCH VỤ RIÊNG TỪNG GÓI */}
@@ -993,10 +993,10 @@ function CreateOptionForm({ request }) {
             <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
               DỊCH VỤ RIÊNG TỪNG GÓI
             </h2>
-            <div className="mt-10">
+            {/* <div className="mt-10">
               <h3>Form Data:</h3>
               <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
-            </div>
+            </div> */}
 
             <div className=" mx-4">
               <EachServiceSection
@@ -1031,34 +1031,35 @@ function CreateOptionForm({ request }) {
               <h3 className="font-bold text-2xl  ">GIÁ DỰ KIẾN CỦA GÓI</h3>
               {/* <ExpectedPriceOption request={request} /> */}
 
-              {/* <Form.Item>
+              <Form.Item>
                 <Button
                   onClick={fetchEstimatedPrices}
                   className="bg-teal-600 font-semibold text-white my-4"
                 >
                   XEM GIÁ DỰ KIẾN
                 </Button>
-              </Form.Item> */}
+              </Form.Item>
             </div>
-            {/* {loading && <p>Loading...</p>}
+            {loading && <p>Loading...</p>}
             {estimatedPrices.length > 0 && (
               <EstimatedPriceTable
                 prices={estimatedPrices}
                 numberOfPassengers={numberOfPassengers}
               />
-            )} */}
-
-            <div className="flex justify-center my-4">
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className=" bg-teal-600 font-semibold text-white"
-                >
-                  TẠO GÓI TOUR
-                </Button>
-              </Form.Item>
-            </div>
+            )}
+            {estimatedPrices.length > 0 && (
+              <div className="flex justify-center my-4">
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className=" bg-teal-600 font-semibold text-white"
+                  >
+                    TẠO GÓI TOUR
+                  </Button>
+                </Form.Item>
+              </div>
+            )}
           </div>
         </Form>
       </div>

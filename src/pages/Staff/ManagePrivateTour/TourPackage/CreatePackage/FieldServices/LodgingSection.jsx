@@ -98,7 +98,8 @@ const LodgingSection = ({
         communeId: null,
       },
       1,
-      100
+      100,
+      0
     ); // Giả sử bạn lấy 100 cơ sở lưu trú
     setFacilities((facility) => {
       const fac = [...facility];
@@ -112,13 +113,13 @@ const LodgingSection = ({
 
   const keysToShow = [0, 1, 2, 3, 4, 10];
 
-  const filteredFacilities = facilities.filter(
-    (facility) =>
-      facility.communce?.districtId === selectedDistrict &&
-      keysToShow.includes(facility?.facilityRating?.ratingId)
-  );
+  // const filteredFacilities = facilities.filter(
+  //   (facility) =>
+  //     facility.communce?.districtId === selectedDistrict &&
+  //     keysToShow.includes(facility?.facilityRating?.ratingId)
+  // );
 
-  console.log("filteredFacilities", filteredFacilities);
+  // console.log("filteredFacilities", filteredFacilities);
 
   const fetchPriceData = async (
     districtId,
@@ -127,9 +128,9 @@ const LodgingSection = ({
     numOfDays
   ) => {
     console.log("ratingId", ratingId);
-    const filteredRatingID = filteredFacilities.filter(
-      (facility) => ratingId === facility.id
-    );
+    // const filteredRatingID = filteredFacilities.filter(
+    //   (facility) => ratingId === facility.id
+    // );
     console.log("filteredRatingID", filteredRatingID);
 
     setIsLoading(true);
@@ -137,7 +138,7 @@ const LodgingSection = ({
       const priceInfo = await getMinMaxPriceOfHotel(
         districtId,
         privatetourRequestId,
-        filteredRatingID[0]?.facilityRating?.id,
+        ratingId,
         1, // pageNumber
         10, // pageSize
         numOfDays
@@ -365,11 +366,12 @@ const LodgingSection = ({
                             // disabled={disableOptions}
                           >
                             {facilities &&
+                              facilities[0] &&
                               facilities[0].length > 0 &&
                               facilities[0].map((facility) => (
                                 <Option
                                   key={facility.id}
-                                  value={facility.facilityRating?.ratingId}
+                                  value={facility.facilityRatingId}
                                 >
                                   {facility.name} - {facility.description}
                                 </Option>
@@ -407,11 +409,12 @@ const LodgingSection = ({
                             // disabled={disableOptions}
                           >
                             {facilities &&
+                              facilities[1] &&
                               facilities[1].length > 0 &&
                               facilities[1].map((facility) => (
                                 <Option
                                   key={facility.id}
-                                  value={facility.facilityRating?.ratingId}
+                                  value={facility.facilityRatingId}
                                 >
                                   {facility.name} - {facility.description}
                                 </Option>
@@ -449,11 +452,12 @@ const LodgingSection = ({
                             // disabled={disableOptions}
                           >
                             {facilities &&
+                              facilities[2] &&
                               facilities[2].length > 0 &&
                               facilities[2].map((facility) => (
                                 <Option
                                   key={facility.id}
-                                  value={facility.facilityRating?.ratingId}
+                                  value={facility.facilityRatingId}
                                 >
                                   {facility.name} - {facility.description}
                                 </Option>
