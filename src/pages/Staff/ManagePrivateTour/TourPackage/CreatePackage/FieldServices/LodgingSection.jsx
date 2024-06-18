@@ -166,7 +166,7 @@ const LodgingSection = ({
 
       const newNumOfDaysLoging = [...numOfDaysLoging];
       newNumOfDaysLoging[itemIndex] = numOfDays;
-      debugger;
+      // debugger;
       setNumOfDaysLoging(newNumOfDaysLoging);
       setDisableOptions(false);
 
@@ -185,7 +185,7 @@ const LodgingSection = ({
   };
 
   const onOptionChange = (value, optionKey, index) => {
-    debugger;
+    // debugger;
     setSelectedOptions((prev) =>
       prev.map((item, idx) =>
         idx === index ? { ...item, [optionKey]: value } : item
@@ -472,7 +472,7 @@ const LodgingSection = ({
                     // dataSource={request.privateTourResponse?.roomDetails}
                     dataSource={numOfRoom}
                     renderItem={(roomDetail, index) => {
-                      debugger;
+                      // debugger;
                       const minMaxPrice1 = priceData[
                         selectedOptions[0]?.hotelOptionRatingOption1
                       ]?.filter(

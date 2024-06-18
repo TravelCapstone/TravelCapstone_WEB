@@ -13,6 +13,7 @@ import {
 
 const StyledCardContainer = styled.div`
   max-width: 768px;
+  min-width: 230px;
   padding-bottom: 20px;
   margin-bottom: 100px;
   border-radius: 6px;
@@ -102,7 +103,7 @@ const TailwindCard = ({ data }) => {
   );
 
   const handleClick = () => {
-    navigate(`${DETAIL_PUBLIC_TOUR}/${data.id}`); // Adjust the path as needed
+    navigate(`${DETAIL_PUBLIC_TOUR}/${data.id}`, { state: data }); // Adjust the path as needed
   };
 
   return (

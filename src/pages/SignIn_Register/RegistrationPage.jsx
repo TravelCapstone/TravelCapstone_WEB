@@ -53,7 +53,7 @@ function RegistrationPage() {
     // If the phone number is valid, set isPhoneValidated to true
     setIsLoading(true);
     const phoneNumber = form.getFieldValue("phoneNumber");
-    debugger;
+    // debugger;
     if (
       phoneNumber === undefined ||
       phoneNumber == null ||
