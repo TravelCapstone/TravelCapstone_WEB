@@ -21,7 +21,10 @@ import {
   servingHotelsQuantity,
 } from "../../../../../../settings/globalStatus";
 import { getMinMaxPriceOfHotel } from "../../../../../../api/SellPriceHistoryApi";
-import { getAllFacility } from "../../../../../../api/FacilityApi";
+import {
+  getAllFacility,
+  getAllFacilityByFilter,
+} from "../../../../../../api/FacilityApi";
 import moment from "moment-timezone";
 import { v4 as uuidv4 } from "uuid";
 import "../../../../../../settings/setupDayjs";
@@ -54,8 +57,7 @@ const LodgingSection = ({
 
   const [roomType, setRoomType] = useState(null);
 
-  const [facilities, setFacilities] = useState([]);
-
+  const [facilities, setFacilities] = useState([[]]);
   // const [selectedOptions, setSelectedOptions] = useState({
   //   hotelOptionRatingOption1: null,
   //   hotelOptionRatingOption2: null,
@@ -88,24 +90,36 @@ const LodgingSection = ({
   const privatetourRequestId = request.privateTourResponse.id;
   const districtId = selectedDistrict;
 
-  const fetchFacilities = async () => {
-    const allFacilities = await getAllFacility(1, 10000); // Giả sử bạn lấy 100 cơ sở lưu trú
-    setFacilities(allFacilities.result.items);
-  };
+  const fetchFacilitiesByLocation = async () => {
+    const allFacilities = await getAllFacilityByFilter(
+      {
+        provinceId: null,
+        districtId: districtId,
+        communeId: null,
+      },
+      1,
+      100,
+      0
+    ); // Giả sử bạn lấy 100 cơ sở lưu trú
+    setFacilities((facility) => {
+      const fac = [...facility];
+      fac[0] = allFacilities.result?.items;
+      fac[1] = allFacilities.result?.items;
+      fac[2] = allFacilities.result?.items;
 
-  useEffect(() => {
-    fetchFacilities();
-  }, []);
+      return fac;
+    });
+  };
 
   const keysToShow = [0, 1, 2, 3, 4, 10];
 
-  const filteredFacilities = facilities.filter(
-    (facility) =>
-      facility.communce.districtId === selectedDistrict &&
-      keysToShow.includes(facility.facilityRating.ratingId)
-  );
+  // const filteredFacilities = facilities.filter(
+  //   (facility) =>
+  //     facility.communce?.districtId === selectedDistrict &&
+  //     keysToShow.includes(facility?.facilityRating?.ratingId)
+  // );
 
-  console.log("filteredFacilities", filteredFacilities);
+  // console.log("filteredFacilities", filteredFacilities);
 
   const fetchPriceData = async (
     districtId,
@@ -114,9 +128,9 @@ const LodgingSection = ({
     numOfDays
   ) => {
     console.log("ratingId", ratingId);
-    const filteredRatingID = filteredFacilities.filter(
-      (facility) => ratingId === facility.id
-    );
+    // const filteredRatingID = filteredFacilities.filter(
+    //   (facility) => ratingId === facility.id
+    // );
     console.log("filteredRatingID", filteredRatingID);
 
     setIsLoading(true);
@@ -124,7 +138,7 @@ const LodgingSection = ({
       const priceInfo = await getMinMaxPriceOfHotel(
         districtId,
         privatetourRequestId,
-        filteredRatingID[0]?.facilityRating?.id,
+        ratingId,
         1, // pageNumber
         10, // pageSize
         numOfDays
@@ -197,32 +211,32 @@ const LodgingSection = ({
     }
   }, [request]);
 
-  useEffect(() => {
-    selectedOptions.forEach((option, index) => {
-      Object.values(option).forEach((opt) => {
-        const filteredFacilities = facilities.filter(
-          (facility) =>
-            facility.communce.districtId === selectedDistrict &&
-            facility.facilityRating.ratingId === opt
-        );
-        if (filteredFacilities.length > 0) {
-          debugger;
-          fetchPriceData(
-            selectedDistrict,
-            privatetourRequestId,
-            filteredFacilities[0]?.id,
-            numOfDaysLoging[index]
-          );
-        }
-      });
-    });
-  }, [
-    selectedOptions,
-    selectedDistrict,
-    privatetourRequestId,
-    facilities,
-    numOfDaysLoging,
-  ]);
+  // useEffect(() => {
+  //   selectedOptions.forEach((option, index) => {
+  //     Object.values(option).forEach((opt) => {
+  //       const filteredFacilities = facilities.filter(
+  //         (facility) =>
+  //           facility.communce.districtId === selectedDistrict &&
+  //           facility.facilityRating.ratingId === opt
+  //       );
+  //       if (filteredFacilities.length > 0) {
+  //         debugger;
+  //         fetchPriceData(
+  //           selectedDistrict,
+  //           privatetourRequestId,
+  //           facilities[0]?.id,
+  //           numOfDaysLoging[index]
+  //         );
+  //       }
+  //     });
+  //   });
+  // }, [
+  //   selectedOptions,
+  //   selectedDistrict,
+  //   privatetourRequestId,
+  //   facilities,
+  //   numOfDaysLoging,
+  // ]);
 
   const disabledDate = (current) => {
     if (!startDateTourChange && !endDateChange) {
@@ -256,7 +270,10 @@ const LodgingSection = ({
     }
     return startDateDayjs; // Use start and end date of tourDate
   };
-
+  useEffect(() => {
+    fetchFacilitiesByLocation();
+  }, [selectedDistrict]);
+  console.log("facilities", facilities);
   return (
     <Form.List name={[...basePath, "hotels"]}>
       {(fields, { add, remove }) => (
@@ -346,16 +363,19 @@ const LodgingSection = ({
                                 index
                               )
                             }
-                            disabled={disableOptions}
+                            // disabled={disableOptions}
                           >
-                            {filteredFacilities.map((facility) => (
-                              <Option
-                                key={facility.id}
-                                value={facility.facilityRating.ratingId}
-                              >
-                                {facility.name} - {facility.description}
-                              </Option>
-                            ))}
+                            {facilities &&
+                              facilities[0] &&
+                              facilities[0].length > 0 &&
+                              facilities[0].map((facility) => (
+                                <Option
+                                  key={facility.id}
+                                  value={facility.facilityRatingId}
+                                >
+                                  {facility.name} - {facility.description}
+                                </Option>
+                              ))}
                           </Select>
                         </Form.Item>
                       </div>
@@ -386,16 +406,19 @@ const LodgingSection = ({
                                 index
                               )
                             }
-                            disabled={disableOptions}
+                            // disabled={disableOptions}
                           >
-                            {filteredFacilities.map((facility) => (
-                              <Option
-                                key={facility.id}
-                                value={facility.facilityRating.ratingId}
-                              >
-                                {facility.name} - {facility.description}
-                              </Option>
-                            ))}
+                            {facilities &&
+                              facilities[1] &&
+                              facilities[1].length > 0 &&
+                              facilities[1].map((facility) => (
+                                <Option
+                                  key={facility.id}
+                                  value={facility.facilityRatingId}
+                                >
+                                  {facility.name} - {facility.description}
+                                </Option>
+                              ))}
                           </Select>
                         </Form.Item>
                       </div>
@@ -426,16 +449,19 @@ const LodgingSection = ({
                                 index
                               )
                             }
-                            disabled={disableOptions}
+                            // disabled={disableOptions}
                           >
-                            {filteredFacilities.map((facility) => (
-                              <Option
-                                key={facility.id}
-                                value={facility.facilityRating.ratingId}
-                              >
-                                {facility.name} - {facility.description}
-                              </Option>
-                            ))}
+                            {facilities &&
+                              facilities[2] &&
+                              facilities[2].length > 0 &&
+                              facilities[2].map((facility) => (
+                                <Option
+                                  key={facility.id}
+                                  value={facility.facilityRatingId}
+                                >
+                                  {facility.name} - {facility.description}
+                                </Option>
+                              ))}
                           </Select>
                         </Form.Item>
                       </div>

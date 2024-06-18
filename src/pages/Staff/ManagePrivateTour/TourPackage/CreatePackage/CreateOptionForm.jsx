@@ -588,17 +588,20 @@ function CreateOptionForm({ request }) {
       if (response.isSuccess) {
         setEstimatedPrices(response.result);
         message.success("Đã tính toán phí dịch vụ thành công!");
+
+        debugger;
+        if (response.messages.length > 0) {
+          response.messages.forEach((mess) => {
+            message.error(mess);
+          });
+        }
       } else {
-        message.error(
-          response.messages[0] || "Có chút lỗi trong quá trình tính toán giá!"
-        );
-        alertFail("Failed to fetch estimated prices");
+        response.messages.forEach((mess) => {
+          message.error(mess);
+        });
       }
     } catch (error) {
-      alertFail(
-        "An error occurred while fetching the estimated prices. Please try again later."
-      );
-      console.error("Error while fetching estimated prices:", error);
+      message.error(error);
     } finally {
       setLoading(false);
     }
@@ -612,24 +615,22 @@ function CreateOptionForm({ request }) {
 
     console.log("Payload to be sent to the API: ", payload);
 
-    setLoading(true);
     try {
+      setLoading(true);
       const response = await createOptionsPrivateTour(payload);
       console.log("response", response);
 
       if (response?.isSuccess) {
-        alertSuccess("Tạo Gói Tour Thành Công!");
+        message.success("Tạo Gói Tour Thành Công!");
         form.resetFields(); // Reset all fields in the form
         navigate(`${LISTING_TOUR_REQUEST_STAFF}`);
       } else {
-        for (const message in response.messages) {
-          alertFail(message);
-        }
+        response.messages.forEach((mess) => {
+          message.error(mess);
+        });
       }
     } catch (error) {
-      alertFail(
-        "An error occurred while creating the tour. Please try again later."
-      );
+      message.error("Có lỗi xảy ra");
     } finally {
       setLoading(false);
     }
@@ -992,10 +993,10 @@ function CreateOptionForm({ request }) {
             <h2 className="font-bold text-lg text-mainColor border-b-2 my-2">
               DỊCH VỤ RIÊNG TỪNG GÓI
             </h2>
-            <div className="mt-10">
+            {/* <div className="mt-10">
               <h3>Form Data:</h3>
               <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
-            </div>
+            </div> */}
 
             <div className=" mx-4">
               <EachServiceSection
@@ -1046,18 +1047,19 @@ function CreateOptionForm({ request }) {
                 numberOfPassengers={numberOfPassengers}
               />
             )}
-
-            <div className="flex justify-center my-4">
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className=" bg-teal-600 font-semibold text-white"
-                >
-                  TẠO GÓI TOUR
-                </Button>
-              </Form.Item>
-            </div>
+            {estimatedPrices.length > 0 && (
+              <div className="flex justify-center my-4">
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className=" bg-teal-600 font-semibold text-white"
+                  >
+                    TẠO GÓI TOUR
+                  </Button>
+                </Form.Item>
+              </div>
+            )}
           </div>
         </Form>
       </div>

@@ -1,9 +1,14 @@
 import api from "../config/axios";
 
-const getAllFacilityByFilter = async (data, pageNumber, pageSize) => {
+const getAllFacilityByFilter = async (
+  data,
+  pageNumber,
+  pageSize,
+  serviceType
+) => {
   try {
     const response = await api.post(
-      `/facility/get-all-facility-by-filter?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      `/facility/get-all-facility-by-filter?serviceType=${serviceType}&pageNumber=${pageNumber}&pageSize=${pageSize}`,
       data
     );
     return response.data;
