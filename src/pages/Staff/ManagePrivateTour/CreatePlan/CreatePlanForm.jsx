@@ -275,10 +275,8 @@ const CreatePlanForm = ({
     fetchProvinces();
   }, [optionQuotation]);
   useEffect(() => {
-    if (signal) {
-      setLocation(buildLocation());
-    }
-  }, [signal === true]);
+    setLocation(buildLocation());
+  }, [signal]);
 
   const handleCaculatePrice = async () => {
     setIsLoading(true);
