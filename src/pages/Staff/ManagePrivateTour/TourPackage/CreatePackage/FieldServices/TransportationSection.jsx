@@ -351,7 +351,7 @@ const TransportationSection = ({
       updatedProvinces.length > 1 &&
       updatedProvinces[0].id !== updatedProvinces[1].id
     ) {
-      debugger;
+      // debugger;
 
       const result = updatedProvinces.map((item) => item.id);
       const data = await getOptimalPath(result[0], result);
@@ -365,7 +365,7 @@ const TransportationSection = ({
           const endProvince = newOptimalPath.find((item) => item.index === 1);
 
           if (startProvince.provinceId === endProvince.provinceId) {
-            debugger;
+            // debugger;
             const middleProvinces = newOptimalPath.filter(
               (item) => item.index !== 0 && item.index !== 1
             );

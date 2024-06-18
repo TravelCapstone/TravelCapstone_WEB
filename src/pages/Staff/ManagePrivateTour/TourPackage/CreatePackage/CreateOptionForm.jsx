@@ -584,12 +584,12 @@ function CreateOptionForm({ request }) {
     try {
       const payload = adjustFormToAPI(form.getFieldsValue()); // Generate the payload
       const response = await calculateOptionsCost(payload); // Call the new API
-      debugger;
+      // debugger;
       if (response.isSuccess) {
         setEstimatedPrices(response.result);
         message.success("Đã tính toán phí dịch vụ thành công!");
 
-        debugger;
+        // debugger;
         if (response.messages.length > 0) {
           response.messages.forEach((mess) => {
             message.error(mess);

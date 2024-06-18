@@ -69,7 +69,7 @@ function TourRequestPage() {
   }, [request]);
 
   const renderTabContent = (tabIndex) => {
-    debugger;
+    // debugger;
     switch (tabIndex) {
       case 0:
         return <TourRequestSection request={request} />;

@@ -167,7 +167,7 @@ const relatedTours = [
 ];
 
 const TourDetailPage = () => (
-  <div className="max-w-[70%] my-32 mx-auto">
+  <div className="max-w-[70%] my-28 mx-auto">
     <div className="mb-4 mx-4">
       <BreadcrumbWithBackButton
         currentTab={`Thông tin chi tiết tour ${tourData.nameTour} - ${tourData.duration}`}

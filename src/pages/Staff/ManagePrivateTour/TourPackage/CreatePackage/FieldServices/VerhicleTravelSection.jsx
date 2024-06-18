@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Form,
   InputNumber,
@@ -46,42 +46,36 @@ const VerhicleTravelSection = ({
   const [availableVehicleTypes, setAvailableVehicleTypes] = useState([]);
   const [selectedProvinces, setSelectedProvinces] = useState([]);
   const [availableProvinces, setAvailableProvinces] = useState([]);
-  const [loadingVehicle, setLoadingVehicle] = useState(false);
+  const [loadingVehicle, setLoadingVehicle] = useState([]);
   const [provinceVerhicle, setProvinceVerhicle] = useState([]);
   const [loadingPrice, setLoadingPrice] = useState([]);
+  const initialFetchDone = useRef(false);
+
+  console.log("selectedProvinces", selectedProvinces);
+  console.log("provinceVerhicle", provinceVerhicle);
+  console.log("priceInfo", priceInfo);
 
   const fieldsTransportation = form.getFieldValue("transportation") || [];
 
-  let remainingProvinces = [];
-  if (fieldsTransportation.length > 2) {
-    remainingProvinces = Array.from(
-      new Set(
-        fieldsTransportation
-          .slice(1, -1) // Ignore the first and last items
-          .flatMap((item) => [item.startPoint, item.endPoint]) // Extract startPoint and endPoint
-          .filter((point, index, self) => self.indexOf(point) === index) // Remove duplicates
-      )
-    );
-  } else if (fieldsTransportation.length === 2) {
-    remainingProvinces = Array.from(
-      new Set([
-        fieldsTransportation[0].endPoint,
-        fieldsTransportation[1].startPoint,
-      ])
-    );
-  }
-
-  const setPriceLoadingState = (index, isLoading) => {
-    setLoadingPrice((prev) => {
-      const newLoadingState = [...prev];
-      newLoadingState[index] = isLoading;
-      return newLoadingState;
-    });
-  };
-
-  // Log for debugging
-
   useEffect(() => {
+    let remainingProvinces = [];
+    if (fieldsTransportation.length > 2) {
+      remainingProvinces = Array.from(
+        new Set(
+          fieldsTransportation
+            .slice(1, -1) // Ignore the first and last items
+            .flatMap((item) => [item.startPoint, item.endPoint]) // Extract startPoint and endPoint
+            .filter((point, index, self) => self.indexOf(point) === index) // Remove duplicates
+        )
+      );
+    } else if (fieldsTransportation.length === 2) {
+      remainingProvinces = Array.from(
+        new Set([
+          fieldsTransportation[0].endPoint,
+          fieldsTransportation[1].startPoint,
+        ])
+      );
+    }
     setProvinceVerhicle(remainingProvinces);
   }, [fieldsTransportation]);
 
@@ -93,35 +87,37 @@ const VerhicleTravelSection = ({
     })
     .filter((item) => item !== null); // Filter out any null values
 
-  // Log for debugging
-
   // Prepare initial values for Form.List
   const initialValues = provinceIdNamePairs.map((pair) => ({
     provinceId: pair.id,
   }));
 
-  console.log("initialValues", initialValues);
-
   useEffect(() => {
     const fetchAvailableVehicleTypes = async () => {
-      const travelOptions = form.getFieldValue("travelOptions");
-      if (travelOptions && travelOptions.length > 0) {
-        debugger;
+      const travelOptions = form.getFieldValue("travelOptions") || [];
+      const provincesToFetch =
+        travelOptions.length > 0 ? travelOptions : provinceIdNamePairs;
+
+      if (provincesToFetch.length > 0) {
+        setLoadingVehicle(new Array(provincesToFetch.length).fill(true));
         const results = await Promise.all(
-          travelOptions.map(async (item) => {
-            const { provinceId } = item;
-            setLoadingVehicle(true);
+          provincesToFetch.map(async (item, index) => {
+            const provinceId = item.provinceId || item.id; // Adjust this based on your data structure
             try {
               const response = await getAvailableVehicleType(
                 provinceId,
                 provinceId
               );
-              debugger;
               return response.result;
             } catch (error) {
-              log.error("Failed to fetch districts");
+              console.error("Failed to fetch available vehicle types", error);
+              return [];
             } finally {
-              setLoadingVehicle(true);
+              setLoadingVehicle((prev) => {
+                const newLoadingState = [...prev];
+                newLoadingState[index] = false;
+                return newLoadingState;
+              });
             }
           })
         );
@@ -134,8 +130,16 @@ const VerhicleTravelSection = ({
       }
     };
 
-    fetchAvailableVehicleTypes();
-  }, [form, selectedProvinces]);
+    if (
+      !initialFetchDone.current &&
+      (provinceIdNamePairs.length > 0 ||
+        (form.getFieldValue("travelOptions") &&
+          form.getFieldValue("travelOptions").length > 0))
+    ) {
+      initialFetchDone.current = true;
+      fetchAvailableVehicleTypes();
+    }
+  }, [provinceIdNamePairs.length, form, selectedProvinces]);
 
   const updateNextTravelOption = (index) => {
     const fields = form.getFieldValue("travelOptions") || [];
@@ -170,8 +174,17 @@ const VerhicleTravelSection = ({
   const handleRemove = (index) => {
     const currentValues = form.getFieldValue("travelOptions");
     const newValues = currentValues.filter((_, idx) => idx !== index);
-    form.setFieldsValue({ tourGuideCosts: newValues });
+    form.setFieldsValue({ travelOptions: newValues });
     setSelectedProvinces(newValues.map((item) => item.provinceId));
+
+    // Remove corresponding item from priceInfo
+    const newPriceInfo = Object.keys(priceInfo)
+      .filter((key) => parseInt(key, 10) !== index)
+      .reduce((obj, key) => {
+        obj[parseInt(key, 10) > index ? key - 1 : key] = priceInfo[key];
+        return obj;
+      }, {});
+    setPriceInfo(newPriceInfo);
   };
 
   const calculateNumOfVehicle = (vehicleType) => {
@@ -204,7 +217,7 @@ const VerhicleTravelSection = ({
     return Math.ceil(totalPassengers / seats);
   };
 
-  const onVehicleTypeChange = (index, value, name) => {
+  const onVehicleTypeChange = async (index, value, name) => {
     const newTravelOptions = [...form.getFieldValue("travelOptions")];
     newTravelOptions[index] = {
       ...newTravelOptions[index],
@@ -213,8 +226,7 @@ const VerhicleTravelSection = ({
     };
     // Update selected provinces
     form.setFieldsValue({ travelOptions: newTravelOptions });
-    handleProvinceChange(index, value, name);
-    fetchVehiclePriceRange(index);
+    await fetchVehiclePriceRange(index);
   };
 
   useEffect(() => {
@@ -226,20 +238,18 @@ const VerhicleTravelSection = ({
           numOfVehicle: calculateNumOfVehicle(option.vehicleType),
         })),
       });
+      updateAvailableProvinces(travelOptions);
     }
-  }, [form]);
+  }, [form, selectedProvinces]);
 
   // get giá verhicle
   const fetchVehiclePriceRange = async (index) => {
-    debugger;
-
     const quantity =
       request?.privateTourResponse?.numOfAdult +
       request?.privateTourResponse?.numOfChildren;
     const values = form.getFieldValue("travelOptions")[index];
     if (
       !values.provinceId ||
-      // !values.districtId ||
       !values.vehicleType ||
       !values.dateRange ||
       !quantity
@@ -275,29 +285,41 @@ const VerhicleTravelSection = ({
     }
   };
 
-  // Get giá verhicle change
+  const updateAvailableProvinces = (travelOptions) => {
+    const selectedProvinces = travelOptions.map((item) => item.provinceId);
+    const availableProvinces = provinces.filter(
+      (province) => !selectedProvinces.includes(province.id)
+    );
+    setAvailableProvinces(availableProvinces);
+  };
+
+  useEffect(() => {
+    setAvailableProvinces(provinces);
+  }, [provinces]);
+
+  const handleProvinceChangeInternal = (index, value) => {
+    const newTravelOptions = [...form.getFieldValue("travelOptions")];
+    newTravelOptions[index] = {
+      ...newTravelOptions[index],
+      provinceId: value,
+    };
+    form.setFieldsValue({ travelOptions: newTravelOptions });
+    updateAvailableProvinces(newTravelOptions);
+    handleProvinceChange(index, value, "provinceId");
+  };
+
   const handleProvinceChange = (index, value, name) => {
     // Update selected provinces
     const currentValues = form.getFieldValue("travelOptions");
     const newValues = currentValues.map((item, idx) =>
       idx === index ? { ...item, provinceId: value } : item
     );
+    form.setFieldsValue({ travelOptions: newValues });
     const newSelectedProvinces = form.getFieldValue("provinces") || [];
     newSelectedProvinces[name] = value;
     setSelectedProvinces(newValues.map((item) => item.provinceId));
     fetchVehiclePriceRange(index);
   };
-
-  // useEffect(() => {
-  //   if (request?.privateTourResponse?.otherLocation) {
-  //     setProvinces(
-  //       request.privateTourResponse.otherLocation.map((loc) => ({
-  //         id: loc.provinceId,
-  //         name: loc.province.name,
-  //       }))
-  //     );
-  //   }
-  // }, [request]);
 
   const disabledDate = (current) => {
     if (!startDateTourChange && !endDateChange) {
@@ -332,15 +354,7 @@ const VerhicleTravelSection = ({
     return startDateDayjs; // Use start and end date of tourDate
   };
 
-  useEffect(() => {
-    setAvailableProvinces(provinces);
-  }, [provinces]);
-
-  useEffect(() => {
-    setAvailableProvinces(
-      provinces.filter((province) => !selectedProvinces.includes(province.id))
-    );
-  }, [selectedProvinces]);
+  console.log("provinceIdNamePairs", provinceIdNamePairs);
 
   return (
     <>
@@ -372,42 +386,24 @@ const VerhicleTravelSection = ({
                           <Select
                             placeholder="Tỉnh"
                             onChange={(value) =>
-                              handleProvinceChange(index, value, "provinceId")
+                              handleProvinceChangeInternal(index, value)
                             }
                             className="!w-[200px] mr-10"
-                            // defaultValue={initialValues[index]?.provinceId}
+                            defaultValue={initialValues[index]?.provinceId}
                           >
-                            {provinceIdNamePairs.map((province) => (
-                              <Option key={province.id} value={province.id}>
+                            {provinces.map((province) => (
+                              <Option
+                                key={province.id}
+                                value={province.id}
+                                disabled={selectedProvinces.includes(
+                                  province.id
+                                )}
+                              >
                                 {province.name}
                               </Option>
                             ))}
                           </Select>
                         </Form.Item>
-                        {/* <Form.Item
-                        name={[name, "districtId"]}
-                        className="flex font-semibold"
-                        placeholder="Huyện/TP"
-                        rules={[
-                          { required: true, message: "Missing district" },
-                        ]}
-                        shouldUpdate={(prevValues, currentValues) =>
-                          prevValues.province !== currentValues.province
-                        }
-                      >
-                        <Select
-                          placeholder="Huyện/TP"
-                          className="!w-[200px] mr-10"
-                          // disabled={!districtEnabled}
-                        >
-                          {districts.map((district) => (
-                            <Option key={district.id} value={district.id}>
-                              {district.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item> */}
-
                         <ConfigProvider locale={viVN}>
                           <Form.Item
                             {...restField}
@@ -453,9 +449,12 @@ const VerhicleTravelSection = ({
                             <Select
                               placeholder="Chọn phương tiện"
                               className="!w-[200px] mr-10"
+                              loading={availableVehicleTypes.length === 0}
+                              disabled={availableVehicleTypes.length === 0}
                               onChange={(value) =>
                                 onVehicleTypeChange(index, value, name)
                               }
+                              // disabled={!selectedProvinces}
                             >
                               {availableVehicleTypes[index]?.map((key) => {
                                 const label = servingVehiclesQuantity[key];
@@ -503,31 +502,15 @@ const VerhicleTravelSection = ({
                             </div>
                           )
                         )}
-                        {/* <Form.Item
-                        label="Số lượng xe:"
-                        className=" font-semibold"
-                        name={[name, "numOfVehicle"]}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter number of days",
-                          },
-                        ]}
-                      >
-                        <InputNumber
-                          min={1}
-                          max={30}
-                          onChange={() => fetchVehiclePriceRange(index)}
-                          placeholder="Số lượng xe"
-                          className="!w-[200px] mr-10"
-                        />
-                      </Form.Item> */}
                       </div>
                     </div>
 
                     <DeleteOutlined
                       className="self-start mt-2"
-                      onClick={() => remove(name)}
+                      onClick={() => {
+                        remove(name);
+                        handleRemove(index);
+                      }}
                     />
                   </div>
                 </Space>

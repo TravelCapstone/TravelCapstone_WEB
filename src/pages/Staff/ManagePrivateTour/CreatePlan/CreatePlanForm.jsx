@@ -212,7 +212,7 @@ const CreatePlanForm = ({
     return vehicleQuotationDetails
       .map((item, index) => {
         const vehicleItems = form.getFieldValue(`vehicles[${index}]`);
-        debugger;
+        // debugger;
         const dateRange = form.getFieldValue(`dateRange[${index}]`);
         const startDate = dateRange[0];
         const endDate = dateRange[1];

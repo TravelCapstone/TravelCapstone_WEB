@@ -90,6 +90,15 @@ const DaySection = ({
   console.log("selfServeStates", selfServeStates);
   console.log("priceRanges", priceRanges);
 
+  useEffect(() => {
+    const initialSelectedMeals = {
+      0: 0, // Sáng
+      1: 1, // Trưa
+      2: 2, // Tối
+    };
+    setSelectedMeals(initialSelectedMeals);
+  }, []);
+
   const handleFacilityChange = async (fieldKey, facilityId) => {
     const fetchedMenus = await fetchMenus(facilityId);
     setMenuStates((prevStates) => ({
@@ -422,7 +431,6 @@ const DaySection = ({
           <Select
             placeholder="Select menu"
             className="!w-[200px]"
-            mode="multiple"
             disabled={selfServeStates[record.key]}
           >
             {(menuStates[record.key] || menus)
@@ -452,7 +460,6 @@ const DaySection = ({
           <Select
             placeholder="Select menu"
             className="!w-[200px]"
-            mode="multiple"
             disabled={selfServeStates[record.key]}
           >
             {(menuStates[record.key] || menus)
@@ -483,7 +490,6 @@ const DaySection = ({
             placeholder="Select menu"
             className="!w-[200px]"
             disabled={selfServeStates[record.key]}
-            mode="multiple"
           >
             {(menuStates[record.key] || menus)
               .filter(
