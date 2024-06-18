@@ -36,6 +36,7 @@ const VehicleAssignment = ({
   const [disabledSelect, setDisabledSelect] = useState(data.map(() => true)); // Initialize with true values
   console.log("dataVehicle", data);
   const handleChange = async (index, item) => {
+    debugger;
     let newDisabledSelect = [...disabledSelect];
     newDisabledSelect[index] = false;
     setDisabledSelect(newDisabledSelect);
@@ -141,9 +142,18 @@ const VehicleAssignment = ({
               </div>
               <div className="flex items-center mb-2">
                 <Text strong className="mr-2">
-                  Phương tiện di chuyển từ{" "}
-                  <strong>{item.startPoint?.name}</strong> đến{" "}
-                  <strong>{item.endPoint?.name}</strong>:
+                  {item.endPoint ? (
+                    <>
+                      Phương tiện di chuyển từ{" "}
+                      <strong>{item.startPoint?.name}</strong> đến{" "}
+                      <strong>{item.endPoint?.name}</strong>
+                    </>
+                  ) : (
+                    <>
+                      Phương tiện di chuyển trong tỉnh
+                      <strong> {item.startPoint?.name}</strong>
+                    </>
+                  )}
                 </Text>
                 <Text strong className="mr-2">
                   {vehicleTypeLabels[item.vehicleType]}

@@ -234,6 +234,7 @@ const CreatePlanForm = ({
           referencePriceId: vehicleItem.referencePriceId || null,
           numOfVehicle:
             form.getFieldValue(`numOfVehicle[${vehicleIndex}]`) || null,
+          vehicleId: vehicleItem.vehicleId || null,
         }));
       })
       .flat();
