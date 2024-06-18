@@ -217,7 +217,7 @@ const CreatePlanForm = ({
         const startDate = dateRange[0];
         const endDate = dateRange[1];
         return vehicleItems.map((vehicleItem, vehicleIndex) => ({
-          vehicleType: item.vehicleType || null,
+          vehicleType: 1,
           startPoint: item.startPointId || null,
           endPoint: !item.endPointId
             ? item.startPointId
