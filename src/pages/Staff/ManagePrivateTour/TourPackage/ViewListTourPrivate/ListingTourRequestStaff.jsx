@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { getAllPrivateTour } from "../../../../../api/privateTourRequestApi";
+import {
+  getAllPrivateTour,
+  getAllPrivateTourByStatus,
+} from "../../../../../api/privateTourRequestApi";
 import {
   DETAIL_TOUR_REQUEST_STAFF,
   LISTING_TOUR_REQUEST_STAFF,
@@ -30,7 +33,6 @@ const ListingTourRequestStaff = () => {
     setIsLoading(true);
     const data = await getAllPrivateTour(currentPage, itemsPerPage);
     if (data?.data?.isSuccess) {
-      setFilteredData(data.data.result.items);
       setListTourRequest(data.data.result.items);
       setTotalPages(data.data.result.totalPages);
       setIsLoading(false);
@@ -39,17 +41,17 @@ const ListingTourRequestStaff = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [currentPage]);
+    if (activeTab === "all") {
+      fetchData();
+    } else {
+      handleStatusChange(activeTab);
+    }
+  }, [currentPage, activeTab]);
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = async (tab) => {
     setActiveTab(tab);
     setIsLoading(true);
-    const newFilteredData =
-      tab === "all"
-        ? listTourRequest
-        : listTourRequest.filter((item) => item.status === parseInt(tab));
-    setFilteredData(newFilteredData);
+    await handleStatusChange(tab);
     setIsLoading(false);
     setCurrentPage(1);
   };
@@ -57,7 +59,22 @@ const ListingTourRequestStaff = () => {
   const breadcrumbItems = [
     { name: "Lịch sử tour yêu cầu", url: LISTING_TOUR_REQUEST_STAFF },
   ];
-
+  const handleStatusChange = async (status) => {
+    if (status === "all") {
+      fetchData();
+      return;
+    }
+    const data = await getAllPrivateTourByStatus(
+      status,
+      currentPage,
+      itemsPerPage
+    );
+    if (data?.data?.isSuccess) {
+      setListTourRequest(data.data.result.items);
+      setTotalPages(data.data.result.totalPages);
+      setIsLoading(false);
+    }
+  };
   return (
     <>
       <LoadingOverlay isLoading={isLoading} />
@@ -109,7 +126,7 @@ const ListingTourRequestStaff = () => {
               <tbody>
                 {/* <LoadingComponent isLoading={isLoading} /> */}
 
-                {filteredData.map((item, index) => {
+                {listTourRequest.map((item, index) => {
                   const uniqueProvinces = [
                     ...new Set(
                       item.otherLocation.map(
