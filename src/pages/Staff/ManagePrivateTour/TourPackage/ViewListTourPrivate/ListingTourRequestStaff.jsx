@@ -20,7 +20,6 @@ const ListingTourRequestStaff = () => {
   const itemsPerPage = 10;
   const [listTourRequest, setListTourRequest] = useState([]);
   const [activeTab, setActiveTab] = useState("all");
-  const [filteredData, setFilteredData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -191,12 +190,12 @@ const ListingTourRequestStaff = () => {
                 })}
               </tbody>
             </table>
-            {filteredData.length > 0 && (
+            {listTourRequest.length > 0 && (
               <PaginationManagement
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageClick={handlePageClick}
-                showPagination={filteredData.length >= itemsPerPage}
+                showPagination={listTourRequest.length >= itemsPerPage}
               />
             )}
           </div>
