@@ -63,8 +63,8 @@ function TourRequestSection({ request, loading, error }) {
         {locations?.map((location, index) => (
           <div key={location.id} className="pr-2 mb-4">
             <div className="flex items-center">
-              <h2 className=" mr-2">{location.province?.name}</h2>
-              {index !== locations.length - 1 && <span className="">-</span>}
+              {/* <h2 className=" mr-2">{location.province?.name},</h2> */}
+              {/* {index !== locations.length - 1 && <span className="">-</span>} */}
               <p>{location.address}</p>
             </div>
           </div>
@@ -155,37 +155,35 @@ function TourRequestSection({ request, loading, error }) {
                     : "Gia đình"}
                 </span>
               </div>
+              <div className="flex text-sm">
+                <div className="mb-3">
+                  <span className="font-bold ">Khoảng thời gian:</span>
+                  <span className="font-normal  ml-3">
+                    {request?.privateTourResponse?.numOfDay} ngày{" "}
+                    {request?.privateTourResponse?.numOfNight} đêm
+                  </span>
+                </div>
+                <div className="ml-10">
+                  <span className="font-bold ">Thời gian rảnh dự kiến:</span>
+                  <span className="font-normal  ml-3">
+                    {formatDate(request?.privateTourResponse?.startDate)} -{" "}
+                    {formatDate(request?.privateTourResponse?.endDate)}
+                  </span>
+                </div>
+              </div>
               <div className="mb-3">
-                <span className="font-bold text-sm">Mô tả yêu cầu:</span>
+                <span className="font-bold text-sm">Địa điểm xuất phát:</span>
                 <span className="font-normal text-sm ml-3">
-                  {request?.privateTourResponse?.description}
+                  {request?.privateTourResponse?.startLocation}
                 </span>
               </div>
               <div className="mb-3">
-                <span className="font-bold text-sm">Yêu cầu về đồ ăn:</span>
+                <span className="font-bold text-sm">Địa điểm yêu cầu:</span>
                 <span className="font-normal text-sm ml-3">
-                  {renderFoodRequest(
-                    request?.privateTourResponse?.dietaryPreference
+                  {renderOtherLocations(
+                    request?.privateTourResponse?.otherLocation
                   )}
                 </span>
-              </div>
-              <div className="mb-3">
-                <span className="font-bold text-sm">Yêu cầu lưu trú:</span>
-                <List
-                  dataSource={numOfRoom}
-                  renderItem={(item) => (
-                    <List.Item>
-                      {item.numOfRoom > 0 ? (
-                        <Card className="mr-4 bg-teal-100">
-                          <Card.Meta
-                            title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
-                            description={`Tổng số phòng: ${item.numOfRoom}`}
-                          />
-                        </Card>
-                      ) : null}
-                    </List.Item>
-                  )}
-                />
               </div>
 
               <div className="mb-3">
@@ -235,6 +233,12 @@ function TourRequestSection({ request, loading, error }) {
                         <div>
                           <p>
                             <span className="font-semibold mr-2">
+                              Số gia đình:
+                            </span>{" "}
+                            {item.totalFamily} gia đình
+                          </p>
+                          <p>
+                            <span className="font-semibold mr-2">
                               Số lượng người lớn:
                             </span>{" "}
                             {item.numOfAdult} người
@@ -245,12 +249,6 @@ function TourRequestSection({ request, loading, error }) {
                             </span>{" "}
                             {item.numOfChildren} người
                           </p>
-                          <p>
-                            <span className="font-semibold mr-2">
-                              Số gia đình:
-                            </span>{" "}
-                            {item.totalFamily} người
-                          </p>
                         </div>
                       </div>
                     )
@@ -258,34 +256,39 @@ function TourRequestSection({ request, loading, error }) {
                 </span>
               </div>
               <div className="mb-3">
-                <span className="font-bold text-sm">Địa điểm xuất phát:</span>
+                <span className="font-bold text-sm">Mô tả yêu cầu:</span>
                 <span className="font-normal text-sm ml-3">
-                  {request?.privateTourResponse?.startLocation}
+                  {request?.privateTourResponse?.description}
                 </span>
               </div>
+              {role !== "isCustomer" && (
+                <div className="mb-3">
+                  <span className="font-bold text-sm">Yêu cầu lưu trú:</span>
+                  <List
+                    dataSource={numOfRoom}
+                    renderItem={(item) => (
+                      <List.Item>
+                        {item.numOfRoom > 0 ? (
+                          <Card className="mr-4 bg-teal-100">
+                            <Card.Meta
+                              title={`Phòng ${item.roomSize === 4 ? "đôi" : "đơn"} `}
+                              description={`Tổng số phòng: ${item.numOfRoom}`}
+                            />
+                          </Card>
+                        ) : null}
+                      </List.Item>
+                    )}
+                  />
+                </div>
+              )}
+
               <div className="mb-3">
-                <span className="font-bold text-sm">Địa điểm yêu cầu:</span>
+                <span className="font-bold text-sm">Yêu cầu về đồ ăn:</span>
                 <span className="font-normal text-sm ml-3">
-                  {renderOtherLocations(
-                    request?.privateTourResponse?.otherLocation
+                  {renderFoodRequest(
+                    request?.privateTourResponse?.dietaryPreference
                   )}
                 </span>
-              </div>
-              <div className="flex text-sm">
-                <div className="mb-3">
-                  <span className="font-bold ">Khoảng thời gian:</span>
-                  <span className="font-normal  ml-3">
-                    {request?.privateTourResponse?.numOfDay} ngày{" "}
-                    {request?.privateTourResponse?.numOfNight} đêm
-                  </span>
-                </div>
-                <div className="ml-10">
-                  <span className="font-bold ">Thời gian rảnh dự kiến:</span>
-                  <span className="font-normal  ml-3">
-                    {formatDate(request?.privateTourResponse?.startDate)} -{" "}
-                    {formatDate(request?.privateTourResponse?.endDate)}
-                  </span>
-                </div>
               </div>
               {/* Các thông tin khác */}
             </div>

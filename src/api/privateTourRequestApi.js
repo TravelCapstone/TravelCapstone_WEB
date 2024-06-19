@@ -69,6 +69,16 @@ const getPrivateTourByIdForCustomer = async (id, pageNumber, pageSize) => {
     console.log(error);
   }
 };
+const getAllPrivateTourByStatus = async (status, pageNumber, pageSize) => {
+  try {
+    const response = await api.get(
+      `get-all-private-tour-request-by-status/${status}/${pageNumber}/${pageSize}`
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export {
   getAllProvince,
@@ -78,4 +88,5 @@ export {
   getRoomSuggestion,
   getProvinceOfOption,
   getPrivateTourByIdForCustomer,
+  getAllPrivateTourByStatus,
 };

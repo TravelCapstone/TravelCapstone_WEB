@@ -195,8 +195,9 @@ const DetailPlanFollowingTimeline = ({
             ))}
             <Button
               onClick={() => {
-                add();
                 dispatch(pushSignal(true));
+                fetchLocation();
+                add();
               }}
               className="bg-primary text-white mt-10"
             >
