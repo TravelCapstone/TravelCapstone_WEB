@@ -51,6 +51,7 @@ const EachServiceSection = ({
   endDateChange,
   startDateFinal,
   endDateFinal,
+  setSelectedDistrict,
 }) => {
   console.log("selectedProvinces: ", selectedProvinces);
   console.log("selectedProvince: ", selectedProvince);
@@ -119,9 +120,10 @@ const EachServiceSection = ({
                           >
                             <Select
                               placeholder="Tỉnh"
-                              onChange={(value) =>
-                                onProvinceChange(value, field.name)
-                              }
+                              onChange={(value) => {
+                                onProvinceChange(value, field.name);
+                                setSelectedDistrict(null);
+                              }}
                               className="!w-[200px] mr-10"
                             >
                               {provinces.map((province) => (

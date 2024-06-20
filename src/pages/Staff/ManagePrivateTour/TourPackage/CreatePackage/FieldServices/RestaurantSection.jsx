@@ -15,6 +15,7 @@ import {
   Tooltip,
   Modal,
   ConfigProvider,
+  message,
 } from "antd";
 import {
   DeleteOutlined,
@@ -735,7 +736,16 @@ const RestaurantSection = ({
       1,
       10
     );
-    setFacilities(response.result.items);
+    if (response.result === null) {
+      return message.error(
+        "Không có quán ăn nào phù hợp theo Hạng tại địa điểm này!"
+      );
+    } else {
+      message.success(
+        "Lấy dữ liệu quán ăn theo Hạng tại địa điểm này thành công!"
+      );
+      setFacilities(response.result.items);
+    }
   };
 
   const fetchMenus = async (facilityId) => {

@@ -13,6 +13,23 @@ const getAllFacilityByFilter = async (
     );
     return response.data;
   } catch (error) {
+    console.error("Error fetching provinces:", error);get-all-facility-by-location-and-ratingId
+    return [];
+  }
+};
+
+const getAllFacilityByFilterNoServiceType = async (
+  data,
+  pageNumber,
+  pageSize,
+) => {
+  try {
+    const response = await api.post(
+      `/facility/get-all-facility-by-filter?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      data
+    );
+    return response.data;
+  } catch (error) {
     console.error("Error fetching provinces:", error);
     return [];
   }
@@ -91,4 +108,5 @@ export {
   getAllFacility,
   getAllFacilityByLocationAndRatingId,
   getFacilityAndPortInformation,
+  getAllFacilityByFilterNoServiceType
 };

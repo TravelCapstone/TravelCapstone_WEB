@@ -402,6 +402,43 @@ function CreateOptionForm({ request }) {
     newSelectedProvinces2[name] = value;
     setSelectedProvinces(newSelectedProvinces2);
     setSelectedProvince(value);
+
+    // Clear districtId for the selected province
+    const newProvinceServices = form.getFieldValue("provinceServices") || [];
+    newProvinceServices[name] = {
+      ...newProvinceServices[name],
+      provinceId: value,
+      districtId: undefined,
+      hotels: (newProvinceServices[name].hotels || []).map((hotel) => ({
+        ...hotel,
+        hotelOptionRatingOption1: undefined,
+        hotelOptionRatingOption2: undefined,
+        hotelOptionRatingOption3: undefined,
+      })),
+      restaurants: (newProvinceServices[name].restaurants || []).map(
+        (restaurant) => ({
+          ...restaurant,
+          days: (restaurant.days || []).map((day) => ({
+            ...day,
+            RatingId: undefined,
+            facilityId: undefined,
+            servingQuantity: undefined,
+            economyMenu: undefined,
+            basicMenu: undefined,
+            advancedMenu: undefined,
+          })),
+        })
+      ),
+      entertainments: (newProvinceServices[name].entertainments || []).map(
+        (entertainment) => ({
+          ...entertainment,
+          quantityLocation1: undefined,
+          quantityLocation2: undefined,
+          quantityLocation3: undefined,
+        })
+      ),
+    };
+    form.setFieldsValue({ provinceServices: newProvinceServices });
   };
 
   const handleProvinceChange = (index, value, name) => {
@@ -514,7 +551,7 @@ function CreateOptionForm({ request }) {
       contingencyFee: values.contigencyFeePerPerson || 0, // ok
       escortFee: values.escortFee || 0, // ok
       operatingFee: values.operatingFee || 0, // ok
-      assurancePricePerPerson: values.assurancePricePerPerson || 0, // ok
+      assurancePricePerPerson: insurances.price || 0, // ok
       privateTourRequestId: request?.privateTourResponse?.id, // ok
       eventGalas: [
         {
@@ -544,7 +581,9 @@ function CreateOptionForm({ request }) {
                   acc.push({
                     date,
                     option: index,
-                    menuIds: day[menuType],
+                    menuIds: Array.isArray(day[menuType])
+                      ? day[menuType]
+                      : [day[menuType]], // Convert to array if not already
                   });
                 }
               }
@@ -572,20 +611,20 @@ function CreateOptionForm({ request }) {
   };
 
   const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
     message.error(
       "Có lỗi xảy ra. Bạn vui lòng kiểm tra lại các trường thông tin đã điền đầy đủ chưa.",
       3
     ); // Hiển thị thông báo lỗi trong 3 giây
-    console.log("Failed:", errorInfo);
   };
 
   const fetchEstimatedPrices = async () => {
     setLoading(true);
     try {
       const payload = adjustFormToAPI(form.getFieldsValue()); // Generate the payload
+      debugger;
       const response = await calculateOptionsCost(payload); // Call the new API
-      // debugger;
-      if (response.isSuccess) {
+      if (response.isSuccess === true) {
         setEstimatedPrices(response.result);
         message.success("Đã tính toán phí dịch vụ thành công!");
 
@@ -843,7 +882,6 @@ function CreateOptionForm({ request }) {
                   form={form}
                   provinces={provinces}
                   districts={districts}
-                  onProvinceChange={handleProvinceChange}
                   setProvinces={setProvinces}
                   fetchVehiclePriceRange={fetchVehiclePriceRange}
                   handleFieldChange={handleFieldChange}
@@ -1022,6 +1060,7 @@ function CreateOptionForm({ request }) {
                 endDateChange={endDateChange}
                 startDateFinal={startDateFinal}
                 endDateFinal={endDateFinal}
+                setSelectedDistrict={setSelectedDistrict}
               />
             </div>
 
