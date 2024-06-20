@@ -97,6 +97,44 @@ const TransportationSection = ({
           [`${index}_${field}`]: [],
         }));
       }
+
+      // Clear the corresponding district when the province changes
+      const fields = form.getFieldValue("transportation");
+
+      if (field === "startPoint") {
+        form.setFieldsValue({
+          transportation: fields.map((item, idx) => {
+            if (idx !== 0) {
+              return idx === index
+                ? { ...item, startPointDistrict: undefined }
+                : item;
+            }
+            return item;
+          }),
+        });
+      } else if (field === "endPoint") {
+        const updatedFields = fields.map((item, idx) => {
+          if (idx !== fields.length - 1) {
+            return idx === index
+              ? { ...item, endPointDistrict: undefined }
+              : item;
+          }
+          return item;
+        });
+
+        if (index < fields.length - 1) {
+          updatedFields[index + 1] = {
+            ...updatedFields[index + 1],
+            startPoint: value,
+            startPointDistrict: undefined,
+          };
+        }
+
+        form.setFieldsValue({
+          transportation: updatedFields,
+        });
+      }
+
       // If updating the first item, propagate changes to the last item
       if (index === 0 && field === "startPoint") {
         const fields = form.getFieldValue("transportation");

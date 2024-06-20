@@ -24,6 +24,7 @@ import { getMinMaxPriceOfHotel } from "../../../../../../api/SellPriceHistoryApi
 import {
   getAllFacility,
   getAllFacilityByFilter,
+  getAllFacilityByFilterNoServiceType,
 } from "../../../../../../api/FacilityApi";
 import moment from "moment-timezone";
 import { v4 as uuidv4 } from "uuid";
@@ -72,10 +73,13 @@ const LodgingSection = ({
     },
   ]);
 
+  console.log("facilities", facilities);
   console.log("selectedOptions", selectedOptions);
 
   const [priceData, setPriceData] = useState({});
   const [disableOptions, setDisableOptions] = useState(true);
+
+  console.log("priceData affter", priceData);
 
   console.log(
     "request.privateTourResponse?.roomDetails",
@@ -91,16 +95,26 @@ const LodgingSection = ({
   const districtId = selectedDistrict;
 
   const fetchFacilitiesByLocation = async () => {
-    const allFacilities = await getAllFacilityByFilter(
+    const allFacilities = await getAllFacilityByFilterNoServiceType(
       {
         provinceId: null,
         districtId: districtId,
         communeId: null,
       },
       1,
-      100,
-      0
+      1000
     ); // Giả sử bạn lấy 100 cơ sở lưu trú
+    // debugger;
+    console.log("allFacilities", allFacilities);
+    if (allFacilities.isSuccess === true && allFacilities.result === null) {
+      message.error("Không có cơ sở lưu trú nào ở khu vực này");
+    } else if (
+      allFacilities.isSuccess === true &&
+      allFacilities.result !== null
+    ) {
+      message.success("Lấy dữ liệu cơ sở lưu trú ở khu vực này thành công");
+    }
+    // debugger;
     setFacilities((facility) => {
       const fac = [...facility];
       fac[0] = allFacilities.result?.items;
@@ -113,14 +127,6 @@ const LodgingSection = ({
 
   const keysToShow = [0, 1, 2, 3, 4, 10];
 
-  // const filteredFacilities = facilities.filter(
-  //   (facility) =>
-  //     facility.communce?.districtId === selectedDistrict &&
-  //     keysToShow.includes(facility?.facilityRating?.ratingId)
-  // );
-
-  // console.log("filteredFacilities", filteredFacilities);
-
   const fetchPriceData = async (
     districtId,
     privatetourRequestId,
@@ -128,9 +134,9 @@ const LodgingSection = ({
     numOfDays
   ) => {
     console.log("ratingId", ratingId);
-    // const filteredRatingID = filteredFacilities.filter(
-    //   (facility) => ratingId === facility.id
-    // );
+    const filteredRatingID = facilities.filter(
+      (facility) => ratingId === facility[0].id
+    );
     console.log("filteredRatingID", filteredRatingID);
 
     setIsLoading(true);
@@ -143,11 +149,11 @@ const LodgingSection = ({
         10, // pageSize
         numOfDays
       );
+      console.log("priceInfo", priceInfo);
 
       setPriceData((prev) => ({
         ...prev,
-        [filteredRatingID[0]?.facilityRating?.ratingId]:
-          priceInfo?.result?.items,
+        [[ratingId]]: priceInfo?.result?.items,
       }));
     } catch (error) {
       console.error("Error fetching hotel prices:", error);
@@ -211,33 +217,6 @@ const LodgingSection = ({
     }
   }, [request]);
 
-  // useEffect(() => {
-  //   selectedOptions.forEach((option, index) => {
-  //     Object.values(option).forEach((opt) => {
-  //       const filteredFacilities = facilities.filter(
-  //         (facility) =>
-  //           facility.communce.districtId === selectedDistrict &&
-  //           facility.facilityRating.ratingId === opt
-  //       );
-  //       if (filteredFacilities.length > 0) {
-  //         debugger;
-  //         fetchPriceData(
-  //           selectedDistrict,
-  //           privatetourRequestId,
-  //           facilities[0]?.id,
-  //           numOfDaysLoging[index]
-  //         );
-  //       }
-  //     });
-  //   });
-  // }, [
-  //   selectedOptions,
-  //   selectedDistrict,
-  //   privatetourRequestId,
-  //   facilities,
-  //   numOfDaysLoging,
-  // ]);
-
   const disabledDate = (current) => {
     if (!startDateTourChange && !endDateChange) {
       return false;
@@ -273,7 +252,6 @@ const LodgingSection = ({
   useEffect(() => {
     fetchFacilitiesByLocation();
   }, [selectedDistrict]);
-  console.log("facilities", facilities);
   return (
     <Form.List name={[...basePath, "hotels"]}>
       {(fields, { add, remove }) => (
@@ -363,12 +341,11 @@ const LodgingSection = ({
                                 index
                               )
                             }
-                            // disabled={disableOptions}
                           >
                             {facilities &&
                               facilities[0] &&
                               facilities[0].length > 0 &&
-                              facilities[0].map((facility) => (
+                              facilities[index].map((facility) => (
                                 <Option
                                   key={facility.id}
                                   value={facility.facilityRatingId}
@@ -406,7 +383,6 @@ const LodgingSection = ({
                                 index
                               )
                             }
-                            // disabled={disableOptions}
                           >
                             {facilities &&
                               facilities[1] &&
@@ -449,7 +425,6 @@ const LodgingSection = ({
                                 index
                               )
                             }
-                            // disabled={disableOptions}
                           >
                             {facilities &&
                               facilities[2] &&
@@ -469,7 +444,6 @@ const LodgingSection = ({
                   </div>
 
                   <List
-                    // dataSource={request.privateTourResponse?.roomDetails}
                     dataSource={numOfRoom}
                     renderItem={(roomDetail, index) => {
                       // debugger;
@@ -528,7 +502,7 @@ const LodgingSection = ({
                                         currency: "VND",
                                       }
                                     )}
-                                    / Người / {numOfDaysLoging} Đêm
+                                    / Người / Đêm
                                   </p>
                                 )}
                               </div>
@@ -551,7 +525,7 @@ const LodgingSection = ({
                                         currency: "VND",
                                       }
                                     )}
-                                    / Người / {numOfDaysLoging} Đêm
+                                    / Người / Đêm
                                   </p>
                                 )}
                               </div>
@@ -574,7 +548,7 @@ const LodgingSection = ({
                                         currency: "VND",
                                       }
                                     )}
-                                    / Người / {numOfDaysLoging} Đêm
+                                    / Người / Đêm
                                   </p>
                                 )}
                               </div>
