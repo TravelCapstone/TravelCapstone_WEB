@@ -37,4 +37,16 @@ export const getAllTour = async (pageNumber, pageSize) => {
     return [];
   }
 };
+
+export const getIdTour = async (id) => {
+  try {
+    const response = await api.get(`/tour/get-by-id/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching provinces:", error);
+    return [];
+  }
+};
+
+
 export { createTour };
