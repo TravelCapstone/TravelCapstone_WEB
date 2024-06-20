@@ -1,5 +1,5 @@
 // TourDetailPage.js
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Slider from "./component/Slider";
 import TourDetails from "./component/TourDetails";
 import TourTabs from "./component/TourTabs";
@@ -8,6 +8,10 @@ import BreadcrumbWithBackButton from "../../../components/BreadCrumb/BreadCrumb"
 import styled from "styled-components";
 import OrderCard from "../../Customer/TourRequest/CompanyTour/componentTour.jsx/CardTour";
 import TailwindCard from "./style/StyleCard";
+import { getIdTour } from "../../../api/TourApi";
+import { useParams } from "react-router-dom";
+import { differenceInDays } from "../../../utils/Util";
+import LoadingOverlay from "../../../components/Loading/LoadingOverlay";
 
 const PageContainer = styled.div`
   max-width: 70%;
@@ -166,77 +170,119 @@ const relatedTours = [
   // ... add more mock tours as needed
 ];
 
-const TourDetailPage = () => (
-  <div className="max-w-[70%] my-28 mx-auto">
-    <div className="mb-4 mx-4">
-      <BreadcrumbWithBackButton
-        currentTab={`Thông tin chi tiết tour ${tourData.nameTour} - ${tourData.duration}`}
-      />
-    </div>
-    <div className="font-bold text-2xl my-6 ml-2 text-mainColor">
-      <h1>
-        {tourData.nameTour} - {tourData.duration}{" "}
-      </h1>
-    </div>
-    <Slider images={tourData.images} />
-    <TourDetails
-      name={tourData.nameTour}
-      rating={tourData.rating}
-      numFeedBack={tourData.numFeedBack}
-      address={tourData.location.join(", ")}
-    />
-    <ContentWrapper>
-      <LeftColumn>
-        <TourTabs
-          overview={tourData.description}
-          itinerary={Object.values(tourData.planDetail).map((day) => (
-            <div key={day.name}>
-              <h3>{day.name}</h3>
-              <p>
-                <strong>Location:</strong> {day.location}
-              </p>
-              <p>
-                <strong>Time:</strong> {day.time}
-              </p>
-              <p>
-                <strong>Activities:</strong> {day.activities}
-              </p>
-              <p>
-                <strong>Note:</strong> {day.note}
-              </p>
+const TourDetailPage = () => {
+  const { id } = useParams();
+  const [tourData, setTourData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  console.log("tourData", tourData);
+  const [relatedTours, setRelatedTours] = useState([]);
+
+  useEffect(() => {
+    const fetchTourData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getIdTour(id);
+        const tour = data.result.tour;
+        console.log("tourDataFULL", data);
+
+        // Tính toán duration
+        const startDate = new Date(tour.startDate);
+        const endDate = new Date(tour.endDate);
+        const durationDays = differenceInDays(endDate, startDate) + 1; // Bao gồm cả ngày bắt đầu
+        const durationNights = durationDays - 1;
+        tour.duration = `${durationDays} ngày ${durationNights} đêm`;
+
+        // Gán dữ liệu hình ảnh từ API vào tourData
+        tour.images = data.result.imgs;
+        tour.locations = data.result.locations;
+
+        setTourData(tour);
+      } catch (error) {
+        console.error("Error fetching tour data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTourData();
+  }, [id]);
+
+  return (
+    <>
+      <LoadingOverlay isLoading={isLoading} title={"đang tải dữ liệu"} />
+      {tourData && (
+        <div className="max-w-[70%] my-28 mx-auto">
+          <div className="mb-4 mx-4">
+            <BreadcrumbWithBackButton
+              currentTab={`Thông tin chi tiết tour : ${tourData.name} - ${tourData.duration}`}
+            />
+          </div>
+          <div className="font-bold text-2xl my-6 ml-2 text-mainColor">
+            <h1>
+              {tourData.name} - {tourData.duration}
+            </h1>
+          </div>
+          <Slider images={tourData.images || []} />
+          <TourDetails
+            name={tourData.name}
+            rating={tourData.rating || 0}
+            numFeedBack={tourData.numFeedBack || 0}
+            address={
+              tourData.locations && tourData.locations.length > 0
+                ? tourData.locations.map((loc) => loc.address).join(", ")
+                : ""
+            }
+          />
+          <ContentWrapper>
+            <LeftColumn>
+              <TourTabs
+                overview={tourData.description}
+                itinerary={
+                  tourData.dayPlanDtos &&
+                  tourData.dayPlanDtos.map((dayPlanDto, index) => (
+                    <div key={index}>
+                      <h3>{dayPlanDto.dayPlan.description}</h3>
+                      {dayPlanDto.routes.map((route, routeIndex) => (
+                        <div key={routeIndex}>
+                          <p>
+                            <strong>Start:</strong>{" "}
+                            {route.startPoint?.name || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Note:</strong> {route.note}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ))
+                }
+                videos={tourData.videos}
+                images={tourData.images}
+                pricing={
+                  tourData.policy &&
+                  tourData.policy.map((policy) => (
+                    <div key={policy.numberType}>
+                      <h3>{policy.nameType}</h3>
+                      <div dangerouslySetInnerHTML={{ __html: policy.desc }} />
+                    </div>
+                  ))
+                }
+              />
+            </LeftColumn>
+            <div>
+              <p className="font-semibold my-2"> TOUR LIÊN QUAN:</p>
+              <RightColumn>
+                {relatedTours.map((tour) => (
+                  <TailwindCard key={tour.id} data={tour} />
+                ))}
+              </RightColumn>
             </div>
-          ))}
-          videos={tourData.videos.map((video, index) => (
-            <div key={index}>
-              <video src={video} controls />
-            </div>
-          ))}
-          reviews={tourData.feedback.map((fb, index) => (
-            <div key={index}>
-              <p>
-                <strong>{fb.user}:</strong> {fb.comment}
-              </p>
-            </div>
-          ))}
-          pricing={tourData.policy.map((policy) => (
-            <div key={policy.numberType}>
-              <h3>{policy.nameType}</h3>
-              <div dangerouslySetInnerHTML={{ __html: policy.desc }} />
-            </div>
-          ))}
-        />
-      </LeftColumn>
-      <div>
-        <p className="font-semibold my-2"> TOUR LIÊN QUAN:</p>
-        <RightColumn>
-          {relatedTours.map((tour, index) => (
-            <TailwindCard key={tour.id} data={tour} />
-          ))}
-        </RightColumn>
-      </div>
-    </ContentWrapper>
-    <BookingSection price={`$${tourData.nowPrice}`} />
-  </div>
-);
+          </ContentWrapper>
+          <BookingSection price={`$${tourData.nowPrice || 0}`} />
+        </div>
+      )}
+    </>
+  );
+};
 
 export default TourDetailPage;
