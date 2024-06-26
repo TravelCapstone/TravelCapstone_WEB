@@ -40,4 +40,4 @@ For any questions or contributions, please contact:
 - Name: Hong Quan
 - Email: hongquan.contact@gmail.com
 
-#### Copyright &#169; 2024 - Dương Hồng Quân & Phạm Bùi Minh Khang & Hà Minh Quân
+#### Copyright &#169; 2024 - Dương Hồng Quân & Phạm Bùi Minh Khang & Hà Minh Quân & Vũ Thị Bích Phương
