@@ -54,7 +54,7 @@ const ListPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fetchData = async () => {
     setIsLoading(true);
-    const data = await getAllTour(1, 4);
+    const data = await getAllTour(1, 10);
     if (data.isSuccess) {
       setTours(data.result?.items);
     }
